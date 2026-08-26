@@ -45,11 +45,12 @@ const MainAppContent: React.FC = () => {
       case 'report-change':
         return <FacilityRegistrationView />;
       case 'data-entry':
-      case 'data-review':
       case 'monitoring-plan':
       case 'emissions-data':
       case 'report-upload':
         return <DataEntryView />;
+      case 'data-review':
+        return <DataReviewView />;
       case 'reports':
       case 'mrv-reports':
       case 'submissions':

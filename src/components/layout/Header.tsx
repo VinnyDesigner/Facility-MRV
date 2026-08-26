@@ -74,12 +74,12 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
     activeView === 'annual-renewal' ||
     activeView === 'report-change' ||
     activeView === 'compliance-checker';
-  const isDataReviewActive =
+  const isDataEntryActive =
     activeView === 'data-entry' ||
-    activeView === 'data-review' ||
     activeView === 'monitoring-plan' ||
     activeView === 'emissions-data' ||
     activeView === 'report-upload';
+  const isDataReviewActive = activeView === 'data-review';
   const isReportsActive =
     activeView === 'reports' ||
     activeView === 'mrv-reports' ||
@@ -164,7 +164,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                 <button
                   onClick={() => setActiveView('data-entry')}
                   className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
-                    isDataReviewActive
+                    isDataEntryActive
                       ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
                       : 'text-white/85 hover:text-white hover:bg-white/15'
                   }`}
@@ -173,7 +173,20 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                   <span>Data Entry</span>
                 </button>
 
-                {/* 4. Reports */}
+                {/* 4. Data Review */}
+                <button
+                  onClick={() => setActiveView('data-review')}
+                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                    isDataReviewActive
+                      ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
+                      : 'text-white/85 hover:text-white hover:bg-white/15'
+                  }`}
+                  title="Data Review"
+                >
+                  <span>Data Review</span>
+                </button>
+
+                {/* 5. Reports */}
                 <button
                   onClick={() => setActiveView('reports')}
                   className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
@@ -184,19 +197,6 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                   title="Reports"
                 >
                   <span>Reports</span>
-                </button>
-
-                {/* 5. Verifiers */}
-                <button
-                  onClick={() => setActiveView('verifier-registry')}
-                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
-                    activeView === 'verifier-registry'
-                      ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
-                      : 'text-white/85 hover:text-white hover:bg-white/15'
-                  }`}
-                  title="Verifiers"
-                >
-                  <span>Verifiers</span>
                 </button>
               </>
             ) : (
@@ -463,7 +463,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
               </button>
               <button
                 onClick={() => {
-                  setActiveView('facility');
+                  setActiveView('registration');
                   setIsMobileMenuOpen(false);
                 }}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold ${
@@ -471,7 +471,19 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                 }`}
               >
                 <Building2 className="w-4 h-4" />
-                Facility Details
+                Registration
+              </button>
+              <button
+                onClick={() => {
+                  setActiveView('data-entry');
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold ${
+                  isDataEntryActive ? 'bg-white text-[#004B87]' : 'text-slate-200 hover:bg-white/10'
+                }`}
+              >
+                <ClipboardList className="w-4 h-4" />
+                Data Entry
               </button>
               <button
                 onClick={() => {
@@ -482,7 +494,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                   isDataReviewActive ? 'bg-white text-[#004B87]' : 'text-slate-200 hover:bg-white/10'
                 }`}
               >
-                <ClipboardList className="w-4 h-4" />
+                <ShieldCheck className="w-4 h-4" />
                 Data Review
               </button>
 

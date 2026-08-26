@@ -42,26 +42,29 @@ export const VerifierRegistryView: React.FC = () => {
   };
 
   return (
-    <div className="h-full overflow-y-auto pr-1 space-y-6 animate-fade-in pb-12 no-scrollbar">
-      {/* Sticky Single-Row Title Bar */}
-      <div className="sticky -top-4 sm:-top-6 lg:-top-8 -mt-4 sm:-mt-6 lg:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-3.5 bg-[#F4F9FD]/95 backdrop-blur-md z-20 border-b border-slate-200/80 flex items-center justify-between gap-4 transition-all font-sans">
-        <h1 className="text-[20px] font-bold font-display text-[#0B3A60] tracking-tight">
-          Accredited Third-Party Verifier Registry
-        </h1>
+    <div className="h-full flex flex-col overflow-hidden font-sans">
+      {/* Fixed Sticky Header */}
+      <div className="flex-shrink-0 pb-3 pt-1 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
+            Accredited Third-Party Verifier Registry
+          </h1>
+          {isAssignedNotice && (
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs font-bold animate-fade-in">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>{isAssignedNotice}</span>
+            </div>
+          )}
+        </div>
+
         <div className="text-xs font-semibold text-slate-500">
           ISO 14065:2020 / ENAS Accredited • {verifiers.length} Bodies
         </div>
       </div>
 
-      {/* Assignment notice toast */}
-      {isAssignedNotice && (
-        <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-950 text-xs font-bold flex items-center gap-2 animate-fade-in">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>{isAssignedNotice}</span>
-        </div>
-      )}
-
-      {/* Search & Filter Bar */}
+      {/* Scrollable Content Container */}
+      <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-6 pb-12">
+        {/* Search & Filter Bar */}
       <GlassCard className="p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="relative flex-1 w-full">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-mrv-muted" />
@@ -225,6 +228,7 @@ export const VerifierRegistryView: React.FC = () => {
           </div>
         </Modal>
       )}
+      </div>
     </div>
   );
 };

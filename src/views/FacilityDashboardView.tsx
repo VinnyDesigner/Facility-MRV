@@ -225,8 +225,8 @@ export const FacilityDashboardView: React.FC = () => {
         </NotchCard>
       </div>
 
-      {/* 3. ANALYTICS SECTION (3 Columns) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* 3. ANALYTICS SECTION (2 Columns) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Trend */}
         <div className="bg-gradient-to-b from-white/95 via-white/85 to-sky-50/60 backdrop-blur-xl rounded-2xl border border-white/90 p-6 shadow-[0_12px_32px_-6px_rgba(0,75,135,0.08),_0_2px_8px_rgba(0,75,135,0.04),_0_1px_1px_rgba(255,255,255,1)_inset] hover:shadow-[0_18px_40px_-6px_rgba(0,75,135,0.13),_0_1px_2px_rgba(255,255,255,1)_inset] transition-all duration-300 relative overflow-hidden group">
           <div className="absolute inset-x-0 bottom-0 h-24 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-sky-400/20 via-sky-200/5 to-transparent pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
@@ -249,50 +249,6 @@ export const FacilityDashboardView: React.FC = () => {
             </div>
             <div className="flex justify-center items-center gap-2 mt-4 text-[10px] font-semibold text-slate-500">
               <span className="w-2 h-2 rounded-full bg-[#00B2FE]"></span> Annual Emissions
-            </div>
-          </div>
-        </div>
-
-        {/* GHG */}
-        <div className="bg-gradient-to-b from-white/95 via-white/85 to-sky-50/60 backdrop-blur-xl rounded-2xl border border-white/90 p-6 shadow-[0_12px_32px_-6px_rgba(0,75,135,0.08),_0_2px_8px_rgba(0,75,135,0.04),_0_1px_1px_rgba(255,255,255,1)_inset] hover:shadow-[0_18px_40px_-6px_rgba(0,75,135,0.13),_0_1px_2px_rgba(255,255,255,1)_inset] transition-all duration-300 relative overflow-hidden group flex flex-col">
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-sky-400/20 via-sky-200/5 to-transparent pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="absolute inset-x-6 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white to-transparent pointer-events-none z-10" />
-
-          <div className="relative z-10 flex flex-col flex-1">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-sm font-bold text-navy-900">Emissions by GHG</h3>
-            </div>
-            <div className="flex-1 flex items-center justify-between">
-              <div className="relative w-36 h-36">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={ghgData} innerRadius={45} outerRadius={65} paddingAngle={2} dataKey="value" stroke="none">
-                      {ghgData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-                  <span className="text-sm font-extrabold text-navy-900">1.24M</span>
-                  <span className="text-[9px] text-slate-500 font-semibold">tCO₂e<br/>2026</span>
-                </div>
-              </div>
-              <div className="space-y-3 flex-1 ml-4">
-                {ghgData.map(g => (
-                  <div key={g.name} className="flex items-center justify-between text-[11px]">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: g.color }}></span>
-                      <span className="font-semibold text-navy-900">{g.name}</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="font-bold text-slate-600">{g.value}%</span>
-                      <span className="font-bold text-navy-900 w-8 text-right">{g.amount}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>
