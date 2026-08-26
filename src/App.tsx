@@ -29,7 +29,7 @@ import { VersionHistoryView } from './views/VersionHistoryView';
 
 const MainAppContent: React.FC = () => {
   const { currentRole, activeView, setActiveView } = useMRV();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   if (!isAuthenticated) {
     return <LoginView onLoginSuccess={() => setIsAuthenticated(true)} />;

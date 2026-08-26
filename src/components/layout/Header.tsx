@@ -198,6 +198,19 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                 >
                   <span>Reports</span>
                 </button>
+
+                {/* 5. Verifiers */}
+                <button
+                  onClick={() => setActiveView('verifier-registry')}
+                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                    activeView === 'verifier-registry'
+                      ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
+                      : 'text-white/85 hover:text-white hover:bg-white/15'
+                  }`}
+                  title="Verifiers"
+                >
+                  <span>Verifiers</span>
+                </button>
               </>
             ) : (
               /* EAD Regulator View Categories */
