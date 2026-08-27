@@ -273,11 +273,16 @@ export const DataReviewView: React.FC = () => {
       {/* 1. TOP FIXED HEADER (Title & Global Controls) */}
       {/* ------------------------------------------------------------------------- */}
       <div className="flex-shrink-0 pb-3 pt-1 flex flex-wrap items-center justify-between gap-4">
-        {/* Left: View Title & Action Notifications */}
+        {/* Left: View Title & Subtitle + Action Notifications */}
         <div className="flex items-center gap-3">
-          <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
-            Data Review
-          </h1>
+          <div>
+            <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
+              Data Review & Submission
+            </h1>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              Review, Validate and Verify Facility Reporting Packages
+            </p>
+          </div>
 
           {actionNotice && (
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs font-bold animate-fade-in">
@@ -331,7 +336,7 @@ export const DataReviewView: React.FC = () => {
               setExportNotice('Exporting Data Review dossier package...');
               setTimeout(() => setExportNotice(null), 3000);
             }}
-            className="px-4 py-2 bg-[#1E3A5F] hover:bg-[#142944] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer active:scale-95"
+            className="px-4 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
           >
             <span>Export</span>
             <ChevronDown className="w-3.5 h-3.5" />
@@ -543,7 +548,7 @@ export const DataReviewView: React.FC = () => {
             <div className="pt-4 flex justify-end">
               <button
                 onClick={() => handleAction('submit')}
-                className="px-6 py-2.5 bg-[#1E3A5F] hover:bg-[#152943] text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all cursor-pointer"
+                className="px-6 py-2.5 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer"
               >
                 <span>Submit</span>
                 <Bookmark className="w-3.5 h-3.5" />
@@ -1033,7 +1038,7 @@ export const DataReviewView: React.FC = () => {
                     </button>
                     <button
                       onClick={() => handleAction('approve')}
-                      className="px-6 py-2 bg-[#2D5B88] hover:bg-[#23486E] text-white rounded-xl font-bold flex items-center gap-1.5 shadow-md cursor-pointer transition-all active:scale-95"
+                      className="px-6 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-xl font-bold flex items-center gap-1.5 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] cursor-pointer transition-all active:scale-95"
                     >
                       <Check className="w-4 h-4" />
                       <span>Approve</span>

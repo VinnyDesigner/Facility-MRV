@@ -54,9 +54,9 @@
   }
 
   .btn-navy-pill {
-    background: #0C1E3A;
+    background: linear-gradient(135deg, #004B87 0%, #006BB8 100%);
     color: #ffffff;
-    font-weight: 600;
+    font-weight: 700;
     border-radius: 9999px;
     padding: 0.5rem 1.25rem;
     transition: all 0.2s ease;
@@ -64,13 +64,14 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    box-shadow: 0 2px 8px rgba(12, 30, 58, 0.15);
+    box-shadow: 0 4px 14px 0 rgba(0, 75, 135, 0.25);
+    cursor: pointer;
   }
 
   .btn-navy-pill:hover {
-    background: #162F56;
+    background: linear-gradient(135deg, #003D6E 0%, #005C9E 100%);
     transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(12, 30, 58, 0.25);
+    box-shadow: 0 6px 20px 0 rgba(0, 75, 135, 0.38);
   }
 
   .glass-header {
@@ -89,23 +90,24 @@
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, #0878C9 0%, #19B5D8 100%);
+    background: linear-gradient(135deg, #004B87 0%, #006BB8 100%);
     color: #ffffff;
-    font-weight: 600;
+    font-weight: 700;
     border-radius: 0.75rem;
     padding: 0.625rem 1.25rem;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 4px 14px 0 rgba(8, 120, 201, 0.3);
+    box-shadow: 0 4px 14px 0 rgba(0, 75, 135, 0.25);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    cursor: pointer;
   }
 
   .btn-primary:hover {
+    background: linear-gradient(135deg, #003D6E 0%, #005C9E 100%);
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px 0 rgba(8, 120, 201, 0.45);
-    filter: brightness(1.05);
+    box-shadow: 0 6px 20px 0 rgba(0, 75, 135, 0.38);
   }
 
   .btn-primary:active {
@@ -166,6 +168,73 @@
     border-color: #19B5D8;
     box-shadow: 0 0 0 3px rgba(25, 181, 216, 0.2);
     background: #ffffff;
+  }
+
+  /* Clean, elegant custom select dropdown with generous right padding for chevron across the WHOLE application */
+  select {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2' stroke='%2364748B'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m19.5 8.25-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 0.875rem center !important;
+    background-size: 0.95rem 0.95rem !important;
+    padding-right: 2.5rem !important;
+    cursor: pointer;
+  }
+
+  /* When an explicit custom chevron icon overlay is used, suppress background image */
+  select.bg-none,
+  select.no-arrow {
+    background-image: none !important;
+  }
+
+  /* Sticky First and Last Column for Horizontally Scrolling Tables */
+  .table-sticky-columns table {
+    border-collapse: separate !important;
+    border-spacing: 0;
+    min-width: 1100px;
+  }
+
+  .table-sticky-columns th:first-child,
+  .table-sticky-columns td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background-color: #ffffff;
+    box-shadow: 2px 0 5px -2px rgba(0, 0, 0, 0.08);
+  }
+
+  .table-sticky-columns thead th:first-child {
+    background-color: #F8FAFC !important;
+    z-index: 20;
+  }
+
+  .table-sticky-columns th:last-child,
+  .table-sticky-columns td:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 10;
+    background-color: #ffffff;
+    box-shadow: -2px 0 5px -2px rgba(0, 0, 0, 0.08);
+  }
+
+  .table-sticky-columns thead th:last-child {
+    background-color: #F8FAFC !important;
+    z-index: 20;
+  }
+
+  .table-sticky-columns tr:hover td:first-child,
+  .table-sticky-columns tr:hover td:last-child {
+    background-color: #F8FAFC;
+  }
+
+  /* Table inputs and selects fill the cell/column width completely */
+  table td input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+  table td select {
+    width: 100% !important;
+    min-width: 100% !important;
+    box-sizing: border-box;
   }
 }
 

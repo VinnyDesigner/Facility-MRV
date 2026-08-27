@@ -279,12 +279,17 @@ export const FacilityRegistrationView: React.FC = () => {
       />
 
       {/* Fixed Title & Actions Row (No outer scroll) */}
-      <div className="flex-shrink-0 pb-2.5 pt-1 flex flex-wrap items-center justify-between gap-4">
-        {/* Left: Title & Saved Notice */}
+      <div className="flex-shrink-0 pb-3 pt-1 flex flex-wrap items-center justify-between gap-4">
+        {/* Left: Title & Subtitle + Saved Notice */}
         <div className="flex items-center gap-3">
-          <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
-            Facility Registration & Compliance
-          </h1>
+          <div>
+            <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
+              Facility Registration & Compliance
+            </h1>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              Registration, Permitting & Statutory Operator Profile
+            </p>
+          </div>
           {isSavedNotice && (
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs font-bold animate-fade-in">
               <CheckCircle2 className="w-4 h-4" />
@@ -310,7 +315,7 @@ export const FacilityRegistrationView: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setIsActionsOpen(!isActionsOpen)}
-              className="flex items-center gap-2 px-4 py-2 bg-[#004B87] hover:bg-[#003866] text-white text-xs font-bold rounded-xl shadow-md transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white text-xs font-bold rounded-xl shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer"
             >
               <span>Actions</span>
               <ChevronDown className="w-3.5 h-3.5" />
@@ -421,24 +426,28 @@ export const FacilityRegistrationView: React.FC = () => {
 
         {/* Scrollable Accordions Frame (Top & Bottom 10px padding, scrolls ONLY within this frame) */}
         <div className="flex-1 min-h-0 overflow-y-auto py-[10px] space-y-2.5 pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-400">
-          {/* ========================================================================= */}
-          {/* Accordion 1: Operator Details */}
-          {/* ========================================================================= */}
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden transition-all">
+            {/* ========================================================================= */}
+            {/* Accordion 1: Operator Details */}
+            {/* ========================================================================= */}
+            <div className={`rounded-xl border overflow-hidden transition-all bg-white ${openSections[1] ? 'border-slate-300 shadow-2xs' : 'border-slate-200'}`}>
               <button
                 onClick={() => toggleSection(1)}
-                className="w-full px-5 py-3.5 flex items-center justify-between text-left hover:bg-slate-50/50 transition-colors"
+                className={`w-full px-5 py-3.5 flex items-center justify-between text-left transition-colors cursor-pointer ${
+                  openSections[1] ? 'bg-[#F4F6F8]' : 'hover:bg-slate-50/50 bg-white'
+                }`}
               >
-                <span className="text-xs font-bold text-slate-800">Operator Details</span>
+                <span className={`text-xs font-bold ${openSections[1] ? 'text-[#004B87]' : 'text-slate-800'}`}>
+                  Operator Details
+                </span>
                 {openSections[1] ? (
-                  <ChevronUp className="w-4 h-4 text-slate-500" />
+                  <ChevronUp className="w-4 h-4 text-[#004B87]" />
                 ) : (
                   <ChevronDown className="w-4 h-4 text-slate-500" />
                 )}
               </button>
 
               {openSections[1] && (
-                <div className="p-6 pt-2 border-t border-slate-100 space-y-4 animate-fade-in text-xs">
+                <div className="p-6 pt-4 border-t border-slate-100 bg-white space-y-4 animate-fade-in text-xs">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                       <label className="block text-slate-600 font-semibold mb-1.5">Operator Name *</label>
@@ -467,9 +476,6 @@ export const FacilityRegistrationView: React.FC = () => {
                         className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
                       />
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                       <label className="block text-slate-600 font-semibold mb-1.5">Registered Address *</label>
                       <input
@@ -505,7 +511,7 @@ export const FacilityRegistrationView: React.FC = () => {
                   <div className="flex justify-end pt-3">
                     <button
                       onClick={() => handleSaveAndContinue(1)}
-                      className="px-5 py-2.5 rounded-xl bg-[#004B87] hover:bg-[#003866] text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5"
+                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white text-xs font-bold shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                       <span>Save & Continue</span>
                       <Bookmark className="w-3.5 h-3.5 fill-current" />
@@ -518,21 +524,25 @@ export const FacilityRegistrationView: React.FC = () => {
             {/* ========================================================================= */}
             {/* Accordion 2: Facility Details & Location */}
             {/* ========================================================================= */}
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden transition-all">
+            <div className={`rounded-xl border overflow-hidden transition-all bg-white ${openSections[2] ? 'border-slate-300 shadow-2xs' : 'border-slate-200'}`}>
               <button
                 onClick={() => toggleSection(2)}
-                className="w-full px-5 py-3.5 flex items-center justify-between text-left hover:bg-slate-50/50 transition-colors"
+                className={`w-full px-5 py-3.5 flex items-center justify-between text-left transition-colors cursor-pointer ${
+                  openSections[2] ? 'bg-[#F4F6F8]' : 'hover:bg-slate-50/50 bg-white'
+                }`}
               >
-                <span className="text-xs font-bold text-slate-800">Facility Details & Location</span>
+                <span className={`text-xs font-bold ${openSections[2] ? 'text-[#004B87]' : 'text-slate-800'}`}>
+                  Facility Details & Location
+                </span>
                 {openSections[2] ? (
-                  <ChevronUp className="w-4 h-4 text-slate-500" />
+                  <ChevronUp className="w-4 h-4 text-[#004B87]" />
                 ) : (
                   <ChevronDown className="w-4 h-4 text-slate-500" />
                 )}
               </button>
 
               {openSections[2] && (
-                <div className="p-6 pt-2 border-t border-slate-100 space-y-4 animate-fade-in text-xs">
+                <div className="p-6 pt-4 border-t border-slate-100 bg-white space-y-4 animate-fade-in text-xs">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                       <label className="block text-slate-600 font-semibold mb-1.5">Facility Name</label>
@@ -649,7 +659,7 @@ export const FacilityRegistrationView: React.FC = () => {
                   <div className="flex justify-end pt-3">
                     <button
                       onClick={() => handleSaveAndContinue(2)}
-                      className="px-5 py-2.5 rounded-xl bg-[#004B87] hover:bg-[#003866] text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5"
+                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white text-xs font-bold shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                       <span>Save & Continue</span>
                       <Bookmark className="w-3.5 h-3.5 fill-current" />
@@ -662,21 +672,25 @@ export const FacilityRegistrationView: React.FC = () => {
             {/* ========================================================================= */}
             {/* Accordion 3: Activities & Products */}
             {/* ========================================================================= */}
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden transition-all">
+            <div className={`rounded-xl border overflow-hidden transition-all bg-white ${openSections[3] ? 'border-slate-300 shadow-2xs' : 'border-slate-200'}`}>
               <button
                 onClick={() => toggleSection(3)}
-                className="w-full px-5 py-3.5 flex items-center justify-between text-left hover:bg-slate-50/50 transition-colors"
+                className={`w-full px-5 py-3.5 flex items-center justify-between text-left transition-colors cursor-pointer ${
+                  openSections[3] ? 'bg-[#F4F6F8]' : 'hover:bg-slate-50/50 bg-white'
+                }`}
               >
-                <span className="text-xs font-bold text-slate-800">Activities & Products</span>
+                <span className={`text-xs font-bold ${openSections[3] ? 'text-[#004B87]' : 'text-slate-800'}`}>
+                  Activities & Products
+                </span>
                 {openSections[3] ? (
-                  <ChevronUp className="w-4 h-4 text-slate-500" />
+                  <ChevronUp className="w-4 h-4 text-[#004B87]" />
                 ) : (
                   <ChevronDown className="w-4 h-4 text-slate-500" />
                 )}
               </button>
 
               {openSections[3] && (
-                <div className="p-6 pt-2 border-t border-slate-100 space-y-4 animate-fade-in text-xs">
+                <div className="p-6 pt-4 border-t border-slate-100 bg-white space-y-4 animate-fade-in text-xs">
                   {/* Economic Activities */}
                   <div>
                     <h4 className="text-xs font-bold text-[#004B87] mb-3">Economic Activities</h4>
@@ -762,7 +776,7 @@ export const FacilityRegistrationView: React.FC = () => {
                   <div className="flex justify-end pt-3">
                     <button
                       onClick={() => handleSaveAndContinue(3)}
-                      className="px-5 py-2.5 rounded-xl bg-[#004B87] hover:bg-[#003866] text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5"
+                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white text-xs font-bold shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                       <span>Save & Continue</span>
                       <Bookmark className="w-3.5 h-3.5 fill-current" />
@@ -775,21 +789,25 @@ export const FacilityRegistrationView: React.FC = () => {
             {/* ========================================================================= */}
             {/* Accordion 4: Environmental Permit (Screenshot 2) */}
             {/* ========================================================================= */}
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden transition-all">
+            <div className={`rounded-xl border overflow-hidden transition-all bg-white ${openSections[4] ? 'border-slate-300 shadow-2xs' : 'border-slate-200'}`}>
               <button
                 onClick={() => toggleSection(4)}
-                className="w-full px-5 py-3.5 flex items-center justify-between text-left hover:bg-slate-50/50 transition-colors"
+                className={`w-full px-5 py-3.5 flex items-center justify-between text-left transition-colors cursor-pointer ${
+                  openSections[4] ? 'bg-[#F4F6F8]' : 'hover:bg-slate-50/50 bg-white'
+                }`}
               >
-                <span className="text-xs font-bold text-slate-800">Environmental Permit</span>
+                <span className={`text-xs font-bold ${openSections[4] ? 'text-[#004B87]' : 'text-slate-800'}`}>
+                  Environmental Permit
+                </span>
                 {openSections[4] ? (
-                  <ChevronUp className="w-4 h-4 text-slate-500" />
+                  <ChevronUp className="w-4 h-4 text-[#004B87]" />
                 ) : (
                   <ChevronDown className="w-4 h-4 text-slate-500" />
                 )}
               </button>
 
               {openSections[4] && (
-                <div className="p-6 pt-2 border-t border-slate-100 space-y-5 animate-fade-in text-xs">
+                <div className="p-6 pt-4 border-t border-slate-100 bg-white space-y-5 animate-fade-in text-xs">
                   {/* Economic Activities */}
                   <div>
                     <h4 className="text-xs font-bold text-[#004B87] mb-3">Economic Activities</h4>
@@ -963,7 +981,7 @@ export const FacilityRegistrationView: React.FC = () => {
                   <div className="flex justify-end pt-3">
                     <button
                       onClick={() => handleSaveAndContinue(4)}
-                      className="px-5 py-2.5 rounded-xl bg-[#004B87] hover:bg-[#003866] text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5"
+                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white text-xs font-bold shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                       <span>Save & Continue</span>
                       <Bookmark className="w-3.5 h-3.5 fill-current" />
@@ -976,21 +994,25 @@ export const FacilityRegistrationView: React.FC = () => {
             {/* ========================================================================= */}
             {/* Accordion 5: Contact Persons */}
             {/* ========================================================================= */}
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden transition-all">
+            <div className={`rounded-xl border overflow-hidden transition-all bg-white ${openSections[5] ? 'border-slate-300 shadow-2xs' : 'border-slate-200'}`}>
               <button
                 onClick={() => toggleSection(5)}
-                className="w-full px-5 py-3.5 flex items-center justify-between text-left hover:bg-slate-50/50 transition-colors"
+                className={`w-full px-5 py-3.5 flex items-center justify-between text-left transition-colors cursor-pointer ${
+                  openSections[5] ? 'bg-[#F4F6F8]' : 'hover:bg-slate-50/50 bg-white'
+                }`}
               >
-                <span className="text-xs font-bold text-slate-800">Contact Persons</span>
+                <span className={`text-xs font-bold ${openSections[5] ? 'text-[#004B87]' : 'text-slate-800'}`}>
+                  Contact Persons
+                </span>
                 {openSections[5] ? (
-                  <ChevronUp className="w-4 h-4 text-slate-500" />
+                  <ChevronUp className="w-4 h-4 text-[#004B87]" />
                 ) : (
                   <ChevronDown className="w-4 h-4 text-slate-500" />
                 )}
               </button>
 
               {openSections[5] && (
-                <div className="p-6 pt-2 border-t border-slate-100 space-y-4 animate-fade-in text-xs">
+                <div className="p-6 pt-4 border-t border-slate-100 bg-white space-y-4 animate-fade-in text-xs">
                   {/* Primary Contact Person */}
                   <div>
                     <h4 className="text-xs font-bold text-[#004B87] mb-3">Primary Contact Person</h4>
@@ -1092,7 +1114,7 @@ export const FacilityRegistrationView: React.FC = () => {
                   <div className="flex justify-end pt-3">
                     <button
                       onClick={() => handleSaveAndContinue(5)}
-                      className="px-5 py-2.5 rounded-xl bg-[#004B87] hover:bg-[#003866] text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5"
+                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white text-xs font-bold shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                       <span>Save & Continue</span>
                       <Bookmark className="w-3.5 h-3.5 fill-current" />
@@ -1105,21 +1127,25 @@ export const FacilityRegistrationView: React.FC = () => {
             {/* ========================================================================= */}
             {/* Accordion 6: Annual Renewal & Report a Change (Screenshot 3) */}
             {/* ========================================================================= */}
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden transition-all">
+            <div className={`rounded-xl border overflow-hidden transition-all bg-white ${openSections[6] ? 'border-slate-300 shadow-2xs' : 'border-slate-200'}`}>
               <button
                 onClick={() => toggleSection(6)}
-                className="w-full px-5 py-3.5 flex items-center justify-between text-left hover:bg-slate-50/50 transition-colors"
+                className={`w-full px-5 py-3.5 flex items-center justify-between text-left transition-colors cursor-pointer ${
+                  openSections[6] ? 'bg-[#F4F6F8]' : 'hover:bg-slate-50/50 bg-white'
+                }`}
               >
-                <span className="text-xs font-bold text-slate-800">Annual Renewal & Report a Change</span>
+                <span className={`text-xs font-bold ${openSections[6] ? 'text-[#004B87]' : 'text-slate-800'}`}>
+                  Annual Renewal & Report a Change
+                </span>
                 {openSections[6] ? (
-                  <ChevronUp className="w-4 h-4 text-slate-500" />
+                  <ChevronUp className="w-4 h-4 text-[#004B87]" />
                 ) : (
                   <ChevronDown className="w-4 h-4 text-slate-500" />
                 )}
               </button>
 
               {openSections[6] && (
-                <div className="p-6 pt-2 border-t border-slate-100 space-y-5 animate-fade-in text-xs">
+                <div className="p-6 pt-4 border-t border-slate-100 bg-white space-y-5 animate-fade-in text-xs">
                   {/* Annual Renewal Section */}
                   <div>
                     <h4 className="text-xs font-bold text-[#004B87] mb-3">Annual Renewal</h4>
@@ -1217,7 +1243,7 @@ export const FacilityRegistrationView: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="px-4 py-1.5 bg-white border border-slate-300 hover:border-slate-400 text-xs font-bold text-slate-700 rounded-lg shadow-xs transition-colors flex-shrink-0"
+                          className="px-4 py-1.5 bg-white border border-slate-300 hover:border-slate-400 text-xs font-bold text-slate-700 rounded-lg shadow-xs transition-colors flex-shrink-0 cursor-pointer"
                         >
                           Upload
                         </button>
@@ -1257,7 +1283,7 @@ export const FacilityRegistrationView: React.FC = () => {
                   <div className="flex justify-end pt-3">
                     <button
                       onClick={() => handleSaveAndContinue(6)}
-                      className="px-5 py-2.5 rounded-xl bg-[#004B87] hover:bg-[#003866] text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5"
+                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white text-xs font-bold shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                       <span>Save & Continue</span>
                       <Bookmark className="w-3.5 h-3.5 fill-current" />
@@ -1273,7 +1299,7 @@ export const FacilityRegistrationView: React.FC = () => {
       <div className="flex-shrink-0 pt-3 pb-1 flex items-center justify-end gap-3">
         <button
           onClick={() => setActiveView('dashboard')}
-          className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-sm transition-all"
+          className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
         >
           <span>Cancel</span>
           <X className="w-3.5 h-3.5" />
@@ -1281,7 +1307,7 @@ export const FacilityRegistrationView: React.FC = () => {
 
         <button
           onClick={handleSave}
-          className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-[#004B87] text-xs font-bold text-[#004B87] flex items-center gap-1.5 shadow-sm transition-all"
+          className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-[#004B87] text-xs font-bold text-[#004B87] flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
         >
           <span>Save</span>
           <Bookmark className="w-3.5 h-3.5 fill-current" />
@@ -1292,7 +1318,7 @@ export const FacilityRegistrationView: React.FC = () => {
             handleSave();
             setActiveView('data-review');
           }}
-          className="px-6 py-2.5 rounded-xl bg-[#004B87] hover:bg-[#003866] text-xs font-bold text-white flex items-center gap-2 shadow-md transition-all"
+          className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer"
         >
           <span>Submit</span>
           <Send className="w-3.5 h-3.5 fill-current" />

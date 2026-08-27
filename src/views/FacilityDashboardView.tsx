@@ -929,15 +929,15 @@ export const FacilityDashboardView: React.FC = () => {
             </p>
           </div>
 
-          {/* Connected Process Flow Steps */}
-          <div className="flex flex-col justify-between my-auto py-1 space-y-2">
+          {/* Connected Process Flow Steps with Centered Continuous Dotted Line */}
+          <div className="relative flex flex-col justify-between my-auto py-1 space-y-2.5">
+            {/* Continuous Vertical Dashed Line passing through all 5 icon centers */}
+            <div className="absolute left-[16px] -translate-x-1/2 top-4 bottom-4 w-px border-l-2 border-dashed border-blue-300/80 pointer-events-none z-0" />
+
             {/* Step 1: Registered */}
-            <div className="flex items-center gap-3">
-              <div className="relative flex flex-col items-center shrink-0">
-                <div className="w-8.5 h-8.5 rounded-xl bg-[#EEF4FF] border border-blue-200/90 flex items-center justify-center text-[#1D63ED] shadow-2xs z-10">
-                  <FileText className="w-4 h-4" />
-                </div>
-                <div className="absolute top-8.5 h-3 w-0 border-l border-dashed border-blue-300 z-0" />
+            <div className="relative flex items-center gap-3 z-10">
+              <div className="w-8 h-8 rounded-full bg-[#EEF4FF] border border-blue-200 flex items-center justify-center text-[#1D63ED] shadow-2xs shrink-0">
+                <FileText className="w-4 h-4" />
               </div>
               <span className="w-28 sm:w-32 text-xs sm:text-[13px] font-bold text-slate-800 shrink-0">
                 Registered
@@ -954,12 +954,9 @@ export const FacilityDashboardView: React.FC = () => {
             </div>
 
             {/* Step 2: Data Entry */}
-            <div className="flex items-center gap-3">
-              <div className="relative flex flex-col items-center shrink-0">
-                <div className="w-8.5 h-8.5 rounded-xl bg-[#ECFDF5] border border-emerald-200/90 flex items-center justify-center text-[#059669] shadow-2xs z-10">
-                  <Building2 className="w-4 h-4" />
-                </div>
-                <div className="absolute top-8.5 h-3 w-0 border-l border-dashed border-blue-300 z-0" />
+            <div className="relative flex items-center gap-3 z-10">
+              <div className="w-8 h-8 rounded-full bg-[#ECFDF5] border border-emerald-200 flex items-center justify-center text-[#059669] shadow-2xs shrink-0">
+                <Building2 className="w-4 h-4" />
               </div>
               <span className="w-28 sm:w-32 text-xs sm:text-[13px] font-bold text-slate-800 shrink-0">
                 Data Entry
@@ -976,12 +973,9 @@ export const FacilityDashboardView: React.FC = () => {
             </div>
 
             {/* Step 3: Submitted */}
-            <div className="flex items-center gap-3">
-              <div className="relative flex flex-col items-center shrink-0">
-                <div className="w-8.5 h-8.5 rounded-xl bg-[#F5F3FF] border border-purple-200/90 flex items-center justify-center text-[#7C3AED] shadow-2xs z-10">
-                  <FileText className="w-4 h-4" />
-                </div>
-                <div className="absolute top-8.5 h-3 w-0 border-l border-dashed border-blue-300 z-0" />
+            <div className="relative flex items-center gap-3 z-10">
+              <div className="w-8 h-8 rounded-full bg-[#F5F3FF] border border-purple-200 flex items-center justify-center text-[#7C3AED] shadow-2xs shrink-0">
+                <FileText className="w-4 h-4" />
               </div>
               <span className="w-28 sm:w-32 text-xs sm:text-[13px] font-bold text-slate-800 shrink-0">
                 Submitted
@@ -998,12 +992,9 @@ export const FacilityDashboardView: React.FC = () => {
             </div>
 
             {/* Step 4: Under Verification */}
-            <div className="flex items-center gap-3">
-              <div className="relative flex flex-col items-center shrink-0">
-                <div className="w-8.5 h-8.5 rounded-xl bg-[#FFF7ED] border border-orange-200/90 flex items-center justify-center text-[#EA580C] shadow-2xs z-10">
-                  <ShieldAlert className="w-4 h-4" />
-                </div>
-                <div className="absolute top-8.5 h-3 w-0 border-l border-dashed border-blue-300 z-0" />
+            <div className="relative flex items-center gap-3 z-10">
+              <div className="w-8 h-8 rounded-full bg-[#FFF7ED] border border-orange-200 flex items-center justify-center text-[#EA580C] shadow-2xs shrink-0">
+                <ShieldAlert className="w-4 h-4" />
               </div>
               <span className="w-28 sm:w-32 text-xs sm:text-[13px] font-bold text-slate-800 shrink-0">
                 Under Verification
@@ -1020,11 +1011,9 @@ export const FacilityDashboardView: React.FC = () => {
             </div>
 
             {/* Step 5: Verified */}
-            <div className="flex items-center gap-3">
-              <div className="relative flex flex-col items-center shrink-0">
-                <div className="w-8.5 h-8.5 rounded-xl bg-[#ECFDF5] border border-emerald-200/90 flex items-center justify-center text-[#16A34A] shadow-2xs z-10">
-                  <CheckCircle2 className="w-4 h-4" />
-                </div>
+            <div className="relative flex items-center gap-3 z-10">
+              <div className="w-8 h-8 rounded-full bg-[#ECFDF5] border border-emerald-200 flex items-center justify-center text-[#16A34A] shadow-2xs shrink-0">
+                <CheckCircle2 className="w-4 h-4" />
               </div>
               <span className="w-28 sm:w-32 text-xs sm:text-[13px] font-bold text-slate-800 shrink-0">
                 Verified

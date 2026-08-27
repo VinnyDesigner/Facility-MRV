@@ -22,14 +22,18 @@ import {
 import { useMRV } from '../context/MRVContext';
 
 export const DataEntryView: React.FC = () => {
-  const { activeFacility, setActiveView } = useMRV();
+  const { activeFacility, reportingYear, setActiveView } = useMRV();
 
-  // Top Selectors State
+  // Top Selectors State - Automatically reflected from Registration
   const [selectedFacility, setSelectedFacility] = useState(
     activeFacility?.name || 'Green Mountain Cement Factory'
   );
-  const [calendarYear, setCalendarYear] = useState('2024');
-  const [tierLevel, setTierLevel] = useState('Select Tier Level');
+  const [calendarYear, setCalendarYear] = useState(
+    String(reportingYear || '2026')
+  );
+  const [tierLevel, setTierLevel] = useState(
+    activeFacility?.tier || 'Tier 2'
+  );
 
   // Navigation Sub-Tabs
   const [activeTab, setActiveTab] = useState<
@@ -689,9 +693,14 @@ export const DataEntryView: React.FC = () => {
       <div className="flex-shrink-0 space-y-3 pb-3 pt-1">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
-              Emission & Monitoring Plan Data Entry
-            </h1>
+            <div>
+              <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
+                Emission & Monitoring Plan Data Entry
+              </h1>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Facility Activity Metrics, Emission Sources & Monitoring Plan
+              </p>
+            </div>
 
             {isSavedNotice && (
               <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs font-bold animate-fade-in">
@@ -709,7 +718,7 @@ export const DataEntryView: React.FC = () => {
             <select
               value={selectedFacility}
               onChange={(e) => setSelectedFacility(e.target.value)}
-              className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-navy-900 font-medium focus:outline-none focus:border-[#004B87] shadow-sm"
+              className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer"
             >
               <option value="Green Mountain Cement Factory">Green Mountain Cement Factory</option>
               <option value="Abu Dhabi Power Plant">Abu Dhabi Power Plant</option>
@@ -722,7 +731,7 @@ export const DataEntryView: React.FC = () => {
             <select
               value={calendarYear}
               onChange={(e) => setCalendarYear(e.target.value)}
-              className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-navy-900 font-medium focus:outline-none focus:border-[#004B87] shadow-sm"
+              className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer"
             >
               <option value="2026">2026</option>
               <option value="2025">2025</option>
@@ -736,7 +745,7 @@ export const DataEntryView: React.FC = () => {
             <select
               value={tierLevel}
               onChange={(e) => setTierLevel(e.target.value)}
-              className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-navy-900 font-medium focus:outline-none focus:border-[#004B87] shadow-sm"
+              className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer"
             >
               <option value="Select Tier Level">Select Tier Level</option>
               <option value="Tier 1">Tier 1 (Default Factors)</option>
@@ -896,7 +905,7 @@ export const DataEntryView: React.FC = () => {
                                 copy[idx].id = e.target.value;
                                 setProductionStreams(copy);
                               }}
-                              className="w-16 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
+                              className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
                             />
                           </td>
                           <td className="py-2 px-3">
@@ -922,7 +931,7 @@ export const DataEntryView: React.FC = () => {
                                 copy[idx].technology = e.target.value;
                                 setProductionStreams(copy);
                               }}
-                              className="w-28 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
                             />
                           </td>
                           <td className="py-2 px-3">
@@ -962,7 +971,7 @@ export const DataEntryView: React.FC = () => {
                                 copy[idx].capacity = e.target.value;
                                 setProductionStreams(copy);
                               }}
-                              className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
                             />
                           </td>
                           <td className="py-2 px-3">
@@ -988,7 +997,7 @@ export const DataEntryView: React.FC = () => {
                                 copy[idx].actualQuantity = e.target.value;
                                 setProductionStreams(copy);
                               }}
-                              className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
                             />
                           </td>
                           <td className="py-2 px-3">
@@ -1094,7 +1103,7 @@ export const DataEntryView: React.FC = () => {
                                 copy[idx].id = e.target.value;
                                 setEmissionSources(copy);
                               }}
-                              className="w-16 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
+                              className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
                             />
                           </td>
                           <td className="py-2 px-3">
@@ -1106,7 +1115,7 @@ export const DataEntryView: React.FC = () => {
                                 copy[idx].name = e.target.value;
                                 setEmissionSources(copy);
                               }}
-                              className="w-28 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
                             />
                           </td>
                           <td className="py-2 px-3">
@@ -1148,7 +1157,7 @@ export const DataEntryView: React.FC = () => {
                                 copy[idx].totalEmissions = e.target.value;
                                 setEmissionSources(copy);
                               }}
-                              className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
                             />
                           </td>
                           <td className="py-2 px-3">
@@ -1379,7 +1388,7 @@ export const DataEntryView: React.FC = () => {
                                     copy[idx].description = e.target.value;
                                     setMethaneProcedures(copy);
                                   }}
-                                  className="w-28 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                                  className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
                                 />
                               </td>
                               <td className="py-2 px-3">
@@ -1591,7 +1600,7 @@ export const DataEntryView: React.FC = () => {
                                 copy[idx].activityLevel = e.target.value;
                                 setSourceStreams(copy);
                               }}
-                              className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
                             />
                           </td>
                           <td className="py-2 px-3">
@@ -1955,7 +1964,7 @@ export const DataEntryView: React.FC = () => {
                                       copy[idx].uncertaintyAchieved = e.target.value;
                                       setCalcTierUncertainty(copy);
                                     }}
-                                    className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
                                   />
                                 </td>
                                 <td className="py-2 px-3">
@@ -1998,7 +2007,7 @@ export const DataEntryView: React.FC = () => {
                                       copy[idx].permittedUncertainty = e.target.value;
                                       setCalcTierUncertainty(copy);
                                     }}
-                                    className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
                                   />
                                 </td>
                                 <td className="py-2 px-3 text-center">
@@ -2487,7 +2496,7 @@ export const DataEntryView: React.FC = () => {
                                       copy[idx].uncertaintyAchieved = e.target.value;
                                       setMeasUncertainty(copy);
                                     }}
-                                    className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
                                   />
                                 </td>
                                 <td className="py-2 px-3">
@@ -2526,7 +2535,7 @@ export const DataEntryView: React.FC = () => {
                                       copy[idx].permittedUncertainty = e.target.value;
                                       setMeasUncertainty(copy);
                                     }}
-                                    className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
                                   />
                                 </td>
                                 <td className="py-2 px-3 text-center">
@@ -2921,7 +2930,7 @@ export const DataEntryView: React.FC = () => {
                                 copy[idx].estimatedEmissions = e.target.value;
                                 setQaDataGaps(copy);
                               }}
-                              className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
                             />
                           </td>
                           <td className="py-2 px-3">
@@ -3600,7 +3609,7 @@ export const DataEntryView: React.FC = () => {
             handleSave();
             setActiveView('data-review');
           }}
-          className="px-6 py-2.5 rounded-xl bg-[#004B87] hover:bg-[#003866] text-xs font-bold text-white flex items-center gap-2 shadow-md transition-all"
+          className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer"
         >
           <span>Submit</span>
           <Send className="w-3.5 h-3.5 fill-current" />

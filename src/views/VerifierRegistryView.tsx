@@ -46,19 +46,20 @@ export const VerifierRegistryView: React.FC = () => {
       {/* Fixed Sticky Header */}
       <div className="flex-shrink-0 pb-3 pt-1 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
-            Accredited Third-Party Verifier Registry
-          </h1>
+          <div>
+            <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
+              Accredited Third-Party Verifier Registry
+            </h1>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              ISO 14065 / EAD Certified Third-Party Assurance & Audit Providers
+            </p>
+          </div>
           {isAssignedNotice && (
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs font-bold animate-fade-in">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
               <span>{isAssignedNotice}</span>
             </div>
           )}
-        </div>
-
-        <div className="text-xs font-semibold text-slate-500">
-          ISO 14065:2020 / ENAS Accredited • {verifiers.length} Bodies
         </div>
       </div>
 

@@ -69,13 +69,15 @@ export const EADDashboardView: React.FC = () => {
 
   return (
     <div className="h-full overflow-y-auto pr-1 space-y-6 animate-fade-in pb-12 no-scrollbar">
-      {/* Sticky Single-Row Title Bar */}
-      <div className="sticky -top-4 sm:-top-6 lg:-top-8 -mt-4 sm:-mt-6 lg:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-3.5 bg-[#F4F9FD]/95 backdrop-blur-md z-20 border-b border-slate-200/80 flex items-center justify-between gap-4 transition-all font-sans">
-        <h1 className="text-[20px] font-bold font-display text-[#0B3A60] tracking-tight">
-          Subnational MRV Regulatory Dashboard
-        </h1>
-        <div className="text-xs font-semibold text-slate-500">
-          EAD Lead Regulatory Oversight • {facilities.length} Facilities
+      {/* Top Header Row */}
+      <div className="flex-shrink-0 pb-3 pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
+            Subnational MRV Regulatory Dashboard
+          </h1>
+          <p className="text-xs text-slate-500 font-medium mt-0.5">
+            EAD Lead Regulatory Oversight • {facilities.length} Regulated Facilities
+          </p>
         </div>
       </div>
 

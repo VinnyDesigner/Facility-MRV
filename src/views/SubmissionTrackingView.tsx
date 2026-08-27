@@ -65,15 +65,20 @@ export const SubmissionTrackingView: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fade-in pb-12">
-      {/* Sticky Single-Row Title Bar */}
-      <div className="sticky -top-4 sm:-top-6 lg:-top-8 -mt-4 sm:-mt-6 lg:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-3.5 bg-[#F4F9FD]/95 backdrop-blur-md z-20 border-b border-slate-200/80 flex items-center justify-between gap-4 transition-all font-sans">
-        <h1 className="text-[20px] font-bold font-display text-[#0B3A60] tracking-tight">
-          Submission Tracking & Regulatory Timeline
-        </h1>
+      {/* Top Header Row */}
+      <div className="flex-shrink-0 pb-3 pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
+            Submission Lifecycle & Version Tracking
+          </h1>
+          <p className="text-xs text-slate-500 font-medium mt-0.5">
+            Track Compliance Milestones, Audit Progression & Certification
+          </p>
+        </div>
         {activeSub && activeSub.status === 'Approved' && (
           <button
             onClick={() => alert(`Downloading Official EAD Subnational MRV Certificate for ${activeFacility.name}`)}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition-colors flex items-center gap-1.5"
+            className="px-4 py-2.5 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white text-xs font-bold rounded-xl shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer"
           >
             <Award className="w-3.5 h-3.5" />
             <span>Download Certificate</span>

@@ -293,17 +293,16 @@ export const MRVReportsView: React.FC = () => {
       {/* 1. TOP HEADER ROW (Outside the card: Title on Left, Controls on Right) */}
       {/* ------------------------------------------------------------------------- */}
       <div className="flex-shrink-0 pb-3 pt-1 flex flex-wrap items-center justify-between gap-4">
-        {/* Left: View Title */}
+        {/* Left: View Title & Subtitle */}
         <div className="flex items-center gap-3">
-          <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
-            {activeTab === 'emission-summary'
-              ? 'Emission Summary Report'
-              : activeTab === 'submission-status'
-              ? 'Submission Status'
-              : activeTab === 'history'
-              ? 'Submission History'
-              : 'Version History'}
-          </h1>
+          <div>
+            <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
+              MRV Reports & Analytics
+            </h1>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              Comprehensive Emission Summaries, Status Tracking & Verification Dossiers
+            </p>
+          </div>
           {exportNotice && (
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs font-bold animate-fade-in">
               <Check className="w-3.5 h-3.5" />
@@ -350,7 +349,7 @@ export const MRVReportsView: React.FC = () => {
           {/* Export Button */}
           <button
             onClick={() => handleExport(activeTab === 'emission-summary' ? 'Emission Summary' : 'Submission Status')}
-            className="px-4 py-2 bg-[#2D5B88] hover:bg-[#23486E] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer active:scale-95"
+            className="px-4 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
           >
             <UploadCloud className="w-4 h-4" />
             <span>Export</span>

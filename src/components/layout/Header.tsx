@@ -198,19 +198,6 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                 >
                   <span>Reports</span>
                 </button>
-
-                {/* 5. Verifiers */}
-                <button
-                  onClick={() => setActiveView('verifier-registry')}
-                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
-                    activeView === 'verifier-registry'
-                      ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
-                      : 'text-white/85 hover:text-white hover:bg-white/15'
-                  }`}
-                  title="Verifiers"
-                >
-                  <span>Verifiers</span>
-                </button>
               </>
             ) : (
               /* EAD Regulator View Categories */
@@ -278,49 +265,6 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
 
         {/* Right Section: Header Controls & Profile */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
-          {/* Language Selection: English <-> العربية */}
-          <div className="relative" ref={langRef}>
-            <button
-              onClick={() => setIsLangOpen(!isLangOpen)}
-              className="h-9 px-3.5 rounded-full bg-white border border-slate-200/90 shadow-xs flex items-center gap-2 text-slate-700 hover:text-[#004B87] hover:border-[#004B87]/30 hover:bg-slate-50 transition-all text-xs font-semibold cursor-pointer"
-              title={language === 'English' ? 'التحويل إلى اللغة العربية' : 'Switch to English'}
-            >
-              <Globe className="w-4 h-4 text-[#004B87]" />
-              <span className="font-bold text-xs text-[#004B87]">
-                {language === 'English' ? 'العربية' : 'English'}
-              </span>
-              <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${isLangOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {isLangOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white rounded-2xl shadow-xl border border-slate-100 p-1.5 z-50 animate-slide-up text-xs font-medium text-navy-900">
-                <button
-                  onClick={() => {
-                    setLanguage('English');
-                    setIsLangOpen(false);
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between transition-colors ${
-                    language === 'English' ? 'bg-[#004B87]/10 text-[#004B87] font-bold' : 'hover:bg-slate-50 text-slate-700'
-                  }`}
-                >
-                  <span>English</span>
-                  {language === 'English' && <CheckCircle2 className="w-3.5 h-3.5 text-[#004B87]" />}
-                </button>
-                <button
-                  onClick={() => {
-                    setLanguage('العربية');
-                    setIsLangOpen(false);
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between transition-colors ${
-                    language === 'العربية' ? 'bg-[#004B87]/10 text-[#004B87] font-bold' : 'hover:bg-slate-50 text-slate-700'
-                  }`}
-                >
-                  <span className="font-semibold">العربية</span>
-                  {language === 'العربية' && <CheckCircle2 className="w-3.5 h-3.5 text-[#004B87]" />}
-                </button>
-              </div>
-            )}
-          </div>
 
           {/* Notifications Bell Button */}
           <div className="relative" ref={notifRef}>
