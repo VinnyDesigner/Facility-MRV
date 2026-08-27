@@ -744,7 +744,9 @@ export const DataEntryView: React.FC = () => {
             <label className="block text-[11px] font-semibold text-slate-600 mb-1">Tier Level</label>
             <select
               value={tierLevel}
-              onChange={(e) => setTierLevel(e.target.value)}
+              onChange={(e) =>
+                setTierLevel(e.target.value as "Tier 1" | "Tier 2" | "Tier 3")
+              }
               className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer"
             >
               <option value="Select Tier Level">Select Tier Level</option>
@@ -762,51 +764,46 @@ export const DataEntryView: React.FC = () => {
         <div className="flex-shrink-0 flex items-center gap-6 border-b border-slate-100 pb-3 mb-2 text-xs">
           <button
             onClick={() => setActiveTab('facility-description')}
-            className={`pb-2 font-bold transition-all relative cursor-pointer ${
-              activeTab === 'facility-description'
+            className={`pb-2 font-bold transition-all relative cursor-pointer ${activeTab === 'facility-description'
                 ? 'text-[#004B87] border-b-2 border-[#004B87]'
                 : 'text-slate-500 hover:text-slate-800'
-            }`}
+              }`}
           >
             Facility Description
           </button>
           <button
             onClick={() => setActiveTab('monitoring-plan')}
-            className={`pb-2 font-bold transition-all relative cursor-pointer ${
-              activeTab === 'monitoring-plan'
+            className={`pb-2 font-bold transition-all relative cursor-pointer ${activeTab === 'monitoring-plan'
                 ? 'text-[#004B87] border-b-2 border-[#004B87]'
                 : 'text-slate-500 hover:text-slate-800'
-            }`}
+              }`}
           >
             Monitoring Plan
           </button>
           <button
             onClick={() => setActiveTab('verification-qa')}
-            className={`pb-2 font-bold transition-all relative cursor-pointer ${
-              activeTab === 'verification-qa'
+            className={`pb-2 font-bold transition-all relative cursor-pointer ${activeTab === 'verification-qa'
                 ? 'text-[#004B87] border-b-2 border-[#004B87]'
                 : 'text-slate-500 hover:text-slate-800'
-            }`}
+              }`}
           >
             Verification & QA
           </button>
           <button
             onClick={() => setActiveTab('mitigation')}
-            className={`pb-2 font-bold transition-all relative cursor-pointer ${
-              activeTab === 'mitigation'
+            className={`pb-2 font-bold transition-all relative cursor-pointer ${activeTab === 'mitigation'
                 ? 'text-[#004B87] border-b-2 border-[#004B87]'
                 : 'text-slate-500 hover:text-slate-800'
-            }`}
+              }`}
           >
             Mitigation Measures
           </button>
           <button
             onClick={() => setActiveTab('review-submit')}
-            className={`pb-2 font-bold transition-all relative cursor-pointer ${
-              activeTab === 'review-submit'
+            className={`pb-2 font-bold transition-all relative cursor-pointer ${activeTab === 'review-submit'
                 ? 'text-[#004B87] border-b-2 border-[#004B87]'
                 : 'text-slate-500 hover:text-slate-800'
-            }`}
+              }`}
           >
             Review & Submit
           </button>
@@ -1240,9 +1237,8 @@ export const DataEntryView: React.FC = () => {
                   <span className="text-slate-600 font-semibold">Do methane emissions occur at your facility?</span>
                   <div className="flex items-center gap-1.5 text-xs">
                     <span
-                      className={`font-semibold ${
-                        methaneData.hasMethaneEmissions ? 'text-[#004B87]' : 'text-slate-400'
-                      }`}
+                      className={`font-semibold ${methaneData.hasMethaneEmissions ? 'text-[#004B87]' : 'text-slate-400'
+                        }`}
                     >
                       Yes
                     </span>
@@ -1254,20 +1250,17 @@ export const DataEntryView: React.FC = () => {
                           hasMethaneEmissions: !methaneData.hasMethaneEmissions,
                         })
                       }
-                      className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        methaneData.hasMethaneEmissions ? 'bg-[#004B87]' : 'bg-slate-300'
-                      }`}
+                      className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${methaneData.hasMethaneEmissions ? 'bg-[#004B87]' : 'bg-slate-300'
+                        }`}
                     >
                       <span
-                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                          methaneData.hasMethaneEmissions ? 'translate-x-4' : 'translate-x-0'
-                        }`}
+                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${methaneData.hasMethaneEmissions ? 'translate-x-4' : 'translate-x-0'
+                          }`}
                       />
                     </button>
                     <span
-                      className={`font-semibold ${
-                        !methaneData.hasMethaneEmissions ? 'text-[#004B87]' : 'text-slate-400'
-                      }`}
+                      className={`font-semibold ${!methaneData.hasMethaneEmissions ? 'text-[#004B87]' : 'text-slate-400'
+                        }`}
                     >
                       No
                     </span>
@@ -1468,14 +1461,12 @@ export const DataEntryView: React.FC = () => {
                                 hasLdarProgram: !methaneData.hasLdarProgram,
                               })
                             }
-                            className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                              methaneData.hasLdarProgram ? 'bg-[#004B87]' : 'bg-slate-300'
-                            }`}
+                            className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${methaneData.hasLdarProgram ? 'bg-[#004B87]' : 'bg-slate-300'
+                              }`}
                           >
                             <span
-                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                                methaneData.hasLdarProgram ? 'translate-x-4' : 'translate-x-0'
-                              }`}
+                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${methaneData.hasLdarProgram ? 'translate-x-4' : 'translate-x-0'
+                                }`}
                             />
                           </button>
                           <span className={`font-semibold ${!methaneData.hasLdarProgram ? 'text-[#004B87]' : 'text-slate-400'}`}>
