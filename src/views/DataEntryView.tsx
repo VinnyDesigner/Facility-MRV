@@ -868,7 +868,7 @@ export const DataEntryView: React.FC = () => {
               {/* ========================================================================= */}
               <div className="pt-2">
                 <h4 className="text-xs font-bold text-[#004B87] mb-3">Primary Production Streams</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -1067,7 +1067,7 @@ export const DataEntryView: React.FC = () => {
               {/* ========================================================================= */}
               <div className="pt-2">
                 <h4 className="text-xs font-bold text-[#004B87] mb-3">Emission Sources</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -1343,7 +1343,7 @@ export const DataEntryView: React.FC = () => {
                     </div>
 
                     {/* Methane Procedures Table */}
-                    <div className="overflow-x-auto rounded-xl border border-slate-200">
+                    <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                       <table className="w-full text-left text-xs border-collapse">
                         <thead>
                           <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -1508,7 +1508,7 @@ export const DataEntryView: React.FC = () => {
               {/* ========================================================================= */}
               <div className="pt-2">
                 <h4 className="text-xs font-bold text-[#004B87] mb-3">Source Stream</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -1787,7 +1787,7 @@ export const DataEntryView: React.FC = () => {
                     {/* Subsection 1: Source Stream Identification & Classification */}
                     <div>
                       <h4 className="text-xs font-bold text-[#004B87] mb-3">Source Stream Identification & Classification</h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200">
+                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                         <table className="w-full text-left text-xs border-collapse">
                           <thead>
                             <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -1890,7 +1890,7 @@ export const DataEntryView: React.FC = () => {
                     {/* Subsection 2: Tier & Uncertainty Level */}
                     <div>
                       <h4 className="text-xs font-bold text-[#004B87] mb-3">Source Stream Identification & Classification</h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200">
+                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                         <table className="w-full text-left text-xs border-collapse">
                           <thead>
                             <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -2053,7 +2053,7 @@ export const DataEntryView: React.FC = () => {
                     {/* Subsection 4: Detailed Calculation Information */}
                     <div>
                       <h4 className="text-xs font-bold text-[#004B87] mb-3">Detailed Calculation Information</h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200">
+                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                         <table className="w-full text-left text-xs border-collapse">
                           <thead>
                             <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -2164,7 +2164,7 @@ export const DataEntryView: React.FC = () => {
                     {/* Subsection 5: Other Inputs / Outputs */}
                     <div>
                       <h4 className="text-xs font-bold text-[#004B87] mb-3">Other Inputs / Outputs</h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200">
+                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                         <table className="w-full text-left text-xs border-collapse">
                           <thead>
                             <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -2348,7 +2348,7 @@ export const DataEntryView: React.FC = () => {
                     {/* Subsection 1: Identify Relevant Measured Emission Source */}
                     <div>
                       <h4 className="text-xs font-bold text-[#004B87] mb-3">Identify Relevant Measured Emission Source</h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200">
+                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                         <table className="w-full text-left text-xs border-collapse">
                           <thead>
                             <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -2422,7 +2422,7 @@ export const DataEntryView: React.FC = () => {
                     {/* Subsection 2: Uncertainty Levels for Each Emission Source */}
                     <div>
                       <h4 className="text-xs font-bold text-[#004B87] mb-3">Uncertainty Levels for Each Emission Source</h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200">
+                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                         <table className="w-full text-left text-xs border-collapse">
                           <thead>
                             <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -2572,7 +2572,7 @@ export const DataEntryView: React.FC = () => {
                     {/* Subsection 4: Measurement Points Details */}
                     <div>
                       <h4 className="text-xs font-bold text-[#004B87] mb-3">Measurement Points Details</h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200">
+                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                         <table className="w-full text-left text-xs border-collapse">
                           <thead>
                             <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -2679,7 +2679,7 @@ export const DataEntryView: React.FC = () => {
                     {/* Subsection 5: Measurement Equipment */}
                     <div>
                       <h4 className="text-xs font-bold text-[#004B87] mb-3">Measurement Equipment</h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200">
+                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                         <table className="w-full text-left text-xs border-collapse">
                           <thead>
                             <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -2848,7 +2848,7 @@ export const DataEntryView: React.FC = () => {
               {/* Section 1: Data Gaps */}
               <div>
                 <h4 className="text-xs font-bold text-[#004B87] mb-3">Data Gaps</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -2965,7 +2965,7 @@ export const DataEntryView: React.FC = () => {
               {/* Section 2: Management Responsibilities */}
               <div>
                 <h4 className="text-xs font-bold text-[#004B87] mb-3">Management Responsibilities</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -3030,7 +3030,7 @@ export const DataEntryView: React.FC = () => {
               {/* Section 3: Quality Assurance Procedures */}
               <div>
                 <h4 className="text-xs font-bold text-[#004B87] mb-3">Quality Assurance Procedures</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -3121,7 +3121,7 @@ export const DataEntryView: React.FC = () => {
               {/* Section 4: Internal Review & Validation */}
               <div>
                 <h4 className="text-xs font-bold text-[#004B87] mb-3">Internal Review & Validation</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -3218,7 +3218,7 @@ export const DataEntryView: React.FC = () => {
             <div className="space-y-6 animate-fade-in text-xs">
               <div>
                 <h4 className="text-xs font-bold text-[#004B87] mb-3">Greenhouse Gas Mitigation Measures</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">

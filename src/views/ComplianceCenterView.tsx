@@ -59,7 +59,7 @@ export const ComplianceCenterView: React.FC = () => {
       status: 'Bureau Veritas Assigned',
       date: '2026-03-12',
       description: 'Positive assurance statement issued with ISO 14065 audit opinion.',
-      link: 'verifier-registry',
+      link: 'mrv-reports',
       icon: ShieldCheck,
       isDone: true,
     },
