@@ -23,6 +23,7 @@ import {
   FileText,
   History,
   Globe,
+  Lock,
 } from 'lucide-react';
 import { useMRV } from '../../context/MRVContext';
 import colorLogo from '../../assets/color-logo.svg';
@@ -47,6 +48,10 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
     activeFacility,
     reportingYear,
     submissions,
+    workflowState,
+    isMonitoringPlanUnlocked,
+    isAnnualEmissionUnlocked,
+    isVerificationUnlocked,
   } = useMRV();
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -76,10 +81,13 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
     activeView === 'compliance-checker';
   const isDataEntryActive =
     activeView === 'data-entry' ||
+    activeView === 'monitoring-plan-module' ||
     activeView === 'monitoring-plan' ||
-    activeView === 'emissions-data' ||
     activeView === 'report-upload';
-  const isDataReviewActive = activeView === 'data-review';
+  const isAnnualEmissionActive =
+    activeView === 'annual-emission-data' ||
+    activeView === 'emissions-data';
+  const isVerificationActive = activeView === 'verification';
   const isReportsActive =
     activeView === 'reports' ||
     activeView === 'mrv-reports' ||
@@ -130,14 +138,14 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
         </div>
 
         {/* Center Section: Top Navigation Bar */}
-        <div className="hidden md:flex items-center justify-center absolute left-1/2 -translate-x-1/2">
-          <nav className="h-[46px] flex items-center gap-1 p-1 bg-gradient-to-b from-[#5575A3] to-[#365785] backdrop-blur-md rounded-full shadow-lg border border-white/60 transition-all duration-300">
+        <div className="hidden md:flex items-center justify-center absolute left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
+          <nav className="h-[46px] flex items-center gap-1 sm:gap-1.5 p-1 bg-gradient-to-b from-[#5575A3] to-[#365785] backdrop-blur-md rounded-full shadow-lg border border-white/60 transition-all duration-300 whitespace-nowrap shrink-0">
             {currentRole === 'FACILITY_OPERATOR' ? (
               <>
                 {/* 1. Dashboard */}
                 <button
                   onClick={() => setActiveView('dashboard')}
-                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
                     isDashboardActive
                       ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
                       : 'text-white/85 hover:text-white hover:bg-white/15'
@@ -150,7 +158,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                 {/* 2. Registration */}
                 <button
                   onClick={() => setActiveView('registration')}
-                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
                     isFacilityActive
                       ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
                       : 'text-white/85 hover:text-white hover:bg-white/15'
@@ -160,36 +168,86 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                   <span>Registration</span>
                 </button>
 
-                {/* 3. Data Entry */}
+                {/* 3. Monitoring Plan */}
                 <button
                   onClick={() => setActiveView('data-entry')}
-                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
                     isDataEntryActive
-                      ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
-                      : 'text-white/85 hover:text-white hover:bg-white/15'
+                      ? isMonitoringPlanUnlocked
+                        ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
+                        : 'bg-white/90 text-amber-950 font-bold shadow-sm border border-amber-300'
+                      : isMonitoringPlanUnlocked
+                      ? 'text-white/85 hover:text-white hover:bg-white/15'
+                      : 'text-white/60 hover:text-white/80 hover:bg-white/10'
                   }`}
-                  title="Data Entry"
+                  title={
+                    isMonitoringPlanUnlocked
+                      ? 'Monitoring Plan (Unlocked)'
+                      : `Monitoring Plan Locked (${
+                          workflowState.registrationStatus === 'Under EAD Review'
+                            ? 'Registration Under EAD Review'
+                            : 'Registration must be Approved / Registered first'
+                        })`
+                  }
                 >
-                  <span>Data Entry</span>
+                  <span>Monitoring Plan</span>
+                  {!isMonitoringPlanUnlocked && (
+                    <Lock className="w-3 h-3 text-amber-300 flex-shrink-0" />
+                  )}
                 </button>
 
-                {/* 4. Data Review */}
+                {/* 4. Annual Emission Data */}
                 <button
-                  onClick={() => setActiveView('data-review')}
-                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
-                    isDataReviewActive
-                      ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
-                      : 'text-white/85 hover:text-white hover:bg-white/15'
+                  onClick={() => setActiveView('annual-emission-data')}
+                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+                    isAnnualEmissionActive
+                      ? isAnnualEmissionUnlocked
+                        ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
+                        : 'bg-white/90 text-amber-950 font-bold shadow-sm border border-amber-300'
+                      : isAnnualEmissionUnlocked
+                      ? 'text-white/85 hover:text-white hover:bg-white/15'
+                      : 'text-white/60 hover:text-white/80 hover:bg-white/10'
                   }`}
-                  title="Data Review"
+                  title={
+                    isAnnualEmissionUnlocked
+                      ? 'Annual Emission Data (Unlocked)'
+                      : 'Annual Emission Data Locked (Monitoring Plan must be Approved / Accepted first)'
+                  }
                 >
-                  <span>Data Review</span>
+                  <span>Annual Emission Data</span>
+                  {!isAnnualEmissionUnlocked && (
+                    <Lock className="w-3 h-3 text-amber-300 flex-shrink-0" />
+                  )}
                 </button>
 
-                {/* 5. Reports */}
+                {/* 5. Verification */}
+                <button
+                  onClick={() => setActiveView('verification')}
+                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+                    isVerificationActive
+                      ? isVerificationUnlocked
+                        ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
+                        : 'bg-white/90 text-amber-950 font-bold shadow-sm border border-amber-300'
+                      : isVerificationUnlocked
+                      ? 'text-white/85 hover:text-white hover:bg-white/15'
+                      : 'text-white/60 hover:text-white/80 hover:bg-white/10'
+                  }`}
+                  title={
+                    isVerificationUnlocked
+                      ? 'Verification (Unlocked)'
+                      : 'Verification Locked (Annual Emission Data must be Submitted first)'
+                  }
+                >
+                  <span>Verification</span>
+                  {!isVerificationUnlocked && (
+                    <Lock className="w-3 h-3 text-amber-300 flex-shrink-0" />
+                  )}
+                </button>
+
+                {/* 6. Reports */}
                 <button
                   onClick={() => setActiveView('reports')}
-                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
                     isReportsActive
                       ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
                       : 'text-white/85 hover:text-white hover:bg-white/15'
@@ -205,7 +263,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                 {/* 1. Dashboard */}
                 <button
                   onClick={() => setActiveView('ead-dashboard')}
-                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
                     isEadDashboardActive
                       ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
                       : 'text-white/85 hover:text-white hover:bg-white/15'
@@ -218,7 +276,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                 {/* 2. Review Queue */}
                 <button
                   onClick={() => setActiveView('ead-queue')}
-                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
                     isEadQueueActive
                       ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
                       : 'text-white/85 hover:text-white hover:bg-white/15'
@@ -236,7 +294,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                 {/* 3. Facilities */}
                 <button
                   onClick={() => setActiveView('ead-facilities')}
-                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
                     isEadFacilitiesActive
                       ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
                       : 'text-white/85 hover:text-white hover:bg-white/15'
@@ -249,7 +307,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                 {/* 4. Reports */}
                 <button
                   onClick={() => setActiveView('ead-analytics')}
-                  className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
                     isEadAnalyticsActive
                       ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
                       : 'text-white/85 hover:text-white hover:bg-white/15'
@@ -435,24 +493,69 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                   setActiveView('data-entry');
                   setIsMobileMenuOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold ${
-                  isDataEntryActive ? 'bg-white text-[#004B87]' : 'text-slate-200 hover:bg-white/10'
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  isDataEntryActive
+                    ? isMonitoringPlanUnlocked
+                      ? 'bg-white text-[#004B87]'
+                      : 'bg-white/90 text-amber-950 border border-amber-300'
+                    : isMonitoringPlanUnlocked
+                    ? 'text-slate-200 hover:bg-white/10'
+                    : 'text-slate-400 hover:bg-white/5'
                 }`}
               >
-                <ClipboardList className="w-4 h-4" />
-                Data Entry
+                <div className="flex items-center gap-3">
+                  <ClipboardList className="w-4 h-4" />
+                  <span>Monitoring Plan</span>
+                </div>
+                {!isMonitoringPlanUnlocked && (
+                  <Lock className="w-3.5 h-3.5 text-amber-300" />
+                )}
               </button>
               <button
                 onClick={() => {
-                  setActiveView('data-review');
+                  setActiveView('annual-emission-data');
                   setIsMobileMenuOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold ${
-                  isDataReviewActive ? 'bg-white text-[#004B87]' : 'text-slate-200 hover:bg-white/10'
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  isAnnualEmissionActive
+                    ? isAnnualEmissionUnlocked
+                      ? 'bg-white text-[#004B87]'
+                      : 'bg-white/90 text-amber-950 border border-amber-300'
+                    : isAnnualEmissionUnlocked
+                    ? 'text-slate-200 hover:bg-white/10'
+                    : 'text-slate-400 hover:bg-white/5'
                 }`}
               >
-                <ShieldCheck className="w-4 h-4" />
-                Data Review
+                <div className="flex items-center gap-3">
+                  <BarChart2 className="w-4 h-4" />
+                  <span>Annual Emission Data</span>
+                </div>
+                {!isAnnualEmissionUnlocked && (
+                  <Lock className="w-3.5 h-3.5 text-amber-300" />
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  setActiveView('verification');
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  isVerificationActive
+                    ? isVerificationUnlocked
+                      ? 'bg-white text-[#004B87]'
+                      : 'bg-white/90 text-amber-950 border border-amber-300'
+                    : isVerificationUnlocked
+                    ? 'text-slate-200 hover:bg-white/10'
+                    : 'text-slate-400 hover:bg-white/5'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Verification</span>
+                </div>
+                {!isVerificationUnlocked && (
+                  <Lock className="w-3.5 h-3.5 text-amber-300" />
+                )}
               </button>
 
               <div className="pt-2 border-t border-white/10">

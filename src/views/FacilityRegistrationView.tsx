@@ -22,12 +22,23 @@ import {
   FileText,
   Sparkles,
   RotateCcw,
+  XCircle,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
 import { EmirateType, SectorType, TierLevel } from '../types/mrv';
 
 export const FacilityRegistrationView: React.FC = () => {
-  const { activeFacility, updateFacility, setActiveView } = useMRV();
+  const {
+    activeFacility,
+    updateFacility,
+    setActiveView,
+    workflowState,
+    setRegistrationStatus,
+    currentRole,
+  } = useMRV();
+
+  const isFacilityOperator = currentRole === 'FACILITY_OPERATOR';
+  const isEadReviewerOrAdmin = currentRole === 'EAD_REVIEWER' || (currentRole as string) === 'ADMIN';
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isActionsOpen, setIsActionsOpen] = useState(false);
@@ -258,6 +269,56 @@ export const FacilityRegistrationView: React.FC = () => {
     }
   };
 
+  const handleSubmitRegistration = () => {
+    handleSave();
+    // Status changes: Draft -> Submitted -> Under EAD Review
+    setRegistrationStatus('Submitted');
+    setNoticeMessage('Registration Submitted! Forwarding for EAD Review...');
+    setIsSavedNotice(true);
+
+    setTimeout(() => {
+      setRegistrationStatus('Under EAD Review');
+      setNoticeMessage('Registration Status: Under EAD Review');
+      setTimeout(() => setIsSavedNotice(false), 3500);
+    }, 1000);
+  };
+
+  const handleEadApprove = () => {
+    const generatedId =
+      activeFacility.facilityCode && activeFacility.facilityCode.startsWith('FAC-EAD')
+        ? activeFacility.facilityCode
+        : `FAC-EAD-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    updateFacility({
+      facilityCode: generatedId,
+      status: 'Registered',
+    });
+
+    setFormData((prev) => ({
+      ...prev,
+      facilityId: generatedId,
+    }));
+
+    setRegistrationStatus('Approved');
+    setNoticeMessage(`Registration Approved! Facility ID Generated: ${generatedId} • Monitoring Plan Unlocked.`);
+    setIsSavedNotice(true);
+    setTimeout(() => setIsSavedNotice(false), 4000);
+  };
+
+  const handleReturnForCorrection = () => {
+    setRegistrationStatus('Correction Required');
+    setNoticeMessage('Registration Returned for Correction to Facility Operator.');
+    setIsSavedNotice(true);
+    setTimeout(() => setIsSavedNotice(false), 3000);
+  };
+
+  const handleRejectRegistration = () => {
+    setRegistrationStatus('Rejected');
+    setNoticeMessage('Registration Rejected by EAD.');
+    setIsSavedNotice(true);
+    setTimeout(() => setIsSavedNotice(false), 3000);
+  };
+
   const steps = [
     { num: 1, label: 'Operator Details' },
     { num: 2, label: 'Facility Details & Location' },
@@ -290,6 +351,39 @@ export const FacilityRegistrationView: React.FC = () => {
               Registration, Permitting & Statutory Operator Profile
             </p>
           </div>
+
+          {/* Workflow Status & Facility ID Badge */}
+          <div className="flex items-center gap-2">
+            <span
+              className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wide transition-all ${
+                workflowState.registrationStatus === 'Draft'
+                  ? 'bg-slate-100 text-slate-700 border border-slate-200'
+                  : workflowState.registrationStatus === 'Submitted'
+                  ? 'bg-blue-100 text-blue-800 border border-blue-200 animate-pulse'
+                  : workflowState.registrationStatus === 'Under EAD Review'
+                  ? 'bg-indigo-100 text-indigo-800 border border-indigo-200'
+                  : workflowState.registrationStatus === 'Correction Required'
+                  ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                  : workflowState.registrationStatus === 'Rejected'
+                  ? 'bg-rose-100 text-rose-800 border border-rose-200'
+                  : workflowState.registrationStatus === 'Approved' || workflowState.registrationStatus === 'Registered'
+                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                  : 'bg-slate-100 text-slate-700'
+              }`}
+            >
+              {workflowState.registrationStatus === 'Approved' || workflowState.registrationStatus === 'Registered'
+                ? 'Approved / Registered'
+                : workflowState.registrationStatus}
+            </span>
+
+            {(workflowState.registrationStatus === 'Approved' || workflowState.registrationStatus === 'Registered') && (
+              <span className="px-2.5 py-1 rounded-full bg-[#004B87]/10 text-[#004B87] text-[10px] font-mono font-bold border border-[#004B87]/20 flex items-center gap-1 animate-fade-in">
+                <span>Facility ID:</span>
+                <span>{formData.facilityId || activeFacility.facilityCode || 'FAC-EAD-2026-0891'}</span>
+              </span>
+            )}
+          </div>
+
           {isSavedNotice && (
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs font-bold animate-fade-in">
               <CheckCircle2 className="w-4 h-4" />
@@ -322,7 +416,7 @@ export const FacilityRegistrationView: React.FC = () => {
             </button>
 
             {isActionsOpen && (
-              <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-100 p-1.5 z-50 animate-slide-up text-xs font-medium text-navy-900">
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-100 p-1.5 z-50 animate-slide-up text-xs font-medium text-navy-900">
                 <button
                   onClick={() => {
                     loadSampleData();
@@ -344,6 +438,31 @@ export const FacilityRegistrationView: React.FC = () => {
                   <span>Clear All (Start Blank)</span>
                 </button>
                 <div className="h-[1px] bg-slate-100 my-1" />
+                {isEadReviewerOrAdmin && (
+                  <button
+                    onClick={() => {
+                      handleEadApprove();
+                      setIsActionsOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-emerald-50 transition-colors flex items-center gap-2 text-emerald-700 font-bold"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>EAD Approve Registration</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    setRegistrationStatus('Draft');
+                    setNoticeMessage('Reset Registration to Draft (Monitoring Plan Locked).');
+                    setIsSavedNotice(true);
+                    setIsActionsOpen(false);
+                    setTimeout(() => setIsSavedNotice(false), 3000);
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-amber-50 transition-colors flex items-center gap-2 text-amber-700"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Reset to Draft (Lock Plan)</span>
+                </button>
                 <button
                   onClick={() => {
                     handleSave();
@@ -1295,34 +1414,125 @@ export const FacilityRegistrationView: React.FC = () => {
           </div>
         </div>
 
-      {/* Fixed Bottom 3 Action Buttons */}
+      {/* Role-Based Bottom Action Buttons */}
       <div className="flex-shrink-0 pt-3 pb-1 flex items-center justify-end gap-3">
-        <button
-          onClick={() => setActiveView('dashboard')}
-          className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-        >
-          <span>Cancel</span>
-          <X className="w-3.5 h-3.5" />
-        </button>
+        {isFacilityOperator ? (
+          /* FACILITY OPERATOR:
+             Show only:
+             - Cancel
+             - Save
+             - Submit Registration
+             Do NOT show "EAD Approve Registration" to the Facility Operator.
+             After Facility Operator clicks "Submit Registration":
+             Status changes: Draft → Submitted → Under EAD Review
+          */
+          <>
+            <button
+              onClick={() => setActiveView('dashboard')}
+              className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+            >
+              <span>Cancel</span>
+              <X className="w-3.5 h-3.5" />
+            </button>
 
-        <button
-          onClick={handleSave}
-          className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-[#004B87] text-xs font-bold text-[#004B87] flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-        >
-          <span>Save</span>
-          <Bookmark className="w-3.5 h-3.5 fill-current" />
-        </button>
+            <button
+              onClick={handleSave}
+              className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-[#004B87] text-xs font-bold text-[#004B87] flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+            >
+              <span>Save</span>
+              <Bookmark className="w-3.5 h-3.5 fill-current" />
+            </button>
 
-        <button
-          onClick={() => {
-            handleSave();
-            setActiveView('data-review');
-          }}
-          className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer"
-        >
-          <span>Submit</span>
-          <Send className="w-3.5 h-3.5 fill-current" />
-        </button>
+            {(workflowState.registrationStatus === 'Approved' || workflowState.registrationStatus === 'Registered') && (
+              <button
+                onClick={() => setActiveView('data-entry')}
+                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              >
+                <span>Go to Monitoring Plan</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            <button
+              onClick={handleSubmitRegistration}
+              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer"
+            >
+              <span>Submit Registration</span>
+              <Send className="w-3.5 h-3.5 fill-current" />
+            </button>
+          </>
+        ) : isEadReviewerOrAdmin ? (
+          /* EAD REVIEWER / ADMIN:
+             Only the EAD Reviewer/Admin should see:
+             - EAD Approve Registration
+             - Return for Correction / Reject, where applicable
+             After EAD approval:
+             Status → Approved / Registered
+             → Facility ID Generated
+             → Monitoring Plan becomes available.
+          */
+          <>
+            <button
+              onClick={() => setActiveView(currentRole === 'EAD_REVIEWER' ? 'ead-dashboard' : 'dashboard')}
+              className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+            >
+              <span>Cancel</span>
+              <X className="w-3.5 h-3.5" />
+            </button>
+
+            {(workflowState.registrationStatus === 'Submitted' ||
+              workflowState.registrationStatus === 'Under EAD Review' ||
+              workflowState.registrationStatus === 'Draft' ||
+              workflowState.registrationStatus === 'Correction Required') && (
+              <>
+                <button
+                  onClick={handleReturnForCorrection}
+                  className="px-4 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-xs font-bold text-amber-800 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                  title="Return registration to facility operator for correction"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-amber-700" />
+                  <span>Return for Correction</span>
+                </button>
+
+                <button
+                  onClick={handleRejectRegistration}
+                  className="px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-300 text-xs font-bold text-rose-800 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                  title="Reject registration"
+                >
+                  <XCircle className="w-3.5 h-3.5 text-rose-700" />
+                  <span>Reject</span>
+                </button>
+
+                <button
+                  onClick={handleEadApprove}
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-emerald-600/25 hover:shadow-lg transition-all cursor-pointer"
+                  title="Approve registration, generate Facility ID, and unlock Monitoring Plan"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>EAD Approve Registration</span>
+                </button>
+              </>
+            )}
+
+            {(workflowState.registrationStatus === 'Approved' || workflowState.registrationStatus === 'Registered') && (
+              <button
+                onClick={() => setActiveView('data-entry')}
+                className="px-5 py-2.5 rounded-xl bg-[#004B87] hover:bg-[#003d6e] text-xs font-bold text-white flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              >
+                <span>Go to Monitoring Plan</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </>
+        ) : (
+          <button
+            onClick={() => setActiveView('dashboard')}
+            className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+          >
+            <span>Cancel</span>
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
     </div>
   );

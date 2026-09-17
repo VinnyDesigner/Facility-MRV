@@ -362,47 +362,53 @@ export const MRVReportsView: React.FC = () => {
       {/* ------------------------------------------------------------------------- */}
       <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-7 flex flex-col overflow-hidden">
         {/* Navigation Sub-Tabs (Inside Card Header) */}
-        <div className="flex-shrink-0 flex items-center gap-6 border-b border-slate-100 pb-3 mb-4 text-xs font-semibold">
-          <button
-            onClick={() => setActiveTab('emission-summary')}
-            className={`pb-2 font-bold transition-all relative cursor-pointer ${
-              activeTab === 'emission-summary'
-                ? 'text-[#004B87] border-b-2 border-[#004B87]'
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            Emission Summary Report
-          </button>
-          <button
-            onClick={() => setActiveTab('submission-status')}
-            className={`pb-2 font-bold transition-all relative cursor-pointer ${
-              activeTab === 'submission-status'
-                ? 'text-[#004B87] border-b-2 border-[#004B87]'
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            Submission Status
-          </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`pb-2 font-bold transition-all relative cursor-pointer ${
-              activeTab === 'history'
-                ? 'text-[#004B87] border-b-2 border-[#004B87]'
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            Submission History
-          </button>
-          <button
-            onClick={() => setActiveTab('version')}
-            className={`pb-2 font-bold transition-all relative cursor-pointer ${
-              activeTab === 'version'
-                ? 'text-[#004B87] border-b-2 border-[#004B87]'
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            Audit Log
-          </button>
+        <div className="flex-shrink-0 pb-3 mb-4 overflow-x-auto no-scrollbar">
+          <div className="inline-flex items-center gap-1.5 p-1 bg-slate-100/90 border border-slate-200/80 rounded-xl text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => setActiveTab('emission-summary')}
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
+                activeTab === 'emission-summary'
+                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
+              }`}
+            >
+              Emission Summary Report
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('submission-status')}
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
+                activeTab === 'submission-status'
+                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
+              }`}
+            >
+              Submission Status
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('history')}
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
+                activeTab === 'history'
+                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
+              }`}
+            >
+              Submission History
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('version')}
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
+                activeTab === 'version'
+                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
+              }`}
+            >
+              Audit Log
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Card Body */}

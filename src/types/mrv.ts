@@ -224,3 +224,119 @@ export interface SelfAssessmentResult {
   nextSteps: string[];
   applicableTier: TierLevel;
 }
+
+// =========================================================================
+// WORKFLOW STATUS TYPES
+// =========================================================================
+
+export type RegistrationStatus =
+  | 'Draft'
+  | 'Submitted'
+  | 'Under EAD Review'
+  | 'Correction Required'
+  | 'Approved'
+  | 'Registered'
+  | 'Rejected';
+
+export type MonitoringPlanStatus =
+  | 'Not Started'
+  | 'Draft'
+  | 'Submitted'
+  | 'Under EAD Review'
+  | 'Correction Required'
+  | 'Approved'
+  | 'Accepted'
+  | 'Active';
+
+export type AnnualEmissionStatus =
+  | 'Not Started'
+  | 'Draft'
+  | 'Submitted'
+  | 'Pending Verification'
+  | 'Under EAD Review'
+  | 'Correction Required'
+  | 'Approved'
+  | 'Accepted';
+
+export type VerificationStatus =
+  | 'Not Required'
+  | 'Pending Verification'
+  | 'Verification In Progress'
+  | 'Verification Completed'
+  | 'Verification Statement Uploaded';
+
+export interface WorkflowState {
+  registrationStatus: RegistrationStatus;
+  monitoringPlanStatus: MonitoringPlanStatus;
+  annualEmissionStatus: AnnualEmissionStatus;
+  verificationStatus: VerificationStatus;
+  registrationApprovalDate?: string;
+  monitoringPlanDeadline?: string; // 90 days after registration approval
+}
+
+// =========================================================================
+// MEASUREMENT EQUIPMENT (for Monitoring Plan → Measurement Equipment tab)
+// =========================================================================
+
+export interface MeasurementEquipment {
+  id: string;
+  meterName: string;
+  equipmentId: string;
+  measurementParameter: string;
+  measurementUnit: string;
+  measurementMethod: string;
+  calibration: string;
+  calibrationDate: string;
+  nextCalibrationDate: string;
+  calibrationFrequency: string;
+  accuracyUncertainty: string;
+  responsibleDeptPerson: string;
+  supportingDocument?: string;
+  linkedSourceStreamId?: string;
+}
+
+// =========================================================================
+// ACTIVITY DATA & CALCULATION FACTORS (for Monitoring Plan tab)
+// =========================================================================
+
+export interface ActivityDataEntry {
+  id: string;
+  sourceStreamId: string;
+  activityDataAmount: string;
+  unit: string;
+  fuelMaterialType: string;
+  dataSource: string;
+  relevantQuantity: string;
+}
+
+export interface CalculationFactor {
+  id: string;
+  sourceStreamId: string;
+  emissionFactor: string;
+  emissionFactorUnit: string;
+  ncv: string;
+  ncvUnit: string;
+  tier: string;
+  factorSource: string;
+}
+
+// =========================================================================
+// VERIFICATION RECORD (for Verification module)
+// =========================================================================
+
+export interface VerificationRecord {
+  id: string;
+  facilityId: string;
+  facilityName: string;
+  reportingYear: number;
+  submissionVersion: number;
+  verificationStatus: VerificationStatus;
+  verificationRequired: boolean;
+  verifierName?: string;
+  verifierOrganization?: string;
+  verificationStartDate?: string;
+  verificationEndDate?: string;
+  verificationStatement?: string;
+  supportingDocuments: string[];
+  submissionHistory: AuditEvent[];
+}

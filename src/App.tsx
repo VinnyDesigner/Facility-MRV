@@ -26,6 +26,8 @@ import { DataReviewView } from './views/DataReviewView';
 import { DataEntryView } from './views/DataEntryView';
 import { MRVReportsView } from './views/MRVReportsView';
 import { VersionHistoryView } from './views/VersionHistoryView';
+import { AnnualEmissionDataView } from './views/AnnualEmissionDataView';
+import { VerificationModuleView } from './views/VerificationModuleView';
 
 const MainAppContent: React.FC = () => {
   const { currentRole, activeView, setActiveView } = useMRV();
@@ -46,9 +48,14 @@ const MainAppContent: React.FC = () => {
         return <FacilityRegistrationView />;
       case 'data-entry':
       case 'monitoring-plan':
+      case 'monitoring-plan-module':
       case 'emissions-data':
       case 'report-upload':
         return <DataEntryView />;
+      case 'annual-emission-data':
+        return <AnnualEmissionDataView />;
+      case 'verification':
+        return <VerificationModuleView />;
       case 'data-review':
         return <DataReviewView />;
       case 'reports':

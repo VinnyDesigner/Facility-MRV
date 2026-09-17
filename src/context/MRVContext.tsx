@@ -10,6 +10,11 @@ import {
   Submission,
   NotificationItem,
   AuditEvent,
+  WorkflowState,
+  RegistrationStatus,
+  MonitoringPlanStatus,
+  AnnualEmissionStatus,
+  VerificationStatus,
 } from '../types/mrv';
 
 interface MRVContextType {
@@ -45,6 +50,15 @@ interface MRVContextType {
   selectedSubmissionForReview: Submission | null;
   setSelectedSubmissionForReview: (sub: Submission | null) => void;
   resetDemoData: () => void;
+  // Workflow State
+  workflowState: WorkflowState;
+  setRegistrationStatus: (status: RegistrationStatus) => void;
+  setMonitoringPlanStatus: (status: MonitoringPlanStatus) => void;
+  setAnnualEmissionStatus: (status: AnnualEmissionStatus) => void;
+  setVerificationStatus: (status: VerificationStatus) => void;
+  isMonitoringPlanUnlocked: boolean;
+  isAnnualEmissionUnlocked: boolean;
+  isVerificationUnlocked: boolean;
 }
 
 const INITIAL_FACILITIES: Facility[] = [
@@ -724,6 +738,58 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeView, setActiveView] = useState<string>('dashboard');
   const [selectedSubmissionForReview, setSelectedSubmissionForReview] = useState<Submission | null>(null);
 
+  // Workflow State
+  const [workflowState, setWorkflowState] = useState<WorkflowState>({
+    registrationStatus: 'Draft',
+    monitoringPlanStatus: 'Draft',
+    annualEmissionStatus: 'Draft',
+    verificationStatus: 'Pending Verification',
+    registrationApprovalDate: undefined,
+    monitoringPlanDeadline: undefined,
+  });
+
+  const setRegistrationStatus = (status: RegistrationStatus) => {
+    setWorkflowState(prev => {
+      const isApproved = status === 'Approved' || status === 'Registered';
+      const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      const deadlineDate = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      return {
+        ...prev,
+        registrationStatus: status,
+        registrationApprovalDate: isApproved ? (prev.registrationApprovalDate || todayStr) : undefined,
+        monitoringPlanDeadline: isApproved ? (prev.monitoringPlanDeadline || deadlineDate) : undefined,
+      };
+    });
+  };
+  const setMonitoringPlanStatus = (status: MonitoringPlanStatus) => {
+    setWorkflowState(prev => ({ ...prev, monitoringPlanStatus: status }));
+  };
+  const setAnnualEmissionStatus = (status: AnnualEmissionStatus) => {
+    setWorkflowState(prev => ({ ...prev, annualEmissionStatus: status }));
+  };
+  const setVerificationStatusFn = (status: VerificationStatus) => {
+    setWorkflowState(prev => ({ ...prev, verificationStatus: status }));
+  };
+
+  // Workflow dependency checks
+  const isMonitoringPlanUnlocked =
+    workflowState.registrationStatus === 'Approved' ||
+    workflowState.registrationStatus === 'Registered';
+
+  const isAnnualEmissionUnlocked =
+    isMonitoringPlanUnlocked &&
+    (workflowState.monitoringPlanStatus === 'Approved' ||
+      workflowState.monitoringPlanStatus === 'Accepted' ||
+      workflowState.monitoringPlanStatus === 'Active');
+
+  const isVerificationUnlocked =
+    isAnnualEmissionUnlocked &&
+    (workflowState.annualEmissionStatus === 'Submitted' ||
+      workflowState.annualEmissionStatus === 'Pending Verification' ||
+      workflowState.annualEmissionStatus === 'Under EAD Review' ||
+      workflowState.annualEmissionStatus === 'Approved' ||
+      workflowState.annualEmissionStatus === 'Accepted');
+
   const activeFacility = facilities.find((f) => f.id === activeFacilityId) || facilities[0];
 
   const currentUser: User = {
@@ -876,6 +942,12 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       })
     );
 
+    // Also synchronize annualEmissionStatus in workflowState
+    setWorkflowState(prev => ({
+      ...prev,
+      annualEmissionStatus: 'Approved',
+    }));
+
     const approvedSub = submissions.find((s) => s.id === submissionId);
     if (approvedSub) {
       setNotifications((prev) => [
@@ -925,6 +997,12 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return s;
       })
     );
+
+    // Also synchronize annualEmissionStatus in workflowState
+    setWorkflowState(prev => ({
+      ...prev,
+      annualEmissionStatus: 'Correction Required',
+    }));
 
     const targetSub = submissions.find((s) => s.id === submissionId);
     if (targetSub) {
@@ -989,6 +1067,14 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setDocuments(INITIAL_DOCUMENTS);
     setSubmissions(INITIAL_SUBMISSIONS);
     setNotifications(INITIAL_NOTIFICATIONS);
+    setWorkflowState({
+      registrationStatus: 'Draft',
+      monitoringPlanStatus: 'Draft',
+      annualEmissionStatus: 'Draft',
+      verificationStatus: 'Pending Verification',
+      registrationApprovalDate: undefined,
+      monitoringPlanDeadline: undefined,
+    });
   };
 
   return (
@@ -1026,6 +1112,14 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         selectedSubmissionForReview,
         setSelectedSubmissionForReview,
         resetDemoData,
+        workflowState,
+        setRegistrationStatus,
+        setMonitoringPlanStatus,
+        setAnnualEmissionStatus,
+        setVerificationStatus: setVerificationStatusFn,
+        isMonitoringPlanUnlocked,
+        isAnnualEmissionUnlocked,
+        isVerificationUnlocked,
       }}
     >
       {children}

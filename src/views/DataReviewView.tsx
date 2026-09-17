@@ -635,27 +635,31 @@ export const DataReviewView: React.FC = () => {
             </div>
 
             {/* Sub-Tabs: Submission Details & Submission History */}
-            <div className="flex-shrink-0 flex items-center gap-6 border-b border-slate-100 pb-2 text-xs font-semibold">
-              <button
-                onClick={() => setDetailTab('details')}
-                className={`pb-2 font-bold transition-all relative cursor-pointer ${
-                  detailTab === 'details'
-                    ? 'text-[#004B87] border-b-2 border-[#004B87]'
-                    : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                Submission Details
-              </button>
-              <button
-                onClick={() => setDetailTab('history')}
-                className={`pb-2 font-bold transition-all relative cursor-pointer ${
-                  detailTab === 'history'
-                    ? 'text-[#004B87] border-b-2 border-[#004B87]'
-                    : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                Submission History
-              </button>
+            <div className="flex-shrink-0 pb-3 mb-3 overflow-x-auto no-scrollbar">
+              <div className="inline-flex items-center gap-1.5 p-1 bg-slate-100/90 border border-slate-200/80 rounded-xl text-xs font-semibold">
+                <button
+                  type="button"
+                  onClick={() => setDetailTab('details')}
+                  className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
+                    detailTab === 'details'
+                      ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
+                      : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
+                  }`}
+                >
+                  Submission Details
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDetailTab('history')}
+                  className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
+                    detailTab === 'history'
+                      ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
+                      : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
+                  }`}
+                >
+                  Submission History
+                </button>
+              </div>
             </div>
 
             {/* Scrollable Detail Body */}

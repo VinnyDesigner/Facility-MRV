@@ -18,11 +18,27 @@ import {
   Trash2,
   Sparkles,
   RotateCcw,
+  Lock,
+  Clock,
+  Settings,
+  Gauge,
+  ArrowRight,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
 
 export const DataEntryView: React.FC = () => {
-  const { activeFacility, reportingYear, setActiveView } = useMRV();
+  const {
+    activeFacility,
+    reportingYear,
+    setActiveView,
+    workflowState,
+    isMonitoringPlanUnlocked,
+    setMonitoringPlanStatus,
+    currentRole,
+  } = useMRV();
+
+  const isFacilityOperator = currentRole === 'FACILITY_OPERATOR';
+  const isEadReviewerOrAdmin = currentRole === 'EAD_REVIEWER' || (currentRole as string) === 'ADMIN';
 
   // Top Selectors State - Automatically reflected from Registration
   const [selectedFacility, setSelectedFacility] = useState(
@@ -37,8 +53,8 @@ export const DataEntryView: React.FC = () => {
 
   // Navigation Sub-Tabs
   const [activeTab, setActiveTab] = useState<
-    'facility-description' | 'monitoring-plan' | 'verification-qa' | 'mitigation' | 'review-submit'
-  >('facility-description');
+    'facility-overview' | 'emission-sources' | 'monitoring-methodology' | 'activity-data' | 'measurement-equipment' | 'qa-qc' | 'review-submit'
+  >('facility-overview');
 
   const [isSavedNotice, setIsSavedNotice] = useState(false);
   const [noticeMessage, setNoticeMessage] = useState('Data Saved Successfully!');
@@ -102,7 +118,7 @@ export const DataEntryView: React.FC = () => {
       id: 'S01',
       name: 'X',
       associatedProduct: 'P01',
-      gasTypes: 'CO₂, CH₄, N₂O',
+      gasTypes: 'COâ‚‚, CHâ‚„, Nâ‚‚O',
       totalEmissions: '45,000',
       energyRelated: 'No',
       processEmissions: 'No',
@@ -112,7 +128,7 @@ export const DataEntryView: React.FC = () => {
       id: 'S02',
       name: 'XX',
       associatedProduct: 'P02',
-      gasTypes: 'CO₂, N₂O',
+      gasTypes: 'COâ‚‚, Nâ‚‚O',
       totalEmissions: '35,000',
       energyRelated: 'Yes',
       processEmissions: 'Yes',
@@ -122,7 +138,7 @@ export const DataEntryView: React.FC = () => {
       id: 'S03',
       name: 'XXX',
       associatedProduct: 'P03',
-      gasTypes: 'CO₂',
+      gasTypes: 'COâ‚‚',
       totalEmissions: '12,000',
       energyRelated: 'Yes',
       processEmissions: 'Yes',
@@ -134,9 +150,9 @@ export const DataEntryView: React.FC = () => {
   const [methaneData, setMethaneData] = useState({
     hasMethaneEmissions: false,
     annualVolume: '1250',
-    annualVolumeUnit: 't CH₄/year',
+    annualVolumeUnit: 't CHâ‚„/year',
     estimatedCo2e: '31250',
-    estimatedCo2eUnit: 't CO₂e/year',
+    estimatedCo2eUnit: 't COâ‚‚e/year',
     sourceOfEstimations: 'Estimated based on production data and IPCC Guidelines',
     keySourcesAtInstallation: 'Estimated based on production data and IPCC Guidelines',
     procedureToDetermine: 'Estimated based on production data and IPCC Guidelines',
@@ -181,7 +197,7 @@ export const DataEntryView: React.FC = () => {
       associatedSource: 'S01',
       classification: 'Fuel Combusted',
       activityLevel: '10,000',
-      activityUnit: 'Nm³',
+      activityUnit: 'NmÂ³',
       fuelType: 'Natural gas',
       combustionDevice: 'Gas-fired heaters',
       deviceCapacity: '100.0',
@@ -193,7 +209,7 @@ export const DataEntryView: React.FC = () => {
       associatedSource: 'S01',
       classification: 'Other Input',
       activityLevel: '10,000',
-      activityUnit: 'Nm³',
+      activityUnit: 'NmÂ³',
       fuelType: 'Natural gas',
       combustionDevice: 'Gas-fired heaters',
       deviceCapacity: '100.0',
@@ -205,7 +221,7 @@ export const DataEntryView: React.FC = () => {
       associatedSource: 'S01',
       classification: 'Output',
       activityLevel: '10,000',
-      activityUnit: 'Nm³',
+      activityUnit: 'NmÂ³',
       fuelType: 'Natural gas',
       combustionDevice: 'Gas-fired heaters',
       deviceCapacity: '100.0',
@@ -257,7 +273,7 @@ export const DataEntryView: React.FC = () => {
         id: nextId,
         name: 'New Emission Source',
         associatedProduct: 'P01',
-        gasTypes: 'CO₂',
+        gasTypes: 'COâ‚‚',
         totalEmissions: '10,000',
         energyRelated: 'Yes',
         processEmissions: 'No',
@@ -298,7 +314,7 @@ export const DataEntryView: React.FC = () => {
         associatedSource: 'S01',
         classification: 'Fuel Combusted',
         activityLevel: '5,000',
-        activityUnit: 'Nm³',
+        activityUnit: 'NmÂ³',
         fuelType: 'Natural gas',
         combustionDevice: 'Boiler #1',
         deviceCapacity: '50.0',
@@ -335,9 +351,9 @@ export const DataEntryView: React.FC = () => {
   ]);
 
   const [calcTierUncertainty, setCalcTierUncertainty] = useState([
-    { id: 'F01', tier: 'T3', category: 'Major', uncertaintyAchieved: '1.60', fuelStreamType: 'Commercial Standard Fuels', sourceAccuracy: 'Lab Analysis', permittedUncertainty: '±2.5%' },
-    { id: 'F02', tier: 'T2', category: 'Minor', uncertaintyAchieved: '3.20', fuelStreamType: 'Alternative Fuels', sourceAccuracy: 'Meter Reading', permittedUncertainty: '±5.0%' },
-    { id: 'F03', tier: 'T1', category: 'De minimis', uncertaintyAchieved: '7.00', fuelStreamType: 'Diesel', sourceAccuracy: 'Supplier Data', permittedUncertainty: '±7.5%' },
+    { id: 'F01', tier: 'T3', category: 'Major', uncertaintyAchieved: '1.60', fuelStreamType: 'Commercial Standard Fuels', sourceAccuracy: 'Lab Analysis', permittedUncertainty: 'Â±2.5%' },
+    { id: 'F02', tier: 'T2', category: 'Minor', uncertaintyAchieved: '3.20', fuelStreamType: 'Alternative Fuels', sourceAccuracy: 'Meter Reading', permittedUncertainty: 'Â±5.0%' },
+    { id: 'F03', tier: 'T1', category: 'De minimis', uncertaintyAchieved: '7.00', fuelStreamType: 'Diesel', sourceAccuracy: 'Supplier Data', permittedUncertainty: 'Â±7.5%' },
   ]);
 
   const [calcApproach, setCalcApproach] = useState({
@@ -363,9 +379,9 @@ export const DataEntryView: React.FC = () => {
   ]);
 
   const [measUncertainty, setMeasUncertainty] = useState([
-    { id: 'S01', tier: 'T3', category: 'Major', uncertaintyAchieved: '1.60', streamType: 'CO₂ Emission Sources', sourceAccuracy: 'Lab Analysis', permittedUncertainty: '±2.5%' },
-    { id: 'S02', tier: 'T2', category: 'Minor', uncertaintyAchieved: '3.20', streamType: 'CO₂ Emission Sources', sourceAccuracy: 'Meter Reading', permittedUncertainty: '±5.0%' },
-    { id: 'S03', tier: 'T1', category: 'De minimis', uncertaintyAchieved: '7.00', streamType: 'CO₂ Emission Sources', sourceAccuracy: 'Supplier Data', permittedUncertainty: '±7.5%' },
+    { id: 'S01', tier: 'T3', category: 'Major', uncertaintyAchieved: '1.60', streamType: 'COâ‚‚ Emission Sources', sourceAccuracy: 'Lab Analysis', permittedUncertainty: 'Â±2.5%' },
+    { id: 'S02', tier: 'T2', category: 'Minor', uncertaintyAchieved: '3.20', streamType: 'COâ‚‚ Emission Sources', sourceAccuracy: 'Meter Reading', permittedUncertainty: 'Â±5.0%' },
+    { id: 'S03', tier: 'T1', category: 'De minimis', uncertaintyAchieved: '7.00', streamType: 'COâ‚‚ Emission Sources', sourceAccuracy: 'Supplier Data', permittedUncertainty: 'Â±7.5%' },
   ]);
 
   const [measApproachDesc, setMeasApproachDesc] = useState('Estimated based on production data and IPCC Guidelines');
@@ -377,9 +393,9 @@ export const DataEntryView: React.FC = () => {
   ]);
 
   const [measEquipment, setMeasEquipment] = useState([
-    { name: 'CEMS Analyzer - 01', type: 'CEMS', manufacturer: 'ABB / ACX50000', parameter: 'CO₂ , O₂', accuracyClass: 'Class A' },
-    { name: 'Flow Meter - 01', type: 'Flow Meter', manufacturer: 'X', parameter: 'Flow Rate', accuracyClass: '±1%' },
-    { name: 'Gas Analyzer - 01', type: 'Gas Analyzer', manufacturer: 'XX', parameter: 'CO₂', accuracyClass: '±1%' },
+    { name: 'CEMS Analyzer - 01', type: 'CEMS', manufacturer: 'ABB / ACX50000', parameter: 'COâ‚‚ , Oâ‚‚', accuracyClass: 'Class A' },
+    { name: 'Flow Meter - 01', type: 'Flow Meter', manufacturer: 'X', parameter: 'Flow Rate', accuracyClass: 'Â±1%' },
+    { name: 'Gas Analyzer - 01', type: 'Gas Analyzer', manufacturer: 'XX', parameter: 'COâ‚‚', accuracyClass: 'Â±1%' },
   ]);
 
   // Section 3: Fallback Approach State
@@ -405,7 +421,7 @@ export const DataEntryView: React.FC = () => {
     const nextId = `F0${calcTierUncertainty.length + 1}`;
     setCalcTierUncertainty((prev) => [
       ...prev,
-      { id: nextId, tier: 'T2', category: 'Minor', uncertaintyAchieved: '2.50', fuelStreamType: 'Commercial Standard Fuels', sourceAccuracy: 'Lab Analysis', permittedUncertainty: '±5.0%' },
+      { id: nextId, tier: 'T2', category: 'Minor', uncertaintyAchieved: '2.50', fuelStreamType: 'Commercial Standard Fuels', sourceAccuracy: 'Lab Analysis', permittedUncertainty: 'Â±5.0%' },
     ]);
   };
 
@@ -453,7 +469,7 @@ export const DataEntryView: React.FC = () => {
     const nextId = `S0${measUncertainty.length + 1}`;
     setMeasUncertainty((prev) => [
       ...prev,
-      { id: nextId, tier: 'T2', category: 'Minor', uncertaintyAchieved: '2.50', streamType: 'CO₂ Emission Sources', sourceAccuracy: 'Lab Analysis', permittedUncertainty: '±5.0%' },
+      { id: nextId, tier: 'T2', category: 'Minor', uncertaintyAchieved: '2.50', streamType: 'COâ‚‚ Emission Sources', sourceAccuracy: 'Lab Analysis', permittedUncertainty: 'Â±5.0%' },
     ]);
   };
 
@@ -476,7 +492,7 @@ export const DataEntryView: React.FC = () => {
   const addMeasEquipment = () => {
     setMeasEquipment((prev) => [
       ...prev,
-      { name: `Analyzer - 0${prev.length + 1}`, type: 'Sensor', manufacturer: 'Model', parameter: 'Flow', accuracyClass: '±1%' },
+      { name: `Analyzer - 0${prev.length + 1}`, type: 'Sensor', manufacturer: 'Model', parameter: 'Flow', accuracyClass: 'Â±1%' },
     ]);
   };
 
@@ -549,15 +565,15 @@ export const DataEntryView: React.FC = () => {
   // MITIGATION MEASURES STATE
   // =========================================================================
   const [mitigationMeasures, setMitigationMeasures] = useState([
-    { description: 'X', category: 'Emission Reduction', scope: '1', ghg: 'CO₂', startYear: '2024', status: 'Implemented', preMeasure: '4,200', reportingReduction: 'Standard', expectedReduction: 'Not verified', standard: 'IPCC', verification: 'Not verified' },
-    { description: 'XX', category: 'Emission Avoidance', scope: '3', ghg: 'CH₄', startYear: '2020', status: 'Planned', preMeasure: '4,200', reportingReduction: 'Standard', expectedReduction: 'Not verified', standard: 'IPCC', verification: 'Verified' },
+    { description: 'X', category: 'Emission Reduction', scope: '1', ghg: 'COâ‚‚', startYear: '2024', status: 'Implemented', preMeasure: '4,200', reportingReduction: 'Standard', expectedReduction: 'Not verified', standard: 'IPCC', verification: 'Not verified' },
+    { description: 'XX', category: 'Emission Avoidance', scope: '3', ghg: 'CHâ‚„', startYear: '2020', status: 'Planned', preMeasure: '4,200', reportingReduction: 'Standard', expectedReduction: 'Not verified', standard: 'IPCC', verification: 'Verified' },
     { description: 'XXX', category: 'Carbon Removal', scope: '2', ghg: 'Mixed', startYear: '2019', status: 'Feasibility Study', preMeasure: '4,200', reportingReduction: 'Standard', expectedReduction: 'Not verified', standard: 'IPCC', verification: 'Third - Party Verified' },
   ]);
 
   const addMitigationMeasure = () => {
     setMitigationMeasures((prev) => [
       ...prev,
-      { description: 'New Measure', category: 'Emission Reduction', scope: '1', ghg: 'CO₂', startYear: '2025', status: 'Planned', preMeasure: '1,500', reportingReduction: 'Standard', expectedReduction: 'Not verified', standard: 'IPCC', verification: 'Not verified' },
+      { description: 'New Measure', category: 'Emission Reduction', scope: '1', ghg: 'COâ‚‚', startYear: '2025', status: 'Planned', preMeasure: '1,500', reportingReduction: 'Standard', expectedReduction: 'Not verified', standard: 'IPCC', verification: 'Not verified' },
     ]);
   };
   const removeMitigationMeasure = (idx: number) => setMitigationMeasures((prev) => prev.filter((_, i) => i !== idx));
@@ -595,16 +611,16 @@ export const DataEntryView: React.FC = () => {
       justification: 'Estimated based on production data and IPCC Guidelines',
     });
     setEmissionSources([
-      { id: 'S01', name: 'X', associatedProduct: 'P01', gasTypes: 'CO₂, CH₄, N₂O', totalEmissions: '45,000', energyRelated: 'No', processEmissions: 'No', methodology: 'Standard' },
-      { id: 'S02', name: 'XX', associatedProduct: 'P02', gasTypes: 'CO₂', totalEmissions: '50,000', energyRelated: 'Yes', processEmissions: 'Yes', methodology: 'Standard' },
-      { id: 'S03', name: 'XXXX', associatedProduct: 'P03', gasTypes: 'CO₂', totalEmissions: '29,450', energyRelated: 'Yes', processEmissions: 'Yes', methodology: 'Fall-back' },
+      { id: 'S01', name: 'X', associatedProduct: 'P01', gasTypes: 'COâ‚‚, CHâ‚„, Nâ‚‚O', totalEmissions: '45,000', energyRelated: 'No', processEmissions: 'No', methodology: 'Standard' },
+      { id: 'S02', name: 'XX', associatedProduct: 'P02', gasTypes: 'COâ‚‚', totalEmissions: '50,000', energyRelated: 'Yes', processEmissions: 'Yes', methodology: 'Standard' },
+      { id: 'S03', name: 'XXXX', associatedProduct: 'P03', gasTypes: 'COâ‚‚', totalEmissions: '29,450', energyRelated: 'Yes', processEmissions: 'Yes', methodology: 'Fall-back' },
     ]);
     setMethaneData({
       hasMethaneEmissions: false,
       annualVolume: '1250',
-      annualVolumeUnit: 't CH₄/year',
+      annualVolumeUnit: 't CHâ‚„/year',
       estimatedCo2e: '31250',
-      estimatedCo2eUnit: 't CO₂e/year',
+      estimatedCo2eUnit: 't COâ‚‚e/year',
       sourceOfEstimations: 'Estimated based on production data and IPCC Guidelines',
       keySourcesAtInstallation: 'Estimated based on production data and IPCC Guidelines',
       procedureToDetermine: 'Estimated based on production data and IPCC Guidelines',
@@ -613,9 +629,9 @@ export const DataEntryView: React.FC = () => {
       correctiveActionProcedure: 'Estimated based on production data and IPCC Guidelines',
     });
     setSourceStreams([
-      { id: 'FC1', description: 'X', associatedSource: 'S01', classification: 'Fuel Combusted', activityLevel: '10,000', activityUnit: 'Nm³', fuelType: 'Natural gas', combustionDevice: 'Gas-fired heaters', deviceCapacity: '100.0', metricUnit: 'MW' },
-      { id: 'FC2', description: 'XX', associatedSource: 'S01', classification: 'Fuel Combusted', activityLevel: '10,000', activityUnit: 'Nm³', fuelType: 'Natural gas', combustionDevice: 'Gas-fired heaters', deviceCapacity: '100.0', metricUnit: 'MW' },
-      { id: 'FC3', description: 'XXX', associatedSource: 'S01', classification: 'Output', activityLevel: '10,000', activityUnit: 'Nm³', fuelType: 'Natural gas', combustionDevice: 'Gas-fired heaters', deviceCapacity: '100.0', metricUnit: 'MW' },
+      { id: 'FC1', description: 'X', associatedSource: 'S01', classification: 'Fuel Combusted', activityLevel: '10,000', activityUnit: 'NmÂ³', fuelType: 'Natural gas', combustionDevice: 'Gas-fired heaters', deviceCapacity: '100.0', metricUnit: 'MW' },
+      { id: 'FC2', description: 'XX', associatedSource: 'S01', classification: 'Fuel Combusted', activityLevel: '10,000', activityUnit: 'NmÂ³', fuelType: 'Natural gas', combustionDevice: 'Gas-fired heaters', deviceCapacity: '100.0', metricUnit: 'MW' },
+      { id: 'FC3', description: 'XXX', associatedSource: 'S01', classification: 'Output', activityLevel: '10,000', activityUnit: 'NmÂ³', fuelType: 'Natural gas', combustionDevice: 'Gas-fired heaters', deviceCapacity: '100.0', metricUnit: 'MW' },
     ]);
     setRemarks('Operations conducted in accordance with approved monitoring plan.');
     setAttachedFiles([{ name: 'Uncertainty Guidance.PDF', size: '3MB', status: 'Completed' }]);
@@ -639,14 +655,14 @@ export const DataEntryView: React.FC = () => {
       justification: '',
     });
     setEmissionSources([
-      { id: 'S01', name: '', associatedProduct: 'P01', gasTypes: 'CO₂', totalEmissions: '', energyRelated: 'Yes', processEmissions: 'No', methodology: 'Standard' },
+      { id: 'S01', name: '', associatedProduct: 'P01', gasTypes: 'COâ‚‚', totalEmissions: '', energyRelated: 'Yes', processEmissions: 'No', methodology: 'Standard' },
     ]);
     setMethaneData({
       hasMethaneEmissions: false,
       annualVolume: '',
-      annualVolumeUnit: 't CH₄/year',
+      annualVolumeUnit: 't CHâ‚„/year',
       estimatedCo2e: '',
-      estimatedCo2eUnit: 't CO₂e/year',
+      estimatedCo2eUnit: 't COâ‚‚e/year',
       sourceOfEstimations: '',
       keySourcesAtInstallation: '',
       procedureToDetermine: '',
@@ -655,7 +671,7 @@ export const DataEntryView: React.FC = () => {
       correctiveActionProcedure: '',
     });
     setSourceStreams([
-      { id: 'FC1', description: '', associatedSource: 'S01', classification: 'Fuel Combusted', activityLevel: '', activityUnit: 'Nm³', fuelType: 'Natural gas', combustionDevice: '', deviceCapacity: '', metricUnit: 'MW' },
+      { id: 'FC1', description: '', associatedSource: 'S01', classification: 'Fuel Combusted', activityLevel: '', activityUnit: 'NmÂ³', fuelType: 'Natural gas', combustionDevice: '', deviceCapacity: '', metricUnit: 'MW' },
     ]);
     setRemarks('');
     setAttachedFiles([]);
@@ -678,6 +694,32 @@ export const DataEntryView: React.FC = () => {
     }
   };
 
+  // LOCKED STATE CHECK
+  if (!isMonitoringPlanUnlocked) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center gap-4">
+        <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center">
+          <Lock className="w-8 h-8 text-amber-500" />
+        </div>
+        <div className="text-center">
+          <h2 className="text-lg font-bold text-slate-800 mb-1">Monitoring Plan Locked</h2>
+          <p className="text-sm text-slate-500 max-w-md">
+            Facility Registration must be <span className="font-bold text-[#004B87]">Approved / Registered</span> before Monitoring Plan submission becomes available.
+          </p>
+          <p className="text-xs text-slate-400 mt-2">
+            Current Registration Status: <span className="font-bold text-amber-600">{workflowState.registrationStatus}</span>
+          </p>
+        </div>
+        <button
+          onClick={() => setActiveView('registration')}
+          className="mt-2 px-5 py-2 bg-[#004B87] text-white rounded-xl text-xs font-bold hover:bg-[#003a6b] transition-colors cursor-pointer"
+        >
+          Go to Facility Registration
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex flex-col overflow-hidden font-sans">
       {/* Hidden file input */}
@@ -695,10 +737,10 @@ export const DataEntryView: React.FC = () => {
           <div className="flex items-center gap-3">
             <div>
               <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
-                Emission & Monitoring Plan Data Entry
+                Monitoring Plan
               </h1>
               <p className="text-xs text-slate-500 font-medium mt-0.5">
-                Facility Activity Metrics, Emission Sources & Monitoring Plan
+                Facility Monitoring Plan — Submit within 90 days of Registration approval
               </p>
             </div>
 
@@ -708,6 +750,22 @@ export const DataEntryView: React.FC = () => {
                 <span>{noticeMessage}</span>
               </div>
             )}
+          </div>
+
+          {/* Workflow Status & 90-Day Requirement Badge */}
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-[11px] font-medium">
+              <Clock className="w-3.5 h-3.5 text-blue-600" />
+              <span>90-Day Deadline: {workflowState.monitoringPlanDeadline || '13-Sep-2026'}</span>
+            </div>
+            <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${
+              workflowState.monitoringPlanStatus === 'Draft' ? 'bg-slate-100 text-slate-600' :
+              workflowState.monitoringPlanStatus === 'Submitted' ? 'bg-blue-100 text-blue-700' :
+              workflowState.monitoringPlanStatus === 'Approved' || workflowState.monitoringPlanStatus === 'Accepted' || workflowState.monitoringPlanStatus === 'Active' ? 'bg-emerald-100 text-emerald-700' :
+              'bg-amber-100 text-amber-700'
+            }`}>
+              {workflowState.monitoringPlanStatus === 'Approved' ? 'Active Monitoring Plan' : workflowState.monitoringPlanStatus}
+            </span>
           </div>
         </div>
 
@@ -761,56 +819,90 @@ export const DataEntryView: React.FC = () => {
       {/* 2. SCROLLABLE INNER CARD FRAME (Fixed Frame with Sub-Tabs Inside) */}
       <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-7 flex flex-col overflow-hidden">
         {/* Navigation Sub-Tabs (Inside Card Header) */}
-        <div className="flex-shrink-0 flex items-center gap-6 border-b border-slate-100 pb-3 mb-2 text-xs">
-          <button
-            onClick={() => setActiveTab('facility-description')}
-            className={`pb-2 font-bold transition-all relative cursor-pointer ${activeTab === 'facility-description'
-                ? 'text-[#004B87] border-b-2 border-[#004B87]'
-                : 'text-slate-500 hover:text-slate-800'
+        <div className="flex-shrink-0 pb-3 mb-3 overflow-x-auto no-scrollbar">
+          <div className="inline-flex items-center gap-1.5 p-1 bg-slate-100/90 border border-slate-200/80 rounded-xl text-xs">
+            <button
+              type="button"
+              onClick={() => setActiveTab('facility-overview')}
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
+                activeTab === 'facility-overview'
+                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
               }`}
-          >
-            Facility Description
-          </button>
-          <button
-            onClick={() => setActiveTab('monitoring-plan')}
-            className={`pb-2 font-bold transition-all relative cursor-pointer ${activeTab === 'monitoring-plan'
-                ? 'text-[#004B87] border-b-2 border-[#004B87]'
-                : 'text-slate-500 hover:text-slate-800'
+            >
+              Facility Overview
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('emission-sources')}
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
+                activeTab === 'emission-sources'
+                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
               }`}
-          >
-            Monitoring Plan
-          </button>
-          <button
-            onClick={() => setActiveTab('verification-qa')}
-            className={`pb-2 font-bold transition-all relative cursor-pointer ${activeTab === 'verification-qa'
-                ? 'text-[#004B87] border-b-2 border-[#004B87]'
-                : 'text-slate-500 hover:text-slate-800'
+            >
+              Emission Sources
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('monitoring-methodology')}
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
+                activeTab === 'monitoring-methodology'
+                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
               }`}
-          >
-            Verification & QA
-          </button>
-          <button
-            onClick={() => setActiveTab('mitigation')}
-            className={`pb-2 font-bold transition-all relative cursor-pointer ${activeTab === 'mitigation'
-                ? 'text-[#004B87] border-b-2 border-[#004B87]'
-                : 'text-slate-500 hover:text-slate-800'
+            >
+              Monitoring Methods
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('activity-data')}
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
+                activeTab === 'activity-data'
+                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
               }`}
-          >
-            Mitigation Measures
-          </button>
-          <button
-            onClick={() => setActiveTab('review-submit')}
-            className={`pb-2 font-bold transition-all relative cursor-pointer ${activeTab === 'review-submit'
-                ? 'text-[#004B87] border-b-2 border-[#004B87]'
-                : 'text-slate-500 hover:text-slate-800'
+            >
+              Activity & Calculations
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('measurement-equipment')}
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
+                activeTab === 'measurement-equipment'
+                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
               }`}
-          >
-            Review & Submit
-          </button>
+            >
+              Equipment & Calibration
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('qa-qc')}
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
+                activeTab === 'qa-qc'
+                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
+              }`}
+            >
+              Data Management & QA/QC
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('review-submit')}
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
+                activeTab === 'review-submit'
+                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
+              }`}
+            >
+              Review & Submit
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto py-[10px] space-y-6 pr-2 no-scrollbar text-xs">
-          {activeTab === 'facility-description' && (
+          {activeTab === 'facility-overview' && (
             <>
               {/* ========================================================================= */}
               {/* Section 1: Facility Description */}
@@ -982,7 +1074,7 @@ export const DataEntryView: React.FC = () => {
                               className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
                             >
                               <option value="t/year">t/year</option>
-                              <option value="Nm³/year">Nm³/year</option>
+                              <option value="NmÂ³/year">NmÂ³/year</option>
                             </select>
                           </td>
                           <td className="py-2 px-3">
@@ -1008,7 +1100,7 @@ export const DataEntryView: React.FC = () => {
                               className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
                             >
                               <option value="t/year">t/year</option>
-                              <option value="Nm³/year">Nm³/year</option>
+                              <option value="NmÂ³/year">NmÂ³/year</option>
                             </select>
                           </td>
                           <td className="py-2 px-3 text-center">
@@ -1044,7 +1136,7 @@ export const DataEntryView: React.FC = () => {
                 <h4 className="text-xs font-bold text-[#004B87]">Emissions Estimation</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-slate-600 font-semibold mb-1">Estimated Annual Emissions (tCO₂e)</label>
+                    <label className="block text-slate-600 font-semibold mb-1">Estimated Annual Emissions (tCOâ‚‚e)</label>
                     <input
                       type="text"
                       value={emissionsEstimation.estimatedAnnualEmissions}
@@ -1068,6 +1160,70 @@ export const DataEntryView: React.FC = () => {
                 </div>
               </div>
 
+              {/* ========================================================================= */}
+              {/* Section 7: Remarks */}
+              {/* ========================================================================= */}
+              <div className="pt-2">
+                <label className="block text-slate-600 font-semibold mb-1">Remarks</label>
+                <textarea
+                  rows={2}
+                  value={remarks}
+                  placeholder="Write here..."
+                  onChange={(e) => setRemarks(e.target.value)}
+                  className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
+                />
+              </div>
+
+              {/* ========================================================================= */}
+              {/* Section 8: Supporting Documents */}
+              {/* ========================================================================= */}
+              <div className="pt-2 space-y-3">
+                <h4 className="text-xs font-bold text-[#004B87]">Supporting Documents</h4>
+                <div
+                  className="border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50 p-6 text-center cursor-pointer hover:border-[#004B87]/40 transition-colors"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="w-6 h-6 text-slate-400 mx-auto mb-2" />
+                  <p className="text-xs text-slate-500">
+                    Drag & Drop or{' '}
+                    <span className="text-[#004B87] font-semibold underline">Browse Files</span>
+                  </p>
+                  <p className="text-[10px] text-slate-400 mt-1">PDF, DOC, XLS up to 50MB</p>
+                </div>
+                {attachedFiles.length > 0 && (
+                  <div className="space-y-2">
+                    {attachedFiles.map((file, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-200"
+                      >
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-[#004B87]" />
+                          <span className="font-semibold text-navy-900">{file.name}</span>
+                          <span className="text-slate-400 text-[10px]">{file.size}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-emerald-600 text-[10px] font-bold">{file.status}</span>
+                          <button
+                            onClick={() => setAttachedFiles((prev) => prev.filter((_, i) => i !== idx))}
+                            className="text-slate-400 hover:text-rose-500 cursor-pointer transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* ========================================================================= */}
+          {/* TAB 2: EMISSION SOURCES */}
+          {/* ========================================================================= */}
+          {activeTab === 'emission-sources' && (
+            <>
               {/* ========================================================================= */}
               {/* Section 4: Emission Sources */}
               {/* ========================================================================= */}
@@ -1140,9 +1296,9 @@ export const DataEntryView: React.FC = () => {
                               }}
                               className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
                             >
-                              <option value="CO₂, CH₄, N₂O">CO₂, CH₄, N₂O</option>
-                              <option value="CO₂, N₂O">CO₂, N₂O</option>
-                              <option value="CO₂">CO₂</option>
+                              <option value="COâ‚‚, CHâ‚„, Nâ‚‚O">COâ‚‚, CHâ‚„, Nâ‚‚O</option>
+                              <option value="COâ‚‚, Nâ‚‚O">COâ‚‚, Nâ‚‚O</option>
+                              <option value="COâ‚‚">COâ‚‚</option>
                             </select>
                           </td>
                           <td className="py-2 px-3">
@@ -1286,14 +1442,14 @@ export const DataEntryView: React.FC = () => {
                             onChange={(e) => setMethaneData({ ...methaneData, annualVolumeUnit: e.target.value })}
                             className="w-1/2 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
                           >
-                            <option value="t CH₄/year">t CH₄/year</option>
-                            <option value="Nm³/year">Nm³/year</option>
+                            <option value="t CHâ‚„/year">t CHâ‚„/year</option>
+                            <option value="NmÂ³/year">NmÂ³/year</option>
                           </select>
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-slate-600 font-semibold mb-1">Estimated CO₂e from methane emissions (100 yrs GWP)</label>
+                        <label className="block text-slate-600 font-semibold mb-1">Estimated COâ‚‚e from methane emissions (100 yrs GWP)</label>
                         <div className="flex items-center gap-2">
                           <input
                             type="text"
@@ -1306,8 +1462,8 @@ export const DataEntryView: React.FC = () => {
                             onChange={(e) => setMethaneData({ ...methaneData, estimatedCo2eUnit: e.target.value })}
                             className="w-1/2 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
                           >
-                            <option value="t CO₂e/year">t CO₂e/year</option>
-                            <option value="t CH₄/year">t CH₄/year</option>
+                            <option value="t COâ‚‚e/year">t COâ‚‚e/year</option>
+                            <option value="t CHâ‚„/year">t CHâ‚„/year</option>
                           </select>
                         </div>
                       </div>
@@ -1605,7 +1761,7 @@ export const DataEntryView: React.FC = () => {
                               className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
                             >
                               <option value="MWh">MWh</option>
-                              <option value="Nm³">Nm³</option>
+                              <option value="NmÂ³">NmÂ³</option>
                               <option value="t">t</option>
                               <option value="GJ">GJ</option>
                             </select>
@@ -1692,78 +1848,16 @@ export const DataEntryView: React.FC = () => {
               </div>
 
               {/* ========================================================================= */}
-              {/* Section 7: Remarks */}
+              {/* Section 7: Remarks (Emission Sources context) */}
               {/* ========================================================================= */}
-              <div className="pt-2">
-                <label className="block text-slate-600 font-semibold mb-1">Remarks</label>
-                <textarea
-                  rows={2}
-                  value={remarks}
-                  placeholder="Write here..."
-                  onChange={(e) => setRemarks(e.target.value)}
-                  className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                />
-              </div>
 
-              {/* ========================================================================= */}
-              {/* Section 8: Supporting Documents */}
-              {/* ========================================================================= */}
-              <div className="pt-2">
-                <h4 className="text-xs font-bold text-[#004B87] mb-2">Supporting Documents</h4>
-                <label className="block text-slate-600 font-semibold mb-2">Attach Files</label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                  {/* Drag & Drop Upload Box */}
-                  <div className="border border-dashed border-sky-300 bg-sky-50/40 rounded-xl p-3 px-4 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-slate-600 text-xs font-medium truncate">
-                      <Upload className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                      <span className="truncate">Drag and drop files here or upload</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="px-4 py-1.5 bg-white border border-slate-300 hover:border-slate-400 text-xs font-bold text-slate-700 rounded-lg shadow-xs transition-colors flex-shrink-0"
-                    >
-                      Upload
-                    </button>
-                  </div>
-
-                  {/* Attached File Badge */}
-                  {attachedFiles.map((file, idx) => (
-                    <div
-                      key={idx}
-                      className="border border-slate-200 bg-white rounded-xl p-2.5 px-3.5 flex items-center justify-between gap-3 shadow-xs"
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center flex-shrink-0">
-                          <FileText className="w-4 h-4 text-rose-600" />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="text-xs font-bold text-slate-800 truncate">{file.name}</div>
-                          <div className="text-[10px] text-slate-400 flex items-center gap-1.5 font-medium">
-                            <span>{file.size}</span>
-                            <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                            <span className="text-emerald-600 font-bold">{file.status}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setAttachedFiles(attachedFiles.filter((_, i) => i !== idx))}
-                        className="p-1 text-slate-400 hover:text-rose-600 rounded-md transition-colors"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </>
           )}
 
           {/* ========================================================================= */}
-          {/* TAB 2: MONITORING PLAN (3 ACCORDIONS) */}
+          {/* TAB 3: MONITORING METHODOLOGY (3 ACCORDIONS) */}
           {/* ========================================================================= */}
-          {activeTab === 'monitoring-plan' && (
+          {activeTab === 'monitoring-methodology' && (
             <div className="space-y-3 animate-fade-in">
               {/* ========================================================================= */}
               {/* Accordion 1: Calculation - Based Monitoring */}
@@ -2119,7 +2213,7 @@ export const DataEntryView: React.FC = () => {
                                   >
                                     <option value="MWH">MWH</option>
                                     <option value="GJ">GJ</option>
-                                    <option value="Nm³">Nm³</option>
+                                    <option value="NmÂ³">NmÂ³</option>
                                     <option value="t">t</option>
                                   </select>
                                 </td>
@@ -2828,14 +2922,270 @@ export const DataEntryView: React.FC = () => {
           )}
 
           {/* ========================================================================= */}
-          {/* TAB 3: VERIFICATION & QA */}
+          {/* TAB 4: ACTIVITY DATA & CALCULATION FACTORS */}
           {/* ========================================================================= */}
-          {activeTab === 'verification-qa' && (
+          {activeTab === 'activity-data' && (
+            <div className="space-y-6 animate-fade-in text-xs">
+              {/* Activity Data Section */}
+              <div>
+                <h4 className="text-xs font-bold text-[#004B87] mb-3">Activity Data</h4>
+                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
+                        <th className="py-2.5 px-3">Source Stream</th>
+                        <th className="py-2.5 px-3">Activity Data / Amount</th>
+                        <th className="py-2.5 px-3">Unit</th>
+                        <th className="py-2.5 px-3">Fuel / Material Type</th>
+                        <th className="py-2.5 px-3">Data Source</th>
+                        <th className="py-2.5 px-3">Relevant Quantity</th>
+                        <th className="py-2.5 px-3 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sourceStreams.map((stream, idx) => (
+                        <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50/50">
+                          <td className="py-2.5 px-3 font-medium text-navy-900">{stream.id} â€” {stream.description}</td>
+                          <td className="py-2.5 px-3">
+                            <input type="text" defaultValue={stream.activityLevel} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <input type="text" defaultValue={stream.activityUnit} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <input type="text" defaultValue={stream.fuelType} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <select defaultValue="In-House" className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]">
+                              <option>In-House technical data</option>
+                              <option>Supplier Data</option>
+                              <option>IPCC Default</option>
+                              <option>Laboratory Analysis</option>
+                            </select>
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <input type="text" defaultValue={stream.deviceCapacity} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
+                          </td>
+                          <td className="py-2 px-3 text-center">
+                            {idx === 0 ? (
+                              <button
+                                type="button"
+                                onClick={addSourceStream}
+                                className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
+                                title="Add Row"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => removeSourceStream(idx)}
+                                className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
+                                title="Remove Row"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Calculation Factors Section */}
+              <div>
+                <h4 className="text-xs font-bold text-[#004B87] mb-3">Calculation Factors</h4>
+                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
+                        <th className="py-2.5 px-3">Source Stream</th>
+                        <th className="py-2.5 px-3">Emission Factor</th>
+                        <th className="py-2.5 px-3">EF Unit</th>
+                        <th className="py-2.5 px-3">NCV</th>
+                        <th className="py-2.5 px-3">NCV Unit</th>
+                        <th className="py-2.5 px-3">Tier</th>
+                        <th className="py-2.5 px-3">Factor Source / Reference</th>
+                        <th className="py-2.5 px-3 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {calcOtherInputsOutputs.map((row, idx) => (
+                        <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50/50">
+                          <td className="py-2.5 px-3 font-medium text-navy-900">{row.id}</td>
+                          <td className="py-2.5 px-3">
+                            <input type="text" defaultValue={row.emissionFactor} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <input type="text" defaultValue="tCOâ‚‚/TJ" className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <input type="text" defaultValue={row.ncv} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <input type="text" defaultValue={row.units} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <select defaultValue="Tier 2" className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]">
+                              <option>Tier 1</option>
+                              <option>Tier 2</option>
+                              <option>Tier 3</option>
+                            </select>
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <input type="text" defaultValue={row.source} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
+                          </td>
+                          <td className="py-2 px-3 text-center">
+                            {idx === 0 ? (
+                              <button
+                                type="button"
+                                onClick={addCalcOtherInput}
+                                className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
+                                title="Add Row"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => removeCalcOtherInput(idx)}
+                                className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
+                                title="Remove Row"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* TAB 5: MEASUREMENT EQUIPMENT */}
+          {/* ========================================================================= */}
+          {activeTab === 'measurement-equipment' && (
+            <div className="space-y-6 animate-fade-in text-xs">
+              <div>
+                <h4 className="text-xs font-bold text-[#004B87] mb-3">Measurement Equipment Registry</h4>
+                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
+                        <th className="py-2.5 px-3">Meter / Equipment Name</th>
+                        <th className="py-2.5 px-3">Equipment ID</th>
+                        <th className="py-2.5 px-3">Parameter</th>
+                        <th className="py-2.5 px-3">Unit</th>
+                        <th className="py-2.5 px-3">Method</th>
+                        <th className="py-2.5 px-3">Calibration Date</th>
+                        <th className="py-2.5 px-3">Next Calibration</th>
+                        <th className="py-2.5 px-3">Frequency</th>
+                        <th className="py-2.5 px-3">Accuracy</th>
+                        <th className="py-2.5 px-3">Responsible</th>
+                        <th className="py-2.5 px-3">Document</th>
+                        <th className="py-2.5 px-3 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {measEquipment.map((equip, idx) => (
+                        <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50/50">
+                          <td className="py-2.5 px-3">
+                            <input type="text" defaultValue={equip.name} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <input type="text" defaultValue={`EQ-${String(idx + 1).padStart(3, '0')}`} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <input type="text" defaultValue={equip.parameter} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <select defaultValue="ppm" className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]">
+                              <option>ppm</option>
+                              <option>%</option>
+                              <option>mg/mÂ³</option>
+                              <option>NmÂ³/h</option>
+                              <option>kg/h</option>
+                            </select>
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <select defaultValue="CEMS" className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]">
+                              <option>CEMS</option>
+                              <option>Portable Analyzer</option>
+                              <option>Flow Meter</option>
+                              <option>Gas Chromatograph</option>
+                              <option>Weighbridge</option>
+                            </select>
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <input type="date" defaultValue="2026-01-15" className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <input type="date" defaultValue="2027-01-15" className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <select defaultValue="Annual" className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]">
+                              <option>Monthly</option>
+                              <option>Quarterly</option>
+                              <option>Semi-Annual</option>
+                              <option>Annual</option>
+                            </select>
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <input type="text" defaultValue={equip.accuracyClass} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <input type="text" defaultValue="Instrumentation Dept." className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <button onClick={() => fileInputRef.current?.click()} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition-colors cursor-pointer">
+                              <Upload className="w-3 h-3 inline mr-1" />Upload
+                            </button>
+                          </td>
+                          <td className="py-2 px-3 text-center">
+                            {idx === 0 ? (
+                              <button
+                                type="button"
+                                onClick={addMeasEquipment}
+                                className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
+                                title="Add Row"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => removeMeasEquipment(idx)}
+                                className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
+                                title="Remove Row"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* TAB 6: QA/QC & DATA MANAGEMENT */}
+          {/* ========================================================================= */}
+          {activeTab === 'qa-qc' && (
             <div className="space-y-6 animate-fade-in text-xs">
               {/* Top Description Box */}
               <div>
                 <label className="block text-slate-600 font-semibold mb-1.5">
-                  Provide a detailed description of the verification methodology applied for all source streams sources
+                  Provide a detailed description of the internal QA/QC methodology applied for all source streams and sources
                 </label>
                 <textarea
                   rows={3}
@@ -3211,212 +3561,10 @@ export const DataEntryView: React.FC = () => {
             </div>
           )}
 
-          {/* ========================================================================= */}
-          {/* TAB 4: MITIGATION MEASURES */}
-          {/* ========================================================================= */}
-          {activeTab === 'mitigation' && (
-            <div className="space-y-6 animate-fade-in text-xs">
-              <div>
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Greenhouse Gas Mitigation Measures</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                        <th className="py-2.5 px-3">Description Of Measure</th>
-                        <th className="py-2.5 px-3">Category</th>
-                        <th className="py-2.5 px-3">Scope (1 / 2 / 3)</th>
-                        <th className="py-2.5 px-3">GHG</th>
-                        <th className="py-2.5 px-3">Start Year</th>
-                        <th className="py-2.5 px-3">Status</th>
-                        <th className="py-2.5 px-3">Pre-Measure (TCO2e/Yr)</th>
-                        <th className="py-2.5 px-3">Reporting Year Reduction (TCO2e)</th>
-                        <th className="py-2.5 px-3">Expected Annual Reduction (TCO₂e)</th>
-                        <th className="py-2.5 px-3">Methodology / Standard</th>
-                        <th className="py-2.5 px-3">Verification</th>
-                        <th className="py-2.5 px-3 text-center">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {mitigationMeasures.map((row, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.description}
-                              onChange={(e) => {
-                                const copy = [...mitigationMeasures];
-                                copy[idx].description = e.target.value;
-                                setMitigationMeasures(copy);
-                              }}
-                              className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.category}
-                              onChange={(e) => {
-                                const copy = [...mitigationMeasures];
-                                copy[idx].category = e.target.value;
-                                setMitigationMeasures(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="Emission Reduction">Emission Reduction</option>
-                              <option value="Emission Avoidance">Emission Avoidance</option>
-                              <option value="Carbon Removal">Carbon Removal</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.scope}
-                              onChange={(e) => {
-                                const copy = [...mitigationMeasures];
-                                copy[idx].scope = e.target.value;
-                                setMitigationMeasures(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="1">1</option>
-                              <option value="2">2</option>
-                              <option value="3">3</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.ghg}
-                              onChange={(e) => {
-                                const copy = [...mitigationMeasures];
-                                copy[idx].ghg = e.target.value;
-                                setMitigationMeasures(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="CO₂">CO₂</option>
-                              <option value="CH₄">CH₄</option>
-                              <option value="Mixed">Mixed</option>
-                              <option value="N₂O">N₂O</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.startYear}
-                              onChange={(e) => {
-                                const copy = [...mitigationMeasures];
-                                copy[idx].startYear = e.target.value;
-                                setMitigationMeasures(copy);
-                              }}
-                              className="w-20 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.status}
-                              onChange={(e) => {
-                                const copy = [...mitigationMeasures];
-                                copy[idx].status = e.target.value;
-                                setMitigationMeasures(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="Implemented">Implemented</option>
-                              <option value="Planned">Planned</option>
-                              <option value="Feasibility Study">Feasibility Study</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.preMeasure}
-                              onChange={(e) => {
-                                const copy = [...mitigationMeasures];
-                                copy[idx].preMeasure = e.target.value;
-                                setMitigationMeasures(copy);
-                              }}
-                              className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.reportingReduction}
-                              onChange={(e) => {
-                                const copy = [...mitigationMeasures];
-                                copy[idx].reportingReduction = e.target.value;
-                                setMitigationMeasures(copy);
-                              }}
-                              className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.expectedReduction}
-                              onChange={(e) => {
-                                const copy = [...mitigationMeasures];
-                                copy[idx].expectedReduction = e.target.value;
-                                setMitigationMeasures(copy);
-                              }}
-                              className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.standard}
-                              onChange={(e) => {
-                                const copy = [...mitigationMeasures];
-                                copy[idx].standard = e.target.value;
-                                setMitigationMeasures(copy);
-                              }}
-                              className="w-20 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.verification}
-                              onChange={(e) => {
-                                const copy = [...mitigationMeasures];
-                                copy[idx].verification = e.target.value;
-                                setMitigationMeasures(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="Not verified">Not verified</option>
-                              <option value="Verified">Verified</option>
-                              <option value="Third - Party Verified">Third - Party Verified</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3 text-center">
-                            {idx === 0 ? (
-                              <button
-                                type="button"
-                                onClick={addMitigationMeasure}
-                                className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                              >
-                                <Plus className="w-3.5 h-3.5" />
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => removeMitigationMeasure(idx)}
-                                className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Mitigation Measures tab has been moved outside the Monitoring Plan module */}
 
           {/* ========================================================================= */}
-          {/* TAB 5: REVIEW & SUBMIT */}
+          {/* TAB 7: REVIEW & SUBMIT */}
           {/* ========================================================================= */}
           {activeTab === 'review-submit' && (
             <div className="space-y-5 animate-fade-in text-xs">
@@ -3450,7 +3598,7 @@ export const DataEntryView: React.FC = () => {
                       className="mt-0.5 w-4 h-4 rounded text-[#004B87] border-slate-300 focus:ring-[#004B87]"
                     />
                     <span className="font-medium leading-tight">
-                      I understand that submitting false or misleading information may result in regulatory action by the Environment Agency – Abu Dhabi.
+                      I understand that submitting false or misleading information may result in regulatory action by the Environment Agency â€“ Abu Dhabi.
                     </span>
                   </label>
 
@@ -3464,7 +3612,7 @@ export const DataEntryView: React.FC = () => {
                       className="mt-0.5 w-4 h-4 rounded text-[#004B87] border-slate-300 focus:ring-[#004B87]"
                     />
                     <span className="font-medium leading-tight">
-                      I agree to submit this Monitoring Plan to the Environment Agency – Abu Dhabi.
+                      I agree to submit this Monitoring Plan to the Environment Agency â€“ Abu Dhabi.
                     </span>
                   </label>
                 </div>
@@ -3557,8 +3705,12 @@ export const DataEntryView: React.FC = () => {
                     <div className="pt-2 sm:pt-0 sm:px-3">
                       <div className="text-[11px] text-slate-500 font-medium mb-1">Current Status</div>
                       <div>
-                        <span className="inline-block px-3 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold">
-                          Draft
+                        <span className={`inline-block px-3 py-0.5 rounded-full border text-[11px] font-bold ${
+                          workflowState.monitoringPlanStatus === 'Draft' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                          workflowState.monitoringPlanStatus === 'Submitted' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                          'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        }`}>
+                          {workflowState.monitoringPlanStatus === 'Approved' ? 'Active Monitoring Plan' : workflowState.monitoringPlanStatus}
                         </span>
                       </div>
                     </div>
@@ -3581,7 +3733,7 @@ export const DataEntryView: React.FC = () => {
       <div className="flex-shrink-0 pt-3 pb-1 flex items-center justify-end gap-3">
         <button
           onClick={() => setActiveView('dashboard')}
-          className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-sm transition-all"
+          className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
         >
           <span>Cancel</span>
           <X className="w-3.5 h-3.5" />
@@ -3589,22 +3741,62 @@ export const DataEntryView: React.FC = () => {
 
         <button
           onClick={handleSave}
-          className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-[#004B87] text-xs font-bold text-[#004B87] flex items-center gap-1.5 shadow-sm transition-all"
+          className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-[#004B87] text-xs font-bold text-[#004B87] flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
         >
           <span>Save</span>
           <Bookmark className="w-3.5 h-3.5 fill-current" />
         </button>
 
-        <button
-          onClick={() => {
-            handleSave();
-            setActiveView('data-review');
-          }}
-          className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer"
-        >
-          <span>Submit</span>
-          <Send className="w-3.5 h-3.5 fill-current" />
-        </button>
+        {isEadReviewerOrAdmin &&
+          (workflowState.monitoringPlanStatus === 'Submitted' ||
+            workflowState.monitoringPlanStatus === 'Under EAD Review' ||
+            workflowState.monitoringPlanStatus === 'Draft') && (
+            <button
+              onClick={() => {
+                setMonitoringPlanStatus('Approved');
+                setNoticeMessage('Monitoring Plan Approved & Accepted by EAD! Annual Emission Data is now accessible.');
+                setIsSavedNotice(true);
+                setTimeout(() => setIsSavedNotice(false), 3500);
+              }}
+              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              title="Approve Monitoring Plan and unlock Annual Emission Data"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>EAD Approve Plan</span>
+            </button>
+          )}
+
+        {(workflowState.monitoringPlanStatus === 'Approved' ||
+          workflowState.monitoringPlanStatus === 'Accepted' ||
+          workflowState.monitoringPlanStatus === 'Active') && (
+          <button
+            onClick={() => setActiveView('annual-emission-data')}
+            className="px-5 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-xs font-bold text-white flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+          >
+            <span>Go to Annual Emission Data</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        )}
+
+        {isFacilityOperator && (
+          <button
+            onClick={() => {
+              handleSave();
+              setMonitoringPlanStatus('Submitted');
+              setNoticeMessage('Monitoring Plan Submitted! Forwarding for EAD Review...');
+              setIsSavedNotice(true);
+              setTimeout(() => {
+                setMonitoringPlanStatus('Under EAD Review');
+                setNoticeMessage('Monitoring Plan Status: Under EAD Review');
+                setTimeout(() => setIsSavedNotice(false), 3500);
+              }, 1000);
+            }}
+            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer"
+          >
+            <span>Submit Plan</span>
+            <Send className="w-3.5 h-3.5 fill-current" />
+          </button>
+        )}
       </div>
     </div>
   );
