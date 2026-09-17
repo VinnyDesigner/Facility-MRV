@@ -9,6 +9,7 @@ import {
   Search,
   Mail,
   CheckCircle2,
+  Check,
   AlertTriangle,
   Info,
   LogOut,
@@ -88,6 +89,9 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
     activeView === 'annual-emission-data' ||
     activeView === 'emissions-data';
   const isVerificationActive = activeView === 'verification';
+  const isVerificationCompleted =
+    workflowState.verificationStatus === 'Verification Completed' ||
+    workflowState.verificationStatus === 'Verification Statement Uploaded';
   const isReportsActive =
     activeView === 'reports' ||
     activeView === 'mrv-reports' ||
@@ -225,23 +229,27 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                   onClick={() => setActiveView('verification')}
                   className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
                     isVerificationActive
-                      ? isVerificationUnlocked
-                        ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
-                        : 'bg-white/90 text-amber-950 font-bold shadow-sm border border-amber-300'
+                      ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
+                      : isVerificationCompleted
+                      ? 'text-white hover:text-white hover:bg-white/15'
                       : isVerificationUnlocked
                       ? 'text-white/85 hover:text-white hover:bg-white/15'
                       : 'text-white/60 hover:text-white/80 hover:bg-white/10'
                   }`}
                   title={
-                    isVerificationUnlocked
+                    isVerificationCompleted
+                      ? 'Verification (Completed / Statement Uploaded)'
+                      : isVerificationUnlocked
                       ? 'Verification (Unlocked)'
                       : 'Verification Locked (Annual Emission Data must be Submitted first)'
                   }
                 >
                   <span>Verification</span>
-                  {!isVerificationUnlocked && (
+                  {isVerificationCompleted ? (
+                    <Check className={`w-3.5 h-3.5 flex-shrink-0 stroke-[2.5] ${isVerificationActive ? 'text-emerald-600' : 'text-emerald-300'}`} />
+                  ) : !isVerificationUnlocked ? (
                     <Lock className="w-3 h-3 text-amber-300 flex-shrink-0" />
-                  )}
+                  ) : null}
                 </button>
 
                 {/* 6. Reports */}
@@ -541,9 +549,9 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                 }}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                   isVerificationActive
-                    ? isVerificationUnlocked
-                      ? 'bg-white text-[#004B87]'
-                      : 'bg-white/90 text-amber-950 border border-amber-300'
+                    ? 'bg-white text-[#004B87]'
+                    : isVerificationCompleted
+                    ? 'text-white hover:bg-white/10'
                     : isVerificationUnlocked
                     ? 'text-slate-200 hover:bg-white/10'
                     : 'text-slate-400 hover:bg-white/5'
@@ -553,9 +561,11 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                   <ShieldCheck className="w-4 h-4" />
                   <span>Verification</span>
                 </div>
-                {!isVerificationUnlocked && (
+                {isVerificationCompleted ? (
+                  <Check className="w-4 h-4 text-emerald-300 stroke-[2.5]" />
+                ) : !isVerificationUnlocked ? (
                   <Lock className="w-3.5 h-3.5 text-amber-300" />
-                )}
+                ) : null}
               </button>
 
               <div className="pt-2 border-t border-white/10">

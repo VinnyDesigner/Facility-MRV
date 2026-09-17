@@ -105,15 +105,17 @@ export const AnnualEmissionDataView: React.FC = () => {
   // =========================================================================
   const [verificationData, setVerificationData] = useState({
     verificationRequired: true,
-    verificationStatus: 'Pending Verification' as string,
-    verifierName: '',
-    verifierOrganization: '',
-    verificationDate: '',
-    verificationStatement: '',
-    verificationRemarks: '',
+    verificationStatus: 'Completed' as string,
+    verifierName: 'Dr. Arthur Pendelton',
+    verifierOrganization: 'Bureau Veritas Middle East',
+    verificationDate: '24-Jun-2026',
+    verificationStatement: 'Third_Party_Verification_Statement_2026.pdf',
+    verificationRemarks: 'All emission source activity registers and calibration logs reconciled.',
   });
 
-  const [verificationDocs, setVerificationDocs] = useState<{ name: string; size: string; status: string }[]>([]);
+  const [verificationDocs, setVerificationDocs] = useState<{ name: string; size: string; status: string }[]>([
+    { name: 'Third_Party_Verification_Statement_2026.pdf', size: '2.4MB', status: 'Uploaded' },
+  ]);
 
   // =========================================================================
   // REVIEW & SUBMIT
@@ -837,11 +839,11 @@ export const AnnualEmissionDataView: React.FC = () => {
                           verificationData.verificationStatus === 'Not Required' ? 'bg-slate-100 text-slate-700 border border-slate-200' :
                           verificationData.verificationStatus === 'Pending Verification' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
                           verificationData.verificationStatus === 'Verification In Progress' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
-                          verificationData.verificationStatus === 'Verification Completed' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
-                          'bg-purple-100 text-purple-800 border border-purple-200'
+                          verificationData.verificationStatus === 'Verification Completed' || verificationData.verificationStatus === 'Completed' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+                          'bg-emerald-100 text-emerald-800 border border-emerald-200'
                         }`}>
                           <span className={`w-2 h-2 rounded-full ${
-                            verificationData.verificationStatus === 'Verification Completed' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'
+                            verificationData.verificationStatus === 'Verification Completed' || verificationData.verificationStatus === 'Completed' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'
                           }`}></span>
                           {verificationData.verificationStatus}
                         </span>

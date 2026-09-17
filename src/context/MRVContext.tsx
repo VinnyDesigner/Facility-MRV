@@ -738,14 +738,14 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeView, setActiveView] = useState<string>('dashboard');
   const [selectedSubmissionForReview, setSelectedSubmissionForReview] = useState<Submission | null>(null);
 
-  // Workflow State
+  // Workflow State (Demo Mock Data State: Demonstrating full end-to-end workflow)
   const [workflowState, setWorkflowState] = useState<WorkflowState>({
-    registrationStatus: 'Draft',
-    monitoringPlanStatus: 'Draft',
-    annualEmissionStatus: 'Draft',
-    verificationStatus: 'Pending Verification',
-    registrationApprovalDate: undefined,
-    monitoringPlanDeadline: undefined,
+    registrationStatus: 'Approved',
+    monitoringPlanStatus: 'Approved',
+    annualEmissionStatus: 'Submitted',
+    verificationStatus: 'Verification Statement Uploaded',
+    registrationApprovalDate: '15-Jan-2026',
+    monitoringPlanDeadline: '15-Apr-2026',
   });
 
   const setRegistrationStatus = (status: RegistrationStatus) => {
@@ -1068,12 +1068,12 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSubmissions(INITIAL_SUBMISSIONS);
     setNotifications(INITIAL_NOTIFICATIONS);
     setWorkflowState({
-      registrationStatus: 'Draft',
-      monitoringPlanStatus: 'Draft',
-      annualEmissionStatus: 'Draft',
-      verificationStatus: 'Pending Verification',
-      registrationApprovalDate: undefined,
-      monitoringPlanDeadline: undefined,
+      registrationStatus: 'Approved',
+      monitoringPlanStatus: 'Approved',
+      annualEmissionStatus: 'Submitted',
+      verificationStatus: 'Verification Statement Uploaded',
+      registrationApprovalDate: '15-Jan-2026',
+      monitoringPlanDeadline: '15-Apr-2026',
     });
   };
 

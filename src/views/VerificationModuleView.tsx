@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   ShieldCheck,
   Upload,
@@ -30,6 +30,13 @@ export const VerificationModuleView: React.FC = () => {
 
   // Verification State
   const [verificationStatus, setVerificationStatus] = useState<string>(workflowState.verificationStatus || 'Pending Verification');
+
+  useEffect(() => {
+    if (workflowState.verificationStatus) {
+      setVerificationStatus(workflowState.verificationStatus);
+    }
+  }, [workflowState.verificationStatus]);
+
   const [verifierInfo, setVerifierInfo] = useState({
     name: 'Dr. Arthur Pendelton',
     organization: 'Bureau Veritas Middle East',
@@ -47,6 +54,7 @@ export const VerificationModuleView: React.FC = () => {
   const submissionHistory = [
     { date: '15-Jun-2026', action: 'Annual Emission Data Submitted (V1)', by: 'Umasri Mavillapally', status: 'Submitted' },
     { date: '16-Jun-2026', action: 'Routed to Third-Party Verification', by: 'System', status: 'Pending Verification' },
+    { date: '24-Jun-2026', action: 'Verification Statement Uploaded (Reasonable Assurance)', by: 'Dr. Arthur Pendelton', status: 'Completed' },
   ];
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -185,14 +193,24 @@ export const VerificationModuleView: React.FC = () => {
               <h4 className="text-xs font-bold text-[#004B87]">Verifier Information</h4>
               <p className="text-[11px] text-slate-500 mt-0.5">Accredited third-party verification assessment and status</p>
             </div>
-            <span className={`px-3 py-1.5 rounded-full text-[10px] font-bold ${
+            <span className={`px-3 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-1.5 ${
               verificationStatus === 'Not Required' ? 'bg-slate-100 text-slate-600' :
               verificationStatus === 'Pending Verification' ? 'bg-amber-100 text-amber-700' :
               verificationStatus === 'Verification In Progress' ? 'bg-blue-100 text-blue-700' :
-              verificationStatus === 'Verification Completed' ? 'bg-emerald-100 text-emerald-700' :
+              verificationStatus === 'Verification Completed' ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' :
+              verificationStatus === 'Verification Statement Uploaded' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' :
               'bg-purple-100 text-purple-700'
             }`}>
-              {verificationStatus}
+              {(verificationStatus === 'Verification Completed' || verificationStatus === 'Verification Statement Uploaded') && (
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              )}
+              <span>
+                {verificationStatus === 'Verification Statement Uploaded'
+                  ? 'Completed • Statement Uploaded'
+                  : verificationStatus === 'Verification Completed'
+                  ? 'Completed'
+                  : verificationStatus}
+              </span>
             </span>
           </div>
 
@@ -205,24 +223,33 @@ export const VerificationModuleView: React.FC = () => {
                 { key: 'Verification In Progress', label: 'In Progress' },
                 { key: 'Verification Completed', label: 'Completed' },
                 { key: 'Verification Statement Uploaded', label: 'Statement Uploaded' }
-              ].map((step, idx) => (
-                <React.Fragment key={idx}>
-                  <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full whitespace-nowrap transition-all ${
-                    verificationStatus === step.key ? 'bg-[#004B87] text-white shadow-xs font-bold' :
-                    ['Pending Verification', 'Verification In Progress', 'Verification Completed', 'Verification Statement Uploaded']
-                      .indexOf(verificationStatus) > idx ? 'bg-emerald-100 text-emerald-800 font-semibold' : 'bg-slate-100 text-slate-500 font-medium'
-                  }`}>
-                    {['Pending Verification', 'Verification In Progress', 'Verification Completed', 'Verification Statement Uploaded']
-                      .indexOf(verificationStatus) > idx ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    ) : verificationStatus === step.key ? (
-                      <Clock className="w-3.5 h-3.5 text-white" />
-                    ) : null}
-                    <span>{step.label}</span>
-                  </div>
-                  {idx < 3 && <div className="w-4 h-px bg-slate-300 shrink-0" />}
-                </React.Fragment>
-              ))}
+              ].map((step, idx) => {
+                const stepKeys = ['Pending Verification', 'Verification In Progress', 'Verification Completed', 'Verification Statement Uploaded'];
+                const currentIdx = stepKeys.indexOf(verificationStatus);
+                const isPassed = currentIdx > idx;
+                const isCurrent = verificationStatus === step.key;
+                const isDone = isPassed || (isCurrent && (step.key === 'Verification Completed' || step.key === 'Verification Statement Uploaded'));
+
+                return (
+                  <React.Fragment key={idx}>
+                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full whitespace-nowrap transition-all ${
+                      isCurrent
+                        ? 'bg-[#004B87] text-white shadow-xs font-bold'
+                        : isPassed
+                        ? 'bg-emerald-100 text-emerald-800 font-semibold'
+                        : 'bg-slate-100 text-slate-500 font-medium'
+                    }`}>
+                      {isDone ? (
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${isCurrent ? 'text-emerald-300' : 'text-emerald-600'}`} />
+                      ) : isCurrent ? (
+                        <Clock className="w-3.5 h-3.5 text-white" />
+                      ) : null}
+                      <span>{step.label}</span>
+                    </div>
+                    {idx < 3 && <div className="w-4 h-px bg-slate-300 shrink-0" />}
+                  </React.Fragment>
+                );
+              })}
             </div>
           </div>
 
