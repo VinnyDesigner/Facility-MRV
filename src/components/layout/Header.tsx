@@ -26,7 +26,10 @@ import {
   Globe,
   Lock,
   ArrowRight,
+  Eye,
+  FileSearch,
 } from 'lucide-react';
+import { DataReviewIcon } from '../icons/DataReviewIcon';
 import { useMRV } from '../../context/MRVContext';
 import colorLogo from '../../assets/color-logo.svg';
 
@@ -47,6 +50,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
     markAllNotificationsRead,
     activeView,
     setActiveView,
+    setSelectedSubmissionForReview,
     activeFacility,
     reportingYear,
     submissions,
@@ -348,6 +352,34 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
 
         {/* Right Section: Header Controls & Profile */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
+
+          {/* Compact Review MRV Data Icon Button */}
+          <div className="relative group">
+            <button
+              onClick={() => {
+                setSelectedSubmissionForReview(null);
+                setActiveView('mrv-data-history');
+              }}
+              className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95 ${
+                activeView === 'mrv-data-history' || activeView === 'submission-detail'
+                  ? 'bg-[#004B87] text-white shadow-md shadow-[#004B87]/20 border border-[#004B87]'
+                  : 'bg-white hover:bg-slate-50 text-[#004B87] border border-slate-200/90 hover:border-[#004B87]/40 hover:shadow'
+              }`}
+              title="Review MRV Data"
+              aria-label="Review MRV Data"
+            >
+              <DataReviewIcon
+                className="w-4 h-4"
+                isInverse={activeView === 'mrv-data-history' || activeView === 'submission-detail'}
+              />
+            </button>
+
+            {/* Custom Tooltip */}
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2.5 py-1 bg-slate-900 text-white text-[11px] font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+              Review MRV Data
+              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45 pointer-events-none" />
+            </div>
+          </div>
 
           {/* Notifications Bell Button */}
           <div className="relative" ref={notifRef}>

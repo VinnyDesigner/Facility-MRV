@@ -461,24 +461,8 @@ export const AnnualEmissionDataView: React.FC = () => {
             )}
           </div>
 
-          {/* Status badge & View Report button */}
+          {/* Status badge */}
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => openReadOnlyViewer({
-                moduleType: 'annual-emission-data',
-                title: 'Annual GHG Emissions Report (Reporting Year 2026)',
-                status: workflowState.annualEmissionStatus,
-                submittedBy: 'Umasri Mavillapally (Facility Compliance Lead)',
-                submittedDate: '14 Mar 2026, 11:30 AM',
-                reviewerName: 'Dr. Mariam Al-Qubaisi (EAD Lead Inspector)',
-                initialTab: 'data',
-              })}
-              className="px-3 py-1 bg-[#004B87]/10 hover:bg-[#004B87]/20 border border-[#004B87]/30 text-[#004B87] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
-              title="Open Complete Read-Only Emissions Report"
-            >
-              <Eye className="w-3.5 h-3.5" />
-              <span>View Report</span>
-            </button>
 
             <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${
               submissionStatus === 'Draft' ? 'bg-slate-100 text-slate-600' :

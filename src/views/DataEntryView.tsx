@@ -543,25 +543,8 @@ export const DataEntryView: React.FC = () => {
             )}
           </div>
 
-          {/* Workflow Status & 90-Day Requirement Badge & View Button */}
+          {/* Workflow Status & 90-Day Requirement Badge */}
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => openReadOnlyViewer({
-                moduleType: 'monitoring-plan',
-                title: 'Monitoring Plan & Methodologies',
-                status: workflowState.monitoringPlanStatus,
-                submittedBy: 'Umasri Mavillapally (Senior Compliance Lead)',
-                submittedDate: '15 Feb 2026',
-                reviewerName: 'Dr. Mariam Al-Qubaisi (EAD Lead Inspector)',
-                initialTab: 'data',
-              })}
-              className="px-3 py-1 bg-[#004B87]/10 hover:bg-[#004B87]/20 border border-[#004B87]/30 text-[#004B87] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
-              title="Open Complete Read-Only Monitoring Plan"
-            >
-              <Eye className="w-3.5 h-3.5" />
-              <span>View Plan</span>
-            </button>
-
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-[11px] font-medium">
               <Clock className="w-3.5 h-3.5 text-blue-600" />
               <span>90-Day Deadline: {workflowState.monitoringPlanDeadline || '13-Sep-2026'}</span>

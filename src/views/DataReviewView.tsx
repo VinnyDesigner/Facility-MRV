@@ -358,20 +358,11 @@ export const DataReviewView: React.FC = () => {
                 <thead>
                   <tr className="bg-[#E9F1F8] text-slate-700 font-semibold text-xs border-b border-slate-200">
                     <th
-                      onClick={() => handleSort('id')}
-                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors w-10 text-center"
-                    >
-                      <div className="flex items-center justify-center gap-1">
-                        <span>#</span>
-                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                      </div>
-                    </th>
-                    <th
-                      onClick={() => handleSort('submissionId')}
+                      onClick={() => handleSort('facilityId' as any)}
                       className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors"
                     >
                       <div className="flex items-center gap-1">
-                        <span>Submission ID</span>
+                        <span>Facility ID</span>
                         <ArrowUpDown className="w-3 h-3 text-slate-400" />
                       </div>
                     </th>
@@ -440,9 +431,9 @@ export const DataReviewView: React.FC = () => {
                     </th>
                     <th
                       onClick={() => handleSort('reviewStatus')}
-                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center"
+                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors"
                     >
-                      <div className="flex items-center justify-center gap-1">
+                      <div className="flex items-center gap-1">
                         <span>Review Status</span>
                         <ArrowUpDown className="w-3 h-3 text-slate-400" />
                       </div>
@@ -466,8 +457,7 @@ export const DataReviewView: React.FC = () => {
                       onClick={() => setSelectedSubmissionId(row.submissionId)}
                       className="hover:bg-slate-50/80 transition-colors cursor-pointer"
                     >
-                      <td className="py-3.5 px-3 text-slate-500 text-center">{row.id}</td>
-                      <td className="py-3.5 px-3 font-mono font-bold text-slate-800">{row.submissionId}</td>
+                      <td className="py-3.5 px-3 font-mono font-bold text-[#004B87]">{`FAC-2026-00${row.id}`}</td>
                       <td className="py-3.5 px-3 font-semibold text-slate-800">{row.facility}</td>
                       <td className="py-3.5 px-3 text-slate-600">{row.reportingEntity}</td>
                       <td className="py-3.5 px-3 text-slate-600">{row.sector}</td>
@@ -480,24 +470,24 @@ export const DataReviewView: React.FC = () => {
                           <span>{row.lastUpdated}</span>
                         </div>
                       </td>
-                      <td className="py-3.5 px-3 text-center">
+                      <td className="py-3.5 px-3 text-left">
                         {row.reviewStatus === 'Submitted' && (
-                          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60 inline-block min-w-[95px]">
+                          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60 inline-block min-w-[95px] text-center">
                             Submitted
                           </span>
                         )}
                         {row.reviewStatus === 'Approved' && (
-                          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#E8F8F0] text-[#16A34A] border border-emerald-200/60 inline-block min-w-[95px]">
+                          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#E8F8F0] text-[#16A34A] border border-emerald-200/60 inline-block min-w-[95px] text-center">
                             Approved
                           </span>
                         )}
                         {row.reviewStatus === 'Correction Requested' && (
-                          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#E2E8F0] text-[#475569] border border-slate-300/80 inline-block min-w-[130px]">
+                          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#E2E8F0] text-[#475569] border border-slate-300/80 inline-block min-w-[130px] text-center">
                             Correction Requested
                           </span>
                         )}
                         {row.reviewStatus === 'Rejected' && (
-                          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 inline-block min-w-[95px]">
+                          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 inline-block min-w-[95px] text-center">
                             Rejected
                           </span>
                         )}

@@ -21,6 +21,7 @@ import {
   Archive,
   ShieldAlert,
   Eye,
+  FileSearch,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -590,19 +591,6 @@ export const FacilityDashboardView: React.FC = () => {
 
         {/* Action Controls: Only Date Filter and Export Report Button */}
         <div className="flex items-center gap-2.5">
-          {/* View Complete Dossier Button */}
-          <button
-            onClick={() => openReadOnlyViewer({
-              moduleType: 'full-dossier',
-              title: 'Consolidated Facility MRV Submission Dossier',
-            })}
-            className="px-3.5 py-2.5 rounded-xl font-bold text-xs bg-[#004B87]/10 hover:bg-[#004B87]/20 border border-[#004B87]/30 text-[#004B87] flex items-center gap-1.5 transition-colors cursor-pointer"
-            title="Open Complete Read-Only MRV Dossier"
-          >
-            <Eye className="w-4 h-4" />
-            <span>View MRV Dossier</span>
-          </button>
-
           {/* Period Selector */}
           <div className="relative flex items-center bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 shadow-xs text-xs font-semibold text-slate-700 hover:border-slate-300 transition-colors">
             <Calendar className="w-4 h-4 text-[#004B87] mr-2 shrink-0" />

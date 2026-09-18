@@ -28,6 +28,8 @@ import { MRVReportsView } from './views/MRVReportsView';
 import { VersionHistoryView } from './views/VersionHistoryView';
 import { AnnualEmissionDataView } from './views/AnnualEmissionDataView';
 import { VerificationModuleView } from './views/VerificationModuleView';
+import { SubmissionDetailView } from './views/SubmissionDetailView';
+import { MRVDataHistoryView } from './views/MRVDataHistoryView';
 import { ReadOnlyRecordViewer } from './components/mrv/ReadOnlyRecordViewer';
 
 const MainAppContent: React.FC = () => {
@@ -64,6 +66,10 @@ const MainAppContent: React.FC = () => {
       case 'submissions':
       case 'version-history':
         return <MRVReportsView />;
+      case 'submission-detail':
+        return <SubmissionDetailView />;
+      case 'mrv-data-history':
+        return <MRVDataHistoryView />;
       case 'compliance-checker':
         return <ComplianceCheckerView />;
       case 'verifier-registry':

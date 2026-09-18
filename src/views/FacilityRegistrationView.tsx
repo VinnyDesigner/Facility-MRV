@@ -372,23 +372,6 @@ export const FacilityRegistrationView: React.FC = () => {
             <Calendar className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
           </div>
 
-          <button
-            onClick={() => openReadOnlyViewer({
-              moduleType: 'registration',
-              title: 'Facility Registration Dossier',
-              status: workflowState.registrationStatus,
-              submittedBy: formData.primaryName || 'Umasri Mavillapally',
-              submittedDate: '15 Jan 2026',
-              reviewerName: 'Dr. Mariam Al-Qubaisi (EAD Lead Inspector)',
-              initialTab: 'data',
-            })}
-            className="px-3.5 py-2 bg-[#004B87]/10 hover:bg-[#004B87]/20 border border-[#004B87]/30 text-[#004B87] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
-            title="Open Complete Read-Only Registration Dossier"
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span>View Dossier</span>
-          </button>
-
           <div className="relative">
             <button
               onClick={() => setIsActionsOpen(!isActionsOpen)}
@@ -400,24 +383,6 @@ export const FacilityRegistrationView: React.FC = () => {
 
             {isActionsOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-100 p-1.5 z-50 animate-slide-up text-xs font-medium text-navy-900">
-                <button
-                  onClick={() => {
-                    openReadOnlyViewer({
-                      moduleType: 'registration',
-                      title: 'Facility Registration Dossier',
-                      status: workflowState.registrationStatus,
-                      submittedBy: formData.primaryName || 'Umasri Mavillapally',
-                      submittedDate: '15 Jan 2026',
-                      reviewerName: 'Dr. Mariam Al-Qubaisi (EAD Lead Inspector)',
-                      initialTab: 'data',
-                    });
-                    setIsActionsOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-2 text-[#004B87] font-bold"
-                >
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>View Read-Only Dossier</span>
-                </button>
                 <button
                   onClick={() => {
                     loadSampleData();

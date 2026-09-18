@@ -44,6 +44,8 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
     reportingYear,
     openReadOnlyViewer,
     setActiveView,
+    setActiveFacilityId,
+    setSelectedSubmissionForReview,
   } = useMRV();
 
   // Search and Filter States
@@ -53,31 +55,11 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
   const [sectorFilter, setSectorFilter] = useState<string>('ALL');
 
   // Sorting state
-  const [sortKey, setSortKey] = useState<keyof Submission | 'operatorName' | 'progressPercent' | 'lastUpdated'>('submittedDate');
+  const [sortKey, setSortKey] = useState<keyof Submission | 'operatorName' | 'lastUpdated' | 'facilityCode'>('submittedDate');
   const [sortAsc, setSortAsc] = useState(false);
 
   // Toast / Export notice
   const [exportNotice, setExportNotice] = useState<string | null>(null);
-
-  // Helper to compute progress for each submission
-  const getSubmissionProgress = (status: SubmissionStatus) => {
-    switch (status) {
-      case 'Draft':
-        return { percent: 20, stage: 'Draft Preparation', barColor: 'bg-slate-400', textColor: 'text-slate-600' };
-      case 'Submitted':
-        return { percent: 50, stage: 'Transmitted to EAD', barColor: 'bg-blue-500', textColor: 'text-blue-700' };
-      case 'Correction Required':
-        return { percent: 60, stage: 'Correction Window', barColor: 'bg-amber-500', textColor: 'text-amber-800' };
-      case 'Under Review':
-        return { percent: 80, stage: 'EAD Regulatory Review', barColor: 'bg-teal-500', textColor: 'text-teal-700' };
-      case 'Approved':
-        return { percent: 100, stage: 'Accepted & Certified', barColor: 'bg-emerald-500', textColor: 'text-emerald-700' };
-      case 'Rejected':
-        return { percent: 40, stage: 'Application Rejected', barColor: 'bg-rose-500', textColor: 'text-rose-700' };
-      default:
-        return { percent: 50, stage: 'In Progress', barColor: 'bg-blue-500', textColor: 'text-blue-700' };
-    }
-  };
 
   // Derive full row data joined with facility operator information
   const enrichedSubmissions = useMemo(() => {
@@ -87,18 +69,17 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
       const lastUpdated = sub.history && sub.history.length > 0 
         ? sub.history[sub.history.length - 1].timestamp 
         : sub.submittedDate;
-      const progressInfo = getSubmissionProgress(sub.status);
       const isEditable = sub.status === 'Draft' || sub.status === 'Correction Required';
+      const correctionDeadline = sub.status === 'Correction Required' 
+        ? (sub.correctionDueDate || '11 Apr 2026')
+        : '—';
 
       return {
         ...sub,
         tableIndex: index + 1,
         operatorName,
         lastUpdated,
-        progressPercent: progressInfo.percent,
-        progressStage: progressInfo.stage,
-        progressBarColor: progressInfo.barColor,
-        progressTextColor: progressInfo.textColor,
+        correctionDeadline,
         isEditable,
         facilityObj: facility,
       };
@@ -108,15 +89,15 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
   // Filtered submissions
   const filteredSubmissions = useMemo(() => {
     return enrichedSubmissions.filter((sub) => {
-      // Search matching (ID, Facility, Operator, Sector)
+      // Search matching (Facility ID, Facility Name, Reporting Entity / Operator, Sector, Submission ID)
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
         !q ||
-        sub.id.toLowerCase().includes(q) ||
         sub.facilityCode.toLowerCase().includes(q) ||
         sub.facilityName.toLowerCase().includes(q) ||
         sub.operatorName.toLowerCase().includes(q) ||
-        sub.sector.toLowerCase().includes(q);
+        sub.sector.toLowerCase().includes(q) ||
+        sub.id.toLowerCase().includes(q);
 
       // Status filter
       const matchesStatus =
@@ -165,27 +146,15 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
     }, 3000);
   };
 
+  // Click flow: Facility -> Facility History -> Version -> Complete entered data
   const handleView = (sub: any) => {
+    if (sub.facilityId) {
+      setActiveFacilityId(sub.facilityId);
+    }
+    setSelectedSubmissionForReview(sub);
+    setActiveView('mrv-data-history');
     if (onViewRecord) {
       onViewRecord(sub);
-    } else {
-      const facility = sub.facilityObj || facilities.find((f) => f.id === sub.facilityId) || activeFacility;
-      openReadOnlyViewer({
-        moduleType: 'full-dossier',
-        recordId: sub.id,
-        facilityId: sub.facilityId,
-        facilityName: sub.facilityName,
-        reportingYear: sub.reportingYear,
-        version: sub.version,
-        title: `Consolidated MRV Submission Dossier: ${sub.id}`,
-        status: sub.status,
-        submittedDate: sub.submittedDate,
-        submittedBy: sub.history?.[0]?.user || facility.contactPerson?.name || 'Facility Compliance Lead',
-        reviewerName: sub.reviewerName || (sub.status === 'Draft' ? 'Pending Assignment' : 'Dr. Mariam Al-Qubaisi (EAD Lead Inspector)'),
-        reviewComments: sub.correctionComments || (sub.status === 'Approved' ? 'Submission approved by EAD Regulatory Committee.' : undefined),
-        correctionDueDate: sub.correctionDueDate || (sub.status === 'Correction Required' ? '11-Apr-2026' : undefined),
-        submission: sub,
-      });
     }
   };
 
@@ -202,49 +171,43 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
     switch (status) {
       case 'Approved':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#E8F8F0] text-[#16A34A] border border-emerald-200/60 inline-block min-w-[85px] text-center">
             Approved
           </span>
         );
       case 'Under Review':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold text-[11px] bg-teal-50 text-teal-700 border border-teal-200">
-            <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-            Under EAD Review
+          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60 inline-block min-w-[95px] text-center">
+            Under Review
           </span>
         );
       case 'Correction Required':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold text-[11px] bg-amber-50 text-amber-800 border border-amber-300 shadow-xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
-            Correction Required
+          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#E2E8F0] text-[#475569] border border-slate-300/80 inline-block min-w-[130px] text-center">
+            Correction Requested
           </span>
         );
       case 'Submitted':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold text-[11px] bg-blue-50 text-blue-700 border border-blue-200">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60 inline-block min-w-[85px] text-center">
             Submitted
           </span>
         );
       case 'Draft':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold text-[11px] bg-slate-100 text-slate-700 border border-slate-300">
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-slate-100 text-slate-600 border border-slate-300 inline-block min-w-[75px] text-center">
             Draft
           </span>
         );
       case 'Rejected':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold text-[11px] bg-rose-50 text-rose-700 border border-rose-200">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 inline-block min-w-[85px] text-center">
             Rejected
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold text-[11px] bg-slate-100 text-slate-700 border border-slate-200">
+          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-slate-100 text-slate-700 border border-slate-200 inline-block text-center">
             {status}
           </span>
         );
@@ -328,7 +291,7 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
               <option value="ALL">All Statuses</option>
               <option value="Approved">Approved</option>
               <option value="Under Review">Under Review</option>
-              <option value="Correction Required">Correction Required</option>
+              <option value="Correction Required">Correction Requested</option>
               <option value="Submitted">Submitted</option>
               <option value="Draft">Draft</option>
               <option value="Rejected">Rejected</option>
@@ -387,27 +350,28 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
       </div>
 
       {/* ------------------------------------------------------------------------- */}
-      {/* 3. SUBMISSION OVERVIEW TABLE (LEVEL 1)                                    */}
+      {/* 3. SUBMISSION OVERVIEW TABLE                                              */}
       {/* ------------------------------------------------------------------------- */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs border-collapse min-w-[1100px]">
-          <thead>
-            <tr className="bg-[#E9F1F8] text-slate-700 font-bold text-xs border-b border-slate-200">
-              {/* 1. Submission ID */}
-              <th
-                onClick={() => handleSort('id')}
-                className="py-3 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap"
-              >
+      <div className="p-3.5 sm:p-4">
+        <div className="overflow-x-auto rounded-xl border border-slate-200/90 bg-white">
+          <table className="w-full text-left text-xs border-collapse min-w-[1100px]">
+            <thead>
+              <tr className="bg-[#E9F1F8] text-slate-700 font-semibold text-xs border-b border-slate-200 sticky top-0 z-10 shadow-xs">
+                {/* 1. Facility ID */}
+                <th
+                  onClick={() => handleSort('facilityCode')}
+                  className="py-3.5 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap"
+                >
                 <div className="flex items-center gap-1">
-                  <span>Submission ID</span>
+                  <span>Facility ID</span>
                   <ArrowUpDown className="w-3 h-3 text-slate-400" />
                 </div>
               </th>
 
-              {/* 2. Facility */}
+              {/* 3. Facility */}
               <th
                 onClick={() => handleSort('facilityName')}
-                className="py-3 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors min-w-[150px]"
+                className="py-3.5 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors min-w-[150px]"
               >
                 <div className="flex items-center gap-1">
                   <span>Facility</span>
@@ -415,21 +379,21 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
                 </div>
               </th>
 
-              {/* 3. Reporting Entity / Operator */}
+              {/* 4. Reporting Entity */}
               <th
                 onClick={() => handleSort('operatorName')}
-                className="py-3 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors min-w-[160px]"
+                className="py-3.5 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors min-w-[150px]"
               >
                 <div className="flex items-center gap-1">
-                  <span>Reporting Entity / Operator</span>
+                  <span>Reporting Entity</span>
                   <ArrowUpDown className="w-3 h-3 text-slate-400" />
                 </div>
               </th>
 
-              {/* 4. Sector */}
+              {/* 5. Sector */}
               <th
                 onClick={() => handleSort('sector')}
-                className="py-3 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap"
+                className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap"
               >
                 <div className="flex items-center gap-1">
                   <span>Sector</span>
@@ -437,10 +401,10 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
                 </div>
               </th>
 
-              {/* 5. Tier Level */}
+              {/* 6. Tier Level */}
               <th
                 onClick={() => handleSort('tier')}
-                className="py-3 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap"
+                className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap"
               >
                 <div className="flex items-center justify-center gap-1">
                   <span>Tier Level</span>
@@ -448,10 +412,10 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
                 </div>
               </th>
 
-              {/* 6. Reporting Year */}
+              {/* 7. Reporting Year */}
               <th
                 onClick={() => handleSort('reportingYear')}
-                className="py-3 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap"
+                className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap"
               >
                 <div className="flex items-center justify-center gap-1">
                   <span>Reporting Year</span>
@@ -459,10 +423,10 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
                 </div>
               </th>
 
-              {/* 7. Version */}
+              {/* 8. Version */}
               <th
                 onClick={() => handleSort('version')}
-                className="py-3 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap"
+                className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap"
               >
                 <div className="flex items-center justify-center gap-1">
                   <span>Version</span>
@@ -470,10 +434,10 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
                 </div>
               </th>
 
-              {/* 8. Last Updated */}
+              {/* 9. Last Updated */}
               <th
                 onClick={() => handleSort('lastUpdated')}
-                className="py-3 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap"
+                className="py-3.5 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap"
               >
                 <div className="flex items-center gap-1">
                   <span>Last Updated</span>
@@ -481,10 +445,10 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
                 </div>
               </th>
 
-              {/* 9. Review Status */}
+              {/* 10. Review Status */}
               <th
                 onClick={() => handleSort('status')}
-                className="py-3 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap"
+                className="py-3.5 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap"
               >
                 <div className="flex items-center gap-1">
                   <span>Review Status</span>
@@ -492,20 +456,20 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
                 </div>
               </th>
 
-              {/* 10. Progress */}
+              {/* 11. Correction Deadline */}
               <th
-                onClick={() => handleSort('progressPercent')}
-                className="py-3 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors min-w-[130px]"
+                onClick={() => handleSort('lastUpdated')}
+                className="py-3.5 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap"
               >
                 <div className="flex items-center gap-1">
-                  <span>Progress</span>
+                  <span>Correction Deadline</span>
                   <ArrowUpDown className="w-3 h-3 text-slate-400" />
                 </div>
               </th>
 
-              {/* 11. Actions */}
-              <th className="py-3 px-4 text-right whitespace-nowrap">
-                <span>Action</span>
+              {/* 12. Actions */}
+              <th className="py-3.5 px-4 text-right whitespace-nowrap">
+                <span className="sr-only">Actions</span>
               </th>
             </tr>
           </thead>
@@ -518,136 +482,127 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
                 </td>
               </tr>
             ) : (
-              sortedSubmissions.map((row) => (
-                <tr key={row.id} className="hover:bg-slate-50/80 transition-colors group">
-                  {/* 1. Submission ID */}
-                  <td className="py-3.5 px-3.5 font-mono font-bold text-[#004B87] whitespace-nowrap">
-                    {row.id}
-                  </td>
+              sortedSubmissions.map((row) => {
+                const isCorrectionRequired = row.status === 'Correction Required';
 
-                  {/* 2. Facility */}
-                  <td className="py-3.5 px-3.5 font-bold text-slate-900">
-                    <div>{row.facilityName}</div>
-                    <div className="text-[10px] text-slate-400 font-mono">{row.facilityCode}</div>
-                  </td>
+                return (
+                  <tr key={row.id} className="hover:bg-slate-50/80 transition-colors group">
+                    {/* 1. Facility ID */}
+                    <td className="py-3.5 px-3.5 font-mono font-bold text-[#004B87] text-xs whitespace-nowrap">
+                      {row.facilityCode || row.id}
+                    </td>
 
-                  {/* 3. Reporting Entity / Operator */}
-                  <td className="py-3.5 px-3.5 text-slate-700 font-medium">
-                    {row.operatorName}
-                  </td>
+                    {/* 3. Facility */}
+                    <td className="py-3.5 px-3.5 font-semibold text-slate-800 min-w-[150px]">
+                      <span>{row.facilityName}</span>
+                    </td>
 
-                  {/* 4. Sector */}
-                  <td className="py-3.5 px-3 whitespace-nowrap">
-                    <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold text-[11px]">
+                    {/* 4. Reporting Entity */}
+                    <td className="py-3.5 px-3.5 text-slate-600 min-w-[150px]">
+                      {row.operatorName}
+                    </td>
+
+                    {/* 5. Sector */}
+                    <td className="py-3.5 px-3.5 text-slate-600 whitespace-nowrap">
                       {row.sector}
-                    </span>
-                  </td>
+                    </td>
 
-                  {/* 5. Tier Level */}
-                  <td className="py-3.5 px-3 text-center whitespace-nowrap">
-                    <span className={`px-2 py-0.5 rounded font-bold text-[10px] ${
-                      row.tier === 'Tier 3' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' :
-                      row.tier === 'Tier 2' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
-                      'bg-slate-100 text-slate-700 border border-slate-200'
-                    }`}>
-                      {row.tier}
-                    </span>
-                  </td>
+                    {/* 6. Tier Level */}
+                    <td className="py-3.5 px-3 text-center font-bold text-slate-700 whitespace-nowrap">
+                      {row.tier === 'Tier 1' ? 'T1' : row.tier === 'Tier 2' ? 'T2' : row.tier === 'Tier 3' ? 'T3' : row.tier}
+                    </td>
 
-                  {/* 6. Reporting Year */}
-                  <td className="py-3.5 px-3 text-center font-bold text-slate-800 whitespace-nowrap">
-                    {row.reportingYear}
-                  </td>
+                    {/* 7. Reporting Year */}
+                    <td className="py-3.5 px-3 text-center text-slate-600 whitespace-nowrap">
+                      {row.reportingYear}
+                    </td>
 
-                  {/* 7. Version */}
-                  <td className="py-3.5 px-3 text-center font-mono font-bold text-slate-700 whitespace-nowrap">
-                    <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px]">
-                      v{row.version}.0
-                    </span>
-                  </td>
+                    {/* 8. Version */}
+                    <td className="py-3.5 px-3 text-center font-mono text-slate-600 whitespace-nowrap">
+                      V{row.version}
+                    </td>
 
-                  {/* 8. Last Updated */}
-                  <td className="py-3.5 px-3.5 text-slate-600 text-[11px] whitespace-nowrap">
-                    {row.lastUpdated}
-                  </td>
-
-                  {/* 9. Review Status */}
-                  <td className="py-3.5 px-3.5 whitespace-nowrap">
-                    {getStatusBadge(row.status)}
-                  </td>
-
-                  {/* 10. Progress */}
-                  <td className="py-3.5 px-3.5">
-                    <div className="w-full space-y-1">
-                      <div className="flex items-center justify-between text-[10px]">
-                        <span className={`font-bold ${row.progressTextColor}`}>{row.progressPercent}%</span>
-                        <span className="text-slate-400 truncate max-w-[80px]">{row.progressStage}</span>
+                    {/* 9. Last Updated */}
+                    <td className="py-3.5 px-3.5 text-slate-600 text-xs whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{row.lastUpdated}</span>
                       </div>
-                      <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-300 ${row.progressBarColor}`}
-                          style={{ width: `${row.progressPercent}%` }}
-                        />
-                      </div>
-                    </div>
-                  </td>
+                    </td>
 
-                  {/* 11. Actions */}
-                  <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-1.5">
-                      {/* View Action - Opens Level 2 Detail View */}
-                      <button
-                        onClick={() => handleView(row)}
-                        title="Open Complete Read-Only Dossier for this submission"
-                        className="px-3 py-1 bg-[#004B87]/10 hover:bg-[#004B87]/20 text-[#004B87] rounded-lg text-xs font-bold inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>View</span>
-                      </button>
+                    {/* 10. Review Status */}
+                    <td className="py-3.5 px-3.5 text-left whitespace-nowrap">
+                      {getStatusBadge(row.status)}
+                    </td>
 
-                      {/* Edit Action - When permitted by workflow */}
-                      {row.isEditable ? (
+                    {/* 11. Correction Deadline */}
+                    <td className="py-3.5 px-3.5 whitespace-nowrap text-slate-600">
+                      {isCorrectionRequired ? (
+                        <div className="flex items-center gap-1.5 text-slate-700 font-semibold text-[11px]">
+                          <Calendar className="w-3.5 h-3.5 text-[#004B87] shrink-0" />
+                          <span>{row.correctionDeadline || '19-Aug-2026 (29 days left)'}</span>
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 font-medium pl-2">-</span>
+                      )}
+                    </td>
+
+                    {/* 12. Actions: Eye for all; Edit icon ONLY when Correction Required */}
+                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-2">
+                        {/* Eye Icon (View) */}
                         <button
-                          onClick={() => handleEdit(row)}
-                          title="Edit Submission Record"
-                          className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-xs font-bold inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                          onClick={() => handleView(row)}
+                          title="View Submission Details"
+                          className="p-1 rounded-md text-slate-500 hover:text-[#004B87] hover:bg-slate-100 transition-colors cursor-pointer"
                         >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          <span>Edit</span>
+                          <Eye className="w-4 h-4" />
                         </button>
-                      ) : null}
-                    </div>
-                  </td>
-                </tr>
-              ))
+
+                        {/* Edit Icon (Only when Correction Required) */}
+                        {isCorrectionRequired && (
+                          <button
+                            onClick={() => handleEdit(row)}
+                            title="Edit Correction Data"
+                            className="p-1 rounded-md text-slate-500 hover:text-[#004B87] hover:bg-slate-100 transition-colors cursor-pointer"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* ------------------------------------------------------------------------- */}
       {/* 4. TABLE FOOTER / RECORD COUNTER                                          */}
       {/* ------------------------------------------------------------------------- */}
-      <div className="p-3.5 bg-[#F8FAFC] border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 font-medium">
+      <div className="p-3.5 sm:p-4 bg-[#F8FAFC] border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 font-medium">
         <div>
           Showing <span className="font-bold text-slate-800">{sortedSubmissions.length}</span> of{' '}
-          <span className="font-bold text-slate-800">{enrichedSubmissions.length}</span> Total MRV Submissions
+          <span className="font-bold text-slate-800">{enrichedSubmissions.length}</span> Total Submissions
         </div>
         <div className="flex items-center gap-4 text-[11px]">
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" /> Approved (100%)
+            <span className="w-2 h-2 rounded-full bg-[#16A34A]" /> Approved
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-teal-500" /> Under Review (80%)
+            <span className="w-2 h-2 rounded-full bg-[#0284C7]" /> Under Review
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-amber-500" /> Correction Required (60%)
+            <span className="w-2 h-2 rounded-full bg-[#475569]" /> Correction Requested
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-blue-500" /> Submitted (50%)
+            <span className="w-2 h-2 rounded-full bg-[#0284C7]" /> Submitted
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-slate-400" /> Draft (20%)
+            <span className="w-2 h-2 rounded-full bg-[#DC2626]" /> Rejected
           </span>
         </div>
       </div>
