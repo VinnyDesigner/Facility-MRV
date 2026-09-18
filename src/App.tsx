@@ -28,6 +28,7 @@ import { MRVReportsView } from './views/MRVReportsView';
 import { VersionHistoryView } from './views/VersionHistoryView';
 import { AnnualEmissionDataView } from './views/AnnualEmissionDataView';
 import { VerificationModuleView } from './views/VerificationModuleView';
+import { ReadOnlyRecordViewer } from './components/mrv/ReadOnlyRecordViewer';
 
 const MainAppContent: React.FC = () => {
   const { currentRole, activeView, setActiveView } = useMRV();
@@ -96,12 +97,15 @@ const MainAppContent: React.FC = () => {
       <Header onLogout={() => setIsAuthenticated(false)} />
 
       {/* Body Area with Scrollable Main Content */}
-      <div className="flex-1 min-h-0 flex overflow-hidden p-3 sm:p-5 lg:p-6 max-w-[1600px] w-full mx-auto">
+      <div className="flex-1 min-h-0 flex overflow-hidden px-3 sm:px-4 lg:px-5 py-2.5 sm:py-3 max-w-[1600px] w-full mx-auto">
         {/* Main View Container (No corner radius to prevent clipping buttons) */}
         <main className="flex-1 min-h-0 h-full overflow-hidden">
           {renderActiveView()}
         </main>
       </div>
+
+      {/* Global Comprehensive Read-Only Record Viewer Modal */}
+      <ReadOnlyRecordViewer />
     </div>
   );
 };

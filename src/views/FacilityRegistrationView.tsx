@@ -3,7 +3,6 @@ import {
   Search,
   Calendar,
   ChevronDown,
-  ChevronUp,
   X,
   Bookmark,
   Send,
@@ -15,6 +14,7 @@ import {
   RefreshCw,
   CheckCircle2,
   AlertCircle,
+  Info,
   Mail,
   Phone,
   ArrowRight,
@@ -23,6 +23,7 @@ import {
   Sparkles,
   RotateCcw,
   XCircle,
+  Eye,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
 import { EmirateType, SectorType, TierLevel } from '../types/mrv';
@@ -35,6 +36,7 @@ export const FacilityRegistrationView: React.FC = () => {
     workflowState,
     setRegistrationStatus,
     currentRole,
+    openReadOnlyViewer,
   } = useMRV();
 
   const isFacilityOperator = currentRole === 'FACILITY_OPERATOR';
@@ -42,15 +44,6 @@ export const FacilityRegistrationView: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isActionsOpen, setIsActionsOpen] = useState(false);
-  const [activeStep, setActiveStep] = useState(1);
-  const [openSections, setOpenSections] = useState<Record<number, boolean>>({
-    1: true,
-    2: false,
-    3: false,
-    4: false,
-    5: false,
-    6: false,
-  });
 
   const [isSavedNotice, setIsSavedNotice] = useState(false);
   const [noticeMessage, setNoticeMessage] = useState('Changes Saved!');
@@ -121,6 +114,8 @@ export const FacilityRegistrationView: React.FC = () => {
     attachedFiles: [
       { name: 'Uncertainty Guidance.PDF', size: '3MB', status: 'Completed' },
     ],
+    generalRemarks:
+      'All facility data, operational parameters, and statutory environmental details have been reviewed and verified for annual registration submission.',
   };
 
   const blankRegistrationData = {
@@ -176,6 +171,7 @@ export const FacilityRegistrationView: React.FC = () => {
     changeEffectiveDate: '',
     changeDescription: '',
     attachedFiles: [],
+    generalRemarks: '',
   };
 
   // Form State initialized with sample data (easy toggle to blank available)
@@ -212,14 +208,6 @@ export const FacilityRegistrationView: React.FC = () => {
     }
   };
 
-  const toggleSection = (sectionIndex: number) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [sectionIndex]: !prev[sectionIndex],
-    }));
-    setActiveStep(sectionIndex);
-  };
-
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -254,19 +242,6 @@ export const FacilityRegistrationView: React.FC = () => {
 
     setIsSavedNotice(true);
     setTimeout(() => setIsSavedNotice(false), 3000);
-  };
-
-  const handleSaveAndContinue = (currentSection: number) => {
-    handleSave();
-    const nextSection = currentSection + 1;
-    if (nextSection <= 6) {
-      setOpenSections((prev) => ({
-        ...prev,
-        [currentSection]: false,
-        [nextSection]: true,
-      }));
-      setActiveStep(nextSection);
-    }
   };
 
   const handleSubmitRegistration = () => {
@@ -318,15 +293,6 @@ export const FacilityRegistrationView: React.FC = () => {
     setIsSavedNotice(true);
     setTimeout(() => setIsSavedNotice(false), 3000);
   };
-
-  const steps = [
-    { num: 1, label: 'Operator Details' },
-    { num: 2, label: 'Facility Details & Location' },
-    { num: 3, label: 'Activities & Products' },
-    { num: 4, label: 'Environmental Permit' },
-    { num: 5, label: 'Contact Persons' },
-    { num: 6, label: 'Annual Renewal & Report a Change' },
-  ];
 
   return (
     <div className="h-full flex flex-col overflow-hidden font-sans">
@@ -392,7 +358,7 @@ export const FacilityRegistrationView: React.FC = () => {
           )}
         </div>
 
-        {/* Right: Search Box + Actions Button */}
+        {/* Right: Search Box + View Dossier Button + Actions Button */}
         <div className="flex items-center gap-2.5">
           <div className="relative w-48 sm:w-64">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -406,6 +372,23 @@ export const FacilityRegistrationView: React.FC = () => {
             <Calendar className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
           </div>
 
+          <button
+            onClick={() => openReadOnlyViewer({
+              moduleType: 'registration',
+              title: 'Facility Registration Dossier',
+              status: workflowState.registrationStatus,
+              submittedBy: formData.primaryName || 'Umasri Mavillapally',
+              submittedDate: '15 Jan 2026',
+              reviewerName: 'Dr. Mariam Al-Qubaisi (EAD Lead Inspector)',
+              initialTab: 'data',
+            })}
+            className="px-3.5 py-2 bg-[#004B87]/10 hover:bg-[#004B87]/20 border border-[#004B87]/30 text-[#004B87] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+            title="Open Complete Read-Only Registration Dossier"
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span>View Dossier</span>
+          </button>
+
           <div className="relative">
             <button
               onClick={() => setIsActionsOpen(!isActionsOpen)}
@@ -417,6 +400,24 @@ export const FacilityRegistrationView: React.FC = () => {
 
             {isActionsOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-100 p-1.5 z-50 animate-slide-up text-xs font-medium text-navy-900">
+                <button
+                  onClick={() => {
+                    openReadOnlyViewer({
+                      moduleType: 'registration',
+                      title: 'Facility Registration Dossier',
+                      status: workflowState.registrationStatus,
+                      submittedBy: formData.primaryName || 'Umasri Mavillapally',
+                      submittedDate: '15 Jan 2026',
+                      reviewerName: 'Dr. Mariam Al-Qubaisi (EAD Lead Inspector)',
+                      initialTab: 'data',
+                    });
+                    setIsActionsOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-2 text-[#004B87] font-bold"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>View Read-Only Dossier</span>
+                </button>
                 <button
                   onClick={() => {
                     loadSampleData();
@@ -497,442 +498,175 @@ export const FacilityRegistrationView: React.FC = () => {
       </div>
 
       {/* Main White Card Container (Fixed Frame) */}
-      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-7 flex flex-col overflow-hidden">
-        {/* Stepper (Fixed at top of card) */}
-        <div className="flex-shrink-0 overflow-x-auto pb-4 border-b border-slate-100/80">
-          <div className="relative flex items-start justify-between min-w-[760px] max-w-5xl mx-auto px-6 pt-1">
-            {/* Connecting Horizontal Line passing right through the middle of circles (14px from top = center of 28px circle) */}
-            <div className="absolute left-10 right-10 top-[18px] -translate-y-1/2 h-[2px] bg-slate-200 z-0" />
-
-            {steps.map((step) => {
-              const isCompleted = activeStep > step.num;
-              const isCurrent = activeStep === step.num;
-
-              return (
-                <div
-                  key={step.num}
-                  onClick={() => toggleSection(step.num)}
-                  className="flex flex-col items-center cursor-pointer group z-10 px-2 flex-1"
-                >
-                  <div
-                    className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all bg-white relative z-10 shadow-xs ${
-                      isCurrent
-                        ? 'border-[#004B87] ring-4 ring-[#004B87]/15'
-                        : isCompleted
-                        ? 'border-[#007749] text-[#007749]'
-                        : 'border-slate-300 group-hover:border-slate-400'
-                    }`}
-                  >
-                    {isCompleted ? (
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#007749]" />
-                    ) : isCurrent ? (
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#004B87]" />
-                    ) : null}
-                  </div>
-
-                  <span
-                    className={`text-[12px] mt-2.5 text-center whitespace-nowrap font-medium transition-colors ${
-                      isCurrent ? 'font-bold text-[#004B87]' : 'text-slate-500 group-hover:text-slate-700'
-                    }`}
-                  >
-                    {step.label}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Scrollable Accordions Frame (Top & Bottom 10px padding, scrolls ONLY within this frame) */}
-        <div className="flex-1 min-h-0 overflow-y-auto py-[10px] space-y-2.5 pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-400">
+      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm px-3.5 sm:px-4 py-3.5 sm:py-4 flex flex-col overflow-hidden">
+        {/* Scrollable Frame with all sections openly displayed */}
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-400">
             {/* ========================================================================= */}
-            {/* Accordion 1: Operator Details */}
+            {/* Section 1: Operator Details */}
             {/* ========================================================================= */}
-            <div className={`rounded-xl border overflow-hidden transition-all bg-white ${openSections[1] ? 'border-slate-300 shadow-2xs' : 'border-slate-200'}`}>
-              <button
-                onClick={() => toggleSection(1)}
-                className={`w-full px-5 py-3.5 flex items-center justify-between text-left transition-colors cursor-pointer ${
-                  openSections[1] ? 'bg-[#F4F6F8]' : 'hover:bg-slate-50/50 bg-white'
-                }`}
-              >
-                <span className={`text-xs font-bold ${openSections[1] ? 'text-[#004B87]' : 'text-slate-800'}`}>
+            <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+              <div className="px-4 sm:px-5 py-2.5 sm:py-3 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
+                <span className="text-xs font-bold text-[#004B87]">
                   Operator Details
                 </span>
-                {openSections[1] ? (
-                  <ChevronUp className="w-4 h-4 text-[#004B87]" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 text-slate-500" />
-                )}
-              </button>
+              </div>
 
-              {openSections[1] && (
-                <div className="p-6 pt-4 border-t border-slate-100 bg-white space-y-4 animate-fade-in text-xs">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div>
-                      <label className="block text-slate-600 font-semibold mb-1.5">Operator Name *</label>
-                      <input
-                        type="text"
-                        value={formData.operatorName}
-                        onChange={(e) => handleInputChange('operatorName', e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-600 font-semibold mb-1.5">Operator ID (Auto)</label>
-                      <input
-                        type="text"
-                        value={formData.operatorId}
-                        disabled
-                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-600 font-semibold mb-1.5">Registration / License Number *</label>
-                      <input
-                        type="text"
-                        value={formData.licenseNumber}
-                        onChange={(e) => handleInputChange('licenseNumber', e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-600 font-semibold mb-1.5">Registered Address *</label>
-                      <input
-                        type="text"
-                        value={formData.registeredAddress}
-                        onChange={(e) => handleInputChange('registeredAddress', e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-600 font-semibold mb-1.5">Correspondence Address</label>
-                      <input
-                        type="text"
-                        value={formData.correspondenceAddress}
-                        onChange={(e) => handleInputChange('correspondenceAddress', e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-600 font-semibold mb-1.5">Country</label>
-                      <select
-                        value={formData.operatorCountry}
-                        onChange={(e) => handleInputChange('operatorCountry', e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                      >
-                        <option value="UAE">UAE</option>
-                        <option value="Saudi Arabia">Saudi Arabia</option>
-                        <option value="Oman">Oman</option>
-                      </select>
-                    </div>
+              <div className="p-4 sm:p-5 pt-3 sm:pt-3.5 bg-white space-y-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+                  <div>
+                    <label className="block text-slate-600 font-semibold mb-1.5">Operator Name *</label>
+                    <input
+                      type="text"
+                      value={formData.operatorName}
+                      onChange={(e) => handleInputChange('operatorName', e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                    />
                   </div>
-
-                  <div className="flex justify-end pt-3">
-                    <button
-                      onClick={() => handleSaveAndContinue(1)}
-                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white text-xs font-bold shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <span>Save & Continue</span>
-                      <Bookmark className="w-3.5 h-3.5 fill-current" />
-                    </button>
+                  <div>
+                    <label className="block text-slate-600 font-semibold mb-1.5">Operator ID (Auto)</label>
+                    <input
+                      type="text"
+                      value={formData.operatorId}
+                      disabled
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-600 font-semibold mb-1.5">Registration / License Number *</label>
+                    <input
+                      type="text"
+                      value={formData.licenseNumber}
+                      onChange={(e) => handleInputChange('licenseNumber', e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-600 font-semibold mb-1.5">Registered Address *</label>
+                    <input
+                      type="text"
+                      value={formData.registeredAddress}
+                      onChange={(e) => handleInputChange('registeredAddress', e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-600 font-semibold mb-1.5">Correspondence Address</label>
+                    <input
+                      type="text"
+                      value={formData.correspondenceAddress}
+                      onChange={(e) => handleInputChange('correspondenceAddress', e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                    />
                   </div>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* ========================================================================= */}
-            {/* Accordion 2: Facility Details & Location */}
+            {/* Section 2: Facility Details & Location */}
             {/* ========================================================================= */}
-            <div className={`rounded-xl border overflow-hidden transition-all bg-white ${openSections[2] ? 'border-slate-300 shadow-2xs' : 'border-slate-200'}`}>
-              <button
-                onClick={() => toggleSection(2)}
-                className={`w-full px-5 py-3.5 flex items-center justify-between text-left transition-colors cursor-pointer ${
-                  openSections[2] ? 'bg-[#F4F6F8]' : 'hover:bg-slate-50/50 bg-white'
-                }`}
-              >
-                <span className={`text-xs font-bold ${openSections[2] ? 'text-[#004B87]' : 'text-slate-800'}`}>
+            <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+              <div className="px-4 sm:px-5 py-2.5 sm:py-3 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
+                <span className="text-xs font-bold text-[#004B87]">
                   Facility Details & Location
                 </span>
-                {openSections[2] ? (
-                  <ChevronUp className="w-4 h-4 text-[#004B87]" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 text-slate-500" />
-                )}
-              </button>
+              </div>
 
-              {openSections[2] && (
-                <div className="p-6 pt-4 border-t border-slate-100 bg-white space-y-4 animate-fade-in text-xs">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-4 sm:p-5 pt-3 sm:pt-3.5 bg-white space-y-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+                  <div>
+                    <label className="block text-slate-600 font-semibold mb-1.5">Facility Name</label>
+                    <input
+                      type="text"
+                      value={formData.facilityName}
+                      onChange={(e) => handleInputChange('facilityName', e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-600 font-semibold mb-1.5">Facility Type</label>
+                    <select
+                      value={formData.facilityType}
+                      onChange={(e) => handleInputChange('facilityType', e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                    >
+                      <option value="Manufacturing Plant">Manufacturing Plant</option>
+                      <option value="Power Plant">Power Plant</option>
+                      <option value="Refinery">Refinery</option>
+                      <option value="Chemical Plant">Chemical Plant</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Subsection: Location Details */}
+                <div className="pt-2">
+                  <h4 className="text-xs font-bold text-[#004B87] mb-3">Location Details</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 items-end">
                     <div>
-                      <label className="block text-slate-600 font-semibold mb-1.5">Facility Name</label>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Address</label>
                       <input
                         type="text"
-                        value={formData.facilityName}
-                        onChange={(e) => handleInputChange('facilityName', e.target.value)}
+                        value={formData.address}
+                        onChange={(e) => handleInputChange('address', e.target.value)}
                         className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-slate-600 font-semibold mb-1.5">Facility ID (Auto)</label>
-                      <input
-                        type="text"
-                        value={formData.facilityId}
-                        disabled
-                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-slate-600 font-semibold mb-1.5">Facility Type</label>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Emirate / Region</label>
                       <select
-                        value={formData.facilityType}
-                        onChange={(e) => handleInputChange('facilityType', e.target.value)}
+                        value={formData.emirate}
+                        onChange={(e) => handleInputChange('emirate', e.target.value)}
                         className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
                       >
-                        <option value="Manufacturing Plant">Manufacturing Plant</option>
-                        <option value="Power Plant">Power Plant</option>
-                        <option value="Refinery">Refinery</option>
-                        <option value="Chemical Plant">Chemical Plant</option>
+                        <option value="Abu Dhabi">Abu Dhabi</option>
+                        <option value="Al Ain">Al Ain</option>
+                        <option value="Al Dhafra">Al Dhafra</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-slate-600 font-semibold mb-1.5">Country</label>
-                      <select
-                        value={formData.facilityCountry}
-                        onChange={(e) => handleInputChange('facilityCountry', e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                      >
-                        <option value="UAE">UAE</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-600 font-semibold mb-1.5">Facility Description</label>
-                    <textarea
-                      rows={2}
-                      value={formData.facilityDescription}
-                      onChange={(e) => handleInputChange('facilityDescription', e.target.value)}
-                      className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-600 font-semibold mb-1.5">Description of Activities</label>
-                    <textarea
-                      rows={2}
-                      value={formData.activityDescription}
-                      onChange={(e) => handleInputChange('activityDescription', e.target.value)}
-                      className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                    />
-                  </div>
-
-                  {/* Subsection: Location Details */}
-                  <div className="pt-2">
-                    <h4 className="text-xs font-bold text-[#004B87] mb-3">Location Details</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Address</label>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Location Coordinates</label>
+                      <div className="relative">
                         <input
                           type="text"
-                          value={formData.address}
-                          onChange={(e) => handleInputChange('address', e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                          value={formData.coordinates}
+                          onChange={(e) => handleInputChange('coordinates', e.target.value)}
+                          className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm font-mono text-xs"
                         />
-                      </div>
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Emirate / Region</label>
-                        <select
-                          value={formData.emirate}
-                          onChange={(e) => handleInputChange('emirate', e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                        >
-                          <option value="Abu Dhabi">Abu Dhabi</option>
-                          <option value="Al Ain">Al Ain</option>
-                          <option value="Al Dhafra">Al Dhafra</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Location Coordinates</label>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            value={formData.coordinates}
-                            onChange={(e) => handleInputChange('coordinates', e.target.value)}
-                            className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm font-mono text-xs"
-                          />
-                          <MapPin className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                        </div>
-                      </div>
-                      <div>
-                        <button
-                          onClick={() => alert(`Opening GIS map view for ${formData.facilityName} (${formData.coordinates})`)}
-                          className="w-full py-2.5 px-3 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl text-slate-700 font-bold text-xs shadow-sm flex items-center justify-center gap-1 transition-all"
-                        >
-                          <span>Locate on Map</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </button>
+                        <MapPin className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                       </div>
                     </div>
-                  </div>
-
-                  <div className="flex justify-end pt-3">
-                    <button
-                      onClick={() => handleSaveAndContinue(2)}
-                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white text-xs font-bold shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <span>Save & Continue</span>
-                      <Bookmark className="w-3.5 h-3.5 fill-current" />
-                    </button>
+                    <div>
+                      <button
+                        onClick={() => alert(`Opening GIS map view for ${formData.facilityName} (${formData.coordinates})`)}
+                        className="w-full py-2.5 px-3 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl text-slate-700 font-bold text-xs shadow-sm flex items-center justify-center gap-1 transition-all"
+                      >
+                        <span>Locate on Map</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* ========================================================================= */}
-            {/* Accordion 3: Activities & Products */}
+            {/* Section 3: Environmental Permit */}
             {/* ========================================================================= */}
-            <div className={`rounded-xl border overflow-hidden transition-all bg-white ${openSections[3] ? 'border-slate-300 shadow-2xs' : 'border-slate-200'}`}>
-              <button
-                onClick={() => toggleSection(3)}
-                className={`w-full px-5 py-3.5 flex items-center justify-between text-left transition-colors cursor-pointer ${
-                  openSections[3] ? 'bg-[#F4F6F8]' : 'hover:bg-slate-50/50 bg-white'
-                }`}
-              >
-                <span className={`text-xs font-bold ${openSections[3] ? 'text-[#004B87]' : 'text-slate-800'}`}>
-                  Activities & Products
-                </span>
-                {openSections[3] ? (
-                  <ChevronUp className="w-4 h-4 text-[#004B87]" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 text-slate-500" />
-                )}
-              </button>
-
-              {openSections[3] && (
-                <div className="p-6 pt-4 border-t border-slate-100 bg-white space-y-4 animate-fade-in text-xs">
-                  {/* Economic Activities */}
-                  <div>
-                    <h4 className="text-xs font-bold text-[#004B87] mb-3">Economic Activities</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Primary Economic Activity</label>
-                        <select
-                          value={formData.primaryActivity}
-                          onChange={(e) => handleInputChange('primaryActivity', e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                        >
-                          <option value="Cement Manufacturing">Cement Manufacturing</option>
-                          <option value="Power Generation">Power Generation</option>
-                          <option value="Chemical Processing">Chemical Processing</option>
-                          <option value="Iron & Steel">Iron & Steel</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Secondary Economic Activity</label>
-                        <select
-                          value={formData.secondaryActivity}
-                          onChange={(e) => handleInputChange('secondaryActivity', e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                        >
-                          <option value="Warehouse & Storage">Warehouse & Storage</option>
-                          <option value="Distribution">Distribution</option>
-                          <option value="Flaring & Waste Heat">Flaring & Waste Heat</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="mt-4">
-                      <label className="block text-slate-600 font-semibold mb-1.5">Additional Activity Description</label>
-                      <textarea
-                        rows={2}
-                        value={formData.additionalActivityDesc}
-                        onChange={(e) => handleInputChange('additionalActivityDesc', e.target.value)}
-                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Products */}
-                  <div className="pt-2">
-                    <h4 className="text-xs font-bold text-[#004B87] mb-3">Products</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Main Product(s)</label>
-                        <select
-                          value={formData.mainProduct}
-                          onChange={(e) => handleInputChange('mainProduct', e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                        >
-                          <option value="Cement">Cement</option>
-                          <option value="Clinker">Clinker</option>
-                          <option value="Portland Cement">Portland Cement</option>
-                        </select>
-                      </div>
-                      <div className="pt-6">
-                        <label className="flex items-center gap-2.5 p-2.5 rounded-xl border border-slate-200 bg-white cursor-pointer hover:bg-slate-50">
-                          <input
-                            type="checkbox"
-                            checked={formData.hasOtherProducts}
-                            onChange={(e) => handleInputChange('hasOtherProducts', e.target.checked)}
-                            className="rounded text-[#004B87] focus:ring-[#004B87]"
-                          />
-                          <span className="font-semibold text-slate-800">Other Products</span>
-                        </label>
-                      </div>
-                    </div>
-
-                    <div className="mt-4">
-                      <label className="block text-slate-600 font-semibold mb-1.5">Product Description</label>
-                      <textarea
-                        rows={2}
-                        value={formData.productDescription}
-                        onChange={(e) => handleInputChange('productDescription', e.target.value)}
-                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end pt-3">
-                    <button
-                      onClick={() => handleSaveAndContinue(3)}
-                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white text-xs font-bold shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <span>Save & Continue</span>
-                      <Bookmark className="w-3.5 h-3.5 fill-current" />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* ========================================================================= */}
-            {/* Accordion 4: Environmental Permit (Screenshot 2) */}
-            {/* ========================================================================= */}
-            <div className={`rounded-xl border overflow-hidden transition-all bg-white ${openSections[4] ? 'border-slate-300 shadow-2xs' : 'border-slate-200'}`}>
-              <button
-                onClick={() => toggleSection(4)}
-                className={`w-full px-5 py-3.5 flex items-center justify-between text-left transition-colors cursor-pointer ${
-                  openSections[4] ? 'bg-[#F4F6F8]' : 'hover:bg-slate-50/50 bg-white'
-                }`}
-              >
-                <span className={`text-xs font-bold ${openSections[4] ? 'text-[#004B87]' : 'text-slate-800'}`}>
+            <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+              <div className="px-4 sm:px-5 py-2.5 sm:py-3 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
+                <span className="text-xs font-bold text-[#004B87]">
                   Environmental Permit
                 </span>
-                {openSections[4] ? (
-                  <ChevronUp className="w-4 h-4 text-[#004B87]" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 text-slate-500" />
-                )}
-              </button>
+              </div>
 
-              {openSections[4] && (
-                <div className="p-6 pt-4 border-t border-slate-100 bg-white space-y-5 animate-fade-in text-xs">
-                  {/* Economic Activities */}
-                  <div>
-                    <h4 className="text-xs font-bold text-[#004B87] mb-3">Economic Activities</h4>
+              <div className="p-4 sm:p-5 pt-3 sm:pt-3.5 bg-white space-y-5 text-xs">
+                {/* Permit Details */}
+                <div>
+                  <h4 className="text-xs font-bold text-[#004B87] mb-3">Permit Details</h4>
 
-                    {/* Toggle: Environmental Permit Available */}
-                    <div className="flex items-center gap-3 mb-4">
+                  {/* Toggle: Environmental Permit Available */}
+                  <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-3">
+                    <div className="flex items-center gap-3">
                       <span className="text-slate-600 font-semibold">Environmental Permit Available</span>
                       <div className="flex items-center gap-1.5 text-xs">
                         <span className={`font-semibold ${formData.permitAvailable ? 'text-[#004B87]' : 'text-slate-400'}`}>Yes</span>
@@ -953,7 +687,16 @@ export const FacilityRegistrationView: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {!formData.permitAvailable && (
+                      <div className="py-1 px-3 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 text-xs flex items-center gap-1.5 animate-fade-in">
+                        <AlertCircle className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                        <span>No environmental permit details provided.</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {formData.permitAvailable && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 animate-fade-in">
                       <div>
                         <label className="block text-slate-600 font-semibold mb-1.5">Environmental Permit Number</label>
                         <input
@@ -971,8 +714,8 @@ export const FacilityRegistrationView: React.FC = () => {
                           className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
                         >
                           <option value="Active">Active</option>
-                          <option value="Under Renewal">Under Renewal</option>
-                          <option value="Expired">Expired</option>
+                          <option value="Under Review">Under Review</option>
+                          <option value="Suspended">Suspended</option>
                         </select>
                       </div>
                       <div>
@@ -1000,11 +743,15 @@ export const FacilityRegistrationView: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  )}
+                </div>
 
-                  {/* Participation */}
-                  <div className="pt-2">
-                    <h4 className="text-xs font-bold text-[#004B87] mb-3">Participation</h4>
+                {/* Statutory MRV Permitting / Regulated Coverage */}
+                <div className="pt-2">
+                  <h4 className="text-xs font-bold text-[#004B87] mb-3">Statutory MRV Permitting / Regulated Coverage</h4>
+
+                  {/* Toggle: Voluntary Participation */}
+                  <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-3">
                     <div className="flex items-center gap-3">
                       <span className="text-slate-600 font-semibold">Voluntary Participation</span>
                       <div className="flex items-center gap-1.5 text-xs">
@@ -1025,391 +772,343 @@ export const FacilityRegistrationView: React.FC = () => {
                         <span className={`font-semibold ${!formData.voluntaryParticipation ? 'text-[#004B87]' : 'text-slate-400'}`}>No</span>
                       </div>
                     </div>
+
+                    {formData.voluntaryParticipation && (
+                      <div className="py-1 px-3 rounded-lg bg-sky-50 border border-sky-200/80 text-sky-800 text-xs flex items-center gap-1.5 animate-fade-in">
+                        <Info className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
+                        <span>Facility is participating in the MRV programme voluntarily.</span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* MRV Reporting Information */}
-                  <div className="pt-2">
-                    <h4 className="text-xs font-bold text-[#004B87] mb-3">MRV Reporting Information</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Emission Reporting Category</label>
-                        <select
-                          value={formData.emissionCategory}
-                          onChange={(e) => handleInputChange('emissionCategory', e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                        >
-                          <option value="Above Threshold">Above Threshold</option>
-                          <option value="Below Threshold">Below Threshold</option>
-                          <option value="Voluntary Participant">Voluntary Participant</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Reporting Sector</label>
-                        <select
-                          value={formData.reportingSector}
-                          onChange={(e) => handleInputChange('reportingSector', e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                        >
-                          <option value="Energy, IPPU">Energy, IPPU</option>
-                          <option value="Energy">Energy</option>
-                          <option value="IPPU">IPPU</option>
-                          <option value="Waste">Waste</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Permit Issue Date</label>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            value={formData.mrvIssueDate}
-                            onChange={(e) => handleInputChange('mrvIssueDate', e.target.value)}
-                            className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                          />
-                          <Calendar className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Permit Expiry Date</label>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            value={formData.mrvExpiryDate}
-                            onChange={(e) => handleInputChange('mrvExpiryDate', e.target.value)}
-                            className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                          />
-                          <Calendar className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Additional Remarks */}
-                  <div className="pt-2">
-                    <h4 className="text-xs font-bold text-[#004B87] mb-2">Additional Remarks</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
                     <div>
-                      <label className="block text-slate-600 font-semibold mb-1.5">Environmental Remarks</label>
-                      <textarea
-                        rows={2}
-                        value={formData.environmentalRemarks}
-                        onChange={(e) => handleInputChange('environmentalRemarks', e.target.value)}
-                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
+                      <label className="block text-slate-600 font-semibold mb-1.5">Direct Emission Category</label>
+                      <select
+                        value={formData.emissionCategory}
+                        onChange={(e) => handleInputChange('emissionCategory', e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                      >
+                        <option value="Above Threshold">Above Threshold (&gt; 25,000 tCO₂e)</option>
+                        <option value="Below Threshold">Below Threshold (&lt; 25,000 tCO₂e)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Reporting Sector</label>
+                      <input
+                        type="text"
+                        value={formData.reportingSector}
+                        onChange={(e) => handleInputChange('reportingSector', e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
                       />
                     </div>
+                    <div>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Issue Date</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={formData.mrvIssueDate}
+                          onChange={(e) => handleInputChange('mrvIssueDate', e.target.value)}
+                          className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                        />
+                        <Calendar className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Expiry Date</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={formData.mrvExpiryDate}
+                          onChange={(e) => handleInputChange('mrvExpiryDate', e.target.value)}
+                          className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                        />
+                        <Calendar className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex justify-end pt-3">
-                    <button
-                      onClick={() => handleSaveAndContinue(4)}
-                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white text-xs font-bold shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <span>Save & Continue</span>
-                      <Bookmark className="w-3.5 h-3.5 fill-current" />
-                    </button>
+                  <div className="mt-4">
+                    <label className="block text-slate-600 font-semibold mb-1.5">MRV Applicable Regulations / Guidelines</label>
+                    <textarea
+                      rows={2}
+                      value={formData.environmentalRemarks}
+                      onChange={(e) => handleInputChange('environmentalRemarks', e.target.value)}
+                      className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
+                    />
                   </div>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* ========================================================================= */}
-            {/* Accordion 5: Contact Persons */}
+            {/* Section 4: Contact Persons */}
             {/* ========================================================================= */}
-            <div className={`rounded-xl border overflow-hidden transition-all bg-white ${openSections[5] ? 'border-slate-300 shadow-2xs' : 'border-slate-200'}`}>
-              <button
-                onClick={() => toggleSection(5)}
-                className={`w-full px-5 py-3.5 flex items-center justify-between text-left transition-colors cursor-pointer ${
-                  openSections[5] ? 'bg-[#F4F6F8]' : 'hover:bg-slate-50/50 bg-white'
-                }`}
-              >
-                <span className={`text-xs font-bold ${openSections[5] ? 'text-[#004B87]' : 'text-slate-800'}`}>
+            <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+              <div className="px-4 sm:px-5 py-2.5 sm:py-3 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
+                <span className="text-xs font-bold text-[#004B87]">
                   Contact Persons
                 </span>
-                {openSections[5] ? (
-                  <ChevronUp className="w-4 h-4 text-[#004B87]" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 text-slate-500" />
-                )}
-              </button>
+              </div>
 
-              {openSections[5] && (
-                <div className="p-6 pt-4 border-t border-slate-100 bg-white space-y-4 animate-fade-in text-xs">
-                  {/* Primary Contact Person */}
-                  <div>
-                    <h4 className="text-xs font-bold text-[#004B87] mb-3">Primary Contact Person</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Name</label>
+              <div className="p-4 sm:p-5 pt-3 sm:pt-3.5 bg-white space-y-4 text-xs">
+                {/* Primary Contact Person */}
+                <div>
+                  <h4 className="text-xs font-bold text-[#004B87] mb-3">Primary Contact Person</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+                    <div>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Name</label>
+                      <input
+                        type="text"
+                        value={formData.primaryName}
+                        onChange={(e) => handleInputChange('primaryName', e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Title / Designation</label>
+                      <input
+                        type="text"
+                        value={formData.primaryTitle}
+                        onChange={(e) => handleInputChange('primaryTitle', e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Email</label>
+                      <div className="relative">
                         <input
-                          type="text"
-                          value={formData.primaryName}
-                          onChange={(e) => handleInputChange('primaryName', e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                          type="email"
+                          value={formData.primaryEmail}
+                          onChange={(e) => handleInputChange('primaryEmail', e.target.value)}
+                          className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
                         />
-                      </div>
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Title / Designation</label>
-                        <input
-                          type="text"
-                          value={formData.primaryTitle}
-                          onChange={(e) => handleInputChange('primaryTitle', e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Email</label>
-                        <div className="relative">
-                          <input
-                            type="email"
-                            value={formData.primaryEmail}
-                            onChange={(e) => handleInputChange('primaryEmail', e.target.value)}
-                            className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                          />
-                          <Mail className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Number</label>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            value={formData.primaryPhone}
-                            onChange={(e) => handleInputChange('primaryPhone', e.target.value)}
-                            className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm font-mono"
-                          />
-                          <Phone className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                        </div>
+                        <Mail className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                       </div>
                     </div>
-                  </div>
-
-                  {/* Alternate Contact Person */}
-                  <div className="pt-2">
-                    <h4 className="text-xs font-bold text-[#004B87] mb-3">Alternate Contact Person</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Name</label>
+                    <div>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Number</label>
+                      <div className="relative">
                         <input
                           type="text"
-                          value={formData.alternateName}
-                          onChange={(e) => handleInputChange('alternateName', e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                          value={formData.primaryPhone}
+                          onChange={(e) => handleInputChange('primaryPhone', e.target.value)}
+                          className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm font-mono"
                         />
-                      </div>
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Title / Designation</label>
-                        <input
-                          type="text"
-                          value={formData.alternateTitle}
-                          onChange={(e) => handleInputChange('alternateTitle', e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Email</label>
-                        <div className="relative">
-                          <input
-                            type="email"
-                            value={formData.alternateEmail}
-                            onChange={(e) => handleInputChange('alternateEmail', e.target.value)}
-                            className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                          />
-                          <Mail className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Number</label>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            value={formData.alternatePhone}
-                            onChange={(e) => handleInputChange('alternatePhone', e.target.value)}
-                            className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm font-mono"
-                          />
-                          <Phone className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                        </div>
+                        <Phone className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                       </div>
                     </div>
-                  </div>
-
-                  <div className="flex justify-end pt-3">
-                    <button
-                      onClick={() => handleSaveAndContinue(5)}
-                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white text-xs font-bold shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <span>Save & Continue</span>
-                      <Bookmark className="w-3.5 h-3.5 fill-current" />
-                    </button>
                   </div>
                 </div>
-              )}
+
+                {/* Alternate Contact Person */}
+                <div className="pt-2">
+                  <h4 className="text-xs font-bold text-[#004B87] mb-3">Alternate Contact Person</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+                    <div>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Name</label>
+                      <input
+                        type="text"
+                        value={formData.alternateName}
+                        onChange={(e) => handleInputChange('alternateName', e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Title / Designation</label>
+                      <input
+                        type="text"
+                        value={formData.alternateTitle}
+                        onChange={(e) => handleInputChange('alternateTitle', e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Email</label>
+                      <div className="relative">
+                        <input
+                          type="email"
+                          value={formData.alternateEmail}
+                          onChange={(e) => handleInputChange('alternateEmail', e.target.value)}
+                          className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                        />
+                        <Mail className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Number</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={formData.alternatePhone}
+                          onChange={(e) => handleInputChange('alternatePhone', e.target.value)}
+                          className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm font-mono"
+                        />
+                        <Phone className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* ========================================================================= */}
-            {/* Accordion 6: Annual Renewal & Report a Change (Screenshot 3) */}
+            {/* Section 5: Annual Renewal & Report a Change */}
             {/* ========================================================================= */}
-            <div className={`rounded-xl border overflow-hidden transition-all bg-white ${openSections[6] ? 'border-slate-300 shadow-2xs' : 'border-slate-200'}`}>
-              <button
-                onClick={() => toggleSection(6)}
-                className={`w-full px-5 py-3.5 flex items-center justify-between text-left transition-colors cursor-pointer ${
-                  openSections[6] ? 'bg-[#F4F6F8]' : 'hover:bg-slate-50/50 bg-white'
-                }`}
-              >
-                <span className={`text-xs font-bold ${openSections[6] ? 'text-[#004B87]' : 'text-slate-800'}`}>
+            <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+              <div className="px-4 sm:px-5 py-2.5 sm:py-3 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
+                <span className="text-xs font-bold text-[#004B87]">
                   Annual Renewal & Report a Change
                 </span>
-                {openSections[6] ? (
-                  <ChevronUp className="w-4 h-4 text-[#004B87]" />
-                ) : (
-                  <ChevronDown className="w-4 h-4 text-slate-500" />
-                )}
-              </button>
+              </div>
 
-              {openSections[6] && (
-                <div className="p-6 pt-4 border-t border-slate-100 bg-white space-y-5 animate-fade-in text-xs">
-                  {/* Annual Renewal Section */}
-                  <div>
-                    <h4 className="text-xs font-bold text-[#004B87] mb-3">Annual Renewal</h4>
-                    <div className="space-y-2 mb-4">
-                      <label className="flex items-center gap-2.5 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={formData.confirmDetailsCorrect}
-                          onChange={(e) => handleInputChange('confirmDetailsCorrect', e.target.checked)}
-                          className="w-4 h-4 rounded text-[#004B87] focus:ring-[#004B87] border-slate-300"
-                        />
-                        <span className="text-slate-700 font-semibold">Confirm registration details are correct</span>
-                      </label>
-                      <label className="flex items-center gap-2.5 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={formData.confirmUpdateDetails}
-                          onChange={(e) => handleInputChange('confirmUpdateDetails', e.target.checked)}
-                          className="w-4 h-4 rounded text-[#004B87] focus:ring-[#004B87] border-slate-300"
-                        />
-                        <span className="text-slate-700 font-semibold">Confirm and update registration details</span>
-                      </label>
-                    </div>
-
-                    {/* Declaration Sub-box */}
-                    <div>
-                      <h4 className="text-xs font-bold text-[#004B87] mb-1.5">Declaration</h4>
-                      <div className="p-3.5 rounded-xl bg-[#F4F7FB] border border-slate-200">
-                        <label className="flex items-center gap-2.5 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={formData.declarationConfirmed}
-                            onChange={(e) => handleInputChange('declarationConfirmed', e.target.checked)}
-                            className="w-4 h-4 rounded text-[#004B87] focus:ring-[#004B87] border-slate-300"
-                          />
-                          <span className="text-slate-700 font-semibold">I confirm that the information provided is true and accurate</span>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Report a Change Section */}
-                  <div className="pt-2">
-                    <h4 className="text-xs font-bold text-[#004B87] mb-3">Report a Change</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Change Type</label>
-                        <select
-                          value={formData.changeType}
-                          onChange={(e) => handleInputChange('changeType', e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                        >
-                          <option value="Change of Operator">Change of Operator</option>
-                          <option value="Change of Facility Boundary">Change of Facility Boundary</option>
-                          <option value="Change of Fuel / Material Mix">Change of Fuel / Material Mix</option>
-                          <option value="Operational Capacity Modification">Operational Capacity Modification</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1.5">Effective Date</label>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            value={formData.changeEffectiveDate}
-                            onChange={(e) => handleInputChange('changeEffectiveDate', e.target.value)}
-                            className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                          />
-                          <Calendar className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-slate-600 font-semibold mb-1.5">Change Description</label>
-                      <textarea
-                        rows={2}
-                        value={formData.changeDescription}
-                        onChange={(e) => handleInputChange('changeDescription', e.target.value)}
-                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
+              <div className="p-4 sm:p-5 pt-3 sm:pt-3.5 bg-white space-y-5 text-xs">
+                {/* Annual Renewal Section */}
+                <div>
+                  <h4 className="text-xs font-bold text-[#004B87] mb-3">Annual Renewal</h4>
+                  <div className="flex flex-wrap items-center gap-6 sm:gap-8 mb-4">
+                    <label className="flex items-center gap-2.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.confirmDetailsCorrect}
+                        onChange={(e) => handleInputChange('confirmDetailsCorrect', e.target.checked)}
+                        className="w-4 h-4 rounded text-[#004B87] focus:ring-[#004B87] border-slate-300"
                       />
+                      <span className="text-slate-700 font-semibold">Confirm registration details are correct</span>
+                    </label>
+                    <label className="flex items-center gap-2.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.confirmUpdateDetails}
+                        onChange={(e) => handleInputChange('confirmUpdateDetails', e.target.checked)}
+                        className="w-4 h-4 rounded text-[#004B87] focus:ring-[#004B87] border-slate-300"
+                      />
+                      <span className="text-slate-700 font-semibold">Confirm and update registration details</span>
+                    </label>
+                  </div>
+
+                  {/* Declaration Sub-box */}
+                  <div>
+                    <h4 className="text-xs font-bold text-[#004B87] mb-1.5">Declaration</h4>
+                    <div className="p-3.5 rounded-xl bg-[#F4F7FB] border border-slate-200">
+                      <label className="flex items-center gap-2.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.declarationConfirmed}
+                          onChange={(e) => handleInputChange('declarationConfirmed', e.target.checked)}
+                          className="w-4 h-4 rounded text-[#004B87] focus:ring-[#004B87] border-slate-300"
+                        />
+                        <span className="text-slate-700 font-semibold">I confirm that the information provided is true and accurate</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Report a Change Section */}
+                <div className="pt-2">
+                  <h4 className="text-xs font-bold text-[#004B87] mb-3">Report a Change</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 mb-4">
+                    <div>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Change Type</label>
+                      <select
+                        value={formData.changeType}
+                        onChange={(e) => handleInputChange('changeType', e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                      >
+                        <option value="Change of Operator">Change of Operator</option>
+                        <option value="Change of Facility Boundary">Change of Facility Boundary</option>
+                        <option value="Change of Fuel / Material Mix">Change of Fuel / Material Mix</option>
+                        <option value="Operational Capacity Modification">Operational Capacity Modification</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Effective Date</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={formData.changeEffectiveDate}
+                          onChange={(e) => handleInputChange('changeEffectiveDate', e.target.value)}
+                          className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                        />
+                        <Calendar className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      </div>
                     </div>
                   </div>
 
-                  {/* Supporting Documents Section */}
-                  <div className="pt-2">
-                    <h4 className="text-xs font-bold text-[#004B87] mb-2">Supporting Documents</h4>
-                    <label className="block text-slate-600 font-semibold mb-2">Attach Files</label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                      {/* Drag & Drop Upload Box */}
-                      <div className="border border-dashed border-sky-300 bg-sky-50/40 rounded-xl p-3 px-4 flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2 text-slate-600 text-xs font-medium truncate">
-                          <Upload className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                          <span className="truncate">Drag and drop files here or upload</span>
+                  <div>
+                    <label className="block text-slate-600 font-semibold mb-1.5">Change Description</label>
+                    <textarea
+                      rows={2}
+                      value={formData.changeDescription}
+                      onChange={(e) => handleInputChange('changeDescription', e.target.value)}
+                      className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
+                    />
+                  </div>
+                </div>
+
+                {/* Supporting Documents Section */}
+                <div className="pt-2">
+                  <h4 className="text-xs font-bold text-[#004B87] mb-2">Supporting Documents</h4>
+                  <label className="block text-slate-600 font-semibold mb-2">Attach Files</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                    {/* Drag & Drop Upload Box */}
+                    <div className="border border-dashed border-sky-300 bg-sky-50/40 rounded-xl p-3 px-4 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 text-slate-600 text-xs font-medium truncate">
+                        <Upload className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                        <span className="truncate">Drag and drop files here or upload</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-4 py-1.5 bg-white border border-slate-300 hover:border-slate-400 text-xs font-bold text-slate-700 rounded-lg shadow-xs transition-colors flex-shrink-0 cursor-pointer"
+                      >
+                        Upload
+                      </button>
+                    </div>
+
+                    {/* Attached File Badge */}
+                    {formData.attachedFiles.map((file, idx) => (
+                      <div
+                        key={idx}
+                        className="border border-slate-200 bg-white rounded-xl p-2.5 px-3.5 flex items-center justify-between gap-3 shadow-xs"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center flex-shrink-0">
+                            <FileText className="w-4 h-4 text-rose-600" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-xs font-bold text-slate-800 truncate">{file.name}</div>
+                            <div className="text-[10px] text-slate-400 flex items-center gap-1.5 font-medium">
+                              <span>{file.size}</span>
+                              <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                              <span className="text-emerald-600 font-bold">{file.status}</span>
+                            </div>
+                          </div>
                         </div>
                         <button
                           type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="px-4 py-1.5 bg-white border border-slate-300 hover:border-slate-400 text-xs font-bold text-slate-700 rounded-lg shadow-xs transition-colors flex-shrink-0 cursor-pointer"
+                          onClick={() => handleInputChange('attachedFiles', formData.attachedFiles.filter((_, i) => i !== idx))}
+                          className="p-1 text-slate-400 hover:text-rose-600 rounded-md transition-colors"
                         >
-                          Upload
+                          <X className="w-3.5 h-3.5" />
                         </button>
                       </div>
-
-                      {/* Attached File Badge */}
-                      {formData.attachedFiles.map((file, idx) => (
-                        <div
-                          key={idx}
-                          className="border border-slate-200 bg-white rounded-xl p-2.5 px-3.5 flex items-center justify-between gap-3 shadow-xs"
-                        >
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center flex-shrink-0">
-                              <FileText className="w-4 h-4 text-rose-600" />
-                            </div>
-                            <div className="min-w-0">
-                              <div className="text-xs font-bold text-slate-800 truncate">{file.name}</div>
-                              <div className="text-[10px] text-slate-400 flex items-center gap-1.5 font-medium">
-                                <span>{file.size}</span>
-                                <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                                <span className="text-emerald-600 font-bold">{file.status}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => handleInputChange('attachedFiles', formData.attachedFiles.filter((_, i) => i !== idx))}
-                            className="p-1 text-slate-400 hover:text-rose-600 rounded-md transition-colors"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end pt-3">
-                    <button
-                      onClick={() => handleSaveAndContinue(6)}
-                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white text-xs font-bold shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <span>Save & Continue</span>
-                      <Bookmark className="w-3.5 h-3.5 fill-current" />
-                    </button>
+                    ))}
                   </div>
                 </div>
-              )}
+              </div>
+            </div>
+
+            {/* Remarks (Description) Message Box */}
+            <div className="pt-1">
+              <label className="block text-slate-600 font-semibold mb-1.5 text-xs">Remarks / Description</label>
+              <textarea
+                rows={3}
+                value={formData.generalRemarks}
+                onChange={(e) => handleInputChange('generalRemarks', e.target.value)}
+                placeholder="Enter any overall remarks, additional notes, or description for this registration..."
+                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed text-xs"
+              />
             </div>
           </div>
         </div>
@@ -1457,7 +1156,7 @@ export const FacilityRegistrationView: React.FC = () => {
               onClick={handleSubmitRegistration}
               className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer"
             >
-              <span>Submit Registration</span>
+              <span>{workflowState.registrationStatus === 'Correction Required' ? 'Resubmit Registration' : 'Submit Registration'}</span>
               <Send className="w-3.5 h-3.5 fill-current" />
             </button>
           </>

@@ -11,6 +11,7 @@ import {
   Calendar,
   Lock,
   Eye,
+  RotateCcw,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
 
@@ -23,10 +24,12 @@ export const VerificationModuleView: React.FC = () => {
     isVerificationUnlocked,
     setVerificationStatus: setCtxVerificationStatus,
     setAnnualEmissionStatus,
+    openReadOnlyViewer,
   } = useMRV();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSavedNotice, setIsSavedNotice] = useState(false);
+  const [noticeMessage, setNoticeMessage] = useState('Changes Saved!');
 
   // Verification State
   const [verificationStatus, setVerificationStatus] = useState<string>(workflowState.verificationStatus || 'Pending Verification');
@@ -72,8 +75,18 @@ export const VerificationModuleView: React.FC = () => {
     setVerificationStatus('Verification Completed');
     setCtxVerificationStatus('Verification Completed');
     setAnnualEmissionStatus('Under EAD Review');
+    setNoticeMessage('Verification Completed & Verified Report Transmitted to EAD Reviewer!');
     setIsSavedNotice(true);
-    setTimeout(() => setIsSavedNotice(false), 3000);
+    setTimeout(() => setIsSavedNotice(false), 3500);
+  };
+
+  const handleReturnForCorrection = () => {
+    setVerificationStatus('Correction Required');
+    setCtxVerificationStatus('Correction Required');
+    setAnnualEmissionStatus('Correction Required');
+    setNoticeMessage('Annual Emission Data returned to Facility User for mandatory corrections.');
+    setIsSavedNotice(true);
+    setTimeout(() => setIsSavedNotice(false), 3500);
   };
 
   // 1. Verification Not Required state
@@ -157,10 +170,27 @@ export const VerificationModuleView: React.FC = () => {
             {isSavedNotice && (
               <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs font-bold animate-fade-in">
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Verification status updated!</span>
+                <span>{noticeMessage}</span>
               </div>
             )}
           </div>
+
+          <button
+            onClick={() => openReadOnlyViewer({
+              moduleType: 'verification',
+              title: 'Third-Party Verification Package',
+              status: workflowState.verificationStatus,
+              submittedBy: 'Dr. Arthur Pendelton (Bureau Veritas)',
+              submittedDate: '15 Mar 2026',
+              reviewerName: 'Dr. Mariam Al-Qubaisi (EAD Lead Inspector)',
+              initialTab: 'data',
+            })}
+            className="px-3.5 py-2 bg-[#004B87]/10 hover:bg-[#004B87]/20 border border-[#004B87]/30 text-[#004B87] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+            title="Open Complete Read-Only Verification Dossier"
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span>View Verification Dossier</span>
+          </button>
         </div>
       </div>
 
@@ -267,10 +297,12 @@ export const VerificationModuleView: React.FC = () => {
               Start Verification
             </button>
             <button
-              onClick={handleCompleteVerification}
-              className="px-3.5 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-[11px] font-bold hover:bg-emerald-100 transition-colors cursor-pointer"
+              onClick={handleReturnForCorrection}
+              className="px-3.5 py-1.5 bg-amber-50 text-amber-800 border border-amber-300 rounded-xl text-[11px] font-bold hover:bg-amber-100 transition-colors cursor-pointer flex items-center gap-1"
+              title="Return Annual Emission Data to Facility User for correction"
             >
-              Mark Verification Completed
+              <RotateCcw className="w-3 h-3 text-amber-700" />
+              <span>Return for Correction</span>
             </button>
             <button
               onClick={() => {
@@ -281,6 +313,13 @@ export const VerificationModuleView: React.FC = () => {
               className="px-3.5 py-1.5 bg-purple-50 text-purple-700 border border-purple-200 rounded-xl text-[11px] font-bold hover:bg-purple-100 transition-colors cursor-pointer"
             >
               Upload Statement
+            </button>
+            <button
+              onClick={handleCompleteVerification}
+              className="px-3.5 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-[11px] font-bold hover:bg-emerald-100 transition-colors cursor-pointer flex items-center gap-1"
+            >
+              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+              <span>Mark Verification Completed</span>
             </button>
           </div>
 
@@ -395,6 +434,14 @@ export const VerificationModuleView: React.FC = () => {
             className="px-5 py-2.5 bg-white border border-slate-300 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-50 transition-colors cursor-pointer"
           >
             Back to Annual Emission Data
+          </button>
+          <button
+            onClick={handleReturnForCorrection}
+            className="px-4 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-xs font-bold text-amber-800 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+            title="Return Annual Emission Data to Facility User for correction"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-amber-700" />
+            <span>Return for Correction</span>
           </button>
           <button
             onClick={handleCompleteVerification}

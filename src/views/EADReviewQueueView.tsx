@@ -17,7 +17,7 @@ import { Badge } from '../components/ui/Badge';
 import { Submission, SubmissionStatus } from '../types/mrv';
 
 export const EADReviewQueueView: React.FC = () => {
-  const { submissions, setSelectedSubmissionForReview, setActiveView } = useMRV();
+  const { submissions, setSelectedSubmissionForReview, setActiveView, openReadOnlyViewer } = useMRV();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
@@ -154,13 +154,30 @@ export const EADReviewQueueView: React.FC = () => {
                     </Badge>
                   </td>
                   <td className="py-3.5 px-4 text-right">
-                    <button
-                      onClick={() => handleReviewSubmission(sub)}
-                      className="btn-primary text-xs py-1.5 px-3.5"
-                    >
-                      <span>Review</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => openReadOnlyViewer({
+                          moduleType: 'full-dossier',
+                          recordId: sub.id,
+                          title: `MRV Submission Dossier: ${sub.facilityName}`,
+                          status: sub.status,
+                          facilityName: sub.facilityName,
+                          reportingYear: sub.reportingYear,
+                          version: sub.version,
+                        })}
+                        className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold cursor-pointer transition-colors"
+                        title="View Complete Read-Only Dossier"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleReviewSubmission(sub)}
+                        className="btn-primary text-xs py-1.5 px-3.5"
+                      >
+                        <span>Review</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

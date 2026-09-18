@@ -12,17 +12,19 @@ import {
   User,
   MessageSquare,
   ShieldCheck,
+  GitCompare,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
 import { GlassCard } from '../components/ui/GlassCard';
 import { Badge } from '../components/ui/Badge';
 
 export const VersionHistoryView: React.FC = () => {
-  const { activeFacility, reportingYear, setActiveView } = useMRV();
+  const { activeFacility, reportingYear, setActiveView, openReadOnlyViewer } = useMRV();
 
   const versionsList = [
     {
       version: 'v3.0 (Active Dossier)',
+      versionNum: 3,
       submittedDate: '14 Mar 2026, 11:30 AM',
       submittedBy: 'Abdul Rahman (Operator)',
       status: 'Under Review',
@@ -39,6 +41,7 @@ export const VersionHistoryView: React.FC = () => {
     {
       version: 'Correction Notice',
       isNotice: true,
+      versionNum: 2,
       submittedDate: '10 Mar 2026, 02:15 PM',
       submittedBy: 'Dr. Fatima Al Nuaimi (EAD Reviewer)',
       status: 'Correction Requested',
@@ -48,6 +51,7 @@ export const VersionHistoryView: React.FC = () => {
     },
     {
       version: 'v2.0',
+      versionNum: 2,
       submittedDate: '01 Mar 2026, 09:45 AM',
       submittedBy: 'Abdul Rahman (Operator)',
       status: 'Reverted',
@@ -62,6 +66,7 @@ export const VersionHistoryView: React.FC = () => {
     {
       version: 'Correction Notice',
       isNotice: true,
+      versionNum: 1,
       submittedDate: '24 Feb 2026, 04:00 PM',
       submittedBy: 'EAD Automated Validation Engine',
       status: 'Format Issue',
@@ -70,6 +75,7 @@ export const VersionHistoryView: React.FC = () => {
     },
     {
       version: 'v1.0 (Initial Submission)',
+      versionNum: 1,
       submittedDate: '15 Feb 2026, 10:00 AM',
       submittedBy: 'Abdul Rahman (Operator)',
       status: 'Archived',
@@ -96,8 +102,20 @@ export const VersionHistoryView: React.FC = () => {
           </Badge>
         </div>
 
-        <div className="text-xs font-semibold text-slate-500">
-          {activeFacility.name} • Latest: v3.0
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => openReadOnlyViewer({
+              moduleType: 'full-dossier',
+              initialTab: 'comparison',
+            })}
+            className="px-3.5 py-1.5 bg-[#004B87]/10 hover:bg-[#004B87]/20 text-[#004B87] rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
+          >
+            <GitCompare className="w-3.5 h-3.5" />
+            <span>Compare Versions</span>
+          </button>
+          <div className="text-xs font-semibold text-slate-500 hidden sm:block">
+            {activeFacility.name} • Latest: v3.0
+          </div>
         </div>
       </div>
 
@@ -113,10 +131,14 @@ export const VersionHistoryView: React.FC = () => {
             </p>
           </div>
           <button
-            onClick={() => setActiveView('submissions')}
-            className="px-4 py-2 bg-[#004B87] text-white text-xs font-bold rounded-xl shadow hover:bg-[#003866] transition-colors self-start sm:self-center"
+            onClick={() => openReadOnlyViewer({
+              moduleType: 'full-dossier',
+              version: 3,
+            })}
+            className="px-4 py-2 bg-[#004B87] text-white text-xs font-bold rounded-xl shadow hover:bg-[#003866] transition-colors self-start sm:self-center cursor-pointer flex items-center gap-1.5"
           >
-            Track Current Submission
+            <Eye className="w-4 h-4" />
+            <span>View Current Dossier</span>
           </button>
         </div>
       </GlassCard>
@@ -205,6 +227,35 @@ export const VersionHistoryView: React.FC = () => {
                     </ul>
                   </div>
                 )}
+
+                {/* Action Buttons inside Card */}
+                <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                  <button
+                    onClick={() => openReadOnlyViewer({
+                      moduleType: 'full-dossier',
+                      version: item.versionNum || 2,
+                      status: item.status,
+                      submittedBy: item.submittedBy,
+                      submittedDate: item.submittedDate,
+                      reviewComments: item.comments,
+                    })}
+                    className="px-3 py-1.5 bg-[#004B87]/10 hover:bg-[#004B87]/20 text-[#004B87] rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>View Version Snapshot</span>
+                  </button>
+                  <button
+                    onClick={() => openReadOnlyViewer({
+                      moduleType: 'full-dossier',
+                      version: item.versionNum || 2,
+                      initialTab: 'comparison',
+                    })}
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
+                  >
+                    <GitCompare className="w-3.5 h-3.5" />
+                    <span>Compare with V1</span>
+                  </button>
+                </div>
               </div>
             </GlassCard>
           </div>

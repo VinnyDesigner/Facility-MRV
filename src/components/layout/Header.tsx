@@ -25,6 +25,7 @@ import {
   History,
   Globe,
   Lock,
+  ArrowRight,
 } from 'lucide-react';
 import { useMRV } from '../../context/MRVContext';
 import colorLogo from '../../assets/color-logo.svg';
@@ -53,7 +54,15 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
     isMonitoringPlanUnlocked,
     isAnnualEmissionUnlocked,
     isVerificationUnlocked,
+    getLockReason,
   } = useMRV();
+
+  const [lockedModalInfo, setLockedModalInfo] = useState<{
+    title: string;
+    reason: string;
+    prerequisiteView: string;
+    prerequisiteName: string;
+  } | null>(null);
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -174,7 +183,13 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
 
                 {/* 3. Monitoring Plan */}
                 <button
-                  onClick={() => setActiveView('data-entry')}
+                  onClick={() => {
+                    if (isMonitoringPlanUnlocked) {
+                      setActiveView('data-entry');
+                    } else {
+                      setLockedModalInfo(getLockReason('data-entry'));
+                    }
+                  }}
                   className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
                     isDataEntryActive
                       ? isMonitoringPlanUnlocked
@@ -187,11 +202,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                   title={
                     isMonitoringPlanUnlocked
                       ? 'Monitoring Plan (Unlocked)'
-                      : `Monitoring Plan Locked (${
-                          workflowState.registrationStatus === 'Under EAD Review'
-                            ? 'Registration Under EAD Review'
-                            : 'Registration must be Approved / Registered first'
-                        })`
+                      : `Monitoring Plan Locked (${getLockReason('data-entry').reason})`
                   }
                 >
                   <span>Monitoring Plan</span>
@@ -202,7 +213,13 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
 
                 {/* 4. Annual Emission Data */}
                 <button
-                  onClick={() => setActiveView('annual-emission-data')}
+                  onClick={() => {
+                    if (isAnnualEmissionUnlocked) {
+                      setActiveView('annual-emission-data');
+                    } else {
+                      setLockedModalInfo(getLockReason('annual-emission-data'));
+                    }
+                  }}
                   className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
                     isAnnualEmissionActive
                       ? isAnnualEmissionUnlocked
@@ -215,7 +232,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                   title={
                     isAnnualEmissionUnlocked
                       ? 'Annual Emission Data (Unlocked)'
-                      : 'Annual Emission Data Locked (Monitoring Plan must be Approved / Accepted first)'
+                      : `Annual Emission Data Locked (${getLockReason('annual-emission-data').reason})`
                   }
                 >
                   <span>Annual Emission Data</span>
@@ -226,30 +243,30 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
 
                 {/* 5. Verification */}
                 <button
-                  onClick={() => setActiveView('verification')}
+                  onClick={() => {
+                    if (isVerificationUnlocked) {
+                      setActiveView('verification');
+                    } else {
+                      setLockedModalInfo(getLockReason('verification'));
+                    }
+                  }}
                   className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
                     isVerificationActive
                       ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
-                      : isVerificationCompleted
-                      ? 'text-white hover:text-white hover:bg-white/15'
                       : isVerificationUnlocked
                       ? 'text-white/85 hover:text-white hover:bg-white/15'
                       : 'text-white/60 hover:text-white/80 hover:bg-white/10'
                   }`}
                   title={
-                    isVerificationCompleted
-                      ? 'Verification (Completed / Statement Uploaded)'
-                      : isVerificationUnlocked
+                    isVerificationUnlocked
                       ? 'Verification (Unlocked)'
-                      : 'Verification Locked (Annual Emission Data must be Submitted first)'
+                      : `Verification Locked (${getLockReason('verification').reason})`
                   }
                 >
                   <span>Verification</span>
-                  {isVerificationCompleted ? (
-                    <Check className={`w-3.5 h-3.5 flex-shrink-0 stroke-[2.5] ${isVerificationActive ? 'text-emerald-600' : 'text-emerald-300'}`} />
-                  ) : !isVerificationUnlocked ? (
+                  {!isVerificationUnlocked && (
                     <Lock className="w-3 h-3 text-amber-300 flex-shrink-0" />
-                  ) : null}
+                  )}
                 </button>
 
                 {/* 6. Reports */}
@@ -666,6 +683,58 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
               </button>
             </>
           )}
+        </div>
+      )}
+
+      {/* Interactive Lock Reason Modal */}
+      {lockedModalInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 animate-fade-in">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden">
+            <div className="px-5 py-4 bg-[#F4F6F8] border-b border-slate-200 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-amber-800">
+                <Lock className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                <span className="text-xs font-bold text-slate-800">{lockedModalInfo.title}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLockedModalInfo(null)}
+                className="p-1 text-slate-400 hover:text-slate-700 rounded-md transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-6 text-center space-y-3">
+              <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto text-amber-600">
+                <Lock className="w-7 h-7" />
+              </div>
+              <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                {lockedModalInfo.reason}
+              </p>
+              <div className="p-3 bg-amber-50/60 rounded-xl border border-amber-200/80 text-[11px] text-amber-900 text-left">
+                <strong>Prerequisite Requirement:</strong> You must first complete and obtain approval on <strong>{lockedModalInfo.prerequisiteName}</strong> before this module can be unlocked.
+              </div>
+            </div>
+            <div className="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setLockedModalInfo(null)}
+                className="px-4 py-2 bg-white border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
+              >
+                Dismiss
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveView(lockedModalInfo.prerequisiteView);
+                  setLockedModalInfo(null);
+                }}
+                className="px-4 py-2 bg-[#004B87] text-white text-xs font-bold rounded-xl hover:bg-[#003865] transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
+              >
+                <span>Go to {lockedModalInfo.prerequisiteName}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </header>

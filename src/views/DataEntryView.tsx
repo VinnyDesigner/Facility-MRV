@@ -23,6 +23,7 @@ import {
   Settings,
   Gauge,
   ArrowRight,
+  Eye,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
 
@@ -35,6 +36,7 @@ export const DataEntryView: React.FC = () => {
     isMonitoringPlanUnlocked,
     setMonitoringPlanStatus,
     currentRole,
+    openReadOnlyViewer,
   } = useMRV();
 
   const isFacilityOperator = currentRole === 'FACILITY_OPERATOR';
@@ -47,14 +49,9 @@ export const DataEntryView: React.FC = () => {
   const [calendarYear, setCalendarYear] = useState(
     String(reportingYear || '2026')
   );
-  const [tierLevel, setTierLevel] = useState(
-    activeFacility?.tier || 'Tier 2'
-  );
 
   // Navigation Sub-Tabs
-  const [activeTab, setActiveTab] = useState<
-    'facility-overview' | 'emission-sources' | 'monitoring-methodology' | 'activity-data' | 'measurement-equipment' | 'qa-qc' | 'review-submit'
-  >('facility-overview');
+  const [activeTab, setActiveTab] = useState<'facility-overview'>('facility-overview');
 
   const [isSavedNotice, setIsSavedNotice] = useState(false);
   const [noticeMessage, setNoticeMessage] = useState('Data Saved Successfully!');
@@ -64,10 +61,12 @@ export const DataEntryView: React.FC = () => {
   const [facilityDesc, setFacilityDesc] = useState({
     description:
       'Green Mountain Cement Factory produces clinker and Portland cement for the construction industry. The facility operates one rotary kiln, cement grinding units, raw material storage, and packing lines.',
-    businessSector: 'Energy',
-    primaryActivity: 'Combustion of Fuel',
+    businessSector: 'Select Business Sector',
+    primaryActivity: 'Select Primary Activity',
     operationalStatus: 'Operational',
   });
+  const [isCustomBusinessSector, setIsCustomBusinessSector] = useState(false);
+  const [isCustomPrimaryActivity, setIsCustomPrimaryActivity] = useState(false);
 
   // 2. Primary Production Streams State
   const [productionStreams, setProductionStreams] = useState([
@@ -149,16 +148,16 @@ export const DataEntryView: React.FC = () => {
   // 5. Methane Emission State
   const [methaneData, setMethaneData] = useState({
     hasMethaneEmissions: false,
-    annualVolume: '1250',
-    annualVolumeUnit: 't CHâ‚„/year',
-    estimatedCo2e: '31250',
-    estimatedCo2eUnit: 't COâ‚‚e/year',
-    sourceOfEstimations: 'Estimated based on production data and IPCC Guidelines',
-    keySourcesAtInstallation: 'Estimated based on production data and IPCC Guidelines',
-    procedureToDetermine: 'Estimated based on production data and IPCC Guidelines',
+    annualVolume: '',
+    annualVolumeUnit: 't CH₄/year',
+    estimatedCo2e: '',
+    estimatedCo2eUnit: 't CO₂e/year',
+    sourceOfEstimations: '',
+    keySourcesAtInstallation: '',
+    procedureToDetermine: '',
     hasLdarProgram: true,
     detectionMethod: 'Optical Gas Imaging (OGI)',
-    correctiveActionProcedure: 'Estimated based on production data and IPCC Guidelines',
+    correctiveActionProcedure: '',
   });
 
   // Methane Procedures Table
@@ -244,19 +243,19 @@ export const DataEntryView: React.FC = () => {
 
   // Add & Delete Helpers
   const addProductionStream = () => {
-    const nextId = `P0${productionStreams.length + 1}`;
+    const nextId = `P${String(productionStreams.length + 1).padStart(2, '0')}`;
     setProductionStreams((prev) => [
       ...prev,
       {
         id: nextId,
-        category: 'Primary Products',
-        technology: 'Process Name',
-        energyRelated: 'Yes',
-        processEmissions: 'No',
-        capacity: '50,000',
-        capacityUnit: 't/year',
-        actualQuantity: '45,000',
-        actualQuantityUnit: 't/year',
+        category: '',
+        technology: '',
+        energyRelated: '',
+        processEmissions: '',
+        capacity: '',
+        capacityUnit: '',
+        actualQuantity: '',
+        actualQuantityUnit: '',
       },
     ]);
   };
@@ -266,18 +265,18 @@ export const DataEntryView: React.FC = () => {
   };
 
   const addEmissionSource = () => {
-    const nextId = `S0${emissionSources.length + 1}`;
+    const nextId = `S${String(emissionSources.length + 1).padStart(2, '0')}`;
     setEmissionSources((prev) => [
       ...prev,
       {
         id: nextId,
-        name: 'New Emission Source',
-        associatedProduct: 'P01',
-        gasTypes: 'COâ‚‚',
-        totalEmissions: '10,000',
-        energyRelated: 'Yes',
-        processEmissions: 'No',
-        methodology: 'Calculation-based',
+        name: '',
+        associatedProduct: '',
+        gasTypes: '',
+        totalEmissions: '',
+        energyRelated: '',
+        processEmissions: '',
+        methodology: '',
       },
     ]);
   };
@@ -291,11 +290,11 @@ export const DataEntryView: React.FC = () => {
       ...prev,
       {
         id: String(prev.length + 1),
-        title: 'New Procedure',
-        description: 'Periodic Inspection',
-        personInCharge: 'Operations Officer',
-        email: 'ops@gmcf.ae',
-        phone: '+971 50 000 0000',
+        title: '',
+        description: '',
+        personInCharge: '',
+        email: '',
+        phone: '',
       },
     ]);
   };
@@ -310,15 +309,15 @@ export const DataEntryView: React.FC = () => {
       ...prev,
       {
         id: nextId,
-        description: 'New Stream',
-        associatedSource: 'S01',
-        classification: 'Fuel Combusted',
-        activityLevel: '5,000',
-        activityUnit: 'NmÂ³',
-        fuelType: 'Natural gas',
-        combustionDevice: 'Boiler #1',
-        deviceCapacity: '50.0',
-        metricUnit: 'MW',
+        description: '',
+        associatedSource: '',
+        classification: '',
+        activityLevel: '',
+        activityUnit: '',
+        fuelType: '',
+        combustionDevice: '',
+        deviceCapacity: '',
+        metricUnit: '',
       },
     ]);
   };
@@ -328,124 +327,18 @@ export const DataEntryView: React.FC = () => {
   };
 
   // =========================================================================
-  // MONITORING PLAN ACCORDIONS STATE
+  // CALCULATION OTHER INPUTS & MEASUREMENT EQUIPMENT STATE
   // =========================================================================
-  const [openMonitoringSections, setOpenMonitoringSections] = useState<{ [key: number]: boolean }>({
-    1: false,
-    2: false,
-    3: false,
-  });
-
-  const toggleMonitoringSection = (sec: number) => {
-    setOpenMonitoringSections((prev) => ({
-      ...prev,
-      [sec]: !prev[sec],
-    }));
-  };
-
-  // Section 1: Calculation - Based Monitoring State
-  const [calcSourceStreams, setCalcSourceStreams] = useState([
-    { id: 'F01', desc: 'X', estimatedEmissions: '105,000', possibleCategory: 'Major (>100 KT)', selectedCategory: 'Major' },
-    { id: 'F02', desc: 'XX', estimatedEmissions: '1,200', possibleCategory: 'Minor (5-100 KT)', selectedCategory: 'Minor' },
-    { id: 'F03', desc: 'XXXX', estimatedEmissions: '850', possibleCategory: 'De minimis (<5 KT)', selectedCategory: 'De minimis' },
-  ]);
-
-  const [calcTierUncertainty, setCalcTierUncertainty] = useState([
-    { id: 'F01', tier: 'T3', category: 'Major', uncertaintyAchieved: '1.60', fuelStreamType: 'Commercial Standard Fuels', sourceAccuracy: 'Lab Analysis', permittedUncertainty: 'Â±2.5%' },
-    { id: 'F02', tier: 'T2', category: 'Minor', uncertaintyAchieved: '3.20', fuelStreamType: 'Alternative Fuels', sourceAccuracy: 'Meter Reading', permittedUncertainty: 'Â±5.0%' },
-    { id: 'F03', tier: 'T1', category: 'De minimis', uncertaintyAchieved: '7.00', fuelStreamType: 'Diesel', sourceAccuracy: 'Supplier Data', permittedUncertainty: 'Â±7.5%' },
-  ]);
-
-  const [calcApproach, setCalcApproach] = useState({
-    description: 'Estimated based on production data and IPCC Guidelines',
-    formula: 'Estimated based on production data and IPCC Guidelines',
-  });
-
-  const [calcDetailedInfo, setCalcDetailedInfo] = useState([
-    { id: 'F01', fuelStreamType: 'Natural Gas', fuelQuantity: '10,000', units: 'MWH', source: 'In - House technical data' },
-    { id: 'F02', fuelStreamType: 'Alternative Fuels', fuelQuantity: '10,000', units: 'MWH', source: 'In - House technical data' },
-  ]);
-
   const [calcOtherInputsOutputs, setCalcOtherInputsOutputs] = useState([
     { id: 'F01', type: 'Crude Oil', activityLevel: '0', units: 'TJ', ncv: '42.3', emissionFactor: '73.3', oxidationFactor: '100%', conversionFactor: '-', source: 'IPCC' },
     { id: 'F02', type: 'Crude Oil', activityLevel: '0', units: 'TJ', ncv: '23.5', emissionFactor: '64.3', oxidationFactor: '75%', conversionFactor: '-', source: 'IPCC' },
   ]);
 
-  // Section 2: Measurement - Based Monitoring State
-  const [measEmissionSources, setMeasEmissionSources] = useState([
-    { id: 'S01', totalEmissions: '100,000', category: 'Major (>100 KT)' },
-    { id: 'S02', totalEmissions: '45,000', category: 'Minor (5-100 KT)' },
-    { id: 'S03', totalEmissions: '800', category: 'De minimis (<5 KT)' },
-  ]);
-
-  const [measUncertainty, setMeasUncertainty] = useState([
-    { id: 'S01', tier: 'T3', category: 'Major', uncertaintyAchieved: '1.60', streamType: 'COâ‚‚ Emission Sources', sourceAccuracy: 'Lab Analysis', permittedUncertainty: 'Â±2.5%' },
-    { id: 'S02', tier: 'T2', category: 'Minor', uncertaintyAchieved: '3.20', streamType: 'COâ‚‚ Emission Sources', sourceAccuracy: 'Meter Reading', permittedUncertainty: 'Â±5.0%' },
-    { id: 'S03', tier: 'T1', category: 'De minimis', uncertaintyAchieved: '7.00', streamType: 'COâ‚‚ Emission Sources', sourceAccuracy: 'Supplier Data', permittedUncertainty: 'Â±7.5%' },
-  ]);
-
-  const [measApproachDesc, setMeasApproachDesc] = useState('Estimated based on production data and IPCC Guidelines');
-
-  const [measPoints, setMeasPoints] = useState([
-    { id: 'M1', associatedSource: 'S01', procedures: 'X', relevantProcedures: 'CEMS Operation Procedure EMP-01', relevantSource: 'CEMS Manual Rev. 4' },
-    { id: 'M2', associatedSource: 'S02', procedures: 'XX', relevantProcedures: 'CEMS Operation Procedure EMP-01', relevantSource: 'ISO 14181:2014' },
-    { id: 'M3', associatedSource: 'S03', procedures: 'XXX', relevantProcedures: 'CEMS Operation Procedure EMP-01', relevantSource: 'ISO 14181:2014' },
-  ]);
-
-  const [measEquipment, setMeasEquipment] = useState([
-    { name: 'CEMS Analyzer - 01', type: 'CEMS', manufacturer: 'ABB / ACX50000', parameter: 'COâ‚‚ , Oâ‚‚', accuracyClass: 'Class A' },
-    { name: 'Flow Meter - 01', type: 'Flow Meter', manufacturer: 'X', parameter: 'Flow Rate', accuracyClass: 'Â±1%' },
-    { name: 'Gas Analyzer - 01', type: 'Gas Analyzer', manufacturer: 'XX', parameter: 'COâ‚‚', accuracyClass: 'Â±1%' },
-  ]);
-
-  // Section 3: Fallback Approach State
-  const [fallbackData, setFallbackData] = useState({
-    methodologyDesc: 'Estimated based on production data and IPCC Guidelines',
-    justification: 'Estimated based on production data and IPCC Guidelines',
-  });
-
-  // Monitoring Plan Add / Remove Helpers
-  const addCalcSourceStream = () => {
-    const nextId = `F0${calcSourceStreams.length + 1}`;
-    setCalcSourceStreams((prev) => [
-      ...prev,
-      { id: nextId, desc: 'Stream Name', estimatedEmissions: '5,000', possibleCategory: 'Minor (5-100 KT)', selectedCategory: 'Minor' },
-    ]);
-  };
-
-  const removeCalcSourceStream = (index: number) => {
-    setCalcSourceStreams((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const addCalcTierUncertainty = () => {
-    const nextId = `F0${calcTierUncertainty.length + 1}`;
-    setCalcTierUncertainty((prev) => [
-      ...prev,
-      { id: nextId, tier: 'T2', category: 'Minor', uncertaintyAchieved: '2.50', fuelStreamType: 'Commercial Standard Fuels', sourceAccuracy: 'Lab Analysis', permittedUncertainty: 'Â±5.0%' },
-    ]);
-  };
-
-  const removeCalcTierUncertainty = (index: number) => {
-    setCalcTierUncertainty((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const addCalcDetailedInfo = () => {
-    const nextId = `F0${calcDetailedInfo.length + 1}`;
-    setCalcDetailedInfo((prev) => [
-      ...prev,
-      { id: nextId, fuelStreamType: 'Natural Gas', fuelQuantity: '5,000', units: 'MWH', source: 'In - House technical data' },
-    ]);
-  };
-
-  const removeCalcDetailedInfo = (index: number) => {
-    setCalcDetailedInfo((prev) => prev.filter((_, i) => i !== index));
-  };
-
   const addCalcOtherInput = () => {
-    const nextId = `F0${calcOtherInputsOutputs.length + 1}`;
+    const nextId = `F${String(calcOtherInputsOutputs.length + 1).padStart(2, '0')}`;
     setCalcOtherInputsOutputs((prev) => [
       ...prev,
-      { id: nextId, type: 'Crude Oil', activityLevel: '0', units: 'TJ', ncv: '30.0', emissionFactor: '70.0', oxidationFactor: '100%', conversionFactor: '-', source: 'IPCC' },
+      { id: nextId, type: '', activityLevel: '', units: '', ncv: '', emissionFactor: '', oxidationFactor: '', conversionFactor: '', source: '' },
     ]);
   };
 
@@ -453,46 +346,16 @@ export const DataEntryView: React.FC = () => {
     setCalcOtherInputsOutputs((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const addMeasEmissionSource = () => {
-    const nextId = `S0${measEmissionSources.length + 1}`;
-    setMeasEmissionSources((prev) => [
-      ...prev,
-      { id: nextId, totalEmissions: '25,000', category: 'Minor (5-100 KT)' },
-    ]);
-  };
-
-  const removeMeasEmissionSource = (index: number) => {
-    setMeasEmissionSources((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const addMeasUncertainty = () => {
-    const nextId = `S0${measUncertainty.length + 1}`;
-    setMeasUncertainty((prev) => [
-      ...prev,
-      { id: nextId, tier: 'T2', category: 'Minor', uncertaintyAchieved: '2.50', streamType: 'COâ‚‚ Emission Sources', sourceAccuracy: 'Lab Analysis', permittedUncertainty: 'Â±5.0%' },
-    ]);
-  };
-
-  const removeMeasUncertainty = (index: number) => {
-    setMeasUncertainty((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const addMeasPoint = () => {
-    const nextId = `M${measPoints.length + 1}`;
-    setMeasPoints((prev) => [
-      ...prev,
-      { id: nextId, associatedSource: 'S01', procedures: 'Description', relevantProcedures: 'CEMS Operation Procedure EMP-01', relevantSource: 'ISO 14181:2014' },
-    ]);
-  };
-
-  const removeMeasPoint = (index: number) => {
-    setMeasPoints((prev) => prev.filter((_, i) => i !== index));
-  };
+  const [measEquipment, setMeasEquipment] = useState([
+    { name: 'CEMS Analyzer - 01', type: 'CEMS', manufacturer: 'ABB / ACX50000', parameter: 'CO₂ , O₂', accuracyClass: 'Class A' },
+    { name: 'Flow Meter - 01', type: 'Flow Meter', manufacturer: 'X', parameter: 'Flow Rate', accuracyClass: '±1%' },
+    { name: 'Gas Analyzer - 01', type: 'Gas Analyzer', manufacturer: 'XX', parameter: 'CO₂', accuracyClass: '±1%' },
+  ]);
 
   const addMeasEquipment = () => {
     setMeasEquipment((prev) => [
       ...prev,
-      { name: `Analyzer - 0${prev.length + 1}`, type: 'Sensor', manufacturer: 'Model', parameter: 'Flow', accuracyClass: 'Â±1%' },
+      { name: '', type: '', manufacturer: '', parameter: '', accuracyClass: '' },
     ]);
   };
 
@@ -501,106 +364,32 @@ export const DataEntryView: React.FC = () => {
   };
 
   // =========================================================================
-  // VERIFICATION & QA STATE
-  // =========================================================================
-  const [qaVerificationDesc, setQaVerificationDesc] = useState(
-    'Green Mountain Cement Factory produces clinker and Portland cement for the construction industry. The facility operates one rotary kiln, cement grinding units, raw material storage, and packing lines.'
-  );
-
-  const [qaDataGaps, setQaDataGaps] = useState([
-    { sourceStream: 'S05 - Flare Vent', fromDate: '01-Jan-2024', untilDate: '15-Jan-2024', description: 'CEMS downtime', estimatedEmissions: '12.40', sourceOfEstimate: 'Similar period avg' },
-    { sourceStream: 'S08 - Boiler 3', fromDate: '10-Feb-2024', untilDate: '12-Feb-2024', description: 'Data logger issue', estimatedEmissions: '5.70', sourceOfEstimate: 'Fuel Consumption estimate' },
-    { sourceStream: 'S12 - Compressor', fromDate: '03-Mar-2024', untilDate: '05-Mar-2024', description: 'Maintenance activity', estimatedEmissions: '1.15', sourceOfEstimate: 'Equipment capacity method' },
-  ]);
-
-  const [qaManagementResp, setQaManagementResp] = useState([
-    { jobTitle: 'GHG Manager', responsibilities: 'X' },
-    { jobTitle: 'Environmental Engineer', responsibilities: 'XX' },
-    { jobTitle: 'Quality Assurance Officer', responsibilities: 'XX' },
-  ]);
-
-  const [qaProcedures, setQaProcedures] = useState([
-    { procedureTitle: 'ETS QA/QC of MI', reference: 'EAD_QA_QC_01', responsibleDept: 'Measurement & Control', recordStorage: 'QA/QC Records' },
-    { procedureTitle: 'Instrument Calibration', reference: 'QA_CAL_02', responsibleDept: 'Operations', recordStorage: 'Calibration Records' },
-  ]);
-
-  const [qaInternalReview, setQaInternalReview] = useState([
-    { procedureTitle: 'ETS Data Validation', reference: 'EAD_VAL_01', responsibleDept: 'Measurement & Control', recordStorage: 'Validation Records' },
-    { procedureTitle: 'Annual Internal Review', reference: 'INT_REV_02', responsibleDept: 'Compliance', recordStorage: 'Internal Audit Folder' },
-  ]);
-
-  const addQaDataGap = () => {
-    setQaDataGaps((prev) => [
-      ...prev,
-      { sourceStream: 'S15 - Vent', fromDate: '01-Apr-2024', untilDate: '05-Apr-2024', description: 'Calibration gap', estimatedEmissions: '2.50', sourceOfEstimate: 'Standard average' },
-    ]);
-  };
-  const removeQaDataGap = (idx: number) => setQaDataGaps((prev) => prev.filter((_, i) => i !== idx));
-
-  const addQaManagementResp = () => {
-    setQaManagementResp((prev) => [
-      ...prev,
-      { jobTitle: 'Operations Lead', responsibilities: 'XXX' },
-    ]);
-  };
-  const removeQaManagementResp = (idx: number) => setQaManagementResp((prev) => prev.filter((_, i) => i !== idx));
-
-  const addQaProcedure = () => {
-    setQaProcedures((prev) => [
-      ...prev,
-      { procedureTitle: 'Sensor Verification', reference: 'QA_SENS_03', responsibleDept: 'Instrumentation', recordStorage: 'Maintenance Logs' },
-    ]);
-  };
-  const removeQaProcedure = (idx: number) => setQaProcedures((prev) => prev.filter((_, i) => i !== idx));
-
-  const addQaInternalReview = () => {
-    setQaInternalReview((prev) => [
-      ...prev,
-      { procedureTitle: 'Semi-Annual Audit', reference: 'INT_AUDIT_03', responsibleDept: 'Sustainability', recordStorage: 'Audit Records' },
-    ]);
-  };
-  const removeQaInternalReview = (idx: number) => setQaInternalReview((prev) => prev.filter((_, i) => i !== idx));
-
-  // =========================================================================
   // MITIGATION MEASURES STATE
   // =========================================================================
   const [mitigationMeasures, setMitigationMeasures] = useState([
-    { description: 'X', category: 'Emission Reduction', scope: '1', ghg: 'COâ‚‚', startYear: '2024', status: 'Implemented', preMeasure: '4,200', reportingReduction: 'Standard', expectedReduction: 'Not verified', standard: 'IPCC', verification: 'Not verified' },
-    { description: 'XX', category: 'Emission Avoidance', scope: '3', ghg: 'CHâ‚„', startYear: '2020', status: 'Planned', preMeasure: '4,200', reportingReduction: 'Standard', expectedReduction: 'Not verified', standard: 'IPCC', verification: 'Verified' },
+    { description: 'X', category: 'Emission Reduction', scope: '1', ghg: 'CO₂', startYear: '2024', status: 'Implemented', preMeasure: '4,200', reportingReduction: 'Standard', expectedReduction: 'Not verified', standard: 'IPCC', verification: 'Not verified' },
+    { description: 'XX', category: 'Emission Avoidance', scope: '3', ghg: 'CH₄', startYear: '2020', status: 'Planned', preMeasure: '4,200', reportingReduction: 'Standard', expectedReduction: 'Not verified', standard: 'IPCC', verification: 'Verified' },
     { description: 'XXX', category: 'Carbon Removal', scope: '2', ghg: 'Mixed', startYear: '2019', status: 'Feasibility Study', preMeasure: '4,200', reportingReduction: 'Standard', expectedReduction: 'Not verified', standard: 'IPCC', verification: 'Third - Party Verified' },
   ]);
 
   const addMitigationMeasure = () => {
     setMitigationMeasures((prev) => [
       ...prev,
-      { description: 'New Measure', category: 'Emission Reduction', scope: '1', ghg: 'COâ‚‚', startYear: '2025', status: 'Planned', preMeasure: '1,500', reportingReduction: 'Standard', expectedReduction: 'Not verified', standard: 'IPCC', verification: 'Not verified' },
+      { description: '', category: '', scope: '', ghg: '', startYear: '', status: '', preMeasure: '', reportingReduction: '', expectedReduction: '', standard: '', verification: '' },
     ]);
   };
   const removeMitigationMeasure = (idx: number) => setMitigationMeasures((prev) => prev.filter((_, i) => i !== idx));
-
-  // =========================================================================
-  // REVIEW & SUBMIT STATE
-  // =========================================================================
-  const [declarationChecks, setDeclarationChecks] = useState({
-    check1: true,
-    check2: true,
-    check3: true,
-  });
-
-  const [declarationForm, setDeclarationForm] = useState({
-    name: 'John Doe',
-    designation: 'Facility Operator',
-    date: '15-Jun-2026',
-  });
 
   const loadExampleData = () => {
     setFacilityDesc({
       description:
         'Green Mountain Cement Factory produces clinker and Portland cement for the construction industry. The facility operates one rotary kiln, cement grinding units, raw material storage, and packing lines.',
       businessSector: 'Energy',
-      primaryActivity: 'Combustion of Fuel',
+      primaryActivity: 'Combustion of fuels',
       operationalStatus: 'Operational',
     });
+    setIsCustomBusinessSector(false);
+    setIsCustomPrimaryActivity(false);
     setProductionStreams([
       { id: 'P01', category: 'Primary Products', technology: 'Process A', energyRelated: 'Yes', processEmissions: 'No', capacity: '100,000', capacityUnit: 't/year', actualQuantity: '85,000', actualQuantityUnit: 't/year' },
       { id: 'P02', category: 'Primary Products', technology: 'Process B', energyRelated: 'Yes', processEmissions: 'Yes', capacity: '50,000', capacityUnit: 't/year', actualQuantity: '100,000', actualQuantityUnit: 't/year' },
@@ -643,10 +432,12 @@ export const DataEntryView: React.FC = () => {
   const clearAllData = () => {
     setFacilityDesc({
       description: '',
-      businessSector: 'Energy',
-      primaryActivity: 'Combustion of Fuel',
+      businessSector: 'Select Business Sector',
+      primaryActivity: 'Select Primary Activity',
       operationalStatus: 'Operational',
     });
+    setIsCustomBusinessSector(false);
+    setIsCustomPrimaryActivity(false);
     setProductionStreams([
       { id: 'P01', category: 'Primary Products', technology: '', energyRelated: 'Yes', processEmissions: 'No', capacity: '', capacityUnit: 't/year', actualQuantity: '', actualQuantityUnit: 't/year' },
     ]);
@@ -752,8 +543,25 @@ export const DataEntryView: React.FC = () => {
             )}
           </div>
 
-          {/* Workflow Status & 90-Day Requirement Badge */}
+          {/* Workflow Status & 90-Day Requirement Badge & View Button */}
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => openReadOnlyViewer({
+                moduleType: 'monitoring-plan',
+                title: 'Monitoring Plan & Methodologies',
+                status: workflowState.monitoringPlanStatus,
+                submittedBy: 'Umasri Mavillapally (Senior Compliance Lead)',
+                submittedDate: '15 Feb 2026',
+                reviewerName: 'Dr. Mariam Al-Qubaisi (EAD Lead Inspector)',
+                initialTab: 'data',
+              })}
+              className="px-3 py-1 bg-[#004B87]/10 hover:bg-[#004B87]/20 border border-[#004B87]/30 text-[#004B87] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="Open Complete Read-Only Monitoring Plan"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>View Plan</span>
+            </button>
+
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-[11px] font-medium">
               <Clock className="w-3.5 h-3.5 text-blue-600" />
               <span>90-Day Deadline: {workflowState.monitoringPlanDeadline || '13-Sep-2026'}</span>
@@ -769,194 +577,162 @@ export const DataEntryView: React.FC = () => {
           </div>
         </div>
 
-        {/* 3 Top Selectors */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Top Selectors - 4-column row layout */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           <div>
             <label className="block text-[11px] font-semibold text-slate-600 mb-1">Facility / Plant Name</label>
-            <select
-              value={selectedFacility}
-              onChange={(e) => setSelectedFacility(e.target.value)}
-              className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer"
-            >
-              <option value="Green Mountain Cement Factory">Green Mountain Cement Factory</option>
-              <option value="Abu Dhabi Power Plant">Abu Dhabi Power Plant</option>
-              <option value="Al Ruwais Refinery">Al Ruwais Refinery</option>
-            </select>
+            <div className="relative">
+              <select
+                value={selectedFacility}
+                onChange={(e) => setSelectedFacility(e.target.value)}
+                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer appearance-none pr-8"
+              >
+                <option value="Green Mountain Cement Factory">Green Mountain Cement Factory</option>
+                <option value="Abu Dhabi Power Plant">Abu Dhabi Power Plant</option>
+                <option value="Al Ruwais Refinery">Al Ruwais Refinery</option>
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
           </div>
 
           <div>
             <label className="block text-[11px] font-semibold text-slate-600 mb-1">Calendar Year</label>
-            <select
-              value={calendarYear}
-              onChange={(e) => setCalendarYear(e.target.value)}
-              className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer"
-            >
-              <option value="2026">2026</option>
-              <option value="2025">2025</option>
-              <option value="2024">2024</option>
-              <option value="2023">2023</option>
-            </select>
+            <div className="relative">
+              <select
+                value={calendarYear}
+                onChange={(e) => setCalendarYear(e.target.value)}
+                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer appearance-none pr-8"
+              >
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-600 mb-1">Tier Level</label>
-            <select
-              value={tierLevel}
-              onChange={(e) =>
-                setTierLevel(e.target.value as "Tier 1" | "Tier 2" | "Tier 3")
-              }
-              className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer"
-            >
-              <option value="Select Tier Level">Select Tier Level</option>
-              <option value="Tier 1">Tier 1 (Default Factors)</option>
-              <option value="Tier 2">Tier 2 (Country-Specific)</option>
-              <option value="Tier 3">Tier 3 (Plant-Specific / CEMS)</option>
-            </select>
-          </div>
+          {/* Remaining 2 slots kept empty */}
+          <div className="hidden lg:block" />
+          <div className="hidden lg:block" />
         </div>
       </div>
 
-      {/* 2. SCROLLABLE INNER CARD FRAME (Fixed Frame with Sub-Tabs Inside) */}
-      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-7 flex flex-col overflow-hidden">
-        {/* Navigation Sub-Tabs (Inside Card Header) */}
-        <div className="flex-shrink-0 pb-3 mb-3 overflow-x-auto no-scrollbar">
-          <div className="inline-flex items-center gap-1.5 p-1 bg-slate-100/90 border border-slate-200/80 rounded-xl text-xs">
-            <button
-              type="button"
-              onClick={() => setActiveTab('facility-overview')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
-                activeTab === 'facility-overview'
-                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
-              }`}
-            >
-              Facility Overview
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('emission-sources')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
-                activeTab === 'emission-sources'
-                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
-              }`}
-            >
-              Emission Sources
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('monitoring-methodology')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
-                activeTab === 'monitoring-methodology'
-                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
-              }`}
-            >
-              Monitoring Methods
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('activity-data')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
-                activeTab === 'activity-data'
-                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
-              }`}
-            >
-              Activity & Calculations
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('measurement-equipment')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
-                activeTab === 'measurement-equipment'
-                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
-              }`}
-            >
-              Equipment & Calibration
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('qa-qc')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
-                activeTab === 'qa-qc'
-                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
-              }`}
-            >
-              Data Management & QA/QC
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('review-submit')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
-                activeTab === 'review-submit'
-                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
-              }`}
-            >
-              Review & Submit
-            </button>
-          </div>
-        </div>
-
-        <div className="flex-1 min-h-0 overflow-y-auto py-[10px] space-y-6 pr-2 no-scrollbar text-xs">
+      {/* 2. SCROLLABLE INNER CARD FRAME */}
+      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-y-auto py-1 space-y-4 pr-1.5 no-scrollbar text-xs">
           {activeTab === 'facility-overview' && (
-            <>
+            <div className="space-y-4">
               {/* ========================================================================= */}
-              {/* Section 1: Facility Description */}
+              {/* Section 1: Facility Overview */}
               {/* ========================================================================= */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-slate-700 font-bold mb-1.5 text-xs">Facility Description</label>
-                  <textarea
-                    rows={3}
-                    value={facilityDesc.description}
-                    onChange={(e) => setFacilityDesc({ ...facilityDesc, description: e.target.value })}
-                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                  />
+              <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+                <div className="px-4 sm:px-5 py-2.5 sm:py-3 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#004B87]">
+                    Facility Overview
+                  </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-slate-600 font-semibold mb-1.5">Business Sector</label>
-                    <select
-                      value={facilityDesc.businessSector}
-                      onChange={(e) => setFacilityDesc({ ...facilityDesc, businessSector: e.target.value })}
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                    >
-                      <option value="Energy">Energy</option>
-                      <option value="IPPU">IPPU</option>
-                      <option value="Waste">Waste</option>
-                      <option value="Agriculture">Agriculture</option>
-                    </select>
-                  </div>
+                <div className="p-4 sm:p-5 pt-3 sm:pt-3.5 bg-white space-y-4 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+                    <div>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Primary Business Sector</label>
+                      {isCustomBusinessSector ? (
+                        <div className="relative animate-fade-in">
+                          <input
+                            type="text"
+                            placeholder="Enter business sector"
+                            value={facilityDesc.businessSector}
+                            onChange={(e) => setFacilityDesc({ ...facilityDesc, businessSector: e.target.value })}
+                            className="w-full px-3.5 py-2.5 pr-8 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder:text-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm"
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            title="Switch back to dropdown list"
+                            onClick={() => {
+                              setIsCustomBusinessSector(false);
+                              setFacilityDesc({ ...facilityDesc, businessSector: 'Select Business Sector' });
+                            }}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <select
+                          value={facilityDesc.businessSector}
+                          onChange={(e) => {
+                            if (e.target.value === 'Other') {
+                              setIsCustomBusinessSector(true);
+                              setFacilityDesc({ ...facilityDesc, businessSector: '' });
+                            } else {
+                              setFacilityDesc({ ...facilityDesc, businessSector: e.target.value });
+                            }
+                          }}
+                          className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                        >
+                          <option value="Select Business Sector">Select Business Sector</option>
+                          <option value="Energy">Energy</option>
+                          <option value="Transport">Transport</option>
+                          <option value="Industrial Processes">Industrial Processes</option>
+                          <option value="Agriculture">Agriculture</option>
+                          <option value="Waste">Waste</option>
+                          <option value="Land Use & Forestry">Land Use & Forestry</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      )}
+                    </div>
 
-                  <div>
-                    <label className="block text-slate-600 font-semibold mb-1.5">Primary Activity</label>
-                    <select
-                      value={facilityDesc.primaryActivity}
-                      onChange={(e) => setFacilityDesc({ ...facilityDesc, primaryActivity: e.target.value })}
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                    >
-                      <option value="Combustion of Fuel">Combustion of Fuel</option>
-                      <option value="Cement Manufacturing">Cement Manufacturing</option>
-                      <option value="Power Generation">Power Generation</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-600 font-semibold mb-1.5">Operational Status</label>
-                    <select
-                      value={facilityDesc.operationalStatus}
-                      onChange={(e) => setFacilityDesc({ ...facilityDesc, operationalStatus: e.target.value })}
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                    >
-                      <option value="Operational">Operational</option>
-                      <option value="Under Maintenance">Under Maintenance</option>
-                      <option value="Decommissioned">Decommissioned</option>
-                    </select>
+                    <div>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Primary Activity</label>
+                      {isCustomPrimaryActivity ? (
+                        <div className="relative animate-fade-in">
+                          <input
+                            type="text"
+                            placeholder="Enter primary activity"
+                            value={facilityDesc.primaryActivity}
+                            onChange={(e) => setFacilityDesc({ ...facilityDesc, primaryActivity: e.target.value })}
+                            className="w-full px-3.5 py-2.5 pr-8 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder:text-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm"
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            title="Switch back to dropdown list"
+                            onClick={() => {
+                              setIsCustomPrimaryActivity(false);
+                              setFacilityDesc({ ...facilityDesc, primaryActivity: 'Select Primary Activity' });
+                            }}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <select
+                          value={facilityDesc.primaryActivity}
+                          onChange={(e) => {
+                            if (e.target.value === 'Other') {
+                              setIsCustomPrimaryActivity(true);
+                              setFacilityDesc({ ...facilityDesc, primaryActivity: '' });
+                            } else {
+                              setFacilityDesc({ ...facilityDesc, primaryActivity: e.target.value });
+                            }
+                          }}
+                          className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
+                        >
+                          <option value="Select Primary Activity">Select Primary Activity</option>
+                          <option value="Combustion of fuels">Combustion of fuels</option>
+                          <option value="Production of coke">Production of coke</option>
+                          <option value="Metal ore roasting or sintering">Metal ore roasting or sintering</option>
+                          <option value="Production of iron or steel">Production of iron or steel</option>
+                          <option value="Production of aluminum">Production of aluminum</option>
+                          <option value="Production of cement clinker">Production of cement clinker</option>
+                          <option value="Production of glass">Production of glass</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -964,2768 +740,844 @@ export const DataEntryView: React.FC = () => {
               {/* ========================================================================= */}
               {/* Section 2: Primary Production Streams */}
               {/* ========================================================================= */}
-              <div className="pt-2">
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Primary Production Streams</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                        <th className="py-2.5 px-3">Product ID</th>
-                        <th className="py-2.5 px-3">Product Category</th>
-                        <th className="py-2.5 px-3">Production Technology/Process</th>
-                        <th className="py-2.5 px-3">Energy Related Emissions?</th>
-                        <th className="py-2.5 px-3">Process Emissions?</th>
-                        <th className="py-2.5 px-3">Production Capacity</th>
-                        <th className="py-2.5 px-3">Production Capacity Unit</th>
-                        <th className="py-2.5 px-3">Actual Production Quantity</th>
-                        <th className="py-2.5 px-3">Actual Production Quantity Unit</th>
-                        <th className="py-2.5 px-3 text-center">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {productionStreams.map((row, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.id}
-                              onChange={(e) => {
-                                const copy = [...productionStreams];
-                                copy[idx].id = e.target.value;
-                                setProductionStreams(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.category}
-                              onChange={(e) => {
-                                const copy = [...productionStreams];
-                                copy[idx].category = e.target.value;
-                                setProductionStreams(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="Primary Products">Primary Products</option>
-                              <option value="Secondary Products">Secondary Products</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.technology}
-                              onChange={(e) => {
-                                const copy = [...productionStreams];
-                                copy[idx].technology = e.target.value;
-                                setProductionStreams(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.energyRelated}
-                              onChange={(e) => {
-                                const copy = [...productionStreams];
-                                copy[idx].energyRelated = e.target.value;
-                                setProductionStreams(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="Yes">Yes</option>
-                              <option value="No">No</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.processEmissions}
-                              onChange={(e) => {
-                                const copy = [...productionStreams];
-                                copy[idx].processEmissions = e.target.value;
-                                setProductionStreams(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="Yes">Yes</option>
-                              <option value="No">No</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.capacity}
-                              onChange={(e) => {
-                                const copy = [...productionStreams];
-                                copy[idx].capacity = e.target.value;
-                                setProductionStreams(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.capacityUnit}
-                              onChange={(e) => {
-                                const copy = [...productionStreams];
-                                copy[idx].capacityUnit = e.target.value;
-                                setProductionStreams(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="t/year">t/year</option>
-                              <option value="NmÂ³/year">NmÂ³/year</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.actualQuantity}
-                              onChange={(e) => {
-                                const copy = [...productionStreams];
-                                copy[idx].actualQuantity = e.target.value;
-                                setProductionStreams(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.actualQuantityUnit}
-                              onChange={(e) => {
-                                const copy = [...productionStreams];
-                                copy[idx].actualQuantityUnit = e.target.value;
-                                setProductionStreams(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="t/year">t/year</option>
-                              <option value="NmÂ³/year">NmÂ³/year</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3 text-center">
-                            {idx === 0 ? (
-                              <button
-                                type="button"
-                                onClick={addProductionStream}
-                                className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                              >
-                                <Plus className="w-3.5 h-3.5" />
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => removeProductionStream(idx)}
-                                className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </td>
+              <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+                <div className="px-4 sm:px-5 py-2.5 sm:py-3 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#004B87]">
+                    Primary Production Streams
+                  </span>
+                </div>
+
+                <div className="p-4 sm:p-5 pt-3 sm:pt-3.5 bg-white space-y-4 text-xs">
+                  <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
+                          <th className="py-2.5 px-3">Product ID</th>
+                          <th className="py-2.5 px-3">Product Category</th>
+                          <th className="py-2.5 px-3">Production Technology/Process</th>
+                          <th className="py-2.5 px-3">Energy Related Emissions?</th>
+                          <th className="py-2.5 px-3">Process Emissions?</th>
+                          <th className="py-2.5 px-3">Production Capacity</th>
+                          <th className="py-2.5 px-3">Production Capacity Unit</th>
+                          <th className="py-2.5 px-3">Actual Production Quantity</th>
+                          <th className="py-2.5 px-3">Actual Production Quantity Unit</th>
+                          <th className="py-2.5 px-3 text-center">Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 bg-white">
+                        {productionStreams.map((row, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={row.id}
+                                placeholder="P01"
+                                onChange={(e) => {
+                                  const copy = [...productionStreams];
+                                  copy[idx].id = e.target.value;
+                                  setProductionStreams(copy);
+                                }}
+                                className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <select
+                                value={row.category}
+                                onChange={(e) => {
+                                  const copy = [...productionStreams];
+                                  copy[idx].category = e.target.value;
+                                  setProductionStreams(copy);
+                                }}
+                                className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              >
+                                <option value="">Select category</option>
+                                <option value="Primary Products">Primary Products</option>
+                                <option value="Secondary Products">Secondary Products</option>
+                              </select>
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={row.technology}
+                                placeholder="Enter technology/process"
+                                onChange={(e) => {
+                                  const copy = [...productionStreams];
+                                  copy[idx].technology = e.target.value;
+                                  setProductionStreams(copy);
+                                }}
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <select
+                                value={row.energyRelated}
+                                onChange={(e) => {
+                                  const copy = [...productionStreams];
+                                  copy[idx].energyRelated = e.target.value;
+                                  setProductionStreams(copy);
+                                }}
+                                className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              >
+                                <option value="">Select...</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                              </select>
+                            </td>
+                            <td className="py-2 px-3">
+                              <select
+                                value={row.processEmissions}
+                                onChange={(e) => {
+                                  const copy = [...productionStreams];
+                                  copy[idx].processEmissions = e.target.value;
+                                  setProductionStreams(copy);
+                                }}
+                                className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              >
+                                <option value="">Select...</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                              </select>
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={row.capacity}
+                                placeholder="Enter capacity"
+                                onChange={(e) => {
+                                  const copy = [...productionStreams];
+                                  copy[idx].capacity = e.target.value;
+                                  setProductionStreams(copy);
+                                }}
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <select
+                                value={row.capacityUnit}
+                                onChange={(e) => {
+                                  const copy = [...productionStreams];
+                                  copy[idx].capacityUnit = e.target.value;
+                                  setProductionStreams(copy);
+                                }}
+                                className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              >
+                                <option value="">Select unit</option>
+                                <option value="t/year">t/year</option>
+                                <option value="Nm³/year">Nm³/year</option>
+                              </select>
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={row.actualQuantity}
+                                placeholder="Enter quantity"
+                                onChange={(e) => {
+                                  const copy = [...productionStreams];
+                                  copy[idx].actualQuantity = e.target.value;
+                                  setProductionStreams(copy);
+                                }}
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <select
+                                value={row.actualQuantityUnit}
+                                onChange={(e) => {
+                                  const copy = [...productionStreams];
+                                  copy[idx].actualQuantityUnit = e.target.value;
+                                  setProductionStreams(copy);
+                                }}
+                                className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              >
+                                <option value="">Select unit</option>
+                                <option value="t/year">t/year</option>
+                                <option value="Nm³/year">Nm³/year</option>
+                              </select>
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              {idx === 0 ? (
+                                <button
+                                  type="button"
+                                  onClick={addProductionStream}
+                                  className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
+                                >
+                                  <Plus className="w-3.5 h-3.5" />
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => removeProductionStream(idx)}
+                                  className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
 
               {/* ========================================================================= */}
               {/* Section 3: Emissions Estimation */}
               {/* ========================================================================= */}
-              <div className="pt-2 space-y-3">
-                <h4 className="text-xs font-bold text-[#004B87]">Emissions Estimation</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+                <div className="px-4 sm:px-5 py-2.5 sm:py-3 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#004B87]">
+                    Emissions Estimation
+                  </span>
+                </div>
+
+                <div className="p-4 sm:p-5 pt-3 sm:pt-3.5 bg-white space-y-4 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+                    <div>
+                      <label className="block text-slate-600 font-semibold mb-1.5">Estimated Annual Emissions (tCO₂e)</label>
+                      <input
+                        type="text"
+                        value={emissionsEstimation.estimatedAnnualEmissions}
+                        onChange={(e) =>
+                          setEmissionsEstimation({ ...emissionsEstimation, estimatedAnnualEmissions: e.target.value })
+                        }
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 font-mono focus:outline-none focus:border-[#004B87] shadow-sm"
+                      />
+                    </div>
+                  </div>
                   <div>
-                    <label className="block text-slate-600 font-semibold mb-1">Estimated Annual Emissions (tCOâ‚‚e)</label>
-                    <input
-                      type="text"
-                      value={emissionsEstimation.estimatedAnnualEmissions}
+                    <label className="block text-slate-600 font-semibold mb-1.5">Justification for the estimated value</label>
+                    <textarea
+                      rows={2}
+                      value={emissionsEstimation.justification}
                       onChange={(e) =>
-                        setEmissionsEstimation({ ...emissionsEstimation, estimatedAnnualEmissions: e.target.value })
+                        setEmissionsEstimation({ ...emissionsEstimation, justification: e.target.value })
                       }
-                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 font-mono focus:outline-none focus:border-[#004B87] shadow-sm"
+                      className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
                     />
                   </div>
                 </div>
-                <div>
-                  <label className="block text-slate-600 font-semibold mb-1">Justification for the estimated value</label>
-                  <textarea
-                    rows={2}
-                    value={emissionsEstimation.justification}
-                    onChange={(e) =>
-                      setEmissionsEstimation({ ...emissionsEstimation, justification: e.target.value })
-                    }
-                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                  />
-                </div>
               </div>
 
-              {/* ========================================================================= */}
-              {/* Section 7: Remarks */}
-              {/* ========================================================================= */}
-              <div className="pt-2">
-                <label className="block text-slate-600 font-semibold mb-1">Remarks</label>
-                <textarea
-                  rows={2}
-                  value={remarks}
-                  placeholder="Write here..."
-                  onChange={(e) => setRemarks(e.target.value)}
-                  className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                />
-              </div>
-
-              {/* ========================================================================= */}
-              {/* Section 8: Supporting Documents */}
-              {/* ========================================================================= */}
-              <div className="pt-2 space-y-3">
-                <h4 className="text-xs font-bold text-[#004B87]">Supporting Documents</h4>
-                <div
-                  className="border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50 p-6 text-center cursor-pointer hover:border-[#004B87]/40 transition-colors"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload className="w-6 h-6 text-slate-400 mx-auto mb-2" />
-                  <p className="text-xs text-slate-500">
-                    Drag & Drop or{' '}
-                    <span className="text-[#004B87] font-semibold underline">Browse Files</span>
-                  </p>
-                  <p className="text-[10px] text-slate-400 mt-1">PDF, DOC, XLS up to 50MB</p>
-                </div>
-                {attachedFiles.length > 0 && (
-                  <div className="space-y-2">
-                    {attachedFiles.map((file, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-200"
-                      >
-                        <div className="flex items-center gap-2">
-                          <FileText className="w-4 h-4 text-[#004B87]" />
-                          <span className="font-semibold text-navy-900">{file.name}</span>
-                          <span className="text-slate-400 text-[10px]">{file.size}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-emerald-600 text-[10px] font-bold">{file.status}</span>
-                          <button
-                            onClick={() => setAttachedFiles((prev) => prev.filter((_, i) => i !== idx))}
-                            className="text-slate-400 hover:text-rose-500 cursor-pointer transition-colors"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-
-          {/* ========================================================================= */}
-          {/* TAB 2: EMISSION SOURCES */}
-          {/* ========================================================================= */}
-          {activeTab === 'emission-sources' && (
-            <>
               {/* ========================================================================= */}
               {/* Section 4: Emission Sources */}
               {/* ========================================================================= */}
-              <div className="pt-2">
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Emission Sources</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                        <th className="py-2.5 px-3">Source ID</th>
-                        <th className="py-2.5 px-3">Emission Source (Name, Description)</th>
-                        <th className="py-2.5 px-3">Associated Product (ID)</th>
-                        <th className="py-2.5 px-3">Types Of Gas(es) Emitted</th>
-                        <th className="py-2.5 px-3">Total Emissions From Source (T CO2e)</th>
-                        <th className="py-2.5 px-3">Energy Related Emissions?</th>
-                        <th className="py-2.5 px-3">Process Emissions?</th>
-                        <th className="py-2.5 px-3">Methodology For Determining Emissions</th>
-                        <th className="py-2.5 px-3 text-center">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {emissionSources.map((row, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.id}
-                              onChange={(e) => {
-                                const copy = [...emissionSources];
-                                copy[idx].id = e.target.value;
-                                setEmissionSources(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.name}
-                              onChange={(e) => {
-                                const copy = [...emissionSources];
-                                copy[idx].name = e.target.value;
-                                setEmissionSources(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.associatedProduct}
-                              onChange={(e) => {
-                                const copy = [...emissionSources];
-                                copy[idx].associatedProduct = e.target.value;
-                                setEmissionSources(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="P01">P01</option>
-                              <option value="P02">P02</option>
-                              <option value="P03">P03</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.gasTypes}
-                              onChange={(e) => {
-                                const copy = [...emissionSources];
-                                copy[idx].gasTypes = e.target.value;
-                                setEmissionSources(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="COâ‚‚, CHâ‚„, Nâ‚‚O">COâ‚‚, CHâ‚„, Nâ‚‚O</option>
-                              <option value="COâ‚‚, Nâ‚‚O">COâ‚‚, Nâ‚‚O</option>
-                              <option value="COâ‚‚">COâ‚‚</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.totalEmissions}
-                              onChange={(e) => {
-                                const copy = [...emissionSources];
-                                copy[idx].totalEmissions = e.target.value;
-                                setEmissionSources(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.energyRelated}
-                              onChange={(e) => {
-                                const copy = [...emissionSources];
-                                copy[idx].energyRelated = e.target.value;
-                                setEmissionSources(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="No">No</option>
-                              <option value="Yes">Yes</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.processEmissions}
-                              onChange={(e) => {
-                                const copy = [...emissionSources];
-                                copy[idx].processEmissions = e.target.value;
-                                setEmissionSources(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="No">No</option>
-                              <option value="Yes">Yes</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.methodology}
-                              onChange={(e) => {
-                                const copy = [...emissionSources];
-                                copy[idx].methodology = e.target.value;
-                                setEmissionSources(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="Calculation-based">Calculation-based</option>
-                              <option value="Measurement-based">Measurement-based</option>
-                              <option value="Fall-back">Fall-back</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3 text-center">
-                            {idx === 0 ? (
-                              <button
-                                type="button"
-                                onClick={addEmissionSource}
-                                className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                              >
-                                <Plus className="w-3.5 h-3.5" />
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => removeEmissionSource(idx)}
-                                className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </td>
+              <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+                <div className="px-4 sm:px-5 py-2.5 sm:py-3 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#004B87]">
+                    Emission Sources
+                  </span>
+                </div>
+
+                <div className="p-4 sm:p-5 pt-3 sm:pt-3.5 bg-white space-y-4 text-xs">
+                  <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
+                          <th className="py-2.5 px-3">Source ID</th>
+                          <th className="py-2.5 px-3">Emission Source (Name, Description)</th>
+                          <th className="py-2.5 px-3">Associated Product (ID)</th>
+                          <th className="py-2.5 px-3">Types Of Gas(es) Emitted</th>
+                          <th className="py-2.5 px-3">Total Emissions From Source (T CO2e)</th>
+                          <th className="py-2.5 px-3">Energy Related Emissions?</th>
+                          <th className="py-2.5 px-3">Process Emissions?</th>
+                          <th className="py-2.5 px-3">Methodology For Determining Emissions</th>
+                          <th className="py-2.5 px-3 text-center">Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 bg-white">
+                        {emissionSources.map((row, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={row.id}
+                                placeholder="S01"
+                                onChange={(e) => {
+                                  const copy = [...emissionSources];
+                                  copy[idx].id = e.target.value;
+                                  setEmissionSources(copy);
+                                }}
+                                className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={row.name}
+                                placeholder="Enter emission source name"
+                                onChange={(e) => {
+                                  const copy = [...emissionSources];
+                                  copy[idx].name = e.target.value;
+                                  setEmissionSources(copy);
+                                }}
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <select
+                                value={row.associatedProduct}
+                                onChange={(e) => {
+                                  const copy = [...emissionSources];
+                                  copy[idx].associatedProduct = e.target.value;
+                                  setEmissionSources(copy);
+                                }}
+                                className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              >
+                                <option value="">Select product</option>
+                                <option value="P01">P01</option>
+                                <option value="P02">P02</option>
+                                <option value="P03">P03</option>
+                              </select>
+                            </td>
+                            <td className="py-2 px-3">
+                              <select
+                                value={row.gasTypes}
+                                onChange={(e) => {
+                                  const copy = [...emissionSources];
+                                  copy[idx].gasTypes = e.target.value;
+                                  setEmissionSources(copy);
+                                }}
+                                className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              >
+                                <option value="">Select gas types</option>
+                                <option value="CO₂, CH₄, N₂O">CO₂, CH₄, N₂O</option>
+                                <option value="CO₂, N₂O">CO₂, N₂O</option>
+                                <option value="CO₂">CO₂</option>
+                              </select>
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={row.totalEmissions}
+                                placeholder="Enter emissions (tCO₂e)"
+                                onChange={(e) => {
+                                  const copy = [...emissionSources];
+                                  copy[idx].totalEmissions = e.target.value;
+                                  setEmissionSources(copy);
+                                }}
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <select
+                                value={row.energyRelated}
+                                onChange={(e) => {
+                                  const copy = [...emissionSources];
+                                  copy[idx].energyRelated = e.target.value;
+                                  setEmissionSources(copy);
+                                }}
+                                className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              >
+                                <option value="">Select...</option>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                              </select>
+                            </td>
+                            <td className="py-2 px-3">
+                              <select
+                                value={row.processEmissions}
+                                onChange={(e) => {
+                                  const copy = [...emissionSources];
+                                  copy[idx].processEmissions = e.target.value;
+                                  setEmissionSources(copy);
+                                }}
+                                className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              >
+                                <option value="">Select...</option>
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                              </select>
+                            </td>
+                            <td className="py-2 px-3">
+                              <select
+                                value={row.methodology}
+                                onChange={(e) => {
+                                  const copy = [...emissionSources];
+                                  copy[idx].methodology = e.target.value;
+                                  setEmissionSources(copy);
+                                }}
+                                className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              >
+                                <option value="">Select methodology</option>
+                                <option value="Calculation-based">Calculation-based</option>
+                                <option value="Measurement-based">Measurement-based</option>
+                                <option value="Fall-back">Fall-back</option>
+                              </select>
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              {idx === 0 ? (
+                                <button
+                                  type="button"
+                                  onClick={addEmissionSource}
+                                  className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
+                                >
+                                  <Plus className="w-3.5 h-3.5" />
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => removeEmissionSource(idx)}
+                                  className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
 
               {/* ========================================================================= */}
               {/* Section 5: Methane Emission */}
               {/* ========================================================================= */}
-              <div className="pt-2 space-y-4">
-                <h4 className="text-xs font-bold text-[#004B87]">Methane Emission</h4>
-
-                {/* Methane Occurrence Toggle */}
-                <div className="flex items-center gap-3">
-                  <span className="text-slate-600 font-semibold">Do methane emissions occur at your facility?</span>
-                  <div className="flex items-center gap-1.5 text-xs">
-                    <span
-                      className={`font-semibold ${methaneData.hasMethaneEmissions ? 'text-[#004B87]' : 'text-slate-400'
-                        }`}
-                    >
-                      Yes
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setMethaneData({
-                          ...methaneData,
-                          hasMethaneEmissions: !methaneData.hasMethaneEmissions,
-                        })
-                      }
-                      className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${methaneData.hasMethaneEmissions ? 'bg-[#004B87]' : 'bg-slate-300'
-                        }`}
-                    >
-                      <span
-                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${methaneData.hasMethaneEmissions ? 'translate-x-4' : 'translate-x-0'
-                          }`}
-                      />
-                    </button>
-                    <span
-                      className={`font-semibold ${!methaneData.hasMethaneEmissions ? 'text-[#004B87]' : 'text-slate-400'
-                        }`}
-                    >
-                      No
-                    </span>
-                  </div>
+              <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+                <div className="px-4 sm:px-5 py-2.5 sm:py-3 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#004B87]">
+                    Methane Emission
+                  </span>
                 </div>
 
-                {/* Sub-fields shown ONLY when Methane Emissions is Yes */}
-                {methaneData.hasMethaneEmissions && (
-                  <div className="space-y-4 animate-fade-in pt-1">
-                    {/* 2 Fields: Volume & CO2e */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1">Annual Volume of methane emission scots</label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={methaneData.annualVolume}
-                            onChange={(e) => setMethaneData({ ...methaneData, annualVolume: e.target.value })}
-                            className="w-1/2 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 font-mono focus:outline-none focus:border-[#004B87] shadow-sm"
-                          />
-                          <select
-                            value={methaneData.annualVolumeUnit}
-                            onChange={(e) => setMethaneData({ ...methaneData, annualVolumeUnit: e.target.value })}
-                            className="w-1/2 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                          >
-                            <option value="t CHâ‚„/year">t CHâ‚„/year</option>
-                            <option value="NmÂ³/year">NmÂ³/year</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1">Estimated COâ‚‚e from methane emissions (100 yrs GWP)</label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={methaneData.estimatedCo2e}
-                            onChange={(e) => setMethaneData({ ...methaneData, estimatedCo2e: e.target.value })}
-                            className="w-1/2 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 font-mono focus:outline-none focus:border-[#004B87] shadow-sm"
-                          />
-                          <select
-                            value={methaneData.estimatedCo2eUnit}
-                            onChange={(e) => setMethaneData({ ...methaneData, estimatedCo2eUnit: e.target.value })}
-                            className="w-1/2 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                          >
-                            <option value="t COâ‚‚e/year">t COâ‚‚e/year</option>
-                            <option value="t CHâ‚„/year">t CHâ‚„/year</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 3 Textareas */}
-                    <div>
-                      <label className="block text-slate-600 font-semibold mb-1">Source of estimations / Conversion factors used</label>
-                      <textarea
-                        rows={2}
-                        value={methaneData.sourceOfEstimations}
-                        onChange={(e) => setMethaneData({ ...methaneData, sourceOfEstimations: e.target.value })}
-                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-slate-600 font-semibold mb-1">Key Methane emission sources at installation</label>
-                      <textarea
-                        rows={2}
-                        value={methaneData.keySourcesAtInstallation}
-                        onChange={(e) => setMethaneData({ ...methaneData, keySourcesAtInstallation: e.target.value })}
-                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-slate-600 font-semibold mb-1">Procedure used to determine / estimate methane emissions</label>
-                      <textarea
-                        rows={2}
-                        value={methaneData.procedureToDetermine}
-                        onChange={(e) => setMethaneData({ ...methaneData, procedureToDetermine: e.target.value })}
-                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                      />
-                    </div>
-
-                    {/* Methane Procedures Table */}
-                    <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                      <table className="w-full text-left text-xs border-collapse">
-                        <thead>
-                          <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                            <th className="py-2.5 px-3">Title Of Procedure</th>
-                            <th className="py-2.5 px-3">Brief Description (including Frequency)</th>
-                            <th className="py-2.5 px-3">Person In Charge</th>
-                            <th className="py-2.5 px-3">Contact Email</th>
-                            <th className="py-2.5 px-3">Contact Phone Number</th>
-                            <th className="py-2.5 px-3 text-center">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 bg-white">
-                          {methaneProcedures.map((row, idx) => (
-                            <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                              <td className="py-2 px-3">
-                                <input
-                                  type="text"
-                                  value={row.title}
-                                  onChange={(e) => {
-                                    const copy = [...methaneProcedures];
-                                    copy[idx].title = e.target.value;
-                                    setMethaneProcedures(copy);
-                                  }}
-                                  className="w-36 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                />
-                              </td>
-                              <td className="py-2 px-3">
-                                <input
-                                  type="text"
-                                  value={row.description}
-                                  onChange={(e) => {
-                                    const copy = [...methaneProcedures];
-                                    copy[idx].description = e.target.value;
-                                    setMethaneProcedures(copy);
-                                  }}
-                                  className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                />
-                              </td>
-                              <td className="py-2 px-3">
-                                <input
-                                  type="text"
-                                  value={row.personInCharge}
-                                  onChange={(e) => {
-                                    const copy = [...methaneProcedures];
-                                    copy[idx].personInCharge = e.target.value;
-                                    setMethaneProcedures(copy);
-                                  }}
-                                  className="w-36 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                />
-                              </td>
-                              <td className="py-2 px-3">
-                                <input
-                                  type="email"
-                                  value={row.email}
-                                  onChange={(e) => {
-                                    const copy = [...methaneProcedures];
-                                    copy[idx].email = e.target.value;
-                                    setMethaneProcedures(copy);
-                                  }}
-                                  className="w-36 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                />
-                              </td>
-                              <td className="py-2 px-3">
-                                <input
-                                  type="text"
-                                  value={row.phone}
-                                  onChange={(e) => {
-                                    const copy = [...methaneProcedures];
-                                    copy[idx].phone = e.target.value;
-                                    setMethaneProcedures(copy);
-                                  }}
-                                  className="w-32 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                                />
-                              </td>
-                              <td className="py-2 px-3 text-center">
-                                {idx === 0 ? (
-                                  <button
-                                    type="button"
-                                    onClick={addMethaneProcedure}
-                                    className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                                  >
-                                    <Plus className="w-3.5 h-3.5" />
-                                  </button>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    onClick={() => removeMethaneProcedure(idx)}
-                                    className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                                  >
-                                    <X className="w-3.5 h-3.5" />
-                                  </button>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* LDAR Program Available Toggle & Detection Method */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-center pt-1">
-                      <div className="flex items-center gap-3">
-                        <span className="text-slate-600 font-semibold">LDAR program available at site?</span>
-                        <div className="flex items-center gap-1.5 text-xs">
-                          <span className={`font-semibold ${methaneData.hasLdarProgram ? 'text-[#004B87]' : 'text-slate-400'}`}>
-                            Yes
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setMethaneData({
-                                ...methaneData,
-                                hasLdarProgram: !methaneData.hasLdarProgram,
-                              })
-                            }
-                            className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${methaneData.hasLdarProgram ? 'bg-[#004B87]' : 'bg-slate-300'
-                              }`}
-                          >
-                            <span
-                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${methaneData.hasLdarProgram ? 'translate-x-4' : 'translate-x-0'
-                                }`}
-                            />
-                          </button>
-                          <span className={`font-semibold ${!methaneData.hasLdarProgram ? 'text-[#004B87]' : 'text-slate-400'}`}>
-                            No
-                          </span>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1">Detection method used</label>
-                        <select
-                          value={methaneData.detectionMethod}
-                          onChange={(e) => setMethaneData({ ...methaneData, detectionMethod: e.target.value })}
-                          className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm"
-                        >
-                          <option value="Optical Gas Imaging (OGI)">Optical Gas Imaging (OGI)</option>
-                          <option value="EPA Method 21">EPA Method 21</option>
-                          <option value="Acoustic Leak Detection">Acoustic Leak Detection</option>
-                          <option value="Laser Absorption Spectroscopy">Laser Absorption Spectroscopy</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-slate-600 font-semibold mb-1">Corrective action procedure</label>
-                      <textarea
-                        rows={2}
-                        value={methaneData.correctiveActionProcedure}
-                        onChange={(e) => setMethaneData({ ...methaneData, correctiveActionProcedure: e.target.value })}
-                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                      />
+                <div className="p-4 sm:p-5 pt-3 sm:pt-3.5 bg-white space-y-4 text-xs">
+                  {/* Methane Occurrence Toggle */}
+                  <div className="flex items-center gap-3">
+                    <span className="text-slate-600 font-semibold">Do methane emissions occur at your facility?</span>
+                    <div className="flex items-center gap-1.5 text-xs">
+                      <span
+                        className={`font-semibold ${methaneData.hasMethaneEmissions ? 'text-[#004B87]' : 'text-slate-400'}`}
+                      >
+                        Yes
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setMethaneData({
+                            ...methaneData,
+                            hasMethaneEmissions: !methaneData.hasMethaneEmissions,
+                          })
+                        }
+                        className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${methaneData.hasMethaneEmissions ? 'bg-[#004B87]' : 'bg-slate-300'}`}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${methaneData.hasMethaneEmissions ? 'translate-x-4' : 'translate-x-0'}`}
+                        />
+                      </button>
+                      <span
+                        className={`font-semibold ${!methaneData.hasMethaneEmissions ? 'text-[#004B87]' : 'text-slate-400'}`}
+                      >
+                        No
+                      </span>
                     </div>
                   </div>
-                )}
+
+                  {/* Details shown ONLY when Methane Emissions is Yes */}
+                  {methaneData.hasMethaneEmissions && (
+                    <div className="space-y-4 animate-fade-in pt-1">
+                      {/* 2 Fields: Annual Volume & Estimated CO2e */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                          <label className="block text-slate-600 font-semibold mb-1.5">Annual Volume of methane emissions at site</label>
+                          <div className="flex items-center w-full bg-white border border-slate-200 rounded-xl shadow-sm focus-within:border-[#004B87] focus-within:ring-1 focus-within:ring-[#004B87] transition-all overflow-hidden">
+                            <input
+                              type="text"
+                              value={methaneData.annualVolume}
+                              onChange={(e) => setMethaneData({ ...methaneData, annualVolume: e.target.value })}
+                              className="w-[60%] px-3.5 py-2.5 bg-transparent text-navy-900 font-mono text-xs focus:outline-none placeholder:font-sans placeholder:text-slate-400"
+                              placeholder="If no known emissions, enter N/A."
+                            />
+                            <div className="w-[1px] h-6 bg-slate-200 shrink-0" />
+                            <select
+                              value={methaneData.annualVolumeUnit}
+                              onChange={(e) => setMethaneData({ ...methaneData, annualVolumeUnit: e.target.value })}
+                              className="w-[40%] px-3 py-2.5 bg-transparent text-navy-900 text-xs focus:outline-none cursor-pointer"
+                            >
+                              <option value="t CH₄/year">t CH₄/year</option>
+                              <option value="Nm³/year">Nm³/year</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-600 font-semibold mb-1.5">Estimated CO₂e from methane emissions (100-year GWP)</label>
+                          <div className="flex items-center w-full bg-white border border-slate-200 rounded-xl shadow-sm focus-within:border-[#004B87] focus-within:ring-1 focus-within:ring-[#004B87] transition-all overflow-hidden">
+                            <input
+                              type="text"
+                              value={methaneData.estimatedCo2e}
+                              onChange={(e) => setMethaneData({ ...methaneData, estimatedCo2e: e.target.value })}
+                              className="w-[60%] px-3.5 py-2.5 bg-transparent text-navy-900 font-mono text-xs focus:outline-none placeholder:font-sans placeholder:text-slate-400"
+                              placeholder="Use the IPCC Fifth Assessment Report (AR5) 100-year GWP values for conversion of CH₄ to CO₂e."
+                            />
+                            <div className="w-[1px] h-6 bg-slate-200 shrink-0" />
+                            <select
+                              value={methaneData.estimatedCo2eUnit}
+                              onChange={(e) => setMethaneData({ ...methaneData, estimatedCo2eUnit: e.target.value })}
+                              className="w-[40%] px-3 py-2.5 bg-transparent text-navy-900 text-xs focus:outline-none cursor-pointer"
+                            >
+                              <option value="t CO₂e/year">t CO₂e/year</option>
+                              <option value="t CH₄/year">t CH₄/year</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 3 Textareas */}
+                      <div>
+                        <label className="block text-slate-600 font-semibold mb-1.5">Source of estimates, including conversion factors</label>
+                        <textarea
+                          rows={2}
+                          value={methaneData.sourceOfEstimations}
+                          onChange={(e) => setMethaneData({ ...methaneData, sourceOfEstimations: e.target.value })}
+                          placeholder="Enter the source of estimates, including conversion factors."
+                          className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed placeholder:text-slate-400"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-600 font-semibold mb-1.5">Key methane emission sources at the installation</label>
+                        <textarea
+                          rows={2}
+                          value={methaneData.keySourcesAtInstallation}
+                          onChange={(e) => setMethaneData({ ...methaneData, keySourcesAtInstallation: e.target.value })}
+                          placeholder="Provide details of the key emission sources and, where applicable, the source stream type."
+                          className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed placeholder:text-slate-400"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-600 font-semibold mb-1.5">Procedures used to determine / estimate the quantity of methane emitted</label>
+                        <textarea
+                          rows={2}
+                          value={methaneData.procedureToDetermine}
+                          onChange={(e) => setMethaneData({ ...methaneData, procedureToDetermine: e.target.value })}
+                          placeholder="Include relevant literature, laboratory analyses, or other methods used."
+                          className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed placeholder:text-slate-400"
+                        />
+                      </div>
+
+                      {/* Methane Procedures Table */}
+                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
+                        <table className="w-full text-left text-xs border-collapse">
+                          <thead>
+                            <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
+                              <th className="py-2.5 px-3">Title of Procedure</th>
+                              <th className="py-2.5 px-3">Brief Description including Frequency</th>
+                              <th className="py-2.5 px-3">Person in Charge</th>
+                              <th className="py-2.5 px-3">Contact Email</th>
+                              <th className="py-2.5 px-3">Contact Phone Number</th>
+                              <th className="py-2.5 px-3 text-center">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 bg-white">
+                            {methaneProcedures.map((row, idx) => (
+                              <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                                <td className="py-2 px-3">
+                                  <input
+                                    type="text"
+                                    value={row.title}
+                                    onChange={(e) => {
+                                      const copy = [...methaneProcedures];
+                                      copy[idx].title = e.target.value;
+                                      setMethaneProcedures(copy);
+                                    }}
+                                    placeholder="Enter procedure title"
+                                    className="w-36 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                                  />
+                                </td>
+                                <td className="py-2 px-3">
+                                  <input
+                                    type="text"
+                                    value={row.description}
+                                    onChange={(e) => {
+                                      const copy = [...methaneProcedures];
+                                      copy[idx].description = e.target.value;
+                                      setMethaneProcedures(copy);
+                                    }}
+                                    placeholder="Enter description and frequency"
+                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                                  />
+                                </td>
+                                <td className="py-2 px-3">
+                                  <input
+                                    type="text"
+                                    value={row.personInCharge}
+                                    onChange={(e) => {
+                                      const copy = [...methaneProcedures];
+                                      copy[idx].personInCharge = e.target.value;
+                                      setMethaneProcedures(copy);
+                                    }}
+                                    placeholder="Enter person in charge"
+                                    className="w-36 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                                  />
+                                </td>
+                                <td className="py-2 px-3">
+                                  <input
+                                    type="email"
+                                    value={row.email}
+                                    onChange={(e) => {
+                                      const copy = [...methaneProcedures];
+                                      copy[idx].email = e.target.value;
+                                      setMethaneProcedures(copy);
+                                    }}
+                                    placeholder="Enter contact email"
+                                    className="w-36 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                                  />
+                                </td>
+                                <td className="py-2 px-3">
+                                  <input
+                                    type="text"
+                                    value={row.phone}
+                                    onChange={(e) => {
+                                      const copy = [...methaneProcedures];
+                                      copy[idx].phone = e.target.value;
+                                      setMethaneProcedures(copy);
+                                    }}
+                                    placeholder="Enter phone number"
+                                    className="w-32 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                                  />
+                                </td>
+                                <td className="py-2 px-3 text-center">
+                                  {idx === 0 ? (
+                                    <button
+                                      type="button"
+                                      onClick={addMethaneProcedure}
+                                      className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
+                                      title="Add Procedure"
+                                    >
+                                      <Plus className="w-3.5 h-3.5" />
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => removeMethaneProcedure(idx)}
+                                      className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
+                                      title="Remove Procedure"
+                                    >
+                                      <X className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* ========================================================================= */}
               {/* Section 6: Source Stream */}
               {/* ========================================================================= */}
-              <div className="pt-2">
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Source Stream</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                        <th className="py-2.5 px-3">Source Stream ID</th>
-                        <th className="py-2.5 px-3">Description Of Source Stream</th>
-                        <th className="py-2.5 px-3">Associated Emission Source (ID)</th>
-                        <th className="py-2.5 px-3">Classification Of Source Stream</th>
-                        <th className="py-2.5 px-3">Level Of Source Stream Activity</th>
-                        <th className="py-2.5 px-3">Unit For Source Stream Activity</th>
-                        <th className="py-2.5 px-3">Type Of Fuel (If Applicable)</th>
-                        <th className="py-2.5 px-3">Combustion Device / Technology</th>
-                        <th className="py-2.5 px-3">Combustion Device Capacity</th>
-                        <th className="py-2.5 px-3">Unit For Metric</th>
-                        <th className="py-2.5 px-3 text-center">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {sourceStreams.map((row, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.id}
-                              onChange={(e) => {
-                                const copy = [...sourceStreams];
-                                copy[idx].id = e.target.value;
-                                setSourceStreams(copy);
-                              }}
-                              className="w-16 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.description}
-                              onChange={(e) => {
-                                const copy = [...sourceStreams];
-                                copy[idx].description = e.target.value;
-                                setSourceStreams(copy);
-                              }}
-                              className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.associatedSource}
-                              onChange={(e) => {
-                                const copy = [...sourceStreams];
-                                copy[idx].associatedSource = e.target.value;
-                                setSourceStreams(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="S01">S01</option>
-                              <option value="S02">S02</option>
-                              <option value="S03">S03</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.classification}
-                              onChange={(e) => {
-                                const copy = [...sourceStreams];
-                                copy[idx].classification = e.target.value;
-                                setSourceStreams(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="Fuel Combusted">Fuel Combusted</option>
-                              <option value="Other Input">Other Input</option>
-                              <option value="Output">Output</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.activityLevel}
-                              onChange={(e) => {
-                                const copy = [...sourceStreams];
-                                copy[idx].activityLevel = e.target.value;
-                                setSourceStreams(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.activityUnit}
-                              onChange={(e) => {
-                                const copy = [...sourceStreams];
-                                copy[idx].activityUnit = e.target.value;
-                                setSourceStreams(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="MWh">MWh</option>
-                              <option value="NmÂ³">NmÂ³</option>
-                              <option value="t">t</option>
-                              <option value="GJ">GJ</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.fuelType}
-                              onChange={(e) => {
-                                const copy = [...sourceStreams];
-                                copy[idx].fuelType = e.target.value;
-                                setSourceStreams(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="Natural gas">Natural gas</option>
-                              <option value="Diesel / Gas Oil">Diesel / Gas Oil</option>
-                              <option value="Heavy Fuel Oil">Heavy Fuel Oil</option>
-                              <option value="Petcoke">Petcoke</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.combustionDevice}
-                              onChange={(e) => {
-                                const copy = [...sourceStreams];
-                                copy[idx].combustionDevice = e.target.value;
-                                setSourceStreams(copy);
-                              }}
-                              className="w-32 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.deviceCapacity}
-                              onChange={(e) => {
-                                const copy = [...sourceStreams];
-                                copy[idx].deviceCapacity = e.target.value;
-                                setSourceStreams(copy);
-                              }}
-                              className="w-20 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <select
-                              value={row.metricUnit}
-                              onChange={(e) => {
-                                const copy = [...sourceStreams];
-                                copy[idx].metricUnit = e.target.value;
-                                setSourceStreams(copy);
-                              }}
-                              className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="MW">MW</option>
-                              <option value="MWth">MWth</option>
-                              <option value="GJ/hr">GJ/hr</option>
-                            </select>
-                          </td>
-                          <td className="py-2 px-3 text-center">
-                            {idx === 0 ? (
-                              <button
-                                type="button"
-                                onClick={addSourceStream}
-                                className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                              >
-                                <Plus className="w-3.5 h-3.5" />
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => removeSourceStream(idx)}
-                                className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </td>
+              <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+                <div className="px-4 sm:px-5 py-2.5 sm:py-3 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#004B87]">
+                    Source Stream
+                  </span>
+                </div>
+
+                <div className="p-4 sm:p-5 pt-3 sm:pt-3.5 bg-white space-y-4 text-xs">
+                  <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
+                          <th className="py-2.5 px-3">Source Stream ID</th>
+                          <th className="py-2.5 px-3">Description Of Source Stream</th>
+                          <th className="py-2.5 px-3">Associated Emission Source (ID)</th>
+                          <th className="py-2.5 px-3">Classification Of Source Stream</th>
+                          <th className="py-2.5 px-3">Level Of Source Stream Activity</th>
+                          <th className="py-2.5 px-3">Unit For Source Stream Activity</th>
+                          <th className="py-2.5 px-3">Type Of Fuel (If Applicable)</th>
+                          <th className="py-2.5 px-3">Combustion Device / Technology</th>
+                          <th className="py-2.5 px-3">Combustion Device Capacity</th>
+                          <th className="py-2.5 px-3">Unit For Metric</th>
+                          <th className="py-2.5 px-3 text-center">Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* ========================================================================= */}
-              {/* Section 7: Remarks (Emission Sources context) */}
-              {/* ========================================================================= */}
-
-            </>
-          )}
-
-          {/* ========================================================================= */}
-          {/* TAB 3: MONITORING METHODOLOGY (3 ACCORDIONS) */}
-          {/* ========================================================================= */}
-          {activeTab === 'monitoring-methodology' && (
-            <div className="space-y-3 animate-fade-in">
-              {/* ========================================================================= */}
-              {/* Accordion 1: Calculation - Based Monitoring */}
-              {/* ========================================================================= */}
-              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden transition-all shadow-xs">
-                <button
-                  type="button"
-                  onClick={() => toggleMonitoringSection(1)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left hover:bg-slate-50/50 transition-colors"
-                >
-                  <span className="text-xs font-bold text-slate-800">Calculation - Based Monitoring</span>
-                  {openMonitoringSections[1] ? (
-                    <ChevronUp className="w-4 h-4 text-slate-500" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4 text-slate-500" />
-                  )}
-                </button>
-
-                {openMonitoringSections[1] && (
-                  <div className="p-6 pt-2 border-t border-slate-100 space-y-6 animate-fade-in text-xs">
-                    {/* Subsection 1: Source Stream Identification & Classification */}
-                    <div>
-                      <h4 className="text-xs font-bold text-[#004B87] mb-3">Source Stream Identification & Classification</h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                        <table className="w-full text-left text-xs border-collapse">
-                          <thead>
-                            <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                              <th className="py-2.5 px-3">Source Stream ID</th>
-                              <th className="py-2.5 px-3">Description Of Source Stream</th>
-                              <th className="py-2.5 px-3">Estimated Emissions [T CO2e / Year]</th>
-                              <th className="py-2.5 px-3">Possible Category (Auto)</th>
-                              <th className="py-2.5 px-3">Selected Category</th>
-                              <th className="py-2.5 px-3 text-center">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100 bg-white">
-                            {calcSourceStreams.map((row, idx) => (
-                              <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.id}
-                                    onChange={(e) => {
-                                      const copy = [...calcSourceStreams];
-                                      copy[idx].id = e.target.value;
-                                      setCalcSourceStreams(copy);
-                                    }}
-                                    className="w-16 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.desc}
-                                    onChange={(e) => {
-                                      const copy = [...calcSourceStreams];
-                                      copy[idx].desc = e.target.value;
-                                      setCalcSourceStreams(copy);
-                                    }}
-                                    className="w-48 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.estimatedEmissions}
-                                    onChange={(e) => {
-                                      const copy = [...calcSourceStreams];
-                                      copy[idx].estimatedEmissions = e.target.value;
-                                      setCalcSourceStreams(copy);
-                                    }}
-                                    className="w-32 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    disabled
-                                    value={row.possibleCategory}
-                                    className="w-36 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-500 text-xs"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <select
-                                    value={row.selectedCategory}
-                                    onChange={(e) => {
-                                      const copy = [...calcSourceStreams];
-                                      copy[idx].selectedCategory = e.target.value;
-                                      setCalcSourceStreams(copy);
-                                    }}
-                                    className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  >
-                                    <option value="Major">Major</option>
-                                    <option value="Minor">Minor</option>
-                                    <option value="De minimis">De minimis</option>
-                                  </select>
-                                </td>
-                                <td className="py-2 px-3 text-center">
-                                  {idx === 0 ? (
-                                    <button
-                                      type="button"
-                                      onClick={addCalcSourceStream}
-                                      className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                                    >
-                                      <Plus className="w-3.5 h-3.5" />
-                                    </button>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      onClick={() => removeCalcSourceStream(idx)}
-                                      className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                                    >
-                                      <X className="w-3.5 h-3.5" />
-                                    </button>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* Subsection 2: Tier & Uncertainty Level */}
-                    <div>
-                      <h4 className="text-xs font-bold text-[#004B87] mb-3">Source Stream Identification & Classification</h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                        <table className="w-full text-left text-xs border-collapse">
-                          <thead>
-                            <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                              <th className="py-2.5 px-3">Source Stream ID</th>
-                              <th className="py-2.5 px-3">Tier Level Used</th>
-                              <th className="py-2.5 px-3">Category Selected Above</th>
-                              <th className="py-2.5 px-3">Uncertainty Level Achieved (%)</th>
-                              <th className="py-2.5 px-3">Fuel Stream Type</th>
-                              <th className="py-2.5 px-3">Source Of Accuracy</th>
-                              <th className="py-2.5 px-3">Permitted Level Of Uncertainty For Selected Tier (%)</th>
-                              <th className="py-2.5 px-3 text-center">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100 bg-white">
-                            {calcTierUncertainty.map((row, idx) => (
-                              <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.id}
-                                    onChange={(e) => {
-                                      const copy = [...calcTierUncertainty];
-                                      copy[idx].id = e.target.value;
-                                      setCalcTierUncertainty(copy);
-                                    }}
-                                    className="w-16 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <select
-                                    value={row.tier}
-                                    onChange={(e) => {
-                                      const copy = [...calcTierUncertainty];
-                                      copy[idx].tier = e.target.value;
-                                      setCalcTierUncertainty(copy);
-                                    }}
-                                    className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  >
-                                    <option value="T3">T3</option>
-                                    <option value="T2">T2</option>
-                                    <option value="T1">T1</option>
-                                  </select>
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.category}
-                                    onChange={(e) => {
-                                      const copy = [...calcTierUncertainty];
-                                      copy[idx].category = e.target.value;
-                                      setCalcTierUncertainty(copy);
-                                    }}
-                                    className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.uncertaintyAchieved}
-                                    onChange={(e) => {
-                                      const copy = [...calcTierUncertainty];
-                                      copy[idx].uncertaintyAchieved = e.target.value;
-                                      setCalcTierUncertainty(copy);
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <select
-                                    value={row.fuelStreamType}
-                                    onChange={(e) => {
-                                      const copy = [...calcTierUncertainty];
-                                      copy[idx].fuelStreamType = e.target.value;
-                                      setCalcTierUncertainty(copy);
-                                    }}
-                                    className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  >
-                                    <option value="Commercial Standard Fuels">Commercial Standard Fuels</option>
-                                    <option value="Alternative Fuels">Alternative Fuels</option>
-                                    <option value="Diesel">Diesel</option>
-                                    <option value="Natural Gas">Natural Gas</option>
-                                  </select>
-                                </td>
-                                <td className="py-2 px-3">
-                                  <select
-                                    value={row.sourceAccuracy}
-                                    onChange={(e) => {
-                                      const copy = [...calcTierUncertainty];
-                                      copy[idx].sourceAccuracy = e.target.value;
-                                      setCalcTierUncertainty(copy);
-                                    }}
-                                    className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  >
-                                    <option value="Lab Analysis">Lab Analysis</option>
-                                    <option value="Meter Reading">Meter Reading</option>
-                                    <option value="Supplier Data">Supplier Data</option>
-                                  </select>
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.permittedUncertainty}
-                                    onChange={(e) => {
-                                      const copy = [...calcTierUncertainty];
-                                      copy[idx].permittedUncertainty = e.target.value;
-                                      setCalcTierUncertainty(copy);
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3 text-center">
-                                  {idx === 0 ? (
-                                    <button
-                                      type="button"
-                                      onClick={addCalcTierUncertainty}
-                                      className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                                    >
-                                      <Plus className="w-3.5 h-3.5" />
-                                    </button>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      onClick={() => removeCalcTierUncertainty(idx)}
-                                      className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                                    >
-                                      <X className="w-3.5 h-3.5" />
-                                    </button>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* Subsection 3: Calculation Approach */}
-                    <div className="space-y-3">
-                      <h4 className="text-xs font-bold text-[#004B87]">Calculation Approach</h4>
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1">Calculation approach description</label>
-                        <textarea
-                          rows={2}
-                          value={calcApproach.description}
-                          onChange={(e) => setCalcApproach({ ...calcApproach, description: e.target.value })}
-                          className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1">Formula description / methodology</label>
-                        <textarea
-                          rows={2}
-                          value={calcApproach.formula}
-                          onChange={(e) => setCalcApproach({ ...calcApproach, formula: e.target.value })}
-                          className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Subsection 4: Detailed Calculation Information */}
-                    <div>
-                      <h4 className="text-xs font-bold text-[#004B87] mb-3">Detailed Calculation Information</h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                        <table className="w-full text-left text-xs border-collapse">
-                          <thead>
-                            <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                              <th className="py-2.5 px-3">Source Stream ID</th>
-                              <th className="py-2.5 px-3">Fuel Stream Type</th>
-                              <th className="py-2.5 px-3">Fuel Quantity</th>
-                              <th className="py-2.5 px-3">Units</th>
-                              <th className="py-2.5 px-3">Information Source</th>
-                              <th className="py-2.5 px-3 text-center">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100 bg-white">
-                            {calcDetailedInfo.map((row, idx) => (
-                              <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.id}
-                                    onChange={(e) => {
-                                      const copy = [...calcDetailedInfo];
-                                      copy[idx].id = e.target.value;
-                                      setCalcDetailedInfo(copy);
-                                    }}
-                                    className="w-16 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <select
-                                    value={row.fuelStreamType}
-                                    onChange={(e) => {
-                                      const copy = [...calcDetailedInfo];
-                                      copy[idx].fuelStreamType = e.target.value;
-                                      setCalcDetailedInfo(copy);
-                                    }}
-                                    className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  >
-                                    <option value="Natural Gas">Natural Gas</option>
-                                    <option value="Alternative Fuels">Alternative Fuels</option>
-                                    <option value="Diesel">Diesel</option>
-                                  </select>
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.fuelQuantity}
-                                    onChange={(e) => {
-                                      const copy = [...calcDetailedInfo];
-                                      copy[idx].fuelQuantity = e.target.value;
-                                      setCalcDetailedInfo(copy);
-                                    }}
-                                    className="w-28 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <select
-                                    value={row.units}
-                                    onChange={(e) => {
-                                      const copy = [...calcDetailedInfo];
-                                      copy[idx].units = e.target.value;
-                                      setCalcDetailedInfo(copy);
-                                    }}
-                                    className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  >
-                                    <option value="MWH">MWH</option>
-                                    <option value="GJ">GJ</option>
-                                    <option value="NmÂ³">NmÂ³</option>
-                                    <option value="t">t</option>
-                                  </select>
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.source}
-                                    onChange={(e) => {
-                                      const copy = [...calcDetailedInfo];
-                                      copy[idx].source = e.target.value;
-                                      setCalcDetailedInfo(copy);
-                                    }}
-                                    className="w-48 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3 text-center">
-                                  {idx === 0 ? (
-                                    <button
-                                      type="button"
-                                      onClick={addCalcDetailedInfo}
-                                      className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                                    >
-                                      <Plus className="w-3.5 h-3.5" />
-                                    </button>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      onClick={() => removeCalcDetailedInfo(idx)}
-                                      className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                                    >
-                                      <X className="w-3.5 h-3.5" />
-                                    </button>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* Subsection 5: Other Inputs / Outputs */}
-                    <div>
-                      <h4 className="text-xs font-bold text-[#004B87] mb-3">Other Inputs / Outputs</h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                        <table className="w-full text-left text-xs border-collapse">
-                          <thead>
-                            <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                              <th className="py-2.5 px-3">Source Stream ID</th>
-                              <th className="py-2.5 px-3">Source Stream Type</th>
-                              <th className="py-2.5 px-3">Activity Level</th>
-                              <th className="py-2.5 px-3">Units</th>
-                              <th className="py-2.5 px-3">Net Calorific Value</th>
-                              <th className="py-2.5 px-3">Emission Factor (T Co2 / GJ)</th>
-                              <th className="py-2.5 px-3">Oxidation Factor</th>
-                              <th className="py-2.5 px-3">Conversion Factor</th>
-                              <th className="py-2.5 px-3">Information Source</th>
-                              <th className="py-2.5 px-3 text-center">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100 bg-white">
-                            {calcOtherInputsOutputs.map((row, idx) => (
-                              <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.id}
-                                    onChange={(e) => {
-                                      const copy = [...calcOtherInputsOutputs];
-                                      copy[idx].id = e.target.value;
-                                      setCalcOtherInputsOutputs(copy);
-                                    }}
-                                    className="w-16 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <select
-                                    value={row.type}
-                                    onChange={(e) => {
-                                      const copy = [...calcOtherInputsOutputs];
-                                      copy[idx].type = e.target.value;
-                                      setCalcOtherInputsOutputs(copy);
-                                    }}
-                                    className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  >
-                                    <option value="Crude Oil">Crude Oil</option>
-                                    <option value="Natural Gas">Natural Gas</option>
-                                    <option value="Petcoke">Petcoke</option>
-                                  </select>
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.activityLevel}
-                                    onChange={(e) => {
-                                      const copy = [...calcOtherInputsOutputs];
-                                      copy[idx].activityLevel = e.target.value;
-                                      setCalcOtherInputsOutputs(copy);
-                                    }}
-                                    className="w-16 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <select
-                                    value={row.units}
-                                    onChange={(e) => {
-                                      const copy = [...calcOtherInputsOutputs];
-                                      copy[idx].units = e.target.value;
-                                      setCalcOtherInputsOutputs(copy);
-                                    }}
-                                    className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  >
-                                    <option value="TJ">TJ</option>
-                                    <option value="GJ">GJ</option>
-                                    <option value="MWh">MWh</option>
-                                  </select>
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.ncv}
-                                    onChange={(e) => {
-                                      const copy = [...calcOtherInputsOutputs];
-                                      copy[idx].ncv = e.target.value;
-                                      setCalcOtherInputsOutputs(copy);
-                                    }}
-                                    className="w-16 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.emissionFactor}
-                                    onChange={(e) => {
-                                      const copy = [...calcOtherInputsOutputs];
-                                      copy[idx].emissionFactor = e.target.value;
-                                      setCalcOtherInputsOutputs(copy);
-                                    }}
-                                    className="w-16 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.oxidationFactor}
-                                    onChange={(e) => {
-                                      const copy = [...calcOtherInputsOutputs];
-                                      copy[idx].oxidationFactor = e.target.value;
-                                      setCalcOtherInputsOutputs(copy);
-                                    }}
-                                    className="w-16 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.conversionFactor}
-                                    onChange={(e) => {
-                                      const copy = [...calcOtherInputsOutputs];
-                                      copy[idx].conversionFactor = e.target.value;
-                                      setCalcOtherInputsOutputs(copy);
-                                    }}
-                                    className="w-12 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.source}
-                                    onChange={(e) => {
-                                      const copy = [...calcOtherInputsOutputs];
-                                      copy[idx].source = e.target.value;
-                                      setCalcOtherInputsOutputs(copy);
-                                    }}
-                                    className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3 text-center">
-                                  {idx === 0 ? (
-                                    <button
-                                      type="button"
-                                      onClick={addCalcOtherInput}
-                                      className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                                    >
-                                      <Plus className="w-3.5 h-3.5" />
-                                    </button>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      onClick={() => removeCalcOtherInput(idx)}
-                                      className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                                    >
-                                      <X className="w-3.5 h-3.5" />
-                                    </button>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* ========================================================================= */}
-              {/* Accordion 2: Measurement - Based Monitoring */}
-              {/* ========================================================================= */}
-              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden transition-all shadow-xs">
-                <button
-                  type="button"
-                  onClick={() => toggleMonitoringSection(2)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left hover:bg-slate-50/50 transition-colors"
-                >
-                  <span className="text-xs font-bold text-slate-800">Measurement - Based Monitoring</span>
-                  {openMonitoringSections[2] ? (
-                    <ChevronUp className="w-4 h-4 text-slate-500" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4 text-slate-500" />
-                  )}
-                </button>
-
-                {openMonitoringSections[2] && (
-                  <div className="p-6 pt-2 border-t border-slate-100 space-y-6 animate-fade-in text-xs">
-                    {/* Subsection 1: Identify Relevant Measured Emission Source */}
-                    <div>
-                      <h4 className="text-xs font-bold text-[#004B87] mb-3">Identify Relevant Measured Emission Source</h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                        <table className="w-full text-left text-xs border-collapse">
-                          <thead>
-                            <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                              <th className="py-2.5 px-3">Emission Source ID</th>
-                              <th className="py-2.5 px-3">Total Emissions [T CO2e / Year]</th>
-                              <th className="py-2.5 px-3">Category (Auto)</th>
-                              <th className="py-2.5 px-3 text-center">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100 bg-white">
-                            {measEmissionSources.map((row, idx) => (
-                              <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.id}
-                                    onChange={(e) => {
-                                      const copy = [...measEmissionSources];
-                                      copy[idx].id = e.target.value;
-                                      setMeasEmissionSources(copy);
-                                    }}
-                                    className="w-20 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.totalEmissions}
-                                    onChange={(e) => {
-                                      const copy = [...measEmissionSources];
-                                      copy[idx].totalEmissions = e.target.value;
-                                      setMeasEmissionSources(copy);
-                                    }}
-                                    className="w-48 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    disabled
-                                    value={row.category}
-                                    className="w-48 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-500 text-xs"
-                                  />
-                                </td>
-                                <td className="py-2 px-3 text-center">
-                                  {idx === 0 ? (
-                                    <button
-                                      type="button"
-                                      onClick={addMeasEmissionSource}
-                                      className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                                    >
-                                      <Plus className="w-3.5 h-3.5" />
-                                    </button>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      onClick={() => removeMeasEmissionSource(idx)}
-                                      className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                                    >
-                                      <X className="w-3.5 h-3.5" />
-                                    </button>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* Subsection 2: Uncertainty Levels for Each Emission Source */}
-                    <div>
-                      <h4 className="text-xs font-bold text-[#004B87] mb-3">Uncertainty Levels for Each Emission Source</h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                        <table className="w-full text-left text-xs border-collapse">
-                          <thead>
-                            <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                              <th className="py-2.5 px-3">Emission Source ID</th>
-                              <th className="py-2.5 px-3">Tier Level Used</th>
-                              <th className="py-2.5 px-3">Category Selected Above</th>
-                              <th className="py-2.5 px-3">Uncertainty Level Achieved (%)</th>
-                              <th className="py-2.5 px-3">Emission Stream Type</th>
-                              <th className="py-2.5 px-3">Source Of Accuracy</th>
-                              <th className="py-2.5 px-3">Permitted Level Of Uncertainty For Selected Tier (%)</th>
-                              <th className="py-2.5 px-3 text-center">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100 bg-white">
-                            {measUncertainty.map((row, idx) => (
-                              <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.id}
-                                    onChange={(e) => {
-                                      const copy = [...measUncertainty];
-                                      copy[idx].id = e.target.value;
-                                      setMeasUncertainty(copy);
-                                    }}
-                                    className="w-16 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <select
-                                    value={row.tier}
-                                    onChange={(e) => {
-                                      const copy = [...measUncertainty];
-                                      copy[idx].tier = e.target.value;
-                                      setMeasUncertainty(copy);
-                                    }}
-                                    className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  >
-                                    <option value="T3">T3</option>
-                                    <option value="T2">T2</option>
-                                    <option value="T1">T1</option>
-                                  </select>
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.category}
-                                    onChange={(e) => {
-                                      const copy = [...measUncertainty];
-                                      copy[idx].category = e.target.value;
-                                      setMeasUncertainty(copy);
-                                    }}
-                                    className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.uncertaintyAchieved}
-                                    onChange={(e) => {
-                                      const copy = [...measUncertainty];
-                                      copy[idx].uncertaintyAchieved = e.target.value;
-                                      setMeasUncertainty(copy);
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.streamType}
-                                    onChange={(e) => {
-                                      const copy = [...measUncertainty];
-                                      copy[idx].streamType = e.target.value;
-                                      setMeasUncertainty(copy);
-                                    }}
-                                    className="w-36 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <select
-                                    value={row.sourceAccuracy}
-                                    onChange={(e) => {
-                                      const copy = [...measUncertainty];
-                                      copy[idx].sourceAccuracy = e.target.value;
-                                      setMeasUncertainty(copy);
-                                    }}
-                                    className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  >
-                                    <option value="Lab Analysis">Lab Analysis</option>
-                                    <option value="Meter Reading">Meter Reading</option>
-                                    <option value="Supplier Data">Supplier Data</option>
-                                  </select>
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.permittedUncertainty}
-                                    onChange={(e) => {
-                                      const copy = [...measUncertainty];
-                                      copy[idx].permittedUncertainty = e.target.value;
-                                      setMeasUncertainty(copy);
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3 text-center">
-                                  {idx === 0 ? (
-                                    <button
-                                      type="button"
-                                      onClick={addMeasUncertainty}
-                                      className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                                    >
-                                      <Plus className="w-3.5 h-3.5" />
-                                    </button>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      onClick={() => removeMeasUncertainty(idx)}
-                                      className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                                    >
-                                      <X className="w-3.5 h-3.5" />
-                                    </button>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* Subsection 3: Measurement - Based Approach */}
-                    <div className="space-y-3">
-                      <h4 className="text-xs font-bold text-[#004B87]">Measurement - Based Approach</h4>
-                      <div>
-                        <label className="block text-slate-600 font-semibold mb-1">Measurement Approach Description</label>
-                        <textarea
-                          rows={2}
-                          value={measApproachDesc}
-                          onChange={(e) => setMeasApproachDesc(e.target.value)}
-                          className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Subsection 4: Measurement Points Details */}
-                    <div>
-                      <h4 className="text-xs font-bold text-[#004B87] mb-3">Measurement Points Details</h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                        <table className="w-full text-left text-xs border-collapse">
-                          <thead>
-                            <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                              <th className="py-2.5 px-3">Measurement Point ID</th>
-                              <th className="py-2.5 px-3">Associated Emission Source (ID)</th>
-                              <th className="py-2.5 px-3">Procedures Used For Measurement Point (Including Calculations, Data Aggregation, Validation Etc)</th>
-                              <th className="py-2.5 px-3">Relevant Procedures Followed</th>
-                              <th className="py-2.5 px-3">Relevant Source</th>
-                              <th className="py-2.5 px-3 text-center">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100 bg-white">
-                            {measPoints.map((row, idx) => (
-                              <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.id}
-                                    onChange={(e) => {
-                                      const copy = [...measPoints];
-                                      copy[idx].id = e.target.value;
-                                      setMeasPoints(copy);
-                                    }}
-                                    className="w-16 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <select
-                                    value={row.associatedSource}
-                                    onChange={(e) => {
-                                      const copy = [...measPoints];
-                                      copy[idx].associatedSource = e.target.value;
-                                      setMeasPoints(copy);
-                                    }}
-                                    className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  >
-                                    <option value="S01">S01</option>
-                                    <option value="S02">S02</option>
-                                    <option value="S03">S03</option>
-                                  </select>
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.procedures}
-                                    onChange={(e) => {
-                                      const copy = [...measPoints];
-                                      copy[idx].procedures = e.target.value;
-                                      setMeasPoints(copy);
-                                    }}
-                                    className="w-48 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.relevantProcedures}
-                                    onChange={(e) => {
-                                      const copy = [...measPoints];
-                                      copy[idx].relevantProcedures = e.target.value;
-                                      setMeasPoints(copy);
-                                    }}
-                                    className="w-48 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.relevantSource}
-                                    onChange={(e) => {
-                                      const copy = [...measPoints];
-                                      copy[idx].relevantSource = e.target.value;
-                                      setMeasPoints(copy);
-                                    }}
-                                    className="w-36 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3 text-center">
-                                  {idx === 0 ? (
-                                    <button
-                                      type="button"
-                                      onClick={addMeasPoint}
-                                      className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                                    >
-                                      <Plus className="w-3.5 h-3.5" />
-                                    </button>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      onClick={() => removeMeasPoint(idx)}
-                                      className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                                    >
-                                      <X className="w-3.5 h-3.5" />
-                                    </button>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* Subsection 5: Measurement Equipment */}
-                    <div>
-                      <h4 className="text-xs font-bold text-[#004B87] mb-3">Measurement Equipment</h4>
-                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                        <table className="w-full text-left text-xs border-collapse">
-                          <thead>
-                            <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                              <th className="py-2.5 px-3">Equipment Name</th>
-                              <th className="py-2.5 px-3">Equipment Type</th>
-                              <th className="py-2.5 px-3">Manufacturer/ Model</th>
-                              <th className="py-2.5 px-3">Measurement Parameter</th>
-                              <th className="py-2.5 px-3">Accuracy Class</th>
-                              <th className="py-2.5 px-3 text-center">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100 bg-white">
-                            {measEquipment.map((row, idx) => (
-                              <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.name}
-                                    onChange={(e) => {
-                                      const copy = [...measEquipment];
-                                      copy[idx].name = e.target.value;
-                                      setMeasEquipment(copy);
-                                    }}
-                                    className="w-36 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.type}
-                                    onChange={(e) => {
-                                      const copy = [...measEquipment];
-                                      copy[idx].type = e.target.value;
-                                      setMeasEquipment(copy);
-                                    }}
-                                    className="w-28 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.manufacturer}
-                                    onChange={(e) => {
-                                      const copy = [...measEquipment];
-                                      copy[idx].manufacturer = e.target.value;
-                                      setMeasEquipment(copy);
-                                    }}
-                                    className="w-36 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.parameter}
-                                    onChange={(e) => {
-                                      const copy = [...measEquipment];
-                                      copy[idx].parameter = e.target.value;
-                                      setMeasEquipment(copy);
-                                    }}
-                                    className="w-32 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={row.accuracyClass}
-                                    onChange={(e) => {
-                                      const copy = [...measEquipment];
-                                      copy[idx].accuracyClass = e.target.value;
-                                      setMeasEquipment(copy);
-                                    }}
-                                    className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                                  />
-                                </td>
-                                <td className="py-2 px-3 text-center">
-                                  {idx === 0 ? (
-                                    <button
-                                      type="button"
-                                      onClick={addMeasEquipment}
-                                      className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                                    >
-                                      <Plus className="w-3.5 h-3.5" />
-                                    </button>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      onClick={() => removeMeasEquipment(idx)}
-                                      className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                                    >
-                                      <X className="w-3.5 h-3.5" />
-                                    </button>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* ========================================================================= */}
-              {/* Accordion 3: Fallback Approach */}
-              {/* ========================================================================= */}
-              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden transition-all shadow-xs">
-                <button
-                  type="button"
-                  onClick={() => toggleMonitoringSection(3)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between text-left hover:bg-slate-50/50 transition-colors"
-                >
-                  <span className="text-xs font-bold text-slate-800">Fallback Approach</span>
-                  {openMonitoringSections[3] ? (
-                    <ChevronUp className="w-4 h-4 text-slate-500" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4 text-slate-500" />
-                  )}
-                </button>
-
-                {openMonitoringSections[3] && (
-                  <div className="p-6 pt-2 border-t border-slate-100 space-y-4 animate-fade-in text-xs">
-                    <div>
-                      <label className="block text-slate-600 font-semibold mb-1">Monitoring Methodology Description</label>
-                      <textarea
-                        rows={2}
-                        value={fallbackData.methodologyDesc}
-                        onChange={(e) => setFallbackData({ ...fallbackData, methodologyDesc: e.target.value })}
-                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-slate-600 font-semibold mb-1">Justification Details</label>
-                      <textarea
-                        rows={2}
-                        value={fallbackData.justification}
-                        onChange={(e) => setFallbackData({ ...fallbackData, justification: e.target.value })}
-                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* ========================================================================= */}
-          {/* TAB 4: ACTIVITY DATA & CALCULATION FACTORS */}
-          {/* ========================================================================= */}
-          {activeTab === 'activity-data' && (
-            <div className="space-y-6 animate-fade-in text-xs">
-              {/* Activity Data Section */}
-              <div>
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Activity Data</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                        <th className="py-2.5 px-3">Source Stream</th>
-                        <th className="py-2.5 px-3">Activity Data / Amount</th>
-                        <th className="py-2.5 px-3">Unit</th>
-                        <th className="py-2.5 px-3">Fuel / Material Type</th>
-                        <th className="py-2.5 px-3">Data Source</th>
-                        <th className="py-2.5 px-3">Relevant Quantity</th>
-                        <th className="py-2.5 px-3 text-center">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sourceStreams.map((stream, idx) => (
-                        <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50/50">
-                          <td className="py-2.5 px-3 font-medium text-navy-900">{stream.id} â€” {stream.description}</td>
-                          <td className="py-2.5 px-3">
-                            <input type="text" defaultValue={stream.activityLevel} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <input type="text" defaultValue={stream.activityUnit} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <input type="text" defaultValue={stream.fuelType} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <select defaultValue="In-House" className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]">
-                              <option>In-House technical data</option>
-                              <option>Supplier Data</option>
-                              <option>IPCC Default</option>
-                              <option>Laboratory Analysis</option>
-                            </select>
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <input type="text" defaultValue={stream.deviceCapacity} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
-                          </td>
-                          <td className="py-2 px-3 text-center">
-                            {idx === 0 ? (
-                              <button
-                                type="button"
-                                onClick={addSourceStream}
-                                className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                                title="Add Row"
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 bg-white">
+                        {sourceStreams.map((row, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={row.id}
+                                placeholder="FC1"
+                                onChange={(e) => {
+                                  const copy = [...sourceStreams];
+                                  copy[idx].id = e.target.value;
+                                  setSourceStreams(copy);
+                                }}
+                                className="w-16 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={row.description}
+                                placeholder="Enter description"
+                                onChange={(e) => {
+                                  const copy = [...sourceStreams];
+                                  copy[idx].description = e.target.value;
+                                  setSourceStreams(copy);
+                                }}
+                                className="w-24 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <select
+                                value={row.associatedSource}
+                                onChange={(e) => {
+                                  const copy = [...sourceStreams];
+                                  copy[idx].associatedSource = e.target.value;
+                                  setSourceStreams(copy);
+                                }}
+                                className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
                               >
-                                <Plus className="w-3.5 h-3.5" />
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => removeSourceStream(idx)}
-                                className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                                title="Remove Row"
+                                <option value="">Select source</option>
+                                <option value="S01">S01</option>
+                                <option value="S02">S02</option>
+                                <option value="S03">S03</option>
+                              </select>
+                            </td>
+                            <td className="py-2 px-3">
+                              <select
+                                value={row.classification}
+                                onChange={(e) => {
+                                  const copy = [...sourceStreams];
+                                  copy[idx].classification = e.target.value;
+                                  setSourceStreams(copy);
+                                }}
+                                className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
                               >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Calculation Factors Section */}
-              <div>
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Calculation Factors</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                        <th className="py-2.5 px-3">Source Stream</th>
-                        <th className="py-2.5 px-3">Emission Factor</th>
-                        <th className="py-2.5 px-3">EF Unit</th>
-                        <th className="py-2.5 px-3">NCV</th>
-                        <th className="py-2.5 px-3">NCV Unit</th>
-                        <th className="py-2.5 px-3">Tier</th>
-                        <th className="py-2.5 px-3">Factor Source / Reference</th>
-                        <th className="py-2.5 px-3 text-center">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {calcOtherInputsOutputs.map((row, idx) => (
-                        <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50/50">
-                          <td className="py-2.5 px-3 font-medium text-navy-900">{row.id}</td>
-                          <td className="py-2.5 px-3">
-                            <input type="text" defaultValue={row.emissionFactor} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <input type="text" defaultValue="tCOâ‚‚/TJ" className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <input type="text" defaultValue={row.ncv} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <input type="text" defaultValue={row.units} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <select defaultValue="Tier 2" className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]">
-                              <option>Tier 1</option>
-                              <option>Tier 2</option>
-                              <option>Tier 3</option>
-                            </select>
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <input type="text" defaultValue={row.source} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
-                          </td>
-                          <td className="py-2 px-3 text-center">
-                            {idx === 0 ? (
-                              <button
-                                type="button"
-                                onClick={addCalcOtherInput}
-                                className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                                title="Add Row"
+                                <option value="">Select classification</option>
+                                <option value="Fuel Combusted">Fuel Combusted</option>
+                                <option value="Other Input">Other Input</option>
+                                <option value="Output">Output</option>
+                              </select>
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={row.activityLevel}
+                                placeholder="Enter activity level"
+                                onChange={(e) => {
+                                  const copy = [...sourceStreams];
+                                  copy[idx].activityLevel = e.target.value;
+                                  setSourceStreams(copy);
+                                }}
+                                className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <select
+                                value={row.activityUnit}
+                                onChange={(e) => {
+                                  const copy = [...sourceStreams];
+                                  copy[idx].activityUnit = e.target.value;
+                                  setSourceStreams(copy);
+                                }}
+                                className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
                               >
-                                <Plus className="w-3.5 h-3.5" />
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => removeCalcOtherInput(idx)}
-                                className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                                title="Remove Row"
+                                <option value="">Select unit</option>
+                                <option value="MWh">MWh</option>
+                                <option value="Nm³">Nm³</option>
+                                <option value="t">t</option>
+                                <option value="GJ">GJ</option>
+                              </select>
+                            </td>
+                            <td className="py-2 px-3">
+                              <select
+                                value={row.fuelType}
+                                onChange={(e) => {
+                                  const copy = [...sourceStreams];
+                                  copy[idx].fuelType = e.target.value;
+                                  setSourceStreams(copy);
+                                }}
+                                className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
                               >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ========================================================================= */}
-          {/* TAB 5: MEASUREMENT EQUIPMENT */}
-          {/* ========================================================================= */}
-          {activeTab === 'measurement-equipment' && (
-            <div className="space-y-6 animate-fade-in text-xs">
-              <div>
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Measurement Equipment Registry</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                        <th className="py-2.5 px-3">Meter / Equipment Name</th>
-                        <th className="py-2.5 px-3">Equipment ID</th>
-                        <th className="py-2.5 px-3">Parameter</th>
-                        <th className="py-2.5 px-3">Unit</th>
-                        <th className="py-2.5 px-3">Method</th>
-                        <th className="py-2.5 px-3">Calibration Date</th>
-                        <th className="py-2.5 px-3">Next Calibration</th>
-                        <th className="py-2.5 px-3">Frequency</th>
-                        <th className="py-2.5 px-3">Accuracy</th>
-                        <th className="py-2.5 px-3">Responsible</th>
-                        <th className="py-2.5 px-3">Document</th>
-                        <th className="py-2.5 px-3 text-center">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {measEquipment.map((equip, idx) => (
-                        <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50/50">
-                          <td className="py-2.5 px-3">
-                            <input type="text" defaultValue={equip.name} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <input type="text" defaultValue={`EQ-${String(idx + 1).padStart(3, '0')}`} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <input type="text" defaultValue={equip.parameter} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <select defaultValue="ppm" className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]">
-                              <option>ppm</option>
-                              <option>%</option>
-                              <option>mg/mÂ³</option>
-                              <option>NmÂ³/h</option>
-                              <option>kg/h</option>
-                            </select>
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <select defaultValue="CEMS" className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]">
-                              <option>CEMS</option>
-                              <option>Portable Analyzer</option>
-                              <option>Flow Meter</option>
-                              <option>Gas Chromatograph</option>
-                              <option>Weighbridge</option>
-                            </select>
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <input type="date" defaultValue="2026-01-15" className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <input type="date" defaultValue="2027-01-15" className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <select defaultValue="Annual" className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]">
-                              <option>Monthly</option>
-                              <option>Quarterly</option>
-                              <option>Semi-Annual</option>
-                              <option>Annual</option>
-                            </select>
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <input type="text" defaultValue={equip.accuracyClass} className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <input type="text" defaultValue="Instrumentation Dept." className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-navy-900 focus:outline-none focus:border-[#004B87]" />
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <button onClick={() => fileInputRef.current?.click()} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold transition-colors cursor-pointer">
-                              <Upload className="w-3 h-3 inline mr-1" />Upload
-                            </button>
-                          </td>
-                          <td className="py-2 px-3 text-center">
-                            {idx === 0 ? (
-                              <button
-                                type="button"
-                                onClick={addMeasEquipment}
-                                className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                                title="Add Row"
+                                <option value="">Select fuel type</option>
+                                <option value="Natural gas">Natural gas</option>
+                                <option value="Diesel / Gas Oil">Diesel / Gas Oil</option>
+                                <option value="Heavy Fuel Oil">Heavy Fuel Oil</option>
+                                <option value="Petcoke">Petcoke</option>
+                              </select>
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={row.combustionDevice}
+                                placeholder="Enter combustion device"
+                                onChange={(e) => {
+                                  const copy = [...sourceStreams];
+                                  copy[idx].combustionDevice = e.target.value;
+                                  setSourceStreams(copy);
+                                }}
+                                className="w-32 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <input
+                                type="text"
+                                value={row.deviceCapacity}
+                                placeholder="Enter capacity"
+                                onChange={(e) => {
+                                  const copy = [...sourceStreams];
+                                  copy[idx].deviceCapacity = e.target.value;
+                                  setSourceStreams(copy);
+                                }}
+                                className="w-20 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </td>
+                            <td className="py-2 px-3">
+                              <select
+                                value={row.metricUnit}
+                                onChange={(e) => {
+                                  const copy = [...sourceStreams];
+                                  copy[idx].metricUnit = e.target.value;
+                                  setSourceStreams(copy);
+                                }}
+                                className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
                               >
-                                <Plus className="w-3.5 h-3.5" />
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => removeMeasEquipment(idx)}
-                                className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                                title="Remove Row"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ========================================================================= */}
-          {/* TAB 6: QA/QC & DATA MANAGEMENT */}
-          {/* ========================================================================= */}
-          {activeTab === 'qa-qc' && (
-            <div className="space-y-6 animate-fade-in text-xs">
-              {/* Top Description Box */}
-              <div>
-                <label className="block text-slate-600 font-semibold mb-1.5">
-                  Provide a detailed description of the internal QA/QC methodology applied for all source streams and sources
-                </label>
-                <textarea
-                  rows={3}
-                  value={qaVerificationDesc}
-                  onChange={(e) => setQaVerificationDesc(e.target.value)}
-                  className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                />
-              </div>
-
-              {/* Section 1: Data Gaps */}
-              <div>
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Data Gaps</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                        <th className="py-2.5 px-3">Source Stream / ID</th>
-                        <th className="py-2.5 px-3">From</th>
-                        <th className="py-2.5 px-3">Until</th>
-                        <th className="py-2.5 px-3">Description, Reasons And Methods</th>
-                        <th className="py-2.5 px-3">Estimated Emissions (T CO2e)</th>
-                        <th className="py-2.5 px-3">Source Of Estimated Emissions</th>
-                        <th className="py-2.5 px-3 text-center">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {qaDataGaps.map((row, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.sourceStream}
-                              onChange={(e) => {
-                                const copy = [...qaDataGaps];
-                                copy[idx].sourceStream = e.target.value;
-                                setQaDataGaps(copy);
-                              }}
-                              className="w-32 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.fromDate}
-                              onChange={(e) => {
-                                const copy = [...qaDataGaps];
-                                copy[idx].fromDate = e.target.value;
-                                setQaDataGaps(copy);
-                              }}
-                              className="w-28 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.untilDate}
-                              onChange={(e) => {
-                                const copy = [...qaDataGaps];
-                                copy[idx].untilDate = e.target.value;
-                                setQaDataGaps(copy);
-                              }}
-                              className="w-28 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.description}
-                              onChange={(e) => {
-                                const copy = [...qaDataGaps];
-                                copy[idx].description = e.target.value;
-                                setQaDataGaps(copy);
-                              }}
-                              className="w-44 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.estimatedEmissions}
-                              onChange={(e) => {
-                                const copy = [...qaDataGaps];
-                                copy[idx].estimatedEmissions = e.target.value;
-                                setQaDataGaps(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.sourceOfEstimate}
-                              onChange={(e) => {
-                                const copy = [...qaDataGaps];
-                                copy[idx].sourceOfEstimate = e.target.value;
-                                setQaDataGaps(copy);
-                              }}
-                              className="w-48 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3 text-center">
-                            {idx === 0 ? (
-                              <button
-                                type="button"
-                                onClick={addQaDataGap}
-                                className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                              >
-                                <Plus className="w-3.5 h-3.5" />
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => removeQaDataGap(idx)}
-                                className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Section 2: Management Responsibilities */}
-              <div>
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Management Responsibilities</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                        <th className="py-2.5 px-3 w-1/3">Job Title / Post</th>
-                        <th className="py-2.5 px-3">Responsibilities</th>
-                        <th className="py-2.5 px-3 text-center w-20">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {qaManagementResp.map((row, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.jobTitle}
-                              onChange={(e) => {
-                                const copy = [...qaManagementResp];
-                                copy[idx].jobTitle = e.target.value;
-                                setQaManagementResp(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.responsibilities}
-                              onChange={(e) => {
-                                const copy = [...qaManagementResp];
-                                copy[idx].responsibilities = e.target.value;
-                                setQaManagementResp(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3 text-center">
-                            {idx === 0 ? (
-                              <button
-                                type="button"
-                                onClick={addQaManagementResp}
-                                className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                              >
-                                <Plus className="w-3.5 h-3.5" />
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => removeQaManagementResp(idx)}
-                                className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Section 3: Quality Assurance Procedures */}
-              <div>
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Quality Assurance Procedures</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                        <th className="py-2.5 px-3">Procedure Title</th>
-                        <th className="py-2.5 px-3">Reference</th>
-                        <th className="py-2.5 px-3">Responsible Department</th>
-                        <th className="py-2.5 px-3">Record Storage</th>
-                        <th className="py-2.5 px-3 text-center w-20">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {qaProcedures.map((row, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.procedureTitle}
-                              onChange={(e) => {
-                                const copy = [...qaProcedures];
-                                copy[idx].procedureTitle = e.target.value;
-                                setQaProcedures(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.reference}
-                              onChange={(e) => {
-                                const copy = [...qaProcedures];
-                                copy[idx].reference = e.target.value;
-                                setQaProcedures(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.responsibleDept}
-                              onChange={(e) => {
-                                const copy = [...qaProcedures];
-                                copy[idx].responsibleDept = e.target.value;
-                                setQaProcedures(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.recordStorage}
-                              onChange={(e) => {
-                                const copy = [...qaProcedures];
-                                copy[idx].recordStorage = e.target.value;
-                                setQaProcedures(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3 text-center">
-                            {idx === 0 ? (
-                              <button
-                                type="button"
-                                onClick={addQaProcedure}
-                                className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                              >
-                                <Plus className="w-3.5 h-3.5" />
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => removeQaProcedure(idx)}
-                                className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Section 4: Internal Review & Validation */}
-              <div>
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Internal Review & Validation</h4>
-                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                        <th className="py-2.5 px-3">Procedure Title</th>
-                        <th className="py-2.5 px-3">Reference</th>
-                        <th className="py-2.5 px-3">Responsible Department</th>
-                        <th className="py-2.5 px-3">Record Storage</th>
-                        <th className="py-2.5 px-3 text-center w-20">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {qaInternalReview.map((row, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.procedureTitle}
-                              onChange={(e) => {
-                                const copy = [...qaInternalReview];
-                                copy[idx].procedureTitle = e.target.value;
-                                setQaInternalReview(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.reference}
-                              onChange={(e) => {
-                                const copy = [...qaInternalReview];
-                                copy[idx].reference = e.target.value;
-                                setQaInternalReview(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.responsibleDept}
-                              onChange={(e) => {
-                                const copy = [...qaInternalReview];
-                                copy[idx].responsibleDept = e.target.value;
-                                setQaInternalReview(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.recordStorage}
-                              onChange={(e) => {
-                                const copy = [...qaInternalReview];
-                                copy[idx].recordStorage = e.target.value;
-                                setQaInternalReview(copy);
-                              }}
-                              className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
-                          </td>
-                          <td className="py-2 px-3 text-center">
-                            {idx === 0 ? (
-                              <button
-                                type="button"
-                                onClick={addQaInternalReview}
-                                className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
-                              >
-                                <Plus className="w-3.5 h-3.5" />
-                              </button>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => removeQaInternalReview(idx)}
-                                className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
-                              >
-                                <X className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Mitigation Measures tab has been moved outside the Monitoring Plan module */}
-
-          {/* ========================================================================= */}
-          {/* TAB 7: REVIEW & SUBMIT */}
-          {/* ========================================================================= */}
-          {activeTab === 'review-submit' && (
-            <div className="space-y-5 animate-fade-in text-xs">
-              {/* Card 1: Final Declaration */}
-              <div className="p-5 bg-white rounded-xl border border-slate-200 space-y-4 shadow-xs">
-                <h4 className="text-xs font-bold text-[#004B87]">Final Declaration</h4>
-
-                {/* 3 Checkboxes */}
-                <div className="space-y-2.5">
-                  <label className="flex items-start gap-2.5 cursor-pointer text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={declarationChecks.check1}
-                      onChange={(e) =>
-                        setDeclarationChecks({ ...declarationChecks, check1: e.target.checked })
-                      }
-                      className="mt-0.5 w-4 h-4 rounded text-[#004B87] border-slate-300 focus:ring-[#004B87]"
-                    />
-                    <span className="font-medium leading-tight">
-                      I confirm that the information provided in this Monitoring Plan is complete, true and accurate to the best of my knowledge.
-                    </span>
-                  </label>
-
-                  <label className="flex items-start gap-2.5 cursor-pointer text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={declarationChecks.check2}
-                      onChange={(e) =>
-                        setDeclarationChecks({ ...declarationChecks, check2: e.target.checked })
-                      }
-                      className="mt-0.5 w-4 h-4 rounded text-[#004B87] border-slate-300 focus:ring-[#004B87]"
-                    />
-                    <span className="font-medium leading-tight">
-                      I understand that submitting false or misleading information may result in regulatory action by the Environment Agency â€“ Abu Dhabi.
-                    </span>
-                  </label>
-
-                  <label className="flex items-start gap-2.5 cursor-pointer text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={declarationChecks.check3}
-                      onChange={(e) =>
-                        setDeclarationChecks({ ...declarationChecks, check3: e.target.checked })
-                      }
-                      className="mt-0.5 w-4 h-4 rounded text-[#004B87] border-slate-300 focus:ring-[#004B87]"
-                    />
-                    <span className="font-medium leading-tight">
-                      I agree to submit this Monitoring Plan to the Environment Agency â€“ Abu Dhabi.
-                    </span>
-                  </label>
-                </div>
-
-                {/* 3 Fields: Name, Designation, Date */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-                  <div>
-                    <label className="block text-slate-600 font-semibold mb-1">Name</label>
-                    <input
-                      type="text"
-                      value={declarationForm.name}
-                      onChange={(e) =>
-                        setDeclarationForm({ ...declarationForm, name: e.target.value })
-                      }
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#004B87] shadow-xs"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-600 font-semibold mb-1">Designation</label>
-                    <input
-                      type="text"
-                      value={declarationForm.designation}
-                      onChange={(e) =>
-                        setDeclarationForm({ ...declarationForm, designation: e.target.value })
-                      }
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#004B87] shadow-xs"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-600 font-semibold mb-1">Date</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={declarationForm.date}
-                        onChange={(e) =>
-                          setDeclarationForm({ ...declarationForm, date: e.target.value })
-                        }
-                        className="w-full px-3 py-2 pr-9 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#004B87] shadow-xs"
-                      />
-                      <Calendar className="w-4 h-4 text-sky-600 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 2: Submission Details */}
-              <div className="p-5 bg-white rounded-xl border border-slate-200 space-y-4 shadow-xs">
-                <h4 className="text-xs font-bold text-[#004B87]">Submission Details</h4>
-
-                <div className="space-y-4 pt-1">
-                  {/* Row 1: 5 Columns */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
-                    <div className="pt-2 sm:pt-0 sm:pr-3">
-                      <div className="text-[11px] text-slate-500 font-medium mb-1">Facility / Plant Name</div>
-                      <div className="text-xs font-semibold text-slate-800">Green Mountain Cement Factory</div>
-                    </div>
-                    <div className="pt-2 sm:pt-0 sm:px-3">
-                      <div className="text-[11px] text-slate-500 font-medium mb-1">Facility ID</div>
-                      <div className="text-xs font-semibold text-slate-800">EAD-FAC-00123</div>
-                    </div>
-                    <div className="pt-2 sm:pt-0 sm:px-3">
-                      <div className="text-[11px] text-slate-500 font-medium mb-1">Reporting Year</div>
-                      <div className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 text-[#004B87]" />
-                        <span>2024</span>
-                      </div>
-                    </div>
-                    <div className="pt-2 sm:pt-0 sm:px-3">
-                      <div className="text-[11px] text-slate-500 font-medium mb-1">Version</div>
-                      <div className="text-xs font-semibold text-slate-800">Version 1.0</div>
-                    </div>
-                    <div className="pt-2 sm:pt-0 sm:pl-3">
-                      <div className="text-[11px] text-slate-500 font-medium mb-1">Prepared By</div>
-                      <div className="text-xs font-semibold text-slate-800">John Doe</div>
-                    </div>
-                  </div>
-
-                  {/* Row 2: 4 Columns */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-3 border-t border-slate-100 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
-                    <div className="pt-2 sm:pt-0 sm:pr-3">
-                      <div className="text-[11px] text-slate-500 font-medium mb-1">Email</div>
-                      <div className="text-xs font-semibold text-slate-800 truncate">john.doe@greenmountain.ae</div>
-                    </div>
-                    <div className="pt-2 sm:pt-0 sm:px-3">
-                      <div className="text-[11px] text-slate-500 font-medium mb-1">Submission Date</div>
-                      <div className="text-xs font-semibold text-slate-800">-</div>
-                    </div>
-                    <div className="pt-2 sm:pt-0 sm:px-3">
-                      <div className="text-[11px] text-slate-500 font-medium mb-1">Current Status</div>
-                      <div>
-                        <span className={`inline-block px-3 py-0.5 rounded-full border text-[11px] font-bold ${
-                          workflowState.monitoringPlanStatus === 'Draft' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                          workflowState.monitoringPlanStatus === 'Submitted' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                          'bg-emerald-50 text-emerald-700 border-emerald-200'
-                        }`}>
-                          {workflowState.monitoringPlanStatus === 'Approved' ? 'Active Monitoring Plan' : workflowState.monitoringPlanStatus}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="pt-2 sm:pt-0 sm:pl-3">
-                      <div className="text-[11px] text-slate-500 font-medium mb-1">Last Saved On</div>
-                      <div className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 text-[#004B87]" />
-                        <span>15-Jun-2026, 03:45 PM</span>
-                      </div>
-                    </div>
+                                <option value="">Select unit</option>
+                                <option value="MW">MW</option>
+                                <option value="MWth">MWth</option>
+                                <option value="GJ/hr">GJ/hr</option>
+                              </select>
+                            </td>
+                            <td className="py-2 px-3 text-center">
+                              {idx === 0 ? (
+                                <button
+                                  type="button"
+                                  onClick={addSourceStream}
+                                  className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200"
+                                >
+                                  <Plus className="w-3.5 h-3.5" />
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => removeSourceStream(idx)}
+                                  className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
             </div>
           )}
+
+
         </div>
       </div>
 
@@ -3750,24 +1602,42 @@ export const DataEntryView: React.FC = () => {
         {isEadReviewerOrAdmin &&
           (workflowState.monitoringPlanStatus === 'Submitted' ||
             workflowState.monitoringPlanStatus === 'Under EAD Review' ||
-            workflowState.monitoringPlanStatus === 'Draft') && (
-            <button
-              onClick={() => {
-                setMonitoringPlanStatus('Approved');
-                setNoticeMessage('Monitoring Plan Approved & Accepted by EAD! Annual Emission Data is now accessible.');
-                setIsSavedNotice(true);
-                setTimeout(() => setIsSavedNotice(false), 3500);
-              }}
-              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-              title="Approve Monitoring Plan and unlock Annual Emission Data"
-            >
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>EAD Approve Plan</span>
-            </button>
+            workflowState.monitoringPlanStatus === 'Draft' ||
+            workflowState.monitoringPlanStatus === 'Correction Required') && (
+            <>
+              <button
+                onClick={() => {
+                  setMonitoringPlanStatus('Correction Required');
+                  setNoticeMessage('Monitoring Plan Returned for Correction to Facility Operator.');
+                  setIsSavedNotice(true);
+                  setTimeout(() => setIsSavedNotice(false), 3000);
+                }}
+                className="px-4 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-xs font-bold text-amber-800 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                title="Return Monitoring Plan to facility operator for correction"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-amber-700" />
+                <span>Return for Correction</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setMonitoringPlanStatus('Approved');
+                  setNoticeMessage('Monitoring Plan Approved & Accepted by EAD! Annual Emission Data is now accessible.');
+                  setIsSavedNotice(true);
+                  setTimeout(() => setIsSavedNotice(false), 3500);
+                }}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-xs font-bold text-white flex items-center gap-1.5 shadow-md shadow-emerald-600/25 transition-all cursor-pointer"
+                title="Approve Monitoring Plan and unlock Annual Emission Data"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>EAD Approve Plan</span>
+              </button>
+            </>
           )}
 
         {(workflowState.monitoringPlanStatus === 'Approved' ||
           workflowState.monitoringPlanStatus === 'Accepted' ||
+          workflowState.monitoringPlanStatus === 'Approved / Accepted' ||
           workflowState.monitoringPlanStatus === 'Active') && (
           <button
             onClick={() => setActiveView('annual-emission-data')}
@@ -3782,8 +1652,9 @@ export const DataEntryView: React.FC = () => {
           <button
             onClick={() => {
               handleSave();
+              const isResubmit = workflowState.monitoringPlanStatus === 'Correction Required';
               setMonitoringPlanStatus('Submitted');
-              setNoticeMessage('Monitoring Plan Submitted! Forwarding for EAD Review...');
+              setNoticeMessage(isResubmit ? 'Monitoring Plan Resubmitted! Forwarding for EAD Review...' : 'Monitoring Plan Submitted! Forwarding for EAD Review...');
               setIsSavedNotice(true);
               setTimeout(() => {
                 setMonitoringPlanStatus('Under EAD Review');
@@ -3793,7 +1664,7 @@ export const DataEntryView: React.FC = () => {
             }}
             className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer"
           >
-            <span>Submit Plan</span>
+            <span>{workflowState.monitoringPlanStatus === 'Correction Required' ? 'Resubmit Monitoring Plan' : 'Submit Monitoring Plan'}</span>
             <Send className="w-3.5 h-3.5 fill-current" />
           </button>
         )}

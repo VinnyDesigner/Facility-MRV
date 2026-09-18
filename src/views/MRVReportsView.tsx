@@ -36,9 +36,10 @@ import {
 import { useMRV } from '../context/MRVContext';
 import { GlassCard } from '../components/ui/GlassCard';
 import { Badge } from '../components/ui/Badge';
+import { SubmissionListingTable } from '../components/mrv/SubmissionListingTable';
 
 export const MRVReportsView: React.FC = () => {
-  const { currentSubmission, setActiveView } = useMRV();
+  const { currentSubmission, setActiveView, openReadOnlyViewer } = useMRV();
 
   // Active Tab State: 'emission-summary' | 'submission-status' | 'history' | 'version'
   const [activeTab, setActiveTab] = useState<'emission-summary' | 'submission-status' | 'history' | 'version'>('emission-summary');
@@ -707,148 +708,11 @@ export const MRVReportsView: React.FC = () => {
             </div>
           </div>
 
-          {/* Bottom Table Card: Submissions List */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="bg-[#E9F1F8] text-slate-700 font-semibold text-xs border-b border-slate-200">
-                    <th
-                      onClick={() => {
-                        setStatusSortKey('id');
-                        setStatusSortAsc(!statusSortAsc);
-                      }}
-                      className="py-3 px-4 cursor-pointer hover:bg-slate-200/60 transition-colors w-12"
-                    >
-                      <div className="flex items-center gap-1">
-                        <span>#</span>
-                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                      </div>
-                    </th>
-                    <th
-                      onClick={() => {
-                        setStatusSortKey('submissionId');
-                        setStatusSortAsc(!statusSortAsc);
-                      }}
-                      className="py-3 px-4 cursor-pointer hover:bg-slate-200/60 transition-colors"
-                    >
-                      <div className="flex items-center gap-1">
-                        <span>Submission ID</span>
-                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                      </div>
-                    </th>
-                    <th
-                      onClick={() => {
-                        setStatusSortKey('facility');
-                        setStatusSortAsc(!statusSortAsc);
-                      }}
-                      className="py-3 px-4 cursor-pointer hover:bg-slate-200/60 transition-colors"
-                    >
-                      <div className="flex items-center gap-1">
-                        <span>Facility</span>
-                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                      </div>
-                    </th>
-                    <th
-                      onClick={() => {
-                        setStatusSortKey('submittedBy');
-                        setStatusSortAsc(!statusSortAsc);
-                      }}
-                      className="py-3 px-4 cursor-pointer hover:bg-slate-200/60 transition-colors"
-                    >
-                      <div className="flex items-center gap-1">
-                        <span>Submitted By</span>
-                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                      </div>
-                    </th>
-                    <th
-                      onClick={() => {
-                        setStatusSortKey('submittedDate');
-                        setStatusSortAsc(!statusSortAsc);
-                      }}
-                      className="py-3 px-4 cursor-pointer hover:bg-slate-200/60 transition-colors"
-                    >
-                      <div className="flex items-center gap-1">
-                        <span>Submitted Date</span>
-                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                      </div>
-                    </th>
-                    <th
-                      onClick={() => {
-                        setStatusSortKey('reviewedBy');
-                        setStatusSortAsc(!statusSortAsc);
-                      }}
-                      className="py-3 px-4 cursor-pointer hover:bg-slate-200/60 transition-colors"
-                    >
-                      <div className="flex items-center gap-1">
-                        <span>Reviewed By</span>
-                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                      </div>
-                    </th>
-                    <th
-                      onClick={() => {
-                        setStatusSortKey('reviewDate');
-                        setStatusSortAsc(!statusSortAsc);
-                      }}
-                      className="py-3 px-4 cursor-pointer hover:bg-slate-200/60 transition-colors"
-                    >
-                      <div className="flex items-center gap-1">
-                        <span>Review Date</span>
-                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                      </div>
-                    </th>
-                    <th
-                      onClick={() => {
-                        setStatusSortKey('status');
-                        setStatusSortAsc(!statusSortAsc);
-                      }}
-                      className="py-3 px-4 cursor-pointer hover:bg-slate-200/60 transition-colors"
-                    >
-                      <div className="flex items-center gap-1">
-                        <span>Current Status</span>
-                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                  {sortedStatusRecords.map((row) => (
-                    <tr key={row.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-3.5 px-4 text-slate-500">{row.id}</td>
-                      <td className="py-3.5 px-4 font-mono font-semibold text-slate-800">{row.submissionId}</td>
-                      <td className="py-3.5 px-4 font-semibold text-slate-800">{row.facility}</td>
-                      <td className="py-3.5 px-4 text-slate-700">{row.submittedBy}</td>
-                      <td className="py-3.5 px-4 text-slate-600">{row.submittedDate}</td>
-                      <td className="py-3.5 px-4 text-slate-600">{row.reviewedBy}</td>
-                      <td className="py-3.5 px-4 text-slate-600">{row.reviewDate}</td>
-                      <td className="py-3.5 px-4">
-                        {row.statusType === 'approved' && (
-                          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#E8F8F0] text-[#16A34A] border border-emerald-200/60">
-                            Approved
-                          </span>
-                        )}
-                        {row.statusType === 'under_review' && (
-                          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#E0F4F7] text-[#0D9488] border border-teal-200/60">
-                            Under Review
-                          </span>
-                        )}
-                        {row.statusType === 'correction' && (
-                          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#E2E8F0] text-[#475569] border border-slate-300/80">
-                            Correction Requested
-                          </span>
-                        )}
-                        {row.statusType === 'rejected' && (
-                          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60">
-                            Rejected
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          {/* Bottom Table Card: Exact 12-Column Submissions Management Table */}
+          <SubmissionListingTable
+            title="Submissions Management & Tracking"
+            subtitle="Real-time statutory MRV submissions, review decisions, versioning, and compliance status"
+          />
         </div>
       )}
 
@@ -889,14 +753,22 @@ export const MRVReportsView: React.FC = () => {
                       <td className="py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => alert(`Viewing dossier ${row.id}`)}
-                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold cursor-pointer"
+                            onClick={() => openReadOnlyViewer({
+                              moduleType: 'full-dossier',
+                              recordId: row.id,
+                              title: `Annual MRV Report Package ${row.year}`,
+                              status: row.status,
+                              reportingYear: row.year,
+                              version: row.version.includes('2') ? 2 : 1,
+                            })}
+                            title="View Full Read-Only Dossier"
+                            className="p-1.5 rounded-lg bg-[#004B87]/10 hover:bg-[#004B87]/20 text-[#004B87] font-bold cursor-pointer"
                           >
                             <Eye className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleExport(row.id)}
-                            className="p-1.5 rounded-lg bg-[#004B87]/10 hover:bg-[#004B87]/20 text-[#004B87] font-bold cursor-pointer"
+                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold cursor-pointer"
                           >
                             <Download className="w-3.5 h-3.5" />
                           </button>
@@ -942,10 +814,15 @@ export const MRVReportsView: React.FC = () => {
                   </div>
 
                   <button
-                    onClick={() => alert(`Comparing version ${ver.version} against current live submission.`)}
-                    className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+                    onClick={() => openReadOnlyViewer({
+                      moduleType: 'full-dossier',
+                      version: ver.version,
+                      initialTab: 'comparison',
+                    })}
+                    className="px-3 py-1.5 rounded-lg bg-[#004B87]/10 hover:bg-[#004B87]/20 text-[#004B87] text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
                   >
-                    View Version Details
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>View Version Details</span>
                   </button>
                 </div>
               ))}

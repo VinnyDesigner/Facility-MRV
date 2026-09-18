@@ -62,10 +62,10 @@ export const MonitoringPlanView: React.FC = () => {
   const handleAddProductionStream = () => {
     const newStream: ProductionStream = {
       id: `ps-${Date.now()}`,
-      name: 'New Emission / Production Stream',
-      annualThroughput: '100,000',
-      unit: 'Units / Year',
-      measuringDevice: 'Calibrated Ultrasonic Flowmeter',
+      name: '',
+      annualThroughput: '',
+      unit: '',
+      measuringDevice: '',
     };
     setFormData((prev) => ({
       ...prev,
@@ -83,12 +83,12 @@ export const MonitoringPlanView: React.FC = () => {
   const handleAddMitigation = () => {
     const newMit: MitigationMeasure = {
       id: `mit-${Date.now()}`,
-      name: 'Energy Efficiency & Waste Heat Project',
+      name: '',
       status: 'Planned',
-      expectedReduction: 15000,
-      methodology: 'IPCC Energy Efficiency Protocol',
-      verificationDetails: 'Third-party certified audit',
-      implementationYear: 2026,
+      expectedReduction: '' as any,
+      methodology: '',
+      verificationDetails: '',
+      implementationYear: new Date().getFullYear(),
     };
     setFormData((prev) => ({
       ...prev,
@@ -296,6 +296,7 @@ export const MonitoringPlanView: React.FC = () => {
                       <input
                         type="text"
                         value={stream.name}
+                        placeholder="Enter stream name"
                         onChange={(e) => {
                           const updated = [...formData.productionStreams];
                           updated[idx].name = e.target.value;
@@ -310,6 +311,7 @@ export const MonitoringPlanView: React.FC = () => {
                         <input
                           type="text"
                           value={stream.annualThroughput}
+                          placeholder="Enter throughput"
                           onChange={(e) => {
                             const updated = [...formData.productionStreams];
                             updated[idx].annualThroughput = e.target.value;
@@ -320,6 +322,7 @@ export const MonitoringPlanView: React.FC = () => {
                         <input
                           type="text"
                           value={stream.unit}
+                          placeholder="Enter unit"
                           onChange={(e) => {
                             const updated = [...formData.productionStreams];
                             updated[idx].unit = e.target.value;
@@ -334,6 +337,7 @@ export const MonitoringPlanView: React.FC = () => {
                       <input
                         type="text"
                         value={stream.measuringDevice}
+                        placeholder="Enter measuring device & tag"
                         onChange={(e) => {
                           const updated = [...formData.productionStreams];
                           updated[idx].measuringDevice = e.target.value;
@@ -619,6 +623,7 @@ export const MonitoringPlanView: React.FC = () => {
                       <input
                         type="text"
                         value={mit.name}
+                        placeholder="Enter project / initiative title"
                         onChange={(e) => {
                           const updated = [...formData.mitigationMeasures];
                           updated[idx].name = e.target.value;
@@ -632,6 +637,7 @@ export const MonitoringPlanView: React.FC = () => {
                       <input
                         type="number"
                         value={mit.expectedReduction}
+                        placeholder="Enter emissions reduction"
                         onChange={(e) => {
                           const updated = [...formData.mitigationMeasures];
                           updated[idx].expectedReduction = Number(e.target.value);
@@ -651,6 +657,7 @@ export const MonitoringPlanView: React.FC = () => {
                         }}
                         className="w-full glass-input text-xs font-bold mt-1"
                       >
+                        <option value="">Select status</option>
                         <option value="Planned">Planned</option>
                         <option value="In Progress">In Progress</option>
                         <option value="Operational">Operational</option>

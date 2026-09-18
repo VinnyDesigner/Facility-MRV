@@ -234,6 +234,7 @@ export type RegistrationStatus =
   | 'Submitted'
   | 'Under EAD Review'
   | 'Correction Required'
+  | 'Approved / Registered'
   | 'Approved'
   | 'Registered'
   | 'Rejected';
@@ -244,6 +245,7 @@ export type MonitoringPlanStatus =
   | 'Submitted'
   | 'Under EAD Review'
   | 'Correction Required'
+  | 'Approved / Accepted'
   | 'Approved'
   | 'Accepted'
   | 'Active';
@@ -253,8 +255,10 @@ export type AnnualEmissionStatus =
   | 'Draft'
   | 'Submitted'
   | 'Pending Verification'
+  | 'Verified'
   | 'Under EAD Review'
   | 'Correction Required'
+  | 'Approved / Accepted'
   | 'Approved'
   | 'Accepted';
 
@@ -262,6 +266,7 @@ export type VerificationStatus =
   | 'Not Required'
   | 'Pending Verification'
   | 'Verification In Progress'
+  | 'Correction Required'
   | 'Verification Completed'
   | 'Verification Statement Uploaded';
 
@@ -272,6 +277,8 @@ export interface WorkflowState {
   verificationStatus: VerificationStatus;
   registrationApprovalDate?: string;
   monitoringPlanDeadline?: string; // 90 days after registration approval
+  facilityIdGenerated?: string;
+  lastReviewComments?: string;
 }
 
 // =========================================================================
@@ -340,3 +347,55 @@ export interface VerificationRecord {
   supportingDocuments: string[];
   submissionHistory: AuditEvent[];
 }
+
+// =========================================================================
+// READ-ONLY VIEW & AUDIT TYPES
+// =========================================================================
+
+export type ReadOnlyModuleType =
+  | 'registration'
+  | 'monitoring-plan'
+  | 'annual-emission-data'
+  | 'verification'
+  | 'report'
+  | 'full-dossier';
+
+export interface ReadOnlyRecordTarget {
+  moduleType: ReadOnlyModuleType;
+  recordId?: string;
+  version?: number;
+  facilityId?: string;
+  facilityName?: string;
+  reportingYear?: number;
+  title?: string;
+  status?: string;
+  submittedDate?: string;
+  submittedBy?: string;
+  reviewerName?: string;
+  reviewComments?: string;
+  correctionNotes?: string;
+  correctionDueDate?: string;
+  dataSnapshot?: any;
+  submission?: Submission;
+  initialTab?: 'data' | 'completeness' | 'documents' | 'comparison' | 'audit' | 'registration' | 'monitoring-plan' | 'annual-emissions' | 'verification' | 'review-submit' | 'checklist' | 'version-history';
+}
+
+export interface SectionCompletionItem {
+  id: string;
+  title: string;
+  category: string;
+  isComplete: boolean;
+  requiredFieldsCount: number;
+  completedFieldsCount: number;
+  notes?: string;
+}
+
+export interface VersionDiffItem {
+  field: string;
+  section: string;
+  v1Value: string;
+  v2Value: string;
+  hasChanged: boolean;
+  changeType: 'modified' | 'added' | 'removed' | 'unchanged';
+}
+

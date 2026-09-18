@@ -14,10 +14,12 @@ import {
   Info,
   Sparkles,
   Award,
+  Eye,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
 import { GlassCard } from '../components/ui/GlassCard';
 import { Badge } from '../components/ui/Badge';
+import { SubmissionListingTable } from '../components/mrv/SubmissionListingTable';
 import { Submission } from '../types/mrv';
 
 export const SubmissionTrackingView: React.FC = () => {
@@ -28,6 +30,7 @@ export const SubmissionTrackingView: React.FC = () => {
     selectedSubmissionForReview,
     setSelectedSubmissionForReview,
     setActiveView,
+    openReadOnlyViewer,
   } = useMRV();
 
   const facilitySubmissions = submissions.filter((s) => s.facilityId === activeFacility.id);
@@ -75,15 +78,37 @@ export const SubmissionTrackingView: React.FC = () => {
             Track Compliance Milestones, Audit Progression & Certification
           </p>
         </div>
-        {activeSub && activeSub.status === 'Approved' && (
-          <button
-            onClick={() => alert(`Downloading Official EAD Subnational MRV Certificate for ${activeFacility.name}`)}
-            className="px-4 py-2.5 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white text-xs font-bold rounded-xl shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer"
-          >
-            <Award className="w-3.5 h-3.5" />
-            <span>Download Certificate</span>
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {activeSub && (
+            <button
+              onClick={() => openReadOnlyViewer({
+                moduleType: 'full-dossier',
+                recordId: activeSub.id,
+                title: `Consolidated MRV Submission Dossier: ${activeSub.id}`,
+                status: activeSub.status,
+                submittedDate: activeSub.submittedDate,
+                submittedBy: activeSub.history?.[0]?.user || 'Facility Lead',
+                reviewerName: activeSub.reviewerName,
+                reviewComments: activeSub.correctionComments,
+                reportingYear: activeSub.reportingYear,
+                version: activeSub.version,
+              })}
+              className="px-3.5 py-2 bg-white border border-[#004B87]/30 hover:bg-[#004B87]/10 text-[#004B87] text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>View Dossier (v{activeSub.version}.0)</span>
+            </button>
+          )}
+          {activeSub && activeSub.status === 'Approved' && (
+            <button
+              onClick={() => alert(`Downloading Official EAD Subnational MRV Certificate for ${activeFacility.name}`)}
+              className="px-4 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white text-xs font-bold rounded-xl shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <Award className="w-3.5 h-3.5" />
+              <span>Download Certificate</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Submissions Switcher Pills */}
@@ -283,6 +308,14 @@ export const SubmissionTrackingView: React.FC = () => {
           No submission records available.
         </GlassCard>
       )}
+
+      {/* Complete Submissions Management Listing Table */}
+      <div className="pt-2">
+        <SubmissionListingTable
+          title="All Statutory Submissions & Review Dossiers"
+          subtitle="Consolidated registry of facility reporting packages, regulatory determinations, and version histories"
+        />
+      </div>
     </div>
   );
 };

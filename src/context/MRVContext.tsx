@@ -15,6 +15,7 @@ import {
   MonitoringPlanStatus,
   AnnualEmissionStatus,
   VerificationStatus,
+  ReadOnlyRecordTarget,
 } from '../types/mrv';
 
 interface MRVContextType {
@@ -59,6 +60,13 @@ interface MRVContextType {
   isMonitoringPlanUnlocked: boolean;
   isAnnualEmissionUnlocked: boolean;
   isVerificationUnlocked: boolean;
+  getLockReason: (viewKey: string) => { title: string; reason: string; prerequisiteView: string; prerequisiteName: string };
+  // Read-Only Viewer State & Actions
+  isReadOnlyViewerOpen: boolean;
+  readOnlyTarget: ReadOnlyRecordTarget | null;
+  openReadOnlyViewer: (target: ReadOnlyRecordTarget) => void;
+  closeReadOnlyViewer: () => void;
+  getOverallWorkflowProgress: () => { percent: number; stage: string; stageIndex: number };
 }
 
 const INITIAL_FACILITIES: Facility[] = [
@@ -750,7 +758,7 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const setRegistrationStatus = (status: RegistrationStatus) => {
     setWorkflowState(prev => {
-      const isApproved = status === 'Approved' || status === 'Registered';
+      const isApproved = status === 'Approved' || status === 'Registered' || status === 'Approved / Registered';
       const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
       const deadlineDate = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
       return {
@@ -771,15 +779,105 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setWorkflowState(prev => ({ ...prev, verificationStatus: status }));
   };
 
+  // Read-Only Viewer State & Modal
+  const [isReadOnlyViewerOpen, setIsReadOnlyViewerOpen] = useState<boolean>(false);
+  const [readOnlyTarget, setReadOnlyTarget] = useState<ReadOnlyRecordTarget | null>(null);
+
+  const openReadOnlyViewer = (target: ReadOnlyRecordTarget) => {
+    setReadOnlyTarget(target);
+    setIsReadOnlyViewerOpen(true);
+  };
+
+  const closeReadOnlyViewer = () => {
+    setIsReadOnlyViewerOpen(false);
+    setReadOnlyTarget(null);
+  };
+
+  const getOverallWorkflowProgress = () => {
+    let percent = 0;
+    let stage = 'Step 1: Facility Registration';
+    let stageIndex = 1;
+
+    // Stage 1: Registration (20%)
+    if (workflowState.registrationStatus === 'Approved' || workflowState.registrationStatus === 'Registered' || workflowState.registrationStatus === 'Approved / Registered') {
+      percent += 20;
+      stage = 'Step 2: Monitoring Plan';
+      stageIndex = 2;
+    } else if (workflowState.registrationStatus === 'Submitted' || workflowState.registrationStatus === 'Under EAD Review') {
+      percent += 15;
+      stage = 'Step 1: Registration (Under Review)';
+      stageIndex = 1;
+    } else if (workflowState.registrationStatus === 'Correction Required') {
+      percent += 10;
+      stage = 'Step 1: Registration (Correction Required)';
+      stageIndex = 1;
+    } else {
+      percent += 5;
+      stage = 'Step 1: Facility Registration';
+      stageIndex = 1;
+    }
+
+    // Stage 2: Monitoring Plan (20%)
+    if (workflowState.monitoringPlanStatus === 'Approved' || workflowState.monitoringPlanStatus === 'Approved / Accepted' || workflowState.monitoringPlanStatus === 'Accepted') {
+      percent += 20;
+      stage = 'Step 3: Annual Emission Data';
+      stageIndex = 3;
+    } else if (workflowState.monitoringPlanStatus === 'Submitted' || workflowState.monitoringPlanStatus === 'Under EAD Review') {
+      percent += 15;
+      stage = 'Step 2: Monitoring Plan (Under Review)';
+      stageIndex = 2;
+    } else if (workflowState.monitoringPlanStatus === 'Correction Required') {
+      percent += 10;
+      stage = 'Step 2: Monitoring Plan (Correction Required)';
+      stageIndex = 2;
+    }
+
+    // Stage 3: Annual Emission Data (20%)
+    if (workflowState.annualEmissionStatus === 'Approved' || workflowState.annualEmissionStatus === 'Approved / Accepted') {
+      percent += 20;
+    } else if (workflowState.annualEmissionStatus === 'Submitted' || workflowState.annualEmissionStatus === 'Verified' || workflowState.annualEmissionStatus === 'Under EAD Review') {
+      percent += 20;
+      stage = 'Step 4: Third-Party Verification';
+      stageIndex = 4;
+    } else if (workflowState.annualEmissionStatus === 'Correction Required') {
+      percent += 10;
+      stage = 'Step 3: Annual Emission Data (Correction Required)';
+      stageIndex = 3;
+    }
+
+    // Stage 4: Verification (20%)
+    if (workflowState.verificationStatus === 'Verification Completed' || workflowState.verificationStatus === 'Verification Statement Uploaded') {
+      percent += 20;
+      stage = 'Step 5: EAD Final Review';
+      stageIndex = 5;
+    } else if (workflowState.verificationStatus === 'Verification In Progress' || workflowState.verificationStatus === 'Pending Verification') {
+      percent += 10;
+      stage = 'Step 4: Verification in Progress';
+      stageIndex = 4;
+    }
+
+    // Stage 5: EAD Final Review & Acceptance (20%)
+    const hasApproved = submissions.some(s => s.facilityId === activeFacilityId && s.status === 'Approved');
+    if (hasApproved || workflowState.annualEmissionStatus === 'Approved') {
+      percent = 100;
+      stage = 'Step 5: Emission Report Accepted (Complete)';
+      stageIndex = 5;
+    }
+
+    return { percent: Math.min(100, percent), stage, stageIndex };
+  };
+
   // Workflow dependency checks
   const isMonitoringPlanUnlocked =
     workflowState.registrationStatus === 'Approved' ||
-    workflowState.registrationStatus === 'Registered';
+    workflowState.registrationStatus === 'Registered' ||
+    workflowState.registrationStatus === 'Approved / Registered';
 
   const isAnnualEmissionUnlocked =
     isMonitoringPlanUnlocked &&
     (workflowState.monitoringPlanStatus === 'Approved' ||
       workflowState.monitoringPlanStatus === 'Accepted' ||
+      workflowState.monitoringPlanStatus === 'Approved / Accepted' ||
       workflowState.monitoringPlanStatus === 'Active');
 
   const isVerificationUnlocked =
@@ -788,7 +886,44 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       workflowState.annualEmissionStatus === 'Pending Verification' ||
       workflowState.annualEmissionStatus === 'Under EAD Review' ||
       workflowState.annualEmissionStatus === 'Approved' ||
-      workflowState.annualEmissionStatus === 'Accepted');
+      workflowState.annualEmissionStatus === 'Accepted' ||
+      workflowState.annualEmissionStatus === 'Approved / Accepted');
+
+  const getLockReason = (viewKey: string) => {
+    switch (viewKey) {
+      case 'data-entry':
+      case 'monitoring-plan':
+      case 'monitoring-plan-module':
+        return {
+          title: 'Monitoring Plan Locked',
+          reason: `Facility Registration must be Approved / Registered by EAD first before creating a Monitoring Plan. (Current Registration Status: ${workflowState.registrationStatus})`,
+          prerequisiteView: 'registration',
+          prerequisiteName: 'Facility Registration',
+        };
+      case 'annual-emission-data':
+      case 'emissions-data':
+        return {
+          title: 'Annual Emission Data Locked',
+          reason: `Monitoring Plan must be Approved / Accepted by EAD first before entering Annual Emission Data. (Current Monitoring Plan Status: ${workflowState.monitoringPlanStatus})`,
+          prerequisiteView: 'data-entry',
+          prerequisiteName: 'Monitoring Plan',
+        };
+      case 'verification':
+        return {
+          title: 'Verification Module Locked',
+          reason: `Annual Emission Data must be Submitted first before Third-Party Verification can proceed. (Current Annual Emission Status: ${workflowState.annualEmissionStatus})`,
+          prerequisiteView: 'annual-emission-data',
+          prerequisiteName: 'Annual Emission Data',
+        };
+      default:
+        return {
+          title: 'Module Locked',
+          reason: 'Prerequisite workflow step has not been completed yet.',
+          prerequisiteView: 'dashboard',
+          prerequisiteName: 'Dashboard',
+        };
+    }
+  };
 
   const activeFacility = facilities.find((f) => f.id === activeFacilityId) || facilities[0];
 
@@ -1120,6 +1255,12 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isMonitoringPlanUnlocked,
         isAnnualEmissionUnlocked,
         isVerificationUnlocked,
+        getLockReason,
+        isReadOnlyViewerOpen,
+        readOnlyTarget,
+        openReadOnlyViewer,
+        closeReadOnlyViewer,
+        getOverallWorkflowProgress,
       }}
     >
       {children}
