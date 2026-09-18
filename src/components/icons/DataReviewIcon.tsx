@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileCheck } from 'lucide-react';
+import { FileSearch } from 'lucide-react';
 
 export interface DataReviewIconProps {
   className?: string;
@@ -9,5 +9,5 @@ export interface DataReviewIconProps {
 export const DataReviewIcon: React.FC<DataReviewIconProps> = ({
   className = 'w-4 h-4',
 }) => {
-  return <FileCheck className={className} />;
+  return <FileSearch className={className} />;
 };

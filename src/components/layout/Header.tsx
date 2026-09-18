@@ -353,32 +353,30 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
         {/* Right Section: Header Controls & Profile */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
 
-          {/* Compact Review MRV Data Icon Button */}
+          {/* Data Review Button with matched light-blue rounded style */}
           <div className="relative group">
             <button
               onClick={() => {
                 setSelectedSubmissionForReview(null);
                 setActiveView('mrv-data-history');
               }}
-              className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95 ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 ${
                 activeView === 'mrv-data-history' || activeView === 'submission-detail'
                   ? 'bg-[#004B87] text-white shadow-md shadow-[#004B87]/20 border border-[#004B87]'
-                  : 'bg-white hover:bg-slate-50 text-[#004B87] border border-slate-200/90 hover:border-[#004B87]/40 hover:shadow'
+                  : 'bg-blue-50 hover:bg-blue-100 text-[#004B87] border border-blue-200 hover:border-blue-300'
               }`}
-              title="Review MRV Data"
-              aria-label="Review MRV Data"
+              title="Data Review"
+              aria-label="Data Review"
             >
-              <DataReviewIcon
-                className="w-4 h-4"
-                isInverse={activeView === 'mrv-data-history' || activeView === 'submission-detail'}
+              <FileSearch
+                className={`w-3.5 h-3.5 ${
+                  activeView === 'mrv-data-history' || activeView === 'submission-detail'
+                    ? 'text-white'
+                    : 'text-[#004B87]'
+                }`}
               />
+              <span>Data Review</span>
             </button>
-
-            {/* Custom Tooltip */}
-            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2.5 py-1 bg-slate-900 text-white text-[11px] font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
-              Review MRV Data
-              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45 pointer-events-none" />
-            </div>
           </div>
 
           {/* Notifications Bell Button */}
