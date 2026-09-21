@@ -1442,13 +1442,47 @@ export const FacilityRegistrationView: React.FC = () => {
     );
   }, [currentFacilityVersions, selectedVersion]);
 
+  // Check if current facility has already been approved in its lifecycle
+  const isFacilityApproved = useMemo(() => {
+    const existing = facilityRegistrations[selectedFacilityId];
+    if (existing && (existing.status === 'Approved / Registered' || existing.status === 'Approved')) {
+      return true;
+    }
+    const history = facilityRegistrationHistory[selectedFacilityId];
+    if (history && history.some((h) => h.status === 'Approved / Registered' || h.status === 'Approved')) {
+      return true;
+    }
+    if (formData.status === 'Approved / Registered' || formData.status === 'Approved') {
+      return true;
+    }
+    return false;
+  }, [facilityRegistrations, facilityRegistrationHistory, selectedFacilityId, formData.status]);
+
+  // Check if viewing data belongs to an approved version or has an approved change
+  const isViewingApprovedVersion = useMemo(() => {
+    if (viewingData.status === 'Approved / Registered' || viewingData.status === 'Approved') {
+      return true;
+    }
+    if (selectedVersionMeta && (selectedVersionMeta.status === 'Approved / Registered' || selectedVersionMeta.status === 'Approved')) {
+      return true;
+    }
+    if (viewingData.version && viewingData.version !== 'v1.0' && isFacilityApproved) {
+      return true;
+    }
+    return false;
+  }, [viewingData.status, viewingData.version, selectedVersionMeta, isFacilityApproved]);
+
   // Open Edit Form for specific facility
   const handleEditFacility = (facilityId: string) => {
     setSelectedFacilityId(facilityId);
     setActiveFacilityId(facilityId);
     const existing = facilityRegistrations[facilityId];
     if (existing) {
-      setFormData(existing);
+      const isApproved = existing.status === 'Approved / Registered' || existing.status === 'Approved';
+      setFormData({
+        ...existing,
+        confirmUpdateDetails: isApproved ? (existing.confirmUpdateDetails !== undefined ? existing.confirmUpdateDetails : true) : false,
+      });
       setSelectedVersion(existing.version || 'v1.0');
     } else {
       const fac = facilities.find((f) => f.id === facilityId);
@@ -1702,8 +1736,14 @@ export const FacilityRegistrationView: React.FC = () => {
     setFormData(updated);
 
     updateFacility({
+      id: selectedFacilityId,
+      name: updated.facilityName,
       facilityCode: generatedId,
       status: 'Registered',
+      sector: updated.reportingSector,
+      primaryActivity: updated.primaryActivity,
+      address: updated.address,
+      operatorName: updated.operatorName,
     });
 
     setRegistrationStatus('Approved');
@@ -2478,22 +2518,26 @@ export const FacilityRegistrationView: React.FC = () => {
             </div>
           </div>
 
-          {/* Annual Renewal & Report a Change */}
+          {/* Annual Renewal & Report a Change (Only for Approved Facilities) / Declaration & Supporting Documents (First-time) */}
           <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
             <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Annual Renewal & Report a Change</span>
+              <span className="text-xs font-bold text-[#004B87]">
+                {isViewingApprovedVersion ? 'Annual Renewal & Report a Change' : 'Declaration & Supporting Documents'}
+              </span>
             </div>
             <div className="p-5 space-y-5 text-xs">
-              {/* Annual Renewal */}
-              <div>
-                <h4 className="text-xs font-bold text-[#004B87] mb-2.5">Annual Renewal</h4>
-                <div className="flex flex-wrap gap-4 text-xs font-medium text-slate-700">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#004B87]" />
-                    <span>Confirm registration details are correct</span>
+              {/* Annual Renewal (Only for approved facility version) */}
+              {isViewingApprovedVersion && (
+                <div>
+                  <h4 className="text-xs font-bold text-[#004B87] mb-2.5">Annual Renewal</h4>
+                  <div className="flex flex-wrap gap-4 text-xs font-medium text-slate-700">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#004B87]" />
+                      <span>Confirm registration details are correct</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Declaration */}
               <div>
@@ -2504,27 +2548,29 @@ export const FacilityRegistrationView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Report a Change */}
-              <div className="pt-3 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Report a Change</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-3.5">
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Change Type</label>
-                    <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.changeType || 'Change of Operator'}</p>
+              {/* Report a Change (Only shown for approved facility versions when changes are reported) */}
+              {isViewingApprovedVersion && viewingData.changeType && (
+                <div className="pt-3 border-t border-slate-100">
+                  <h4 className="text-xs font-bold text-[#004B87] mb-3">Report a Change</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-3.5">
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Change Type</label>
+                      <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.changeType || 'Change of Operator'}</p>
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Effective Date</label>
+                      <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.changeEffectiveDate || '01-Jan-2026'}</p>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Effective Date</label>
-                    <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.changeEffectiveDate || '01-Jan-2026'}</p>
-                  </div>
-                </div>
 
-                <div className="mb-3.5">
-                  <label className="text-[11px] text-slate-600 font-semibold block mb-1.5">Change Description</label>
-                  <p className="font-medium text-navy-900 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                    {viewingData.changeDescription || 'Additional operational and capacity parameters registered.'}
-                  </p>
+                  <div className="mb-3.5">
+                    <label className="text-[11px] text-slate-600 font-semibold block mb-1.5">Change Description</label>
+                    <p className="font-medium text-navy-900 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                      {viewingData.changeDescription || 'Additional operational and capacity parameters registered.'}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Supporting Documents */}
               <div className="pt-3 border-t border-slate-100">
@@ -3059,37 +3105,53 @@ export const FacilityRegistrationView: React.FC = () => {
             </div>
           </div>
 
-          {/* Annual Renewal & Report a Change */}
+          {/* Annual Renewal & Report a Change (Only for Approved Facilities) / Declaration & Supporting Documents (First-time) */}
           <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
             <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Annual Renewal & Report a Change</span>
+              <span className="text-xs font-bold text-[#004B87]">
+                {isFacilityApproved ? 'Annual Renewal & Report a Change' : 'Declaration & Supporting Documents'}
+              </span>
             </div>
             <div className="p-5 space-y-5 text-xs">
-              {/* Annual Renewal */}
-              <div>
-                <h4 className="text-xs font-bold text-[#004B87] mb-2.5">Annual Renewal</h4>
-                <div className="flex flex-wrap gap-6 text-xs font-medium text-slate-700">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.confirmDetailsCorrect !== false}
-                      onChange={(e) => handleInputChange('confirmDetailsCorrect', e.target.checked)}
-                      className="w-4 h-4 rounded text-[#004B87] focus:ring-[#004B87]"
-                    />
-                    <span>Confirm registration details are correct</span>
-                  </label>
+              {/* Annual Renewal (Only available if facility has already been approved) */}
+              {isFacilityApproved && (
+                <div>
+                  <h4 className="text-xs font-bold text-[#004B87] mb-2.5">Annual Renewal</h4>
+                  <div className="flex flex-wrap gap-6 text-xs font-medium text-slate-700">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.confirmDetailsCorrect !== false && !formData.confirmUpdateDetails}
+                        onChange={(e) => {
+                          const val = e.target.checked;
+                          handleInputChange('confirmDetailsCorrect', val);
+                          if (val) {
+                            handleInputChange('confirmUpdateDetails', false);
+                          }
+                        }}
+                        className="w-4 h-4 rounded text-[#004B87] focus:ring-[#004B87]"
+                      />
+                      <span>Confirm registration details are correct</span>
+                    </label>
 
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.confirmUpdateDetails === true}
-                      onChange={(e) => handleInputChange('confirmUpdateDetails', e.target.checked)}
-                      className="w-4 h-4 rounded text-[#004B87] focus:ring-[#004B87]"
-                    />
-                    <span>Confirm and update registration details</span>
-                  </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.confirmUpdateDetails === true}
+                        onChange={(e) => {
+                          const val = e.target.checked;
+                          handleInputChange('confirmUpdateDetails', val);
+                          if (val) {
+                            handleInputChange('confirmDetailsCorrect', false);
+                          }
+                        }}
+                        className="w-4 h-4 rounded text-[#004B87] focus:ring-[#004B87]"
+                      />
+                      <span>Confirm and update registration details (Report a Change)</span>
+                    </label>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Declaration */}
               <div>
@@ -3107,49 +3169,56 @@ export const FacilityRegistrationView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Report a Change */}
-              <div className="pt-3 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Report a Change</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-3.5">
-                  <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Change Type</label>
-                    <select
-                      value={formData.changeType || 'Change of Operator'}
-                      onChange={(e) => handleInputChange('changeType', e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm cursor-pointer"
-                    >
-                      <option value="Change of Operator">Change of Operator</option>
-                      <option value="Change of Facility Boundary">Change of Facility Boundary</option>
-                      <option value="Change of Fuel / Material Mix">Change of Fuel / Material Mix</option>
-                      <option value="Operational Capacity Modification">Operational Capacity Modification</option>
-                    </select>
+              {/* Report a Change (Only displayed after approved AND when user wants to do changes / confirmUpdateDetails is checked) */}
+              {isFacilityApproved && formData.confirmUpdateDetails && (
+                <div className="pt-3 border-t border-slate-100">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-xs font-bold text-[#004B87]">Report a Change</h4>
+                    <span className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md font-medium">
+                      Reporting changes to approved facility
+                    </span>
                   </div>
-                  <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Effective Date</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={formData.changeEffectiveDate || ''}
-                        onChange={(e) => handleInputChange('changeEffectiveDate', e.target.value)}
-                        placeholder="01-Jan-2026"
-                        className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
-                      />
-                      <Calendar className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-3.5">
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1.5">Change Type</label>
+                      <select
+                        value={formData.changeType || 'Change of Operator'}
+                        onChange={(e) => handleInputChange('changeType', e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm cursor-pointer"
+                      >
+                        <option value="Change of Operator">Change of Operator</option>
+                        <option value="Change of Facility Boundary">Change of Facility Boundary</option>
+                        <option value="Change of Fuel / Material Mix">Change of Fuel / Material Mix</option>
+                        <option value="Operational Capacity Modification">Operational Capacity Modification</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1.5">Effective Date</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={formData.changeEffectiveDate || ''}
+                          onChange={(e) => handleInputChange('changeEffectiveDate', e.target.value)}
+                          placeholder="01-Jan-2026"
+                          className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
+                        />
+                        <Calendar className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="mb-3.5">
-                  <label className="block text-slate-700 font-semibold mb-1.5">Change Description</label>
-                  <textarea
-                    rows={2}
-                    value={formData.changeDescription}
-                    onChange={(e) => handleInputChange('changeDescription', e.target.value)}
-                    placeholder="Additional production line commissioned in July 2026."
-                    className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                  />
+                  <div className="mb-3.5">
+                    <label className="block text-slate-700 font-semibold mb-1.5">Change Description</label>
+                    <textarea
+                      rows={2}
+                      value={formData.changeDescription}
+                      onChange={(e) => handleInputChange('changeDescription', e.target.value)}
+                      placeholder="Additional production line commissioned in July 2026."
+                      className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Supporting Documents Upload */}
               <div className="pt-3 border-t border-slate-100">

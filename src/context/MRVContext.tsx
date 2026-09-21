@@ -980,10 +980,42 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     (s) => s.facilityId === activeFacility.id && s.reportingYear === reportingYear
   );
 
-  const updateFacility = (data: Partial<Facility>) => {
-    setFacilities((prev) =>
-      prev.map((f) => (f.id === activeFacility.id ? { ...f, ...data } : f))
-    );
+  const updateFacility = (data: Partial<Facility> & { id?: string }) => {
+    const targetId = data.id || activeFacility.id;
+    setFacilities((prev) => {
+      const exists = prev.some((f) => f.id === targetId);
+      if (exists) {
+        return prev.map((f) => (f.id === targetId ? { ...f, ...data } : f));
+      } else {
+        const newFac: Facility = {
+          id: targetId,
+          name: data.name || 'New Facility',
+          facilityCode: data.facilityCode || `FAC-EAD-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+          sector: data.sector || 'Energy',
+          emirate: data.emirate || 'Abu Dhabi',
+          coordinates: data.coordinates || { lat: 24.4539, lng: 54.3773 },
+          address: data.address || '',
+          operatorName: data.operatorName || '',
+          tradeLicense: data.tradeLicense || '',
+          permitNumber: data.permitNumber || '',
+          permitType: data.permitType || 'Class A Environmental Operating Permit',
+          permitIssueDate: data.permitIssueDate || new Date().toISOString().slice(0, 10),
+          permitExpiryDate: data.permitExpiryDate || '',
+          tier: data.tier || 'Tier 2',
+          primaryActivity: data.primaryActivity || '',
+          secondaryActivities: data.secondaryActivities || '',
+          products: data.products || '',
+          productionCapacity: data.productionCapacity || '',
+          actualProduction: data.actualProduction || '',
+          contactPerson: data.contactPerson || { name: '', position: '', email: '', phone: '' },
+          environmentalManager: data.environmentalManager || { name: '', email: '', phone: '' },
+          status: data.status || 'Registered',
+          lastRenewalDate: data.lastRenewalDate || new Date().toISOString().slice(0, 10),
+          complianceScore: data.complianceScore || 85,
+        };
+        return [...prev, newFac];
+      }
+    });
   };
 
   const updateMonitoringPlan = (data: Partial<MonitoringPlan>) => {

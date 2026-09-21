@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
   Plus,
   X,
@@ -128,12 +128,12 @@ export const DataEntryView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0891',
       planRef: 'MP-2026-0891',
       reportingYear: '2026',
-      planVersion: 'v2.1',
-      status: 'Approved',
+      planVersion: 'v1.0',
+      status: 'To Be Submitted',
       primaryApproach: 'Calculation-based (Tier 3)',
-      submittedDate: '10 Jan 2026',
-      updatedDate: '18 Jan 2026',
-      eadCorrectionDate: null,
+      submittedDate: '—',
+      updatedDate: '—',
+      eadCorrectionDate: '2026-06-17',
       description: 'Cogeneration Power & High-Pressure Steam Generation plant producing electricity and industrial steam for regional facilities.',
       businessSector: 'Energy',
       primaryActivity: 'Combustion of fuels in stationary equipment',
@@ -186,12 +186,12 @@ export const DataEntryView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0104',
       planRef: 'MP-2026-0104',
       reportingYear: '2026',
-      planVersion: 'v3.0',
-      status: 'Approved',
+      planVersion: 'v1.0',
+      status: 'To Be Submitted',
       primaryApproach: 'Measurement-based (CEMS)',
-      submittedDate: '14 Feb 2026',
-      updatedDate: '20 Feb 2026',
-      eadCorrectionDate: null,
+      submittedDate: '—',
+      updatedDate: '—',
+      eadCorrectionDate: '2026-06-17',
       description: 'Integrated direct reduced iron (DRI) and electric arc furnace (EAF) steel production complex.',
       businessSector: 'Industrial Processes',
       primaryActivity: 'Production of iron or steel',
@@ -345,12 +345,12 @@ export const DataEntryView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0775',
       planRef: 'MP-2026-0775',
       reportingYear: '2026',
-      planVersion: 'v1.1',
-      status: 'Approved',
+      planVersion: 'v1.0',
+      status: 'To Be Submitted',
       primaryApproach: 'Waste Incineration Tier 2',
-      submittedDate: '22 Jan 2026',
-      updatedDate: '28 Jan 2026',
-      eadCorrectionDate: null,
+      submittedDate: '—',
+      updatedDate: '—',
+      eadCorrectionDate: '2026-06-17',
       description: 'Municipal solid waste incineration facility with waste heat energy recovery.',
       businessSector: 'Waste',
       primaryActivity: 'Solid waste thermal treatment',
@@ -448,40 +448,20 @@ export const DataEntryView: React.FC = () => {
     reportingYear: '2026',
     planVersion: 'v1.0',
     status: 'Draft',
-    primaryApproach: '',
+    primaryApproach: 'Calculation-based (Tier 2)',
     submittedDate: null,
     updatedDate: null,
     eadCorrectionDate: null,
     description: '',
-    businessSector: '',
-    primaryActivity: '',
+    businessSector: 'Energy',
+    primaryActivity: 'Combustion of fuels in stationary equipment',
     operationalStatus: 'Operational',
-    productionStreams: [
-      { id: 'P01', category: '', technology: '', energyRelated: '', processEmissions: '', capacity: '', capacityUnit: '', actualQuantity: '', actualQuantityUnit: '' }
-    ],
-    emissionsEstimation: {
-      estimatedAnnualEmissions: '',
-      justification: '',
-    },
-    emissionSources: [
-      { id: 'S01', name: '', associatedProduct: '', gasTypes: '', totalEmissions: '', energyRelated: '', processEmissions: '', methodology: '' }
-    ],
-    methaneData: {
-      hasMethaneEmissions: false,
-      annualVolume: '',
-      annualVolumeUnit: 't CH₄/year',
-      estimatedCo2e: '',
-      estimatedCo2eUnit: 't CO₂e/year',
-      sourceOfEstimations: '',
-      keySourcesAtInstallation: '',
-      procedureToDetermine: '',
-    },
-    methaneProcedures: [
-      { id: '1', title: '', description: '', personInCharge: '', email: '', phone: '' }
-    ],
-    sourceStreams: [
-      { id: 'FC1', description: '', associatedSource: '', classification: '', activityLevel: '', activityUnit: '', fuelType: '', combustionDevice: '', deviceCapacity: '', metricUnit: '' }
-    ],
+    productionStreams: [],
+    emissionsEstimation: { estimatedAnnualEmissions: '', justification: '' },
+    emissionSources: [],
+    methaneData: { hasMethaneEmissions: false, annualVolume: '', annualVolumeUnit: 't CH₄/year', estimatedCo2e: '', estimatedCo2eUnit: 't CO₂e/year', sourceOfEstimations: '', keySourcesAtInstallation: '', procedureToDetermine: '' },
+    methaneProcedures: [],
+    sourceStreams: [],
     calcOtherInputs: [],
     measEquipment: [],
     mitigationMeasures: [],
@@ -489,9 +469,77 @@ export const DataEntryView: React.FC = () => {
     attachedFiles: [],
   };
 
-  // Calculate Correction Deadline Countdown Helper
+  // Synchronize / Merge approved facilities from Context / Registration that don't have a plan yet
+  useEffect(() => {
+    setFacilityPlans((prev) => {
+      let updated = false;
+      const nextPlans = { ...prev };
+
+      facilities.forEach((fac) => {
+        const isApproved =
+          fac.status === 'Registered' ||
+          fac.status === 'Approved' ||
+          (fac.status as unknown as string) === 'Approved / Registered' ||
+          fac.status === 'Active';
+
+        if (isApproved && !nextPlans[fac.id]) {
+          updated = true;
+          const numCode = (fac.facilityCode || fac.id).replace(/[^0-9]/g, '').slice(-4) || '0001';
+          nextPlans[fac.id] = {
+            facilityName: fac.name,
+            facilityId: fac.facilityCode || `FAC-EAD-2026-${numCode}`,
+            planRef: `MP-2026-${numCode}`,
+            reportingYear: '2026',
+            planVersion: 'v1.0',
+            status: 'To Be Submitted',
+            primaryApproach: '—',
+            submittedDate: '—',
+            updatedDate: '—',
+            eadCorrectionDate: '2026-06-17',
+            description: fac.primaryActivity || 'Facility statutory monitoring plan.',
+            businessSector: fac.sector || 'Energy',
+            primaryActivity: fac.primaryActivity || '',
+            operationalStatus: 'Operational',
+            productionStreams: [],
+            emissionsEstimation: { estimatedAnnualEmissions: '', justification: '' },
+            emissionSources: [],
+            methaneData: { hasMethaneEmissions: false, annualVolume: '', annualVolumeUnit: 't CH₄/year', estimatedCo2e: '', estimatedCo2eUnit: 't CO₂e/year', sourceOfEstimations: '', keySourcesAtInstallation: '', procedureToDetermine: '' },
+            methaneProcedures: [],
+            sourceStreams: [],
+            calcOtherInputs: [],
+            measEquipment: [],
+            mitigationMeasures: [],
+            remarks: '',
+            attachedFiles: [],
+          };
+        }
+      });
+
+      return updated ? nextPlans : prev;
+    });
+  }, [facilities]);
+
+  // Calculate Submission / Correction Deadline Countdown Helper
   const getCorrectionDeadlineInfo = (deadlineDateStr: string | null, status: string) => {
-    if (status !== 'Correction Required' || !deadlineDateStr) {
+    if (status === 'To Be Submitted') {
+      const targetDeadlineStr = deadlineDateStr || '2026-06-17';
+      const deadline = new Date(targetDeadlineStr);
+      const now = new Date('2026-05-18T10:00:00Z'); // normalized reference date
+      const diffTime = deadline.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays < 0) {
+        return { text: 'Overdue', isOverdue: true, daysRemaining: diffDays, deadlineStr: targetDeadlineStr };
+      }
+      return {
+        text: `Due: ${targetDeadlineStr} (${diffDays} days left)`,
+        isOverdue: false,
+        daysRemaining: diffDays,
+        deadlineStr: targetDeadlineStr,
+      };
+    }
+
+    if ((status !== 'Correction Required' && status !== 'Reverted') || !deadlineDateStr) {
       return { text: '—', isOverdue: false, daysRemaining: null };
     }
     const deadline = new Date(deadlineDateStr);
@@ -522,6 +570,7 @@ export const DataEntryView: React.FC = () => {
 
       const matchesStatus =
         statusFilter === 'ALL' ||
+        (statusFilter === 'To Be Submitted' && plan.status === 'To Be Submitted') ||
         (statusFilter === 'Approved' && (plan.status === 'Approved' || plan.status === 'Approved / Active' || plan.status === 'Active')) ||
         (statusFilter === 'Reverted' && (plan.status === 'Correction Required' || plan.status === 'Reverted' || plan.status.includes('Correction') || plan.status.includes('Reverted'))) ||
         (statusFilter === 'Correction Required' && (plan.status === 'Correction Required' || plan.status === 'Reverted' || plan.status.includes('Correction') || plan.status.includes('Reverted'))) ||
@@ -559,6 +608,124 @@ export const DataEntryView: React.FC = () => {
     setSelectedFacilityId(facId);
     setActiveFacilityId(facId);
     setViewMode('view');
+  };
+
+  // Handle Create Monitoring Plan for Approved Facility in 'To Be Submitted' State
+  const handleCreatePlanForFacility = (facId: string) => {
+    setSelectedFacilityId(facId);
+    setActiveFacilityId(facId);
+
+    setFacilityPlans((prev) => {
+      const existing = prev[facId];
+      if (!existing || existing.status === 'To Be Submitted') {
+        const fac = facilities.find((f) => f.id === facId);
+        const facName = existing?.facilityName || fac?.name || 'New Facility';
+        const facCode = existing?.facilityId || fac?.facilityCode || `FAC-EAD-2026-${facId.replace(/[^0-9]/g, '').padStart(4, '0')}`;
+        const numCode = facCode.replace(/[^0-9]/g, '').slice(-4) || '0001';
+
+        return {
+          ...prev,
+          [facId]: {
+            facilityName: facName,
+            facilityId: facCode,
+            planRef: `MP-2026-${numCode}`,
+            reportingYear: '2026',
+            planVersion: 'v1.0',
+            status: 'Draft',
+            primaryApproach: 'Calculation-based (Tier 2)',
+            submittedDate: '—',
+            updatedDate: '—',
+            eadCorrectionDate: null,
+            description: existing?.description || fac?.primaryActivity || 'Facility statutory monitoring plan.',
+            businessSector: existing?.businessSector || fac?.sector || 'Energy',
+            primaryActivity: existing?.primaryActivity || fac?.primaryActivity || 'Combustion of fuels in stationary equipment',
+            operationalStatus: 'Operational',
+            productionStreams: [
+              {
+                id: 'P01',
+                category: 'Primary Products',
+                technology: 'Standard Process Unit',
+                energyRelated: 'Yes',
+                processEmissions: 'No',
+                capacity: '100,000',
+                capacityUnit: 't/year',
+                actualQuantity: '85,000',
+                actualQuantityUnit: 't/year',
+              },
+            ],
+            emissionsEstimation: {
+              estimatedAnnualEmissions: '50,000',
+              justification: 'Calculated using fuel consumption records and standard IPCC emissions factors.',
+            },
+            emissionSources: [
+              {
+                id: 'S01',
+                name: 'Main Boiler / Combustion Unit',
+                associatedProduct: 'P01',
+                gasTypes: 'CO₂, CH₄, N₂O',
+                totalEmissions: '50,000',
+                energyRelated: 'Yes',
+                processEmissions: 'No',
+                methodology: 'Calculation-based',
+              },
+            ],
+            methaneData: {
+              hasMethaneEmissions: false,
+              annualVolume: '',
+              annualVolumeUnit: 't CH₄/year',
+              estimatedCo2e: '',
+              estimatedCo2eUnit: 't CO₂e/year',
+              sourceOfEstimations: '',
+              keySourcesAtInstallation: '',
+              procedureToDetermine: '',
+            },
+            methaneProcedures: [],
+            sourceStreams: [
+              {
+                id: 'FC1',
+                description: 'Natural Gas Feed',
+                associatedSource: 'S01',
+                classification: 'Fuel Combusted',
+                activityLevel: '25,000,000',
+                activityUnit: 'Nm³',
+                fuelType: 'Natural gas',
+                combustionDevice: 'Industrial Boiler',
+                deviceCapacity: '35.0',
+                metricUnit: 'MW',
+              },
+            ],
+            calcOtherInputs: [
+              {
+                id: 'F01',
+                type: 'Natural Gas',
+                activityLevel: '25,000,000',
+                units: 'Nm³',
+                ncv: '38.5',
+                emissionFactor: '56.1',
+                oxidationFactor: '100%',
+                conversionFactor: '1.0',
+                source: 'Fiscal Gas Meter',
+              },
+            ],
+            measEquipment: [
+              {
+                name: 'Fiscal Flow Meter',
+                type: 'Flow Meter',
+                manufacturer: 'ABB / Emerson',
+                parameter: 'Gas Flow',
+                accuracyClass: '±1.0%',
+              },
+            ],
+            mitigationMeasures: [],
+            remarks: 'Initial monitoring plan drafted for EAD regulatory approval.',
+            attachedFiles: [],
+          },
+        };
+      }
+      return prev;
+    });
+
+    setViewMode('form');
   };
 
   // Update field in current active plan
@@ -650,11 +817,12 @@ export const DataEntryView: React.FC = () => {
                 className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all cursor-pointer"
               >
                 <option value="ALL">All Statuses</option>
-                <option value="Approved">Approved</option>
+                <option value="To Be Submitted">To Be Submitted</option>
+                <option value="Draft">Draft</option>
                 <option value="Submitted">Submitted</option>
                 <option value="Under EAD Review">Under EAD Review</option>
+                <option value="Approved">Approved</option>
                 <option value="Reverted">Reverted (Correction Required)</option>
-                <option value="Draft">Draft</option>
                 <option value="Rejected">Rejected</option>
               </select>
             </div>
@@ -690,113 +858,6 @@ export const DataEntryView: React.FC = () => {
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Reset</span>
-              </button>
-            )}
-
-            {/* + Create Monitoring Plan Button */}
-            {isFacilityOperator && (
-              <button
-                onClick={() => {
-                  const newIndex = Object.keys(facilityPlans).length + 1;
-                  const newId = `fac-${newIndex}`;
-                  const formattedCode = String(newIndex).padStart(4, '0');
-                  const newPlan = {
-                    facilityName: '',
-                    facilityId: `FAC-EAD-2026-${formattedCode}`,
-                    planRef: `MP-2026-${formattedCode}`,
-                    reportingYear: '2026',
-                    planVersion: 'v1.0',
-                    status: 'Draft',
-                    primaryApproach: '',
-                    submittedDate: null,
-                    updatedDate: null,
-                    eadCorrectionDate: null,
-                    description: '',
-                    businessSector: '',
-                    primaryActivity: '',
-                    operationalStatus: 'Operational',
-                    productionStreams: [
-                      {
-                        id: 'P01',
-                        category: '',
-                        technology: '',
-                        energyRelated: '',
-                        processEmissions: '',
-                        capacity: '',
-                        capacityUnit: '',
-                        actualQuantity: '',
-                        actualQuantityUnit: '',
-                      },
-                    ],
-                    emissionsEstimation: {
-                      estimatedAnnualEmissions: '',
-                      justification: '',
-                    },
-                    emissionSources: [
-                      {
-                        id: 'S01',
-                        name: '',
-                        associatedProduct: '',
-                        gasTypes: '',
-                        totalEmissions: '',
-                        energyRelated: '',
-                        processEmissions: '',
-                        methodology: '',
-                      },
-                    ],
-                    methaneData: {
-                      hasMethaneEmissions: false,
-                      annualVolume: '',
-                      annualVolumeUnit: 't CH₄/year',
-                      estimatedCo2e: '',
-                      estimatedCo2eUnit: 't CO₂e/year',
-                      sourceOfEstimations: '',
-                      keySourcesAtInstallation: '',
-                      procedureToDetermine: '',
-                    },
-                    methaneProcedures: [
-                      {
-                        id: '1',
-                        title: '',
-                        description: '',
-                        personInCharge: '',
-                        email: '',
-                        phone: '',
-                      },
-                    ],
-                    sourceStreams: [
-                      {
-                        id: 'FC1',
-                        description: '',
-                        associatedSource: '',
-                        classification: '',
-                        activityLevel: '',
-                        activityUnit: '',
-                        fuelType: '',
-                        combustionDevice: '',
-                        deviceCapacity: '',
-                        metricUnit: '',
-                      },
-                    ],
-                    calcOtherInputs: [],
-                    measEquipment: [],
-                    mitigationMeasures: [],
-                    remarks: '',
-                    attachedFiles: [],
-                  };
-
-                  setFacilityPlans((prev) => ({
-                    ...prev,
-                    [newId]: newPlan,
-                  }));
-                  setSelectedFacilityId(newId);
-                  setActiveFacilityId(newId);
-                  setViewMode('form');
-                }}
-                className="px-4 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Create Monitoring Plan</span>
               </button>
             )}
           </div>
@@ -893,28 +954,30 @@ export const DataEntryView: React.FC = () => {
                             <span
                               className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap inline-block ${
                                 plan.status === 'Approved' || plan.status === 'Approved / Active' || plan.status === 'Active'
-                                  ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
+                                  ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60 font-bold'
                                   : plan.status === 'Submitted' || plan.status === 'Under EAD Review'
-                                  ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
+                                  ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60 font-bold'
+                                  : plan.status === 'To Be Submitted'
+                                  ? 'bg-[#EFF6FF] text-[#1D4ED8] border border-blue-200/80 font-bold'
                                   : plan.status === 'Correction Required' || plan.status === 'Reverted'
                                   ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
                                   : plan.status === 'Rejected'
                                   ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 font-bold'
-                                  : 'bg-slate-100 text-slate-700 border border-slate-200'
+                                  : 'bg-slate-100 text-slate-700 border border-slate-200 font-bold'
                               }`}
                             >
                               {plan.status}
                             </span>
                           </td>
 
-                          {/* Correction Deadline */}
+                          {/* Submission / Correction Deadline */}
                           <td className="py-2.5 px-2.5 whitespace-nowrap text-slate-600">
-                            {plan.status === 'Correction Required' && deadlineInfo.daysRemaining !== null ? (
+                            {(plan.status === 'Correction Required' || plan.status === 'To Be Submitted') && deadlineInfo.daysRemaining !== null ? (
                               <div className="flex items-start gap-1.5">
-                                <Calendar className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                                <Calendar className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${plan.status === 'To Be Submitted' ? 'text-blue-600' : 'text-amber-600'}`} />
                                 <div className="flex flex-col leading-tight">
                                   <span className="font-semibold text-slate-800 text-[11px]">Due: {deadlineInfo.deadlineStr}</span>
-                                  <span className={`text-[10px] font-medium ${deadlineInfo.isOverdue ? 'text-rose-600 font-bold' : 'text-amber-700'}`}>
+                                  <span className={`text-[10px] font-medium ${deadlineInfo.isOverdue ? 'text-rose-600 font-bold' : plan.status === 'To Be Submitted' ? 'text-blue-700 font-bold' : 'text-amber-700 font-bold'}`}>
                                     {deadlineInfo.isOverdue
                                       ? `Overdue (${Math.abs(deadlineInfo.daysRemaining)} days late)`
                                       : `(${deadlineInfo.daysRemaining} days left)`}
@@ -933,24 +996,35 @@ export const DataEntryView: React.FC = () => {
                             </span>
                           </td>
 
-                          {/* Actions: Eye View & Edit Icon Buttons */}
+                          {/* Actions: "Create Monitoring Plan" button for 'To Be Submitted', or Eye View & Edit Icons */}
                           <td className="py-2.5 px-3 text-right whitespace-nowrap">
-                            <div className="flex items-center justify-end gap-1">
+                            {plan.status === 'To Be Submitted' ? (
                               <button
-                                onClick={() => handleViewFacilityPlan(facId)}
-                                title="View Monitoring Plan Details"
-                                className="p-1 rounded-lg text-slate-500 hover:text-[#004B87] hover:bg-slate-100 transition-colors cursor-pointer"
+                                onClick={() => handleCreatePlanForFacility(facId)}
+                                className="px-2.5 py-1 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-lg text-[11px] font-bold flex items-center gap-1 shadow-xs hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer whitespace-nowrap ml-auto active:scale-95"
+                                title="Create Plan for this facility"
                               >
-                                <Eye className="w-4 h-4" />
+                                <Plus className="w-3.5 h-3.5" />
+                                <span>Create Plan</span>
                               </button>
-                              <button
-                                onClick={() => handleEditFacilityPlan(facId)}
-                                title="Edit Monitoring Plan"
-                                className="p-1 rounded-lg text-slate-500 hover:text-[#004B87] hover:bg-slate-100 transition-colors cursor-pointer"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </button>
-                            </div>
+                            ) : (
+                              <div className="flex items-center justify-end gap-1">
+                                <button
+                                  onClick={() => handleViewFacilityPlan(facId)}
+                                  title="View Monitoring Plan Details"
+                                  className="p-1 rounded-lg text-slate-500 hover:text-[#004B87] hover:bg-slate-100 transition-colors cursor-pointer"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleEditFacilityPlan(facId)}
+                                  title="Edit Monitoring Plan"
+                                  className="p-1 rounded-lg text-slate-500 hover:text-[#004B87] hover:bg-slate-100 transition-colors cursor-pointer"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </button>
+                              </div>
+                            )}
                           </td>
                         </tr>
                       );

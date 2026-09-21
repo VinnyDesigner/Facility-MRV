@@ -891,27 +891,25 @@ export const AnnualEmissionDataView: React.FC = () => {
                 <thead>
                   <tr className="bg-[#E9F1F8] text-slate-700 font-semibold text-xs border-b border-slate-200 sticky top-0 z-10 shadow-xs">
                     <th className="py-2.5 px-3 w-10 text-center">#</th>
-                    <th className="py-2.5 px-3 w-[18%]">Facility Name</th>
-                    <th className="py-2.5 px-3 w-[13%] whitespace-nowrap">Facility ID</th>
-                    <th className="py-2.5 px-3 w-[9%] whitespace-nowrap text-left">Reporting Year</th>
-                    <th className="py-2.5 px-3 w-[6%] text-center whitespace-nowrap">Version</th>
-                    <th className="py-2.5 px-3 w-[14%] whitespace-nowrap">Total Scope 1 (tCO₂e)</th>
-                    <th className="py-2.5 px-3 w-[11%] whitespace-nowrap">Submitted Date</th>
-                    <th className="py-2.5 px-3 w-[11%] whitespace-nowrap text-left">Status</th>
-                    <th className="py-2.5 px-3 w-[13%] whitespace-nowrap">Correction Deadline</th>
+                    <th className="py-2.5 px-3 w-[22%]">Facility Name</th>
+                    <th className="py-2.5 px-3 w-[15%] whitespace-nowrap">Facility ID</th>
+                    <th className="py-2.5 px-3 w-[11%] whitespace-nowrap text-left">Reporting Year</th>
+                    <th className="py-2.5 px-3 w-[7%] text-center whitespace-nowrap">Version</th>
+                    <th className="py-2.5 px-3 w-[17%] whitespace-nowrap">Total Scope 1 (tCO₂e)</th>
+                    <th className="py-2.5 px-3 w-[13%] whitespace-nowrap">Submitted Date</th>
+                    <th className="py-2.5 px-3 w-[10%] whitespace-nowrap text-left">Status</th>
                     <th className="py-2.5 px-3 w-[5%] text-right whitespace-nowrap">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
                   {paginatedEmissions.length === 0 ? (
                     <tr>
-                      <td colSpan={10} className="py-8 text-center text-slate-400 font-semibold">
+                      <td colSpan={9} className="py-8 text-center text-slate-400 font-semibold">
                         No annual emission records match the selected filter criteria.
                       </td>
                     </tr>
                   ) : (
                     paginatedEmissions.map(([facId, rec], idx) => {
-                      const deadlineInfo = getCorrectionDeadlineInfo(rec.eadCorrectionDate, rec.status);
                       const rowNumber = (currentPage - 1) * itemsPerPage + idx + 1;
 
                       return (
@@ -979,25 +977,6 @@ export const AnnualEmissionDataView: React.FC = () => {
                             >
                               {rec.status}
                             </span>
-                          </td>
-
-                          {/* Correction Deadline */}
-                          <td className="py-2.5 px-3 whitespace-nowrap text-slate-600">
-                            {rec.status === 'Correction Required' && deadlineInfo.daysRemaining !== null ? (
-                              <div className="flex items-start gap-1.5">
-                                <Calendar className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                                <div className="flex flex-col leading-tight">
-                                  <span className="font-semibold text-slate-800 text-[11px]">Due: {deadlineInfo.deadlineStr}</span>
-                                  <span className={`text-[10px] font-medium ${deadlineInfo.isOverdue ? 'text-rose-600 font-bold' : 'text-amber-700'}`}>
-                                    {deadlineInfo.isOverdue
-                                      ? `Overdue (${Math.abs(deadlineInfo.daysRemaining)} days late)`
-                                      : `(${deadlineInfo.daysRemaining} days left)`}
-                                  </span>
-                                </div>
-                              </div>
-                            ) : (
-                              <span className="text-slate-400 font-medium pl-2">—</span>
-                            )}
                           </td>
 
                           {/* Actions: Eye View & Edit Icon Buttons */}
