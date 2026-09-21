@@ -12,7 +12,7 @@ export interface User {
   avatar?: string;
 }
 
-export type SectorType = 'Energy' | 'IPPU' | 'Waste' | 'Transport' | 'Agriculture & Forestry';
+export type SectorType = 'Energy' | 'IPPU' | 'Waste' | 'Transport' | 'Agriculture & Forestry' | 'Chemicals' | 'Manufacturing';
 export type EmirateType = 'Abu Dhabi' | 'Al Ain' | 'Al Dhafra';
 export type TierLevel = 'Tier 1' | 'Tier 2' | 'Tier 3';
 
@@ -58,7 +58,7 @@ export interface Facility {
     email: string;
     phone: string;
   };
-  status: 'Registered' | 'Renewal Pending' | 'Active';
+  status: 'Registered' | 'Renewal Pending' | 'Active' | 'Rejected' | 'Correction Required' | 'Reverted' | 'Approved' | 'Draft';
   lastRenewalDate: string;
   complianceScore: number;
 }

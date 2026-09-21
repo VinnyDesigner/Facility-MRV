@@ -492,7 +492,8 @@ export const ReadOnlyRecordViewer: React.FC = () => {
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className={`w-2 h-2 rounded-full ${
                   isApproved ? 'bg-emerald-400' :
-                  isCorrectionRequired ? 'bg-amber-400 animate-ping' :
+                  isCorrectionRequired || currentStatus === 'Reverted' ? 'bg-amber-400 animate-ping' :
+                  currentStatus === 'Rejected' ? 'bg-rose-400' :
                   'bg-cyan-400'
                 }`} />
                 <p className="font-bold text-white text-xs">{currentStatus}</p>
@@ -608,7 +609,7 @@ export const ReadOnlyRecordViewer: React.FC = () => {
         {/* =================================================================== */}
         <div className="flex items-center border-b border-slate-200 px-4 bg-white text-xs font-semibold overflow-x-auto no-scrollbar">
           {[
-            { id: 'registration', label: '1. Registration', icon: Building2 },
+            { id: 'registration', label: '1. Facility Registration', icon: Building2 },
             { id: 'monitoring-plan', label: '2. Monitoring Plan', icon: Factory },
             { id: 'annual-emissions', label: '3. Annual Emissions', icon: Flame },
             { id: 'verification', label: '4. Verification', icon: ShieldCheck },
@@ -661,14 +662,10 @@ export const ReadOnlyRecordViewer: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
                   <div>
                     <label className="text-[11px] text-slate-400 font-semibold block">Operator Company Name</label>
                     <p className="font-bold text-slate-800 mt-0.5">{currentFac.operatorName}</p>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-400 font-semibold block">Operator ID</label>
-                    <p className="font-mono font-bold text-[#004B87] mt-0.5">OP-{currentFac.id.replace('fac-', '00012')}</p>
                   </div>
                   <div>
                     <label className="text-[11px] text-slate-400 font-semibold block">Commercial License Number</label>
@@ -677,10 +674,6 @@ export const ReadOnlyRecordViewer: React.FC = () => {
                   <div>
                     <label className="text-[11px] text-slate-400 font-semibold block">Registered Head Office Address</label>
                     <p className="font-medium text-slate-700 mt-0.5">{currentFac.address}</p>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-400 font-semibold block">Correspondence Address</label>
-                    <p className="font-medium text-slate-700 mt-0.5">Same as Registered Address</p>
                   </div>
                   <div>
                     <label className="text-[11px] text-slate-400 font-semibold block">Country of Incorporation</label>
@@ -890,22 +883,22 @@ export const ReadOnlyRecordViewer: React.FC = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="bg-slate-50 border-y border-slate-200 text-slate-700 font-bold">
-                        <th className="py-2.5 px-3">Stream ID</th>
-                        <th className="py-2.5 px-3">Stream / Header Name</th>
-                        <th className="py-2.5 px-3">Annual Throughput</th>
-                        <th className="py-2.5 px-3">Unit</th>
-                        <th className="py-2.5 px-3">Measuring Device & Calibration Reference</th>
+                      <tr className="bg-slate-50 border-y border-slate-200 text-slate-700 font-bold whitespace-nowrap">
+                        <th className="py-2.5 px-3 min-w-[80px]" title="Stream ID">Stream ID</th>
+                        <th className="py-2.5 px-3 min-w-[180px]" title="Stream / Header Name">Stream / Header Name</th>
+                        <th className="py-2.5 px-3 min-w-[140px]" title="Annual Throughput">Annual Throughput</th>
+                        <th className="py-2.5 px-3 min-w-[80px]" title="Unit">Unit</th>
+                        <th className="py-2.5 px-3 min-w-[240px]" title="Measuring Device & Calibration Reference">Measuring Device & Calibration Reference</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 font-medium">
                       {facilityStreams.map((stream) => (
                         <tr key={stream.id} className="hover:bg-slate-50/60">
-                          <td className="py-2.5 px-3 font-mono font-bold text-[#004B87]">{stream.id}</td>
-                          <td className="py-2.5 px-3 font-bold text-slate-900">{stream.name}</td>
-                          <td className="py-2.5 px-3 font-bold text-slate-800">{stream.throughput}</td>
-                          <td className="py-2.5 px-3 text-slate-600">{stream.unit}</td>
-                          <td className="py-2.5 px-3 text-slate-700">{stream.device}</td>
+                          <td className="py-2.5 px-3 font-mono font-bold text-[#004B87]" title={stream.id}>{stream.id}</td>
+                          <td className="py-2.5 px-3 font-bold text-slate-900" title={stream.name}>{stream.name}</td>
+                          <td className="py-2.5 px-3 font-bold text-slate-800" title={stream.throughput}>{stream.throughput}</td>
+                          <td className="py-2.5 px-3 text-slate-600" title={stream.unit}>{stream.unit}</td>
+                          <td className="py-2.5 px-3 text-slate-700" title={stream.device}>{stream.device}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -946,26 +939,26 @@ export const ReadOnlyRecordViewer: React.FC = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="bg-slate-50 border-y border-slate-200 text-slate-700 font-bold">
-                        <th className="py-2.5 px-3">Project Name</th>
-                        <th className="py-2.5 px-3">Status</th>
-                        <th className="py-2.5 px-3">Expected Reduction</th>
-                        <th className="py-2.5 px-3">MRV Methodology</th>
+                      <tr className="bg-slate-50 border-y border-slate-200 text-slate-700 font-bold whitespace-nowrap">
+                        <th className="py-2.5 px-3 min-w-[200px]" title="Project Name">Project Name</th>
+                        <th className="py-2.5 px-3 min-w-[120px]" title="Status">Status</th>
+                        <th className="py-2.5 px-3 min-w-[140px]" title="Expected Reduction">Expected Reduction</th>
+                        <th className="py-2.5 px-3 min-w-[160px]" title="MRV Methodology">MRV Methodology</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 font-medium">
                       {monitoringPlan.mitigationMeasures.map((mit) => (
                         <tr key={mit.id} className="hover:bg-slate-50/60">
-                          <td className="py-2.5 px-3 font-bold text-slate-900">{mit.name}</td>
+                          <td className="py-2.5 px-3 font-bold text-slate-900" title={mit.name}>{mit.name}</td>
                           <td className="py-2.5 px-3">
                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                               mit.status === 'Operational' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'
-                            }`}>
+                            }`} title={`${mit.status} (${mit.implementationYear})`}>
                               {mit.status} ({mit.implementationYear})
                             </span>
                           </td>
-                          <td className="py-2.5 px-3 font-bold text-emerald-700">{mit.expectedReduction.toLocaleString()} tCO₂e/yr</td>
-                          <td className="py-2.5 px-3 text-slate-600">{mit.methodology}</td>
+                          <td className="py-2.5 px-3 font-bold text-emerald-700" title={`${mit.expectedReduction.toLocaleString()} tCO₂e/yr`}>{mit.expectedReduction.toLocaleString()} tCO₂e/yr</td>
+                          <td className="py-2.5 px-3 text-slate-600" title={mit.methodology}>{mit.methodology}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1040,35 +1033,35 @@ export const ReadOnlyRecordViewer: React.FC = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="bg-slate-50 border-y border-slate-200 text-slate-700 font-bold">
-                        <th className="py-2.5 px-3">Emission Source / Fuel Stream</th>
-                        <th className="py-2.5 px-3">Activity Data Consumption</th>
-                        <th className="py-2.5 px-3">Net Calorific Value (NCV)</th>
-                        <th className="py-2.5 px-3">Emission Factor</th>
-                        <th className="py-2.5 px-3 text-right">Calculated tCO₂e</th>
+                      <tr className="bg-slate-50 border-y border-slate-200 text-slate-700 font-bold whitespace-nowrap">
+                        <th className="py-2.5 px-3 min-w-[200px]" title="Emission Source / Fuel Stream">Emission Source / Fuel Stream</th>
+                        <th className="py-2.5 px-3 min-w-[170px]" title="Activity Data Consumption">Activity Data Consumption</th>
+                        <th className="py-2.5 px-3 min-w-[150px]" title="Net Calorific Value (NCV)">Net Calorific Value (NCV)</th>
+                        <th className="py-2.5 px-3 min-w-[160px]" title="Emission Factor">Emission Factor</th>
+                        <th className="py-2.5 px-3 text-right min-w-[120px]" title="Calculated tCO₂e">Calculated tCO₂e</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 font-medium">
                       <tr>
-                        <td className="py-2.5 px-3 font-bold text-slate-900">Stationary Fuel Combustion</td>
-                        <td className="py-2.5 px-3 font-mono text-slate-800">Primary Fuel Stream</td>
-                        <td className="py-2.5 px-3 text-slate-700">38.45 MJ/Nm³</td>
-                        <td className="py-2.5 px-3 text-slate-700">56.10 tCO₂/TJ (Tier 2)</td>
-                        <td className="py-2.5 px-3 text-right font-bold text-[#004B87]">{emissionBreakdown.combustion.toLocaleString()}</td>
+                        <td className="py-2.5 px-3 font-bold text-slate-900" title="Stationary Fuel Combustion">Stationary Fuel Combustion</td>
+                        <td className="py-2.5 px-3 font-mono text-slate-800" title="Primary Fuel Stream">Primary Fuel Stream</td>
+                        <td className="py-2.5 px-3 text-slate-700" title="38.45 MJ/Nm³">38.45 MJ/Nm³</td>
+                        <td className="py-2.5 px-3 text-slate-700" title="56.10 tCO₂/TJ (Tier 2)">56.10 tCO₂/TJ (Tier 2)</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-[#004B87]" title={`${emissionBreakdown.combustion.toLocaleString()} tCO₂e`}>{emissionBreakdown.combustion.toLocaleString()}</td>
                       </tr>
                       <tr>
-                        <td className="py-2.5 px-3 font-bold text-slate-900">Process & Calcination Operations</td>
-                        <td className="py-2.5 px-3 font-mono text-slate-800">Feedstock Consumption</td>
-                        <td className="py-2.5 px-3 text-slate-400">N/A (Process)</td>
-                        <td className="py-2.5 px-3 text-slate-700">IPCC Sector Model</td>
-                        <td className="py-2.5 px-3 text-right font-bold text-[#004B87]">{emissionBreakdown.process.toLocaleString()}</td>
+                        <td className="py-2.5 px-3 font-bold text-slate-900" title="Process & Calcination Operations">Process & Calcination Operations</td>
+                        <td className="py-2.5 px-3 font-mono text-slate-800" title="Feedstock Consumption">Feedstock Consumption</td>
+                        <td className="py-2.5 px-3 text-slate-400" title="N/A (Process)">N/A (Process)</td>
+                        <td className="py-2.5 px-3 text-slate-700" title="IPCC Sector Model">IPCC Sector Model</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-[#004B87]" title={`${emissionBreakdown.process.toLocaleString()} tCO₂e`}>{emissionBreakdown.process.toLocaleString()}</td>
                       </tr>
                       <tr>
-                        <td className="py-2.5 px-3 font-bold text-slate-900">Fugitive & Flaring Streams</td>
-                        <td className="py-2.5 px-3 font-mono text-slate-800">Continuous Metering</td>
-                        <td className="py-2.5 px-3 text-slate-700">37.80 MJ/Nm³</td>
-                        <td className="py-2.5 px-3 text-slate-700">Tier 1 Factor</td>
-                        <td className="py-2.5 px-3 text-right font-bold text-[#004B87]">{emissionBreakdown.fugitive.toLocaleString()}</td>
+                        <td className="py-2.5 px-3 font-bold text-slate-900" title="Fugitive & Flaring Streams">Fugitive & Flaring Streams</td>
+                        <td className="py-2.5 px-3 font-mono text-slate-800" title="Continuous Metering">Continuous Metering</td>
+                        <td className="py-2.5 px-3 text-slate-700" title="37.80 MJ/Nm³">37.80 MJ/Nm³</td>
+                        <td className="py-2.5 px-3 text-slate-700" title="Tier 1 Factor">Tier 1 Factor</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-[#004B87]" title={`${emissionBreakdown.fugitive.toLocaleString()} tCO₂e`}>{emissionBreakdown.fugitive.toLocaleString()}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -1206,30 +1199,31 @@ export const ReadOnlyRecordViewer: React.FC = () => {
               <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold">
-                      <th className="py-2.5 px-4">Document Name</th>
-                      <th className="py-2.5 px-3">Type</th>
-                      <th className="py-2.5 px-3">Uploaded By</th>
-                      <th className="py-2.5 px-3">Upload Date</th>
-                      <th className="py-2.5 px-3">File Size</th>
-                      <th className="py-2.5 px-4 text-right">Action</th>
+                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold whitespace-nowrap">
+                      <th className="py-2.5 px-4 min-w-[200px]" title="Document Name">Document Name</th>
+                      <th className="py-2.5 px-3 min-w-[100px]" title="Type">Type</th>
+                      <th className="py-2.5 px-3 min-w-[120px]" title="Uploaded By">Uploaded By</th>
+                      <th className="py-2.5 px-3 min-w-[110px]" title="Upload Date">Upload Date</th>
+                      <th className="py-2.5 px-3 min-w-[90px]" title="File Size">File Size</th>
+                      <th className="py-2.5 px-4 text-right min-w-[100px]" title="Action">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-medium">
                     {submissionDocuments.map((doc, idx) => (
                       <tr key={idx} className="hover:bg-slate-50/60">
-                        <td className="py-2.5 px-4 font-bold text-slate-800 flex items-center gap-2">
+                        <td className="py-2.5 px-4 font-bold text-slate-800 flex items-center gap-2" title={doc.name}>
                           <FileText className="w-4 h-4 text-[#004B87] shrink-0" />
                           <span className="truncate max-w-xs">{doc.name}</span>
                         </td>
-                        <td className="py-2.5 px-3 text-slate-600">{doc.type}</td>
-                        <td className="py-2.5 px-3 text-slate-700">{doc.uploadedBy}</td>
-                        <td className="py-2.5 px-3 text-slate-500">{doc.date}</td>
-                        <td className="py-2.5 px-3 text-slate-600">{doc.size}</td>
+                        <td className="py-2.5 px-3 text-slate-600" title={doc.type}>{doc.type}</td>
+                        <td className="py-2.5 px-3 text-slate-700" title={doc.uploadedBy}>{doc.uploadedBy}</td>
+                        <td className="py-2.5 px-3 text-slate-500" title={doc.date}>{doc.date}</td>
+                        <td className="py-2.5 px-3 text-slate-600" title={doc.size}>{doc.size}</td>
                         <td className="py-2.5 px-4 text-right">
                           <button
                             onClick={() => alert(`Downloading ${doc.name}`)}
                             className="text-[#004B87] hover:underline font-bold text-xs inline-flex items-center gap-1 cursor-pointer"
+                            title={`Download ${doc.name}`}
                           >
                             <Download className="w-3.5 h-3.5" />
                             <span>Download</span>
@@ -1261,35 +1255,35 @@ export const ReadOnlyRecordViewer: React.FC = () => {
               <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold">
-                      <th className="py-2.5 px-3">Version</th>
-                      <th className="py-2.5 px-3">Status</th>
-                      <th className="py-2.5 px-3">Submitted By</th>
-                      <th className="py-2.5 px-3">Submitted Date</th>
-                      <th className="py-2.5 px-3">Review Decision</th>
-                      <th className="py-2.5 px-3">Reviewer</th>
-                      <th className="py-2.5 px-3">Reviewer Comments</th>
-                      <th className="py-2.5 px-3 text-right">Action</th>
+                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold whitespace-nowrap">
+                      <th className="py-2.5 px-3 min-w-[80px]" title="Version">Version</th>
+                      <th className="py-2.5 px-3 min-w-[120px]" title="Status">Status</th>
+                      <th className="py-2.5 px-3 min-w-[130px]" title="Submitted By">Submitted By</th>
+                      <th className="py-2.5 px-3 min-w-[110px]" title="Submitted Date">Submitted Date</th>
+                      <th className="py-2.5 px-3 min-w-[130px]" title="Review Decision">Review Decision</th>
+                      <th className="py-2.5 px-3 min-w-[120px]" title="Reviewer">Reviewer</th>
+                      <th className="py-2.5 px-3 min-w-[180px]" title="Reviewer Comments">Reviewer Comments</th>
+                      <th className="py-2.5 px-3 text-right min-w-[80px]" title="Action">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-medium">
                     {versionHistoryList.map((v) => (
                       <tr key={v.version} className="hover:bg-slate-50/60">
-                        <td className="py-3 px-3 font-mono font-bold text-[#004B87]">{v.version}</td>
+                        <td className="py-3 px-3 font-mono font-bold text-[#004B87]" title={v.version}>{v.version}</td>
                         <td className="py-3 px-3">
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                             v.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' :
                             v.status === 'Correction Required' ? 'bg-amber-100 text-amber-800' :
                             'bg-teal-100 text-teal-800'
-                          }`}>
+                          }`} title={v.status}>
                             {v.status}
                           </span>
                         </td>
-                        <td className="py-3 px-3 text-slate-800">{v.submittedBy}</td>
-                        <td className="py-3 px-3 text-slate-600">{v.submittedDate}</td>
-                        <td className="py-3 px-3 font-bold text-slate-700">{v.reviewDecision}</td>
-                        <td className="py-3 px-3 text-slate-700">{v.reviewer}</td>
-                        <td className="py-3 px-3 text-slate-600 max-w-xs truncate">{v.comments}</td>
+                        <td className="py-3 px-3 text-slate-800" title={v.submittedBy}>{v.submittedBy}</td>
+                        <td className="py-3 px-3 text-slate-600" title={v.submittedDate}>{v.submittedDate}</td>
+                        <td className="py-3 px-3 font-bold text-slate-700" title={v.reviewDecision}>{v.reviewDecision}</td>
+                        <td className="py-3 px-3 text-slate-700" title={v.reviewer}>{v.reviewer}</td>
+                        <td className="py-3 px-3 text-slate-600 max-w-xs truncate" title={v.comments}>{v.comments}</td>
                         <td className="py-3 px-3 text-right">
                           <button
                             onClick={() => setSelectedVersion(v.rawVersion)}
@@ -1298,6 +1292,7 @@ export const ReadOnlyRecordViewer: React.FC = () => {
                                 ? 'bg-[#004B87] text-white'
                                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                             }`}
+                            title={selectedVersion === v.rawVersion ? 'Currently Viewing' : `Select Version ${v.version}`}
                           >
                             {selectedVersion === v.rawVersion ? 'Viewing' : 'Select'}
                           </button>

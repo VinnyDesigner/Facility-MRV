@@ -172,7 +172,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                   <span>Dashboard</span>
                 </button>
 
-                {/* 2. Registration */}
+                {/* 2. Facility Registration */}
                 <button
                   onClick={() => setActiveView('registration')}
                   className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
@@ -180,9 +180,9 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                       ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
                       : 'text-white/85 hover:text-white hover:bg-white/15'
                   }`}
-                  title="Registration"
+                  title="Facility Registration"
                 >
-                  <span>Registration</span>
+                  <span>Facility Registration</span>
                 </button>
 
                 {/* 3. Monitoring Plan */}
@@ -353,32 +353,6 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
         {/* Right Section: Header Controls & Profile */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
 
-          {/* Data Review Button with matched light-blue rounded style */}
-          <div className="relative group">
-            <button
-              onClick={() => {
-                setSelectedSubmissionForReview(null);
-                setActiveView('mrv-data-history');
-              }}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95 ${
-                activeView === 'mrv-data-history' || activeView === 'submission-detail'
-                  ? 'bg-[#004B87] text-white shadow-md shadow-[#004B87]/20 border border-[#004B87]'
-                  : 'bg-blue-50 hover:bg-blue-100 text-[#004B87] border border-blue-200 hover:border-blue-300'
-              }`}
-              title="Data Review"
-              aria-label="Data Review"
-            >
-              <FileSearch
-                className={`w-3.5 h-3.5 ${
-                  activeView === 'mrv-data-history' || activeView === 'submission-detail'
-                    ? 'text-white'
-                    : 'text-[#004B87]'
-                }`}
-              />
-              <span>Data Review</span>
-            </button>
-          </div>
-
           {/* Notifications Bell Button */}
           <div className="relative" ref={notifRef}>
             <button
@@ -451,8 +425,8 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
             {isUserMenuOpen && (
               <div className="absolute right-0 mt-2 w-60 bg-white text-navy-900 rounded-2xl shadow-2xl border border-slate-100 p-2 z-50 animate-slide-up text-xs">
                 <div className="p-3 border-b border-slate-100">
-                  <p className="font-bold text-navy-900">Abdul (Umasri M.)</p>
-                  <p className="text-[11px] text-mrv-muted">umasri.m@alnoor-energy.ae</p>
+                  <p className="font-bold text-navy-900">Ahmed Al-Zaabi</p>
+                  <p className="text-[11px] text-mrv-muted">ahmed.zaabi@alnoor-energy.ae</p>
                   <span className="mt-1 inline-block px-2 py-0.5 rounded bg-primary-50 text-primary-800 font-semibold text-[10px]">
                     Al Noor Facility • Energy
                   </span>
@@ -541,7 +515,7 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                 }`}
               >
                 <Building2 className="w-4 h-4" />
-                Registration
+                Facility Registration
               </button>
               <button
                 onClick={() => {

@@ -70,7 +70,7 @@ export const EADDashboardView: React.FC = () => {
   return (
     <div className="h-full overflow-y-auto pr-1 space-y-6 animate-fade-in pb-12 no-scrollbar">
       {/* Top Header Row */}
-      <div className="flex-shrink-0 pb-3 pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex-shrink-0 pt-1 pb-[14px] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
             Subnational MRV Regulatory Dashboard

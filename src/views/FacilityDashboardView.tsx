@@ -579,7 +579,7 @@ export const FacilityDashboardView: React.FC = () => {
   return (
     <div className="h-full flex flex-col overflow-hidden font-sans animate-fade-in">
       {/* 1. TOP FIXED HEADER (Title & Date / Export Controls) */}
-      <div className="flex-shrink-0 pb-3 pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex-shrink-0 pt-1 pb-[14px] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
             Facility MRV Dashboard
@@ -592,18 +592,17 @@ export const FacilityDashboardView: React.FC = () => {
         {/* Action Controls: Only Date Filter and Export Report Button */}
         <div className="flex items-center gap-2.5">
           {/* Period Selector */}
-          <div className="relative flex items-center bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 shadow-xs text-xs font-semibold text-slate-700 hover:border-slate-300 transition-colors">
-            <Calendar className="w-4 h-4 text-[#004B87] mr-2 shrink-0" />
+          <div className="relative flex items-center bg-white border border-slate-200/90 rounded-xl px-3.5 py-1.5 shadow-xs text-xs font-semibold text-slate-700 hover:border-slate-300 transition-colors">
+            <Calendar className="w-4 h-4 text-[#004B87] mr-1.5 shrink-0" />
             <select
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="appearance-none bg-transparent bg-none !bg-none text-xs font-bold text-navy-900 focus:outline-hidden cursor-pointer pr-8 !pr-8"
+              className="bg-transparent text-xs font-bold text-navy-900 focus:outline-hidden cursor-pointer"
             >
               <option value="FY 2026–27">FY 2026–27</option>
               <option value="FY 2025–26">FY 2025–26</option>
               <option value="FY 2024–25">FY 2024–25</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Export Report Button */}

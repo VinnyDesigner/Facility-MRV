@@ -101,7 +101,11 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
 
       // Status filter
       const matchesStatus =
-        statusFilter === 'ALL' || sub.status.toLowerCase() === statusFilter.toLowerCase();
+        statusFilter === 'ALL' ||
+        (statusFilter === 'Reverted' && (sub.status === 'Correction Required' || (sub.status as string) === 'Reverted')) ||
+        (statusFilter === 'Correction Required' && (sub.status === 'Correction Required' || (sub.status as string) === 'Reverted')) ||
+        (statusFilter === 'Rejected' && (sub.status === 'Rejected' || sub.status.includes('Reject'))) ||
+        sub.status.toLowerCase() === statusFilter.toLowerCase();
 
       // Year filter
       const matchesYear =
@@ -183,8 +187,8 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
         );
       case 'Correction Required':
         return (
-          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#E2E8F0] text-[#475569] border border-slate-300/80 inline-block min-w-[130px] text-center">
-            Correction Requested
+          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 inline-block min-w-[130px] text-center font-bold">
+            Reverted (Correction Required)
           </span>
         );
       case 'Submitted':
@@ -291,7 +295,7 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
               <option value="ALL">All Statuses</option>
               <option value="Approved">Approved</option>
               <option value="Under Review">Under Review</option>
-              <option value="Correction Required">Correction Requested</option>
+              <option value="Reverted">Reverted (Correction Required)</option>
               <option value="Submitted">Submitted</option>
               <option value="Draft">Draft</option>
               <option value="Rejected">Rejected</option>

@@ -44,7 +44,7 @@ export const VerifierRegistryView: React.FC = () => {
   return (
     <div className="h-full flex flex-col overflow-hidden font-sans">
       {/* Fixed Sticky Header */}
-      <div className="flex-shrink-0 pb-3 pt-1 flex flex-wrap items-center justify-between gap-4">
+      <div className="flex-shrink-0 pt-1 pb-[14px] flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div>
             <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">

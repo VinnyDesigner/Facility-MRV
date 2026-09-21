@@ -272,7 +272,7 @@ export const DataReviewView: React.FC = () => {
       {/* ------------------------------------------------------------------------- */}
       {/* 1. TOP FIXED HEADER (Title & Global Controls) */}
       {/* ------------------------------------------------------------------------- */}
-      <div className="flex-shrink-0 pb-3 pt-1 flex flex-wrap items-center justify-between gap-4">
+      <div className="flex-shrink-0 pt-1 pb-[14px] flex flex-wrap items-center justify-between gap-4">
         {/* Left: View Title & Subtitle + Action Notifications */}
         <div className="flex items-center gap-3">
           <div>
@@ -319,7 +319,7 @@ export const DataReviewView: React.FC = () => {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="appearance-none pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
+              className="pl-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
             >
               <option value="All">Status</option>
               <option value="Submitted">Submitted</option>
@@ -327,7 +327,6 @@ export const DataReviewView: React.FC = () => {
               <option value="Correction Requested">Correction Requested</option>
               <option value="Rejected">Rejected</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Export Button */}

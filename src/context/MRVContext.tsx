@@ -91,9 +91,9 @@ const INITIAL_FACILITIES: Facility[] = [
     productionCapacity: '1,200 MW Power / 4,500 T/h Steam',
     actualProduction: '1,040 MW average load / 3,920 T/h Steam',
     contactPerson: {
-      name: 'Umasri Mavillapally',
+      name: 'Ahmed Al-Zaabi',
       position: 'Senior Environmental & Regulatory Compliance Lead',
-      email: 'umasri.m@alnoor-energy.ae',
+      email: 'ahmed.zaabi@alnoor-energy.ae',
       phone: '+971 2 698 4400',
     },
     environmentalManager: {
@@ -244,6 +244,41 @@ const INITIAL_FACILITIES: Facility[] = [
     status: 'Registered',
     lastRenewalDate: '2026-01-22',
     complianceScore: 91,
+  },
+  {
+    id: 'fac-6',
+    name: 'Gulf Chemical Solutions LLC',
+    facilityCode: 'FAC-EAD-2026-0619',
+    sector: 'Chemicals',
+    emirate: 'Abu Dhabi',
+    coordinates: { lat: 24.3812, lng: 54.5123 },
+    address: 'ICAD II, Musaffah Industrial Area, Abu Dhabi, UAE',
+    operatorName: 'Gulf Chemical Solutions LLC',
+    tradeLicense: 'CN-1049182-AD',
+    permitNumber: 'EAD-EP-2024-9102',
+    permitType: 'Class B Chemical Processing Permit',
+    permitIssueDate: '2024-03-01',
+    permitExpiryDate: '2028-02-28',
+    tier: 'Tier 2',
+    primaryActivity: 'Organic Solvent Refining & Distillation',
+    secondaryActivities: 'Chemical Storage & Packaging',
+    products: 'Specialty Solvents, Industrial Thinners',
+    productionCapacity: '120,000 MT / Year',
+    actualProduction: '98,000 MT / Year',
+    contactPerson: {
+      name: 'Nasser Al-Hajri',
+      position: 'Quality & Regulatory Director',
+      email: 'nasser.hajri@gulfchem.ae',
+      phone: '+971 2 554 9900',
+    },
+    environmentalManager: {
+      name: 'Salim Al-Nuaimi',
+      email: 'salim.nuaimi@gulfchem.ae',
+      phone: '+971 50 339 8811',
+    },
+    status: 'Rejected',
+    lastRenewalDate: '2026-02-18',
+    complianceScore: 45,
   }
 ];
 
@@ -323,7 +358,7 @@ const INITIAL_DOCUMENTS: UploadedDocument[] = [
     category: 'MRV_REPORT',
     version: 2,
     uploadDate: '2026-03-10',
-    author: 'Umasri Mavillapally',
+    author: 'Ahmed Al-Zaabi',
     status: 'Verified',
     checksum: 'sha256:8f43a9b1c03e91129b8c56d78',
     url: '#'
@@ -391,7 +426,7 @@ const INITIAL_SUBMISSIONS: Submission[] = [
       {
         id: 'aud-1',
         timestamp: '2026-02-18 10:14',
-        user: 'Umasri Mavillapally',
+        user: 'Ahmed Al-Zaabi',
         role: 'Facility Operator',
         action: 'Created Draft Submission Version 1',
         version: 1,
@@ -400,7 +435,7 @@ const INITIAL_SUBMISSIONS: Submission[] = [
       {
         id: 'aud-2',
         timestamp: '2026-02-28 16:30',
-        user: 'Umasri Mavillapally',
+        user: 'Ahmed Al-Zaabi',
         role: 'Facility Operator',
         action: 'Submitted Annual MRV Report (v1)',
         version: 1,
@@ -419,7 +454,7 @@ const INITIAL_SUBMISSIONS: Submission[] = [
       {
         id: 'aud-4',
         timestamp: '2026-03-10 14:45',
-        user: 'Umasri Mavillapally',
+        user: 'Ahmed Al-Zaabi',
         role: 'Facility Operator',
         action: 'Uploaded revised gas chromatography lab reports and updated activity data documentation (v2)',
         version: 2,
@@ -428,7 +463,7 @@ const INITIAL_SUBMISSIONS: Submission[] = [
       {
         id: 'aud-5',
         timestamp: '2026-03-14 09:30',
-        user: 'Umasri Mavillapally',
+        user: 'Ahmed Al-Zaabi',
         role: 'Facility Operator',
         action: 'Resubmitted Verified MRV Package (Version 3) to EAD',
         comments: 'All fuel gas analysis reports attached and oxidation factors aligned with IPCC 2006 guidelines as requested.',
@@ -664,7 +699,7 @@ const INITIAL_MONITORING_PLAN: MonitoringPlan = {
       implementationYear: 2027,
     }
   ],
-  preparerName: 'Umasri Mavillapally',
+  preparerName: 'Ahmed Al-Zaabi',
   preparerTitle: 'Senior Environmental & Regulatory Compliance Lead',
   declarationDate: '2026-02-15',
   status: 'Approved',
@@ -928,9 +963,9 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const activeFacility = facilities.find((f) => f.id === activeFacilityId) || facilities[0];
 
   const currentUser: User = {
-    id: currentRole === 'FACILITY_OPERATOR' ? 'user-umasri' : currentRole === 'EAD_REVIEWER' ? 'user-mariam' : 'user-arthur',
-    name: currentRole === 'FACILITY_OPERATOR' ? 'Umasri Mavillapally' : currentRole === 'EAD_REVIEWER' ? 'Dr. Mariam Al-Qubaisi' : 'Dr. Arthur Pendelton',
-    email: currentRole === 'FACILITY_OPERATOR' ? 'umasri.m@alnoor-energy.ae' : currentRole === 'EAD_REVIEWER' ? 'mariam.qubaisi@ead.gov.ae' : 'arthur.p@bureauveritas.com',
+    id: currentRole === 'FACILITY_OPERATOR' ? 'user-ahmed' : currentRole === 'EAD_REVIEWER' ? 'user-mariam' : 'user-arthur',
+    name: currentRole === 'FACILITY_OPERATOR' ? 'Ahmed Al-Zaabi' : currentRole === 'EAD_REVIEWER' ? 'Dr. Mariam Al-Qubaisi' : 'Dr. Arthur Pendelton',
+    email: currentRole === 'FACILITY_OPERATOR' ? 'ahmed.zaabi@alnoor-energy.ae' : currentRole === 'EAD_REVIEWER' ? 'mariam.qubaisi@ead.gov.ae' : 'arthur.p@bureauveritas.com',
     role: currentRole,
     roleTitle: currentRole === 'FACILITY_OPERATOR' ? 'Facility Operator' : currentRole === 'EAD_REVIEWER' ? 'EAD Lead Regulatory Reviewer' : 'Accredited Third-Party Verifier',
     facilityId: currentRole === 'FACILITY_OPERATOR' ? activeFacility.id : undefined,

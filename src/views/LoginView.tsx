@@ -28,7 +28,7 @@ interface LoginViewProps {
 
 export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
   const { setCurrentRole } = useMRV();
-  const [email, setEmail] = useState('umasri.m@alnoor-energy.ae');
+  const [email, setEmail] = useState('ahmed.zaabi@alnoor-energy.ae');
   const [password, setPassword] = useState('••••••••••••');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);

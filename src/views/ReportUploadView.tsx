@@ -67,7 +67,7 @@ export const ReportUploadView: React.FC = () => {
       fileType: fileName.endsWith('.xlsx') ? 'Excel Spreadsheet' : 'PDF Document',
       fileSize: size,
       category,
-      author: 'Umasri Mavillapally',
+      author: 'Ahmed Al-Zaabi',
       status: 'Verified',
       checksum: `sha256:${Math.random().toString(36).substring(2, 12)}`,
     });

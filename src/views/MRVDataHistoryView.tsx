@@ -133,7 +133,10 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
           rec.sector.toLowerCase().includes(q);
 
         const matchesStatus =
-          statusFilter === 'ALL' || rec.currentStatus.toLowerCase() === statusFilter.toLowerCase();
+          statusFilter === 'ALL' ||
+          (statusFilter === 'Reverted' && (rec.currentStatus === 'Correction Required' || (rec.currentStatus as string) === 'Reverted')) ||
+          (statusFilter === 'Correction Required' && (rec.currentStatus === 'Correction Required' || (rec.currentStatus as string) === 'Reverted')) ||
+          rec.currentStatus.toLowerCase() === statusFilter.toLowerCase();
 
         const matchesYear =
           yearFilter === 'ALL' || String(rec.reportingYear) === yearFilter;
@@ -205,7 +208,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
           versionNum: 3,
           isLatest: true,
           submissionDate: '14 Mar 2026, 11:30 AM',
-          submittedBy: currentFac.contactPerson?.name || 'Umasri Mavillapally',
+          submittedBy: currentFac.contactPerson?.name || 'Ahmed Al-Zaabi',
           status: 'Under Review' as SubmissionStatus,
           reviewCorrectionStatus: 'EAD Regulatory Assessment — Technical Compliance Evaluation',
           lastUpdated: '15 Mar 2026, 08:30 AM',
@@ -221,7 +224,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
           versionNum: 2,
           isLatest: false,
           submissionDate: '01 Mar 2026, 09:45 AM',
-          submittedBy: currentFac.contactPerson?.name || 'Umasri Mavillapally',
+          submittedBy: currentFac.contactPerson?.name || 'Ahmed Al-Zaabi',
           status: 'Correction Required' as SubmissionStatus,
           reviewCorrectionStatus: 'Correction Requested — 30-Day Resubmission Window (Due 11 Apr 2026)',
           lastUpdated: '10 Mar 2026, 02:15 PM',
@@ -237,7 +240,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
           versionNum: 1,
           isLatest: false,
           submissionDate: '15 Feb 2026, 10:00 AM',
-          submittedBy: currentFac.contactPerson?.name || 'Umasri Mavillapally',
+          submittedBy: currentFac.contactPerson?.name || 'Ahmed Al-Zaabi',
           status: 'Submitted' as SubmissionStatus,
           reviewCorrectionStatus: 'Reverted for Volumetric Flow Meter Calibration Metadata',
           lastUpdated: '24 Feb 2026, 04:00 PM',
@@ -404,8 +407,8 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
         );
       case 'Correction Required':
         return (
-          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#E2E8F0] text-[#475569] border border-slate-300/80 inline-block min-w-[130px] text-center">
-            Correction Requested
+          <span className="px-3 py-1 rounded-full font-semibold text-[11px] bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 inline-block min-w-[130px] text-center font-bold">
+            Correction Required
           </span>
         );
       case 'Submitted':
@@ -442,7 +445,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
     return (
       <div className="h-full flex flex-col overflow-hidden font-sans">
         {/* 1. TOP FIXED HEADER: Data Review Title, Subtitle & Export */}
-        <div className="flex-shrink-0 pb-3 pt-1 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex-shrink-0 pt-1 pb-[14px] flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div>
               <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
@@ -507,7 +510,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                   <option value="ALL">All Statuses</option>
                   <option value="Approved">Approved</option>
                   <option value="Under Review">Under Review</option>
-                  <option value="Correction Required">Correction Requested</option>
+                  <option value="Reverted">Reverted (Correction Required)</option>
                   <option value="Submitted">Submitted</option>
                   <option value="Draft">Draft</option>
                   <option value="Rejected">Rejected</option>
@@ -806,7 +809,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                 <span className="w-2 h-2 rounded-full bg-[#0284C7]" /> Submitted
               </span>
               <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-[#475569]" /> Correction Requested
+                <span className="w-2 h-2 rounded-full bg-[#D97706]" /> Reverted (Correction Required)
               </span>
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-[#DC2626]" /> Rejected
@@ -824,7 +827,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
   return (
     <div className="h-full flex flex-col overflow-hidden font-sans">
       {/* 1. TOP FIXED HEADER: Back Icon, Data Review Title, Subtitle & Export */}
-      <div className="flex-shrink-0 pb-3 pt-1 flex flex-wrap items-center justify-between gap-4">
+      <div className="flex-shrink-0 pt-1 pb-[14px] flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div>
             <div className="flex items-center gap-2">

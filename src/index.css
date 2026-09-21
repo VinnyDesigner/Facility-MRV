@@ -193,7 +193,15 @@
   .table-sticky-columns table {
     border-collapse: separate !important;
     border-spacing: 0;
-    min-width: 1100px;
+    min-width: 1400px;
+  }
+
+  .table-sticky-columns th {
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .table-sticky-columns td {
+    border-bottom: 1px solid #f1f5f9;
   }
 
   .table-sticky-columns th:first-child,
@@ -301,4 +309,15 @@
 
 .animate-pulse-inner-shadow {
   animation: pulse-inner-shadow 6s ease-in-out infinite;
+}
+
+select.appearance-none {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-image: none !important;
+}
+
+select::-ms-expand {
+  display: none !important;
 }

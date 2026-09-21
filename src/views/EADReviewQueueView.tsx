@@ -28,7 +28,12 @@ export const EADReviewQueueView: React.FC = () => {
       sub.facilityName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       sub.facilityCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
       sub.sector.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'ALL' || sub.status === statusFilter;
+    const matchesStatus =
+      statusFilter === 'ALL' ||
+      (statusFilter === 'Reverted' && (sub.status === 'Correction Required' || (sub.status as string) === 'Reverted')) ||
+      (statusFilter === 'Correction Required' && (sub.status === 'Correction Required' || (sub.status as string) === 'Reverted')) ||
+      (statusFilter === 'Rejected' && (sub.status === 'Rejected' || sub.status.includes('Reject'))) ||
+      sub.status === statusFilter;
     const matchesSector = sectorFilter === 'ALL' || sub.sector === sectorFilter;
     return matchesSearch && matchesStatus && matchesSector;
   });
@@ -41,7 +46,7 @@ export const EADReviewQueueView: React.FC = () => {
   return (
     <div className="space-y-6 animate-fade-in pb-12">
       {/* Top Header Row */}
-      <div className="flex-shrink-0 pb-3 pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex-shrink-0 pt-1 pb-[14px] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
             Facility Submissions Review Queue
@@ -75,9 +80,10 @@ export const EADReviewQueueView: React.FC = () => {
             <option value="ALL">All Statuses</option>
             <option value="Submitted">Submitted (New)</option>
             <option value="Under Review">Under Review</option>
-            <option value="Correction Required">Correction Required (30d)</option>
+            <option value="Reverted">Reverted (Correction Required)</option>
             <option value="Approved">Approved</option>
             <option value="Draft">Draft</option>
+            <option value="Rejected">Rejected</option>
           </select>
 
           <select

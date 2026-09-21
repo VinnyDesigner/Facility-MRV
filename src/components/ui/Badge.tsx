@@ -43,6 +43,7 @@ export const Badge: React.FC<BadgeProps> = ({
         computedVariant = 'info';
         break;
       case 'Correction Required':
+      case 'Reverted':
       case 'Renewal Pending':
         computedVariant = 'warning';
         break;

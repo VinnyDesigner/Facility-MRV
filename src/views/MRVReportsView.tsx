@@ -293,7 +293,7 @@ export const MRVReportsView: React.FC = () => {
       {/* ------------------------------------------------------------------------- */}
       {/* 1. TOP HEADER ROW (Outside the card: Title on Left, Controls on Right) */}
       {/* ------------------------------------------------------------------------- */}
-      <div className="flex-shrink-0 pb-3 pt-1 flex flex-wrap items-center justify-between gap-4">
+      <div className="flex-shrink-0 pt-1 pb-[14px] flex flex-wrap items-center justify-between gap-4">
         {/* Left: View Title & Subtitle */}
         <div className="flex items-center gap-3">
           <div>
@@ -319,24 +319,23 @@ export const MRVReportsView: React.FC = () => {
             <select
               value={selectedFacility}
               onChange={(e) => setSelectedFacility(e.target.value)}
-              className="appearance-none pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
+              className="pl-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
             >
               <option value="Green Mountain Cement Factory">Facility</option>
               <option value="Green Mountain Cement Factory">Green Mountain Cement Factory</option>
               <option value="Abu Dhabi Power Plant">Abu Dhabi Power Plant</option>
               <option value="Al Ruwais Refinery">Al Ruwais Refinery</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Calendar Year Dropdown */}
           <div className="relative">
-            <div className="flex items-center bg-white border border-slate-200 rounded-xl shadow-xs pl-3 pr-8 py-2">
-              <Calendar className="w-3.5 h-3.5 text-slate-400 mr-2 shrink-0" />
+            <div className="flex items-center bg-white border border-slate-200 rounded-xl shadow-xs pl-3 py-1.5">
+              <Calendar className="w-3.5 h-3.5 text-[#004B87] mr-1.5 shrink-0" />
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
-                className="appearance-none bg-transparent text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
+                className="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
               >
                 <option value="2024">2024</option>
                 <option value="2025">2025</option>
@@ -344,7 +343,6 @@ export const MRVReportsView: React.FC = () => {
                 <option value="2023">2023</option>
               </select>
             </div>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Export Button */}
