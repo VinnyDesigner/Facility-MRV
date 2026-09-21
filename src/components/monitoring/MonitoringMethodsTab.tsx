@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, ChevronDown } from 'lucide-react';
 
 // Helper to parse numeric emissions from string/number input
 const parseEmissions = (val: string | number | undefined | null): number => {
@@ -109,6 +109,21 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
   onChange,
   isReadOnly = false,
 }) => {
+  // Accordion Expand/Collapse State
+  const [openSections, setOpenSections] = useState<{
+    calc: boolean;
+    meas: boolean;
+    fallback: boolean;
+  }>({
+    calc: true,
+    meas: true,
+    fallback: true,
+  });
+
+  const toggleSection = (key: 'calc' | 'meas' | 'fallback') => {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   // Section 1: Calculation - Based Monitoring State
   const [calcSourceStreams, setCalcSourceStreams] = useState(
     data?.calcSourceStreams ?? [
@@ -394,14 +409,26 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
       {/* ========================================================================= */}
       {/* Section 1: Calculation - Based Monitoring */}
       {/* ========================================================================= */}
-      <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-        <div className="px-3.5 py-2.5 sm:py-3 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
-          <span className="text-xs font-bold text-[#004B87]">
+      <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs transition-all">
+        <button
+          type="button"
+          onClick={() => toggleSection('calc')}
+          className={`w-full px-3.5 py-2.5 sm:py-3 bg-[#F4F6F8] hover:bg-[#EBF2F8] ${
+            openSections.calc ? 'border-b border-slate-200/80' : 'border-b-0'
+          } flex items-center justify-between transition-colors cursor-pointer text-left select-none group`}
+        >
+          <span className="text-xs font-bold text-[#004B87] group-hover:text-[#003460]">
             Calculation - Based Monitoring
           </span>
-        </div>
+          <ChevronDown
+            className={`w-4 h-4 text-[#004B87] transition-transform duration-200 ${
+              openSections.calc ? 'rotate-180' : 'rotate-0'
+            }`}
+          />
+        </button>
 
-        <div className="p-3.5 bg-white space-y-6 text-xs">
+        {openSections.calc && (
+          <div className="p-3.5 bg-white space-y-6 text-xs animate-in fade-in duration-150">
             {/* Subsection 1: Source Stream Identification & Classification */}
             <div>
               <h4 className="text-xs font-bold text-[#004B87] mb-3">Source Stream Identification & Classification</h4>
@@ -1400,20 +1427,33 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                 </table>
               </div>
             </div>
-        </div>
+          </div>
+        )}
       </div>
 
       {/* ========================================================================= */}
       {/* Section 2: Measurement - Based Monitoring */}
       {/* ========================================================================= */}
-      <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-        <div className="px-3.5 py-2.5 sm:py-3 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
-          <span className="text-xs font-bold text-[#004B87]">
+      <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs transition-all">
+        <button
+          type="button"
+          onClick={() => toggleSection('meas')}
+          className={`w-full px-3.5 py-2.5 sm:py-3 bg-[#F4F6F8] hover:bg-[#EBF2F8] ${
+            openSections.meas ? 'border-b border-slate-200/80' : 'border-b-0'
+          } flex items-center justify-between transition-colors cursor-pointer text-left select-none group`}
+        >
+          <span className="text-xs font-bold text-[#004B87] group-hover:text-[#003460]">
             Measurement - Based Monitoring
           </span>
-        </div>
+          <ChevronDown
+            className={`w-4 h-4 text-[#004B87] transition-transform duration-200 ${
+              openSections.meas ? 'rotate-180' : 'rotate-0'
+            }`}
+          />
+        </button>
 
-        <div className="p-3.5 bg-white space-y-6 text-xs">
+        {openSections.meas && (
+          <div className="p-3.5 bg-white space-y-6 text-xs animate-in fade-in duration-150">
             {/* Subsection 1: Identify Relevant Measured Emission Source */}
             <div>
               <h4 className="text-xs font-bold text-[#004B87] mb-3" title="Identify Relevant Measured Emission Source">Identify Relevant Measured Emission Source</h4>
@@ -1930,56 +1970,70 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                 />
               )}
             </div>
-        </div>
+          </div>
+        )}
       </div>
 
       {/* ========================================================================= */}
       {/* Section 3: Fallback Approach */}
       {/* ========================================================================= */}
-      <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-        <div className="px-3.5 py-2.5 sm:py-3 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
-          <span className="text-xs font-bold text-[#004B87]">
+      <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs transition-all">
+        <button
+          type="button"
+          onClick={() => toggleSection('fallback')}
+          className={`w-full px-3.5 py-2.5 sm:py-3 bg-[#F4F6F8] hover:bg-[#EBF2F8] ${
+            openSections.fallback ? 'border-b border-slate-200/80' : 'border-b-0'
+          } flex items-center justify-between transition-colors cursor-pointer text-left select-none group`}
+        >
+          <span className="text-xs font-bold text-[#004B87] group-hover:text-[#003460]">
             Fallback Approach
           </span>
-        </div>
+          <ChevronDown
+            className={`w-4 h-4 text-[#004B87] transition-transform duration-200 ${
+              openSections.fallback ? 'rotate-180' : 'rotate-0'
+            }`}
+          />
+        </button>
 
-        <div className="p-3.5 bg-white space-y-4 text-xs">
-          <div>
-            <label className="block text-slate-600 font-semibold mb-1" title="Monitoring Methodology Description">Monitoring Methodology Description</label>
-            {isReadOnly ? (
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs leading-relaxed min-h-[50px]">
-                {fallbackData.methodologyDesc || 'No fallback methodology description provided.'}
-              </div>
-            ) : (
-              <textarea
-                rows={2}
-                value={fallbackData.methodologyDesc}
-                title={fallbackData.methodologyDesc || 'Enter monitoring methodology description'}
-                placeholder="Enter monitoring methodology description"
-                onChange={(e) => setFallbackData({ ...fallbackData, methodologyDesc: e.target.value })}
-                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-              />
-            )}
-          </div>
+        {openSections.fallback && (
+          <div className="p-3.5 bg-white space-y-4 text-xs animate-in fade-in duration-150">
+            <div>
+              <label className="block text-slate-600 font-semibold mb-1" title="Monitoring Methodology Description">Monitoring Methodology Description</label>
+              {isReadOnly ? (
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs leading-relaxed min-h-[50px]">
+                  {fallbackData.methodologyDesc || 'No fallback methodology description provided.'}
+                </div>
+              ) : (
+                <textarea
+                  rows={2}
+                  value={fallbackData.methodologyDesc}
+                  title={fallbackData.methodologyDesc || 'Enter monitoring methodology description'}
+                  placeholder="Enter monitoring methodology description"
+                  onChange={(e) => setFallbackData({ ...fallbackData, methodologyDesc: e.target.value })}
+                  className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
+                />
+              )}
+            </div>
 
-          <div>
-            <label className="block text-slate-600 font-semibold mb-1" title="Justification Details">Justification Details</label>
-            {isReadOnly ? (
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs leading-relaxed min-h-[50px]">
-                {fallbackData.justification || 'No justification details provided.'}
-              </div>
-            ) : (
-              <textarea
-                rows={2}
-                value={fallbackData.justification}
-                title={fallbackData.justification || 'Enter justification details'}
-                placeholder="Enter justification details"
-                onChange={(e) => setFallbackData({ ...fallbackData, justification: e.target.value })}
-                className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-              />
-            )}
+            <div>
+              <label className="block text-slate-600 font-semibold mb-1" title="Justification Details">Justification Details</label>
+              {isReadOnly ? (
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs leading-relaxed min-h-[50px]">
+                  {fallbackData.justification || 'No justification details provided.'}
+                </div>
+              ) : (
+                <textarea
+                  rows={2}
+                  value={fallbackData.justification}
+                  title={fallbackData.justification || 'Enter justification details'}
+                  placeholder="Enter justification details"
+                  onChange={(e) => setFallbackData({ ...fallbackData, justification: e.target.value })}
+                  className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
+                />
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

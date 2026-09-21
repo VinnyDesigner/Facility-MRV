@@ -101,7 +101,7 @@ const INITIAL_FACILITIES: Facility[] = [
       email: 'tariq.hashimi@alnoor-energy.ae',
       phone: '+971 50 442 8991',
     },
-    status: 'Registered',
+    status: 'Approved',
     lastRenewalDate: '2026-01-10',
     complianceScore: 82,
   },
@@ -241,7 +241,7 @@ const INITIAL_FACILITIES: Facility[] = [
       email: 'ahmed.balooshi@tadweer.ae',
       phone: '+971 50 123 7788',
     },
-    status: 'Registered',
+    status: 'Approved',
     lastRenewalDate: '2026-01-22',
     complianceScore: 91,
   },
@@ -931,7 +931,7 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       case 'monitoring-plan-module':
         return {
           title: 'Monitoring Plan Locked',
-          reason: `Facility Registration must be Approved / Registered by EAD first before creating a Monitoring Plan. (Current Registration Status: ${workflowState.registrationStatus})`,
+          reason: `Facility Registration must be Approved by EAD first before creating a Monitoring Plan. (Current Registration Status: ${workflowState.registrationStatus})`,
           prerequisiteView: 'registration',
           prerequisiteName: 'Facility Registration',
         };

@@ -28,23 +28,27 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
-import { VerificationStatus } from '../types/mrv';
+import { formatVersion } from '../types/mrv';
 
 export const VerificationModuleView: React.FC = () => {
   const {
     activeFacility,
     reportingYear,
-    emissionsData,
     setActiveView,
     workflowState,
     isVerificationUnlocked,
     setVerificationStatus: setCtxVerificationStatus,
     setAnnualEmissionStatus,
-    openReadOnlyViewer,
     submitAnnualMRV,
+    openReadOnlyViewer,
+    currentRole,
     facilities,
     setActiveFacilityId,
   } = useMRV();
+
+  const isFacilityOperator = currentRole === 'FACILITY_OPERATOR';
+  const isVerifier = currentRole === 'VERIFIER';
+  const isEadReviewerOrAdmin = currentRole === 'EAD_REVIEWER' || (currentRole as string) === 'ADMIN';
 
   // VIEW MODE: 'table' (Overview Table) | 'review' (Verification Workspace) | 'view' (Read-Only Inspection)
   const [viewMode, setViewMode] = useState<'table' | 'review' | 'view'>('table');
@@ -66,7 +70,7 @@ export const VerificationModuleView: React.FC = () => {
       facilityName: 'Al Noor Industrial Facility',
       facilityId: 'FAC-EAD-2026-0891',
       reportingYear: '2026',
-      version: 'v1.0',
+      version: 'V1',
       totalEmissions: '146,860',
       submittedDate: '14-Mar-2026',
       updatedDate: '18-Mar-2026',
@@ -90,7 +94,7 @@ export const VerificationModuleView: React.FC = () => {
       facilityName: 'Emirates Steel Arkan - Industrial City',
       facilityId: 'FAC-EAD-2026-0412',
       reportingYear: '2026',
-      version: 'v1.0',
+      version: 'V1',
       totalEmissions: '1,688,960',
       submittedDate: '15-Mar-2026',
       updatedDate: '17-Mar-2026',
@@ -114,7 +118,7 @@ export const VerificationModuleView: React.FC = () => {
       facilityName: 'Green Mountain Cement Factory',
       facilityId: 'FAC-000451',
       reportingYear: '2026',
-      version: 'v1.2',
+      version: 'V3',
       totalEmissions: '624,000',
       submittedDate: '01-Mar-2026',
       updatedDate: '16-Mar-2026',
@@ -138,7 +142,7 @@ export const VerificationModuleView: React.FC = () => {
       facilityName: 'Borouge Petrochemicals Complex',
       facilityId: 'FAC-EAD-2026-0599',
       reportingYear: '2026',
-      version: 'v1.0',
+      version: 'V1',
       totalEmissions: '957,840',
       submittedDate: '—',
       updatedDate: '20-Mar-2026',
@@ -160,7 +164,7 @@ export const VerificationModuleView: React.FC = () => {
       facilityName: 'Gulf Chemical Solutions LLC',
       facilityId: 'FAC-EAD-2026-0619',
       reportingYear: '2026',
-      version: 'v1.0',
+      version: 'V1',
       totalEmissions: '68,200',
       submittedDate: '18-Feb-2026',
       updatedDate: '24-Feb-2026',
@@ -425,7 +429,7 @@ export const VerificationModuleView: React.FC = () => {
                       <th className="py-2.5 px-3 font-bold">Submitted Date</th>
                       <th className="py-2.5 px-3 font-bold">Verification Status</th>
                       <th className="py-2.5 px-3 font-bold">Updated Date</th>
-                      <th className="py-2.5 px-3 text-center w-36 font-bold">Actions</th>
+                      <th className="py-2.5 px-3 text-right whitespace-nowrap font-bold">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 bg-white">
@@ -443,11 +447,8 @@ export const VerificationModuleView: React.FC = () => {
                             <td className="py-2.5 px-3 text-center font-mono text-slate-400 font-medium">
                               {actualIdx}
                             </td>
-                            <td className="py-2.5 px-3 font-semibold text-slate-900">
-                              <div className="flex items-center gap-1.5">
-                                <Building2 className="w-3.5 h-3.5 text-[#004B87] shrink-0" />
-                                <span>{rec.facilityName}</span>
-                              </div>
+                            <td className="py-2.5 px-3 font-semibold text-slate-900 leading-snug">
+                              <span>{rec.facilityName}</span>
                             </td>
                             <td className="py-2.5 px-3 font-mono text-slate-600 text-[11px]">
                               {rec.facilityId}
@@ -466,9 +467,9 @@ export const VerificationModuleView: React.FC = () => {
                             <td className="py-2.5 px-3 text-slate-600 font-medium">
                               {rec.submittedDate}
                             </td>
-                            <td className="py-2.5 px-3">
+                            <td className="py-2.5 px-3 text-left whitespace-nowrap">
                               <span
-                                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                                className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap inline-block ${
                                   rec.verificationStatus === 'Verified & Approved'
                                     ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60 font-bold'
                                     : rec.verificationStatus === 'In Progress'
@@ -480,32 +481,14 @@ export const VerificationModuleView: React.FC = () => {
                                     : 'bg-slate-100 text-slate-700 border border-slate-200 font-bold'
                                 }`}
                               >
-                                {rec.verificationStatus === 'Verified & Approved' && (
-                                  <CheckCircle2 className="w-3 h-3 text-[#065F46]" />
-                                )}
-                                {rec.verificationStatus === 'In Progress' && <ShieldCheck className="w-3 h-3 text-[#0284C7]" />}
-                                {(rec.verificationStatus === 'Correction Required' || rec.verificationStatus === 'Reverted') && <AlertCircle className="w-3 h-3 text-amber-700" />}
-                                {rec.verificationStatus === 'Rejected' && <X className="w-3 h-3 text-rose-600" />}
-                                <span>{rec.verificationStatus}</span>
+                                {rec.verificationStatus}
                               </span>
                             </td>
                             <td className="py-2.5 px-3 text-slate-600 font-medium">
                               {rec.updatedDate}
                             </td>
-                            <td className="py-2.5 px-3 text-center">
-                              <div className="flex items-center justify-center gap-1.5">
-                                <button
-                                  onClick={() => {
-                                    setSelectedFacilityId(facId);
-                                    setActiveFacilityId(facId);
-                                    setViewMode('review');
-                                  }}
-                                  title="Review / Perform Verification"
-                                  className="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-[#004B87] font-semibold text-[11px] flex items-center gap-1 border border-sky-200 transition-colors cursor-pointer"
-                                >
-                                  <ShieldCheck className="w-3 h-3" />
-                                  <span>Review</span>
-                                </button>
+                            <td className="py-2.5 px-3 text-right whitespace-nowrap">
+                              <div className="flex items-center justify-end gap-1">
                                 <button
                                   onClick={() => {
                                     setSelectedFacilityId(facId);
@@ -513,10 +496,20 @@ export const VerificationModuleView: React.FC = () => {
                                     setViewMode('view');
                                   }}
                                   title="View Verification Statement (Read-Only)"
-                                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] flex items-center gap-1 border border-slate-200 transition-colors cursor-pointer"
+                                  className="p-1 rounded-lg text-slate-500 hover:text-[#004B87] hover:bg-slate-100 transition-colors cursor-pointer"
                                 >
-                                  <Eye className="w-3 h-3 text-slate-600" />
-                                  <span>View</span>
+                                  <Eye className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setSelectedFacilityId(facId);
+                                    setActiveFacilityId(facId);
+                                    setViewMode('review');
+                                  }}
+                                  title="Review / Perform Verification"
+                                  className="p-1 rounded-lg text-slate-500 hover:text-[#004B87] hover:bg-slate-100 transition-colors cursor-pointer"
+                                >
+                                  <ShieldCheck className="w-4 h-4" />
                                 </button>
                               </div>
                             </td>
@@ -648,7 +641,8 @@ export const VerificationModuleView: React.FC = () => {
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 min-h-0 bg-white rounded-xl border border-slate-200/90 shadow-2xs overflow-y-auto p-4 space-y-4 text-xs no-scrollbar">
+        <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 flex flex-col overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pr-1 text-xs no-scrollbar">
           {/* Verifier Details Card */}
           <div className="rounded-xl border border-slate-200 p-4 space-y-3">
             <div className="font-bold text-[#004B87] flex items-center justify-between">
@@ -746,7 +740,8 @@ export const VerificationModuleView: React.FC = () => {
           </div>
         </div>
       </div>
-    );
+    </div>
+  );
   }
 
   // =========================================================================
@@ -866,7 +861,7 @@ export const VerificationModuleView: React.FC = () => {
       </div>
 
       {/* Main Verification Workspace Form */}
-      <div className="flex-1 min-h-0 bg-white rounded-xl border border-slate-200/90 shadow-2xs p-4 flex flex-col overflow-hidden">
+      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 flex flex-col overflow-hidden">
         <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pr-1 text-xs no-scrollbar">
           {opinionError && (
             <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs font-semibold flex items-center gap-2">

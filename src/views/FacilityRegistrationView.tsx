@@ -31,7 +31,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
-import { EmirateType, SectorType, Facility, RegistrationStatus } from '../types/mrv';
+import { EmirateType, SectorType, Facility, RegistrationStatus, formatVersion } from '../types/mrv';
 
 export interface FacilityRegistrationVersionSnapshot {
   version: string;
@@ -62,7 +62,7 @@ export const FacilityRegistrationView: React.FC = () => {
   const [selectedFacilityId, setSelectedFacilityId] = useState<string>(activeFacility?.id || 'fac-1');
 
   // Version History State for Read-Only View
-  const [selectedVersion, setSelectedVersion] = useState<string>('v1.0');
+  const [selectedVersion, setSelectedVersion] = useState<string>('V1');
   const [isVersionDropdownOpen, setIsVersionDropdownOpen] = useState<boolean>(false);
   const versionDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -125,15 +125,15 @@ export const FacilityRegistrationView: React.FC = () => {
         confirmDetailsCorrect: true,
         confirmUpdateDetails: false,
         declarationConfirmed: true,
-        changeType: 'Operational Capacity Modification',
-        changeEffectiveDate: '01-Jan-2026',
-        changeDescription: 'Turbine efficiency optimization completed in Q4 2025.',
+        changeType: '',
+        changeEffectiveDate: '',
+        changeDescription: '',
         attachedFiles: [{ name: 'Statutory_Permit_2026.pdf', size: '2.8MB', status: 'Completed' }],
         generalRemarks: 'All facility parameters verified and certified for 2026 compliance.',
         submittedDate: '10 Jan 2026',
         updatedDate: '18 Jan 2026',
         version: 'v2.1',
-        status: 'Approved / Registered',
+        status: 'Approved',
         correctionDeadlineDate: null,
       },
       'fac-2': {
@@ -179,15 +179,15 @@ export const FacilityRegistrationView: React.FC = () => {
         confirmDetailsCorrect: true,
         confirmUpdateDetails: false,
         declarationConfirmed: true,
-        changeType: 'Change of Fuel / Material Mix',
-        changeEffectiveDate: '15-Feb-2026',
-        changeDescription: 'Green hydrogen injection pilot integrated in DRI furnace.',
+        changeType: '',
+        changeEffectiveDate: '',
+        changeDescription: '',
         attachedFiles: [{ name: 'DRI_Permit_Renewal_EAD.pdf', size: '4.1MB', status: 'Completed' }],
         generalRemarks: 'Annual registration renewed and validated.',
         submittedDate: '14 Feb 2026',
         updatedDate: '20 Feb 2026',
         version: 'v3.0',
-        status: 'Approved / Registered',
+        status: 'Approved',
         correctionDeadlineDate: null,
       },
       'fac-3': {
@@ -231,11 +231,11 @@ export const FacilityRegistrationView: React.FC = () => {
         alternateEmail: 'sultan.zaabi@borouge.com',
         alternatePhone: '+971 50 661 9022',
         confirmDetailsCorrect: false,
-        confirmUpdateDetails: true,
+        confirmUpdateDetails: false,
         declarationConfirmed: true,
-        changeType: 'Operational Capacity Modification',
-        changeEffectiveDate: '12-Jan-2026',
-        changeDescription: 'Updated flare gas recovery unit parameters for emission minimization.',
+        changeType: '',
+        changeEffectiveDate: '',
+        changeDescription: '',
         attachedFiles: [{ name: 'Flare_Recovery_Dossier.pdf', size: '5.2MB', status: 'Completed' }],
         generalRemarks: 'Correction resubmission awaiting final EAD sign-off.',
         submittedDate: '02 Mar 2026',
@@ -287,13 +287,13 @@ export const FacilityRegistrationView: React.FC = () => {
         confirmDetailsCorrect: true,
         confirmUpdateDetails: false,
         declarationConfirmed: true,
-        changeType: 'Change of Operator',
-        changeEffectiveDate: '01-Jan-2026',
-        changeDescription: 'Operational license renewal.',
+        changeType: '',
+        changeEffectiveDate: '',
+        changeDescription: '',
         attachedFiles: [{ name: 'Taweelah_License_2026.pdf', size: '1.9MB', status: 'Completed' }],
         generalRemarks: 'Registration submitted and under official EAD queue review.',
         submittedDate: '05 Mar 2026',
-        updatedDate: '08 Mar 2026',
+        updatedDate: '—',
         version: 'v1.0',
         status: 'Under EAD Review',
         correctionDeadlineDate: null,
@@ -341,15 +341,15 @@ export const FacilityRegistrationView: React.FC = () => {
         confirmDetailsCorrect: true,
         confirmUpdateDetails: false,
         declarationConfirmed: true,
-        changeType: 'Operational Capacity Modification',
-        changeEffectiveDate: '20-Jan-2026',
-        changeDescription: 'Addition of second grate line for municipal waste sorting.',
+        changeType: '',
+        changeEffectiveDate: '',
+        changeDescription: '',
         attachedFiles: [{ name: 'Tadweer_Permit_Copy.pdf', size: '3.4MB', status: 'Completed' }],
         generalRemarks: 'Registration approved and certified.',
         submittedDate: '22 Jan 2026',
         updatedDate: '28 Jan 2026',
         version: 'v1.1',
-        status: 'Approved / Registered',
+        status: 'Approved',
         correctionDeadlineDate: null,
       },
       'fac-6': {
@@ -393,11 +393,11 @@ export const FacilityRegistrationView: React.FC = () => {
         alternateEmail: 'salim.nuaimi@gulfchem.ae',
         alternatePhone: '+971 50 339 8811',
         confirmDetailsCorrect: false,
-        confirmUpdateDetails: true,
+        confirmUpdateDetails: false,
         declarationConfirmed: true,
-        changeType: 'Operational Capacity Modification',
-        changeEffectiveDate: '15-Feb-2026',
-        changeDescription: 'Application returned with formal rejection notice.',
+        changeType: '',
+        changeEffectiveDate: '',
+        changeDescription: '',
         attachedFiles: [{ name: 'EAD_Rejection_Notice_Official.pdf', size: '1.2MB', status: 'Completed' }],
         generalRemarks: 'Application rejected by EAD due to non-compliant emission baseline scope.',
         submittedDate: '18 Feb 2026',
@@ -417,7 +417,7 @@ export const FacilityRegistrationView: React.FC = () => {
       'fac-1': [
         {
           version: 'v2.1',
-          status: 'Approved / Registered',
+          status: 'Approved',
           updatedDate: '18 Jan 2026',
           submittedDate: '10 Jan 2026',
           isCurrent: true,
@@ -465,15 +465,15 @@ export const FacilityRegistrationView: React.FC = () => {
             confirmDetailsCorrect: true,
             confirmUpdateDetails: false,
             declarationConfirmed: true,
-            changeType: 'Operational Capacity Modification',
-            changeEffectiveDate: '01-Jan-2026',
-            changeDescription: 'Turbine efficiency optimization completed in Q4 2025.',
+            changeType: '',
+            changeEffectiveDate: '',
+            changeDescription: '',
             attachedFiles: [{ name: 'Statutory_Permit_2026.pdf', size: '2.8MB', status: 'Completed' }, { name: 'Turbine_Commissioning_Report.pdf', size: '3.4MB', status: 'Completed' }],
             generalRemarks: 'All facility parameters verified and certified for 2026 compliance.',
             submittedDate: '10 Jan 2026',
             updatedDate: '18 Jan 2026',
             version: 'v2.1',
-            status: 'Approved / Registered',
+            status: 'Approved',
           },
         },
         {
@@ -523,11 +523,11 @@ export const FacilityRegistrationView: React.FC = () => {
             alternateEmail: 'tariq.hashimi@alnoor-energy.ae',
             alternatePhone: '+971 50 442 8991',
             confirmDetailsCorrect: false,
-            confirmUpdateDetails: true,
+            confirmUpdateDetails: false,
             declarationConfirmed: true,
-            changeType: 'Operational Capacity Modification',
-            changeEffectiveDate: '01-Jan-2026',
-            changeDescription: 'Initial filing for turbine capacity modification.',
+            changeType: '',
+            changeEffectiveDate: '',
+            changeDescription: '',
             attachedFiles: [{ name: 'Statutory_Permit_2026.pdf', size: '2.8MB', status: 'Completed' }],
             generalRemarks: 'Returned by EAD: Please attach calibration certificate for combined cycle unit 2.',
             submittedDate: '10 Jan 2026',
@@ -600,7 +600,7 @@ export const FacilityRegistrationView: React.FC = () => {
       'fac-2': [
         {
           version: 'v3.0',
-          status: 'Approved / Registered',
+          status: 'Approved',
           updatedDate: '20 Feb 2026',
           submittedDate: '14 Feb 2026',
           isCurrent: true,
@@ -655,7 +655,7 @@ export const FacilityRegistrationView: React.FC = () => {
             submittedDate: '14 Feb 2026',
             updatedDate: '20 Feb 2026',
             version: 'v3.0',
-            status: 'Approved / Registered',
+            status: 'Approved',
           },
         },
         {
@@ -965,7 +965,7 @@ export const FacilityRegistrationView: React.FC = () => {
         {
           version: 'v1.0',
           status: 'Under EAD Review',
-          updatedDate: '08 Mar 2026',
+          updatedDate: '—',
           submittedDate: '05 Mar 2026',
           isCurrent: true,
           data: {
@@ -1017,7 +1017,7 @@ export const FacilityRegistrationView: React.FC = () => {
             attachedFiles: [{ name: 'Taweelah_License_2026.pdf', size: '1.9MB', status: 'Completed' }],
             generalRemarks: 'Registration submitted and under official EAD queue review.',
             submittedDate: '05 Mar 2026',
-            updatedDate: '08 Mar 2026',
+            updatedDate: '—',
             version: 'v1.0',
             status: 'Under EAD Review',
           },
@@ -1086,7 +1086,7 @@ export const FacilityRegistrationView: React.FC = () => {
       'fac-5': [
         {
           version: 'v1.1',
-          status: 'Approved / Registered',
+          status: 'Approved',
           updatedDate: '28 Jan 2026',
           submittedDate: '22 Jan 2026',
           isCurrent: true,
@@ -1133,15 +1133,15 @@ export const FacilityRegistrationView: React.FC = () => {
             confirmDetailsCorrect: true,
             confirmUpdateDetails: false,
             declarationConfirmed: true,
-            changeType: 'Operational Capacity Modification',
-            changeEffectiveDate: '20-Jan-2026',
-            changeDescription: 'Addition of second grate line for municipal waste sorting.',
+            changeType: '',
+            changeEffectiveDate: '',
+            changeDescription: '',
             attachedFiles: [{ name: 'Tadweer_Permit_Copy.pdf', size: '3.4MB', status: 'Completed' }],
             generalRemarks: 'Registration approved and certified.',
             submittedDate: '22 Jan 2026',
             updatedDate: '28 Jan 2026',
             version: 'v1.1',
-            status: 'Approved / Registered',
+            status: 'Approved',
           },
         },
         {
@@ -1252,12 +1252,12 @@ export const FacilityRegistrationView: React.FC = () => {
             alternateTitle: 'Environmental Compliance Lead',
             alternateEmail: 'salim.nuaimi@gulfchem.ae',
             alternatePhone: '+971 50 339 8811',
-            confirmDetailsCorrect: false,
-            confirmUpdateDetails: true,
+            confirmDetailsCorrect: true,
+            confirmUpdateDetails: false,
             declarationConfirmed: true,
-            changeType: 'Operational Capacity Modification',
-            changeEffectiveDate: '15-Feb-2026',
-            changeDescription: 'Application returned with formal rejection notice.',
+            changeType: '',
+            changeEffectiveDate: '',
+            changeDescription: '',
             attachedFiles: [{ name: 'EAD_Rejection_Notice_Official.pdf', size: '1.2MB', status: 'Completed' }],
             generalRemarks: 'Application rejected by EAD due to non-compliant emission baseline scope.',
             submittedDate: '18 Feb 2026',
@@ -1374,7 +1374,8 @@ export const FacilityRegistrationView: React.FC = () => {
   const filteredFacilities = useMemo(() => {
     return facilities.filter((fac) => {
       const reg = facilityRegistrations[fac.id] || {};
-      const status = reg.status || fac.status || 'Approved / Registered';
+      const rawStatus = reg.status || fac.status || 'Approved';
+      const status = rawStatus === 'Approved / Registered' || rawStatus === 'Registered' ? 'Approved' : rawStatus;
 
       const matchesSearch =
         fac.name.toLowerCase().includes(tableSearchTerm.toLowerCase()) ||
@@ -1415,7 +1416,7 @@ export const FacilityRegistrationView: React.FC = () => {
     return [
       {
         version: currentReg.version || 'v1.0',
-        status: currentReg.status || 'Approved / Registered',
+        status: currentReg.status === 'Approved / Registered' || currentReg.status === 'Registered' ? 'Approved' : (currentReg.status || 'Approved'),
         updatedDate: currentReg.updatedDate || '18 Jan 2026',
         submittedDate: currentReg.submittedDate || '10 Jan 2026',
         isCurrent: true,
@@ -1442,35 +1443,56 @@ export const FacilityRegistrationView: React.FC = () => {
     );
   }, [currentFacilityVersions, selectedVersion]);
 
-  // Check if current facility has already been approved in its lifecycle
+  // Check if current facility being edited is strictly Approved
   const isFacilityApproved = useMemo(() => {
+    if (
+      formData.status === 'Approved / Registered' ||
+      formData.status === 'Approved' ||
+      formData.status === 'Registered'
+    ) {
+      return true;
+    }
     const existing = facilityRegistrations[selectedFacilityId];
-    if (existing && (existing.status === 'Approved / Registered' || existing.status === 'Approved')) {
+    if (
+      existing &&
+      (existing.status === 'Approved / Registered' ||
+        existing.status === 'Approved' ||
+        existing.status === 'Registered')
+    ) {
       return true;
     }
-    const history = facilityRegistrationHistory[selectedFacilityId];
-    if (history && history.some((h) => h.status === 'Approved / Registered' || h.status === 'Approved')) {
-      return true;
-    }
-    if (formData.status === 'Approved / Registered' || formData.status === 'Approved') {
+    const fac = facilities.find((f) => f.id === selectedFacilityId);
+    if (
+      fac &&
+      (fac.status === 'Registered' ||
+        fac.status === 'Active' ||
+        (fac.status as any) === 'Approved / Registered' ||
+        (fac.status as any) === 'Approved')
+    ) {
       return true;
     }
     return false;
-  }, [facilityRegistrations, facilityRegistrationHistory, selectedFacilityId, formData.status]);
+  }, [facilityRegistrations, selectedFacilityId, formData.status, facilities]);
 
-  // Check if viewing data belongs to an approved version or has an approved change
+  // Check if specific version being inspected in View mode is strictly Approved
   const isViewingApprovedVersion = useMemo(() => {
-    if (viewingData.status === 'Approved / Registered' || viewingData.status === 'Approved') {
+    if (
+      selectedVersionMeta &&
+      (selectedVersionMeta.status === 'Approved / Registered' ||
+        selectedVersionMeta.status === 'Approved' ||
+        selectedVersionMeta.status === 'Registered')
+    ) {
       return true;
     }
-    if (selectedVersionMeta && (selectedVersionMeta.status === 'Approved / Registered' || selectedVersionMeta.status === 'Approved')) {
-      return true;
-    }
-    if (viewingData.version && viewingData.version !== 'v1.0' && isFacilityApproved) {
+    if (
+      viewingData.status === 'Approved / Registered' ||
+      viewingData.status === 'Approved' ||
+      viewingData.status === 'Registered'
+    ) {
       return true;
     }
     return false;
-  }, [viewingData.status, viewingData.version, selectedVersionMeta, isFacilityApproved]);
+  }, [viewingData.status, selectedVersionMeta]);
 
   // Open Edit Form for specific facility
   const handleEditFacility = (facilityId: string) => {
@@ -1481,9 +1503,9 @@ export const FacilityRegistrationView: React.FC = () => {
       const isApproved = existing.status === 'Approved / Registered' || existing.status === 'Approved';
       setFormData({
         ...existing,
-        confirmUpdateDetails: isApproved ? (existing.confirmUpdateDetails !== undefined ? existing.confirmUpdateDetails : true) : false,
+        confirmUpdateDetails: isApproved ? Boolean(existing.confirmUpdateDetails) : false,
       });
-      setSelectedVersion(existing.version || 'v1.0');
+      setSelectedVersion(existing.version || 'V1');
     } else {
       const fac = facilities.find((f) => f.id === facilityId);
       const isApproved = fac?.status === 'Registered' || fac?.status === 'Active' || (fac?.status as unknown as string) === 'Approved / Registered';
@@ -1494,7 +1516,7 @@ export const FacilityRegistrationView: React.FC = () => {
         operatorName: fac?.operatorName || 'Operator Name',
         address: fac?.address || 'Abu Dhabi, UAE',
       });
-      setSelectedVersion('v1.0');
+      setSelectedVersion('V1');
     }
     setIsVersionDropdownOpen(false);
     setViewMode('form');
@@ -1507,9 +1529,9 @@ export const FacilityRegistrationView: React.FC = () => {
     const existing = facilityRegistrations[facilityId];
     if (existing) {
       setFormData(existing);
-      setSelectedVersion(existing.version || 'v1.0');
+      setSelectedVersion(existing.version || 'V1');
     } else {
-      setSelectedVersion('v1.0');
+      setSelectedVersion('V1');
     }
     setIsVersionDropdownOpen(false);
     setViewMode('view');
@@ -1527,29 +1549,29 @@ export const FacilityRegistrationView: React.FC = () => {
       operatorCountry: 'UAE',
       facilityName: '',
       facilityId: '',
-      facilityType: 'Manufacturing Plant',
+      facilityType: '',
       facilityCountry: 'UAE',
       facilityDescription: '',
       activityDescription: '',
       address: '',
-      emirate: 'Abu Dhabi',
-      coordinates: '24.4539, 54.3773',
+      emirate: 'Abu Dhabi' as EmirateType,
+      coordinates: '',
       primaryActivity: '',
       secondaryActivity: '',
       additionalActivityDesc: '',
       mainProduct: '',
       hasOtherProducts: false,
       productDescription: '',
-      permitAvailable: true,
+      permitAvailable: false,
       permitNumber: '',
       permitStatus: 'Active',
-      permitIssueDate: new Date().toISOString().slice(0, 10),
+      permitIssueDate: '',
       permitExpiryDate: '',
       voluntaryParticipation: false,
       emissionCategory: 'Above Threshold',
-      reportingSector: 'Energy',
-      mrvIssueDate: '01-Jan-2026',
-      mrvExpiryDate: '31-Dec-2026',
+      reportingSector: 'Energy' as SectorType,
+      mrvIssueDate: '',
+      mrvExpiryDate: '',
       environmentalRemarks: '',
       primaryName: '',
       primaryTitle: '',
@@ -1562,14 +1584,14 @@ export const FacilityRegistrationView: React.FC = () => {
       confirmDetailsCorrect: false,
       confirmUpdateDetails: false,
       declarationConfirmed: false,
-      changeType: 'Change of Operator',
+      changeType: '',
       changeEffectiveDate: '',
       changeDescription: '',
       attachedFiles: [],
       generalRemarks: '',
       submittedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
       updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-      version: 'v1.0',
+      version: 'V1',
       status: 'Draft',
       correctionDeadlineDate: null,
     };
@@ -1713,7 +1735,7 @@ export const FacilityRegistrationView: React.FC = () => {
     const updated = {
       ...formData,
       facilityId: generatedId,
-      status: 'Approved / Registered',
+      status: 'Approved',
       updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
     };
 
@@ -1726,7 +1748,7 @@ export const FacilityRegistrationView: React.FC = () => {
       const facilityHist = prev[selectedFacilityId] || [];
       const updatedHist = facilityHist.map((v) => {
         if (v.version.toLowerCase() === (updated.version || 'v1.0').toLowerCase()) {
-          return { ...v, status: 'Approved / Registered', updatedDate: updated.updatedDate, data: updated };
+          return { ...v, status: 'Approved', updatedDate: updated.updatedDate, data: updated };
         }
         return v;
       });
@@ -1739,7 +1761,7 @@ export const FacilityRegistrationView: React.FC = () => {
       id: selectedFacilityId,
       name: updated.facilityName,
       facilityCode: generatedId,
-      status: 'Registered',
+      status: 'Approved',
       sector: updated.reportingSector,
       primaryActivity: updated.primaryActivity,
       address: updated.address,
@@ -1868,7 +1890,7 @@ export const FacilityRegistrationView: React.FC = () => {
                 className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all cursor-pointer"
               >
                 <option value="ALL">All Statuses</option>
-                <option value="Approved">Approved / Registered</option>
+                <option value="Approved">Approved</option>
                 <option value="Submitted">Submitted</option>
                 <option value="Under EAD Review">Under EAD Review</option>
                 <option value="Reverted">Reverted (Correction Required)</option>
@@ -1936,7 +1958,8 @@ export const FacilityRegistrationView: React.FC = () => {
                   ) : (
                     paginatedFacilities.map((fac, idx) => {
                       const reg = facilityRegistrations[fac.id] || {};
-                      const currentStatus = reg.status || fac.status || 'Approved / Registered';
+                      const rawStatus = reg.status || fac.status || 'Approved';
+                      const currentStatus = rawStatus === 'Approved / Registered' || rawStatus === 'Registered' ? 'Approved' : rawStatus;
                       const deadlineInfo = getCorrectionDeadlineInfo(reg.correctionDeadlineDate, currentStatus);
                       const rowNumber = (currentPage - 1) * itemsPerPage + idx + 1;
 
@@ -1985,13 +2008,13 @@ export const FacilityRegistrationView: React.FC = () => {
 
                           {/* Updated Date */}
                           <td className="py-2.5 px-2.5 text-slate-600 whitespace-nowrap">
-                            {reg.updatedDate && reg.updatedDate !== '—' ? (
+                            {currentStatus === 'Under EAD Review' || currentStatus === 'Submitted' || !reg.updatedDate || reg.updatedDate === '—' ? (
+                              <span>—</span>
+                            ) : (
                               <div className="flex items-center gap-1.5">
                                 <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                                 <span>{reg.updatedDate}</span>
                               </div>
-                            ) : (
-                              <span>—</span>
                             )}
                           </td>
 
@@ -2038,7 +2061,7 @@ export const FacilityRegistrationView: React.FC = () => {
                           {/* Version */}
                           <td className="py-2.5 px-2.5 text-center whitespace-nowrap">
                             <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                              {reg.version || 'v1.0'}
+                              {formatVersion(reg.version)}
                             </span>
                           </td>
 
@@ -2140,7 +2163,7 @@ export const FacilityRegistrationView: React.FC = () => {
   // RENDER 2: READ-ONLY VIEW (When user clicks 'View')
   // =========================================================================
   if (viewMode === 'view') {
-    const formattedVersionLabel = (selectedVersionMeta.version || 'v1.0').toUpperCase();
+    const formattedVersionLabel = formatVersion(selectedVersionMeta.version);
     const isCurrentActive = Boolean(selectedVersionMeta.isCurrent);
 
     return (
@@ -2173,7 +2196,7 @@ export const FacilityRegistrationView: React.FC = () => {
                       : 'bg-slate-100 text-slate-700 border border-slate-200 font-bold'
                   }`}
                 >
-                  {viewingData.status || 'Approved / Registered'}
+                  {(viewingData.status === 'Approved / Registered' || viewingData.status === 'Registered') ? 'Approved' : (viewingData.status || 'Approved')}
                 </span>
 
                 {(viewingData.status === 'Approved / Registered' || viewingData.status === 'Approved' || viewingData.status === 'Registered') && viewingData.facilityId && (
@@ -2218,8 +2241,8 @@ export const FacilityRegistrationView: React.FC = () => {
                   </div>
                   <div className="max-h-64 overflow-y-auto space-y-1 pr-0.5 no-scrollbar">
                     {currentFacilityVersions.map((v) => {
-                      const isSelected = v.version.toLowerCase() === selectedVersion.toLowerCase();
-                      const vCode = (v.version || 'v1.0').toUpperCase();
+                      const isSelected = formatVersion(v.version).toLowerCase() === formatVersion(selectedVersion).toLowerCase();
+                      const vCode = formatVersion(v.version);
                       return (
                         <button
                           key={v.version}
@@ -2258,7 +2281,7 @@ export const FacilityRegistrationView: React.FC = () => {
                                   : 'bg-slate-100 text-slate-700 border border-slate-200 font-bold'
                               }`}
                             >
-                              {v.status}
+                              {(v.status === 'Approved / Registered' || v.status === 'Registered') ? 'Approved' : v.status}
                             </span>
                           </div>
                           <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
@@ -2296,7 +2319,8 @@ export const FacilityRegistrationView: React.FC = () => {
         </div>
 
         {/* Scrollable View Content displaying exact entered data */}
-        <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 overflow-y-auto space-y-6 no-scrollbar">
+        <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 sm:p-6 flex flex-col overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-6 pr-1 sm:pr-2 py-1 no-scrollbar">
           {/* Historical Snapshot Alert Banner (Shown when an older version is selected) */}
           {!isCurrentActive && (
             <div className="p-3.5 bg-amber-50/95 border border-amber-300/80 rounded-xl flex flex-wrap items-center justify-between gap-3 text-amber-900 text-xs shadow-2xs">
@@ -2314,7 +2338,7 @@ export const FacilityRegistrationView: React.FC = () => {
                 }}
                 className="px-3 py-1.5 bg-amber-200/90 hover:bg-amber-300 text-amber-900 rounded-lg font-bold text-xs shrink-0 cursor-pointer transition-colors"
               >
-                Switch to Current Version ({((currentFacilityVersions.find((v) => v.isCurrent) || currentFacilityVersions[0]).version || 'v1.0').toUpperCase()})
+                Switch to Current Version ({formatVersion((currentFacilityVersions.find((v) => v.isCurrent) || currentFacilityVersions[0]).version)})
               </button>
             </div>
           )}
@@ -2416,51 +2440,6 @@ export const FacilityRegistrationView: React.FC = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Statutory MRV Permitting / Regulated Coverage */}
-              <div className="pt-3 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-[#004B87] mb-2.5">Statutory MRV Permitting / Regulated Coverage</h4>
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-600">
-                    <span>Voluntary Participation:</span>
-                    <span className={`px-2 py-0.5 rounded-md font-bold ${viewingData.voluntaryParticipation ? 'bg-sky-100 text-sky-800' : 'bg-slate-100 text-slate-600'}`}>
-                      {viewingData.voluntaryParticipation ? 'Yes' : 'No'}
-                    </span>
-                  </div>
-                  {viewingData.voluntaryParticipation && (
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-sky-50 border border-sky-200 rounded-lg text-sky-800 text-[11px] font-medium">
-                      <Info className="w-3.5 h-3.5 text-sky-600" />
-                      <span>Facility is participating in the MRV programme voluntarily.</span>
-                    </div>
-                  )}
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Direct Emission Category</label>
-                    <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.emissionCategory || 'Above Threshold'}</p>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Reporting Sector</label>
-                    <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.reportingSector || 'Energy, IPPU'}</p>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Issue Date</label>
-                    <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.mrvIssueDate || '01-Jan-2026'}</p>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Expiry Date</label>
-                    <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.mrvExpiryDate || '31-Dec-2026'}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* MRV Applicable Regulations / Guidelines */}
-              <div className="pt-3 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-[#004B87] mb-2">MRV Applicable Regulations / Guidelines</h4>
-                <p className="font-medium text-slate-700 bg-slate-50 p-3.5 rounded-xl border border-slate-100 leading-relaxed">
-                  {viewingData.environmentalRemarks || 'Facility operates under a valid environmental permit and is subject to annual MRV reporting requirements.'}
-                </p>
-              </div>
             </div>
           </div>
 
@@ -2548,8 +2527,8 @@ export const FacilityRegistrationView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Report a Change (Only shown for approved facility versions when changes are reported) */}
-              {isViewingApprovedVersion && viewingData.changeType && (
+              {/* Report a Change (Only shown for approved facility versions in View mode) */}
+              {isViewingApprovedVersion && (
                 <div className="pt-3 border-t border-slate-100">
                   <h4 className="text-xs font-bold text-[#004B87] mb-3">Report a Change</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-3.5">
@@ -2566,7 +2545,7 @@ export const FacilityRegistrationView: React.FC = () => {
                   <div className="mb-3.5">
                     <label className="text-[11px] text-slate-600 font-semibold block mb-1.5">Change Description</label>
                     <p className="font-medium text-navy-900 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                      {viewingData.changeDescription || 'Additional operational and capacity parameters registered.'}
+                      {viewingData.changeDescription || 'Additional production line commissioned in July 2026.'}
                     </p>
                   </div>
                 </div>
@@ -2598,7 +2577,8 @@ export const FacilityRegistrationView: React.FC = () => {
           </div>
         </div>
       </div>
-    );
+    </div>
+  );
   }
 
   // =========================================================================
@@ -2646,7 +2626,7 @@ export const FacilityRegistrationView: React.FC = () => {
                   : 'bg-slate-100 text-slate-700 border border-slate-200'
               }`}
             >
-              {formData.status || 'Draft'}
+              {(formData.status === 'Approved / Registered' || formData.status === 'Registered') ? 'Approved' : (formData.status || 'Draft')}
             </span>
 
             {(formData.status === 'Approved / Registered' || formData.status === 'Approved' || formData.status === 'Registered') && formData.facilityId && (
@@ -2900,94 +2880,6 @@ export const FacilityRegistrationView: React.FC = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Statutory MRV Permitting / Regulated Coverage */}
-              <div className="pt-3 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-[#004B87] mb-2.5">Statutory MRV Permitting / Regulated Coverage</h4>
-                <div className="flex flex-wrap items-center gap-3 mb-3">
-                  <span className="text-xs font-semibold text-slate-700">Voluntary Participation</span>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs font-bold ${formData.voluntaryParticipation !== false ? 'text-[#004B87]' : 'text-slate-400'}`}>Yes</span>
-                    <button
-                      type="button"
-                      onClick={() => handleInputChange('voluntaryParticipation', formData.voluntaryParticipation === false ? true : false)}
-                      className={`w-11 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${formData.voluntaryParticipation !== false ? 'bg-[#004B87]' : 'bg-slate-300'}`}
-                    >
-                      <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${formData.voluntaryParticipation !== false ? 'translate-x-5' : 'translate-x-0'}`} />
-                    </button>
-                    <span className={`text-xs font-bold ${formData.voluntaryParticipation === false ? 'text-slate-700' : 'text-slate-400'}`}>No</span>
-                  </div>
-
-                  {formData.voluntaryParticipation !== false && (
-                    <div className="flex items-center gap-1.5 px-3 py-1 bg-sky-50 border border-sky-200 rounded-full text-sky-800 text-[11px] font-medium">
-                      <Info className="w-3.5 h-3.5 text-sky-600" />
-                      <span>Facility is participating in the MRV programme voluntarily.</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-                  <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Direct Emission Category</label>
-                    <select
-                      value={formData.emissionCategory}
-                      onChange={(e) => handleInputChange('emissionCategory', e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm cursor-pointer"
-                    >
-                      <option value="Above Threshold">Above Threshold (&gt; 25,000 tCO₂e)</option>
-                      <option value="Below Threshold">Below Threshold (&lt; 25,000 tCO₂e)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Reporting Sector</label>
-                    <input
-                      type="text"
-                      value={formData.reportingSector}
-                      onChange={(e) => handleInputChange('reportingSector', e.target.value)}
-                      placeholder="Energy, IPPU"
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Issue Date</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={formData.mrvIssueDate}
-                        onChange={(e) => handleInputChange('mrvIssueDate', e.target.value)}
-                        placeholder="01-Jan-2026"
-                        className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
-                      />
-                      <Calendar className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Expiry Date</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={formData.mrvExpiryDate}
-                        onChange={(e) => handleInputChange('mrvExpiryDate', e.target.value)}
-                        placeholder="31-Dec-2026"
-                        className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
-                      />
-                      <Calendar className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* MRV Applicable Regulations / Guidelines */}
-              <div className="pt-3 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-[#004B87] mb-2">MRV Applicable Regulations / Guidelines</h4>
-                <textarea
-                  rows={2}
-                  value={formData.environmentalRemarks}
-                  onChange={(e) => handleInputChange('environmentalRemarks', e.target.value)}
-                  placeholder="Facility operates under a valid environmental permit and is subject to annual MRV reporting requirements."
-                  className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                />
-              </div>
             </div>
           </div>
 
@@ -3121,33 +3013,11 @@ export const FacilityRegistrationView: React.FC = () => {
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={formData.confirmDetailsCorrect !== false && !formData.confirmUpdateDetails}
-                        onChange={(e) => {
-                          const val = e.target.checked;
-                          handleInputChange('confirmDetailsCorrect', val);
-                          if (val) {
-                            handleInputChange('confirmUpdateDetails', false);
-                          }
-                        }}
+                        checked={formData.confirmDetailsCorrect !== false}
+                        onChange={(e) => handleInputChange('confirmDetailsCorrect', e.target.checked)}
                         className="w-4 h-4 rounded text-[#004B87] focus:ring-[#004B87]"
                       />
                       <span>Confirm registration details are correct</span>
-                    </label>
-
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.confirmUpdateDetails === true}
-                        onChange={(e) => {
-                          const val = e.target.checked;
-                          handleInputChange('confirmUpdateDetails', val);
-                          if (val) {
-                            handleInputChange('confirmDetailsCorrect', false);
-                          }
-                        }}
-                        className="w-4 h-4 rounded text-[#004B87] focus:ring-[#004B87]"
-                      />
-                      <span>Confirm and update registration details (Report a Change)</span>
                     </label>
                   </div>
                 </div>
@@ -3169,14 +3039,11 @@ export const FacilityRegistrationView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Report a Change (Only displayed after approved AND when user wants to do changes / confirmUpdateDetails is checked) */}
-              {isFacilityApproved && formData.confirmUpdateDetails && (
+              {/* Report a Change (Only displayed for approved facilities on update page) */}
+              {isFacilityApproved && (
                 <div className="pt-3 border-t border-slate-100">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-xs font-bold text-[#004B87]">Report a Change</h4>
-                    <span className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md font-medium">
-                      Reporting changes to approved facility
-                    </span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-3.5">
                     <div>
@@ -3197,7 +3064,7 @@ export const FacilityRegistrationView: React.FC = () => {
                       <div className="relative">
                         <input
                           type="text"
-                          value={formData.changeEffectiveDate || ''}
+                          value={formData.changeEffectiveDate || '01-Jan-2026'}
                           onChange={(e) => handleInputChange('changeEffectiveDate', e.target.value)}
                           placeholder="01-Jan-2026"
                           className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
@@ -3211,7 +3078,7 @@ export const FacilityRegistrationView: React.FC = () => {
                     <label className="block text-slate-700 font-semibold mb-1.5">Change Description</label>
                     <textarea
                       rows={2}
-                      value={formData.changeDescription}
+                      value={formData.changeDescription !== undefined && formData.changeDescription !== '' ? formData.changeDescription : 'Additional production line commissioned in July 2026.'}
                       onChange={(e) => handleInputChange('changeDescription', e.target.value)}
                       placeholder="Additional production line commissioned in July 2026."
                       className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"

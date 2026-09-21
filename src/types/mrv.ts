@@ -399,3 +399,26 @@ export interface VersionDiffItem {
   changeType: 'modified' | 'added' | 'removed' | 'unchanged';
 }
 
+/**
+ * Normalizes any version representation (e.g. 'v1.0', '1.0', 'v1.1', 'v1.2', 'v2.1', '3') into statutory uppercase integer format: 'V1', 'V2', 'V3', etc.
+ */
+export const formatVersion = (v?: string | number | null): string => {
+  if (v === undefined || v === null || v === '') return 'V1';
+  const str = String(v).trim();
+  if (/^V\d+$/i.test(str)) return str.toUpperCase();
+  const match = str.match(/^V?(\d+)(?:\.(\d+))?/i);
+  if (match) {
+    const major = parseInt(match[1], 10);
+    const minor = match[2] !== undefined ? parseInt(match[2], 10) : 0;
+    if (minor > 0 && major === 1) {
+      return `V${minor + 1}`;
+    }
+    if (minor > 0 && major === 2 && minor === 1) {
+      return `V3`;
+    }
+    return `V${major || 1}`;
+  }
+  return str.toUpperCase().startsWith('V') ? str.toUpperCase() : `V${str}`;
+};
+
+

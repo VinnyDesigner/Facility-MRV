@@ -32,6 +32,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
+import { formatVersion } from '../types/mrv';
 import { MonitoringMethodsTab } from '../components/monitoring/MonitoringMethodsTab';
 
 export const AnnualEmissionDataView: React.FC = () => {
@@ -43,10 +44,13 @@ export const AnnualEmissionDataView: React.FC = () => {
     isAnnualEmissionUnlocked,
     setAnnualEmissionStatus,
     setVerificationStatus,
-    openReadOnlyViewer,
+    currentRole,
     facilities,
     setActiveFacilityId,
   } = useMRV();
+
+  const isFacilityOperator = currentRole === 'FACILITY_OPERATOR';
+  const isEadReviewerOrAdmin = currentRole === 'EAD_REVIEWER' || (currentRole as string) === 'ADMIN';
 
   // VIEW MODE: 'table' (Overview Table) | 'form' (5-Tab Edit Form) | 'view' (Read-Only Inspection)
   const [viewMode, setViewMode] = useState<'table' | 'form' | 'view'>('table');
@@ -73,7 +77,7 @@ export const AnnualEmissionDataView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0012',
       operatorName: 'Green Mountain Holdings LLC',
       reportingYear: '2026',
-      version: 'v1.0',
+      version: 'V1',
       status: 'Draft',
       totalEmissions: '124,450',
       scope1Stationary: '45,000',
@@ -120,7 +124,7 @@ export const AnnualEmissionDataView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0891',
       operatorName: 'Al Noor Energy & Power Operations LLC',
       reportingYear: '2026',
-      version: 'v1.0',
+      version: 'V1',
       status: 'Verified',
       totalEmissions: '142,800',
       scope1Stationary: '142,800',
@@ -237,7 +241,7 @@ export const AnnualEmissionDataView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0412',
       operatorName: 'Emirates Steel Arkan PJSC',
       reportingYear: '2026',
-      version: 'v1.0',
+      version: 'V1',
       status: 'Verification In Progress',
       totalEmissions: '1,680,000',
       scope1Stationary: '1,120,000',
@@ -264,7 +268,7 @@ export const AnnualEmissionDataView: React.FC = () => {
       facilityId: 'FAC-000451',
       operatorName: 'Green Mountain Holdings LLC',
       reportingYear: '2026',
-      version: 'v1.2',
+      version: 'V3',
       status: 'Correction Required',
       totalEmissions: '624,000',
       scope1Stationary: '244,000',
@@ -291,7 +295,7 @@ export const AnnualEmissionDataView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0599',
       operatorName: 'Abu Dhabi Polymers Company (Borouge)',
       reportingYear: '2026',
-      version: 'v1.0',
+      version: 'V1',
       status: 'Draft',
       totalEmissions: '950,000',
       scope1Stationary: '820,000',
@@ -318,7 +322,7 @@ export const AnnualEmissionDataView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0033',
       operatorName: 'Taweelah Power Company PJSC',
       reportingYear: '2026',
-      version: 'v1.0',
+      version: 'V1',
       status: 'Submitted',
       totalEmissions: '4,820,000',
       scope1Stationary: '4,820,000',
@@ -345,7 +349,7 @@ export const AnnualEmissionDataView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0775',
       operatorName: 'Abu Dhabi Waste Management PJSC (Tadweer)',
       reportingYear: '2026',
-      version: 'v1.1',
+      version: 'V2',
       status: 'Verified',
       totalEmissions: '310,400',
       scope1Stationary: '310,400',
@@ -372,7 +376,7 @@ export const AnnualEmissionDataView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0619',
       operatorName: 'Gulf Chemical Solutions LLC',
       reportingYear: '2026',
-      version: 'v1.0',
+      version: 'V1',
       status: 'Rejected',
       totalEmissions: '68,200',
       scope1Stationary: '68,200',
@@ -628,7 +632,7 @@ export const AnnualEmissionDataView: React.FC = () => {
       facilityId: activeFacility?.id && activeFacility.id.startsWith('FAC-') ? activeFacility.id : `FAC-EAD-2026-${formattedCode}`,
       operatorName: activeFacility?.operatorName || 'Authorized Operator',
       reportingYear: '2026',
-      version: 'v1.0',
+      version: 'V1',
       status: 'Draft',
       totalEmissions: '0',
       scope1Stationary: '0',
@@ -939,7 +943,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                           {/* Version */}
                           <td className="py-2.5 px-3 text-center whitespace-nowrap">
                             <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                              {rec.version || 'v1.0'}
+                              {formatVersion(rec.version)}
                             </span>
                           </td>
 
@@ -1109,7 +1113,7 @@ export const AnnualEmissionDataView: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-slate-500 font-medium mt-0.5 ml-7">
-              {currentRecord.facilityName || 'Unnamed Facility'} ({currentRecord.facilityId || '—'}) • Reporting Year: {currentRecord.reportingYear || '2026'} • Version: {currentRecord.version || 'v1.0'}
+              {currentRecord.facilityName || 'Unnamed Facility'} ({currentRecord.facilityId || '—'}) • Reporting Year: {currentRecord.reportingYear || '2026'} • Version: {formatVersion(currentRecord.version)}
             </p>
           </div>
 
@@ -1530,7 +1534,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                         </div>
                         <div>
                           <span className="block text-[11px] text-slate-400 font-medium">Version</span>
-                          <span className="font-semibold text-slate-800 text-xs">{currentRecord.version || 'v1.0'}</span>
+                          <span className="font-semibold text-slate-800 text-xs">{formatVersion(currentRecord.version)}</span>
                         </div>
                         <div>
                           <span className="block text-[11px] text-slate-400 font-medium">Prepared By</span>
@@ -2850,7 +2854,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                       </div>
                       <div>
                         <span className="block text-[11px] text-slate-400 font-medium">Version</span>
-                        <span className="font-semibold text-slate-800 text-xs">{currentRecord.version || 'v1.0'}</span>
+                        <span className="font-semibold text-slate-800 text-xs">{formatVersion(currentRecord.version)}</span>
                       </div>
                       <div>
                         <span className="block text-[11px] text-slate-400 font-medium">Prepared By</span>

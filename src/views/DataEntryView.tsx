@@ -34,6 +34,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
+import { formatVersion } from '../types/mrv';
 
 export const DataEntryView: React.FC = () => {
   const {
@@ -71,7 +72,7 @@ export const DataEntryView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0012',
       planRef: 'MP-2026-0012',
       reportingYear: '2026',
-      planVersion: 'v1.0',
+      planVersion: 'V1',
       status: 'Draft',
       primaryApproach: 'Calculation-based (IPCC Guidelines)',
       submittedDate: '15 Jan 2026',
@@ -128,7 +129,7 @@ export const DataEntryView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0891',
       planRef: 'MP-2026-0891',
       reportingYear: '2026',
-      planVersion: 'v1.0',
+      planVersion: 'V1',
       status: 'To Be Submitted',
       primaryApproach: 'Calculation-based (Tier 3)',
       submittedDate: '—',
@@ -186,7 +187,7 @@ export const DataEntryView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0104',
       planRef: 'MP-2026-0104',
       reportingYear: '2026',
-      planVersion: 'v1.0',
+      planVersion: 'V1',
       status: 'To Be Submitted',
       primaryApproach: 'Measurement-based (CEMS)',
       submittedDate: '—',
@@ -241,7 +242,7 @@ export const DataEntryView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0599',
       planRef: 'MP-2026-0599',
       reportingYear: '2026',
-      planVersion: 'v1.2',
+      planVersion: 'V3',
       status: 'Correction Required',
       primaryApproach: 'Calculation & Flaring Model',
       submittedDate: '02 Mar 2026',
@@ -295,11 +296,11 @@ export const DataEntryView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0033',
       planRef: 'MP-2026-0033',
       reportingYear: '2026',
-      planVersion: 'v1.0',
+      planVersion: 'V1',
       status: 'Under EAD Review',
       primaryApproach: 'Combined Cycle Gas Telemetry',
       submittedDate: '05 Mar 2026',
-      updatedDate: '08 Mar 2026',
+      updatedDate: '—',
       eadCorrectionDate: null,
       description: 'Thermal power generation and seawater thermal desalination facility.',
       businessSector: 'Energy',
@@ -345,7 +346,7 @@ export const DataEntryView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0775',
       planRef: 'MP-2026-0775',
       reportingYear: '2026',
-      planVersion: 'v1.0',
+      planVersion: 'V1',
       status: 'To Be Submitted',
       primaryApproach: 'Waste Incineration Tier 2',
       submittedDate: '—',
@@ -394,7 +395,7 @@ export const DataEntryView: React.FC = () => {
       facilityId: 'FAC-EAD-2026-0619',
       planRef: 'MP-2026-0619',
       reportingYear: '2026',
-      planVersion: 'v1.0',
+      planVersion: 'V1',
       status: 'Rejected',
       primaryApproach: 'Calculation-based (Tier 2)',
       submittedDate: '18 Feb 2026',
@@ -446,7 +447,7 @@ export const DataEntryView: React.FC = () => {
     facilityId: '',
     planRef: '',
     reportingYear: '2026',
-    planVersion: 'v1.0',
+    planVersion: 'V1',
     status: 'Draft',
     primaryApproach: 'Calculation-based (Tier 2)',
     submittedDate: null,
@@ -490,7 +491,7 @@ export const DataEntryView: React.FC = () => {
             facilityId: fac.facilityCode || `FAC-EAD-2026-${numCode}`,
             planRef: `MP-2026-${numCode}`,
             reportingYear: '2026',
-            planVersion: 'v1.0',
+            planVersion: 'V1',
             status: 'To Be Submitted',
             primaryApproach: '—',
             submittedDate: '—',
@@ -630,7 +631,7 @@ export const DataEntryView: React.FC = () => {
             facilityId: facCode,
             planRef: `MP-2026-${numCode}`,
             reportingYear: '2026',
-            planVersion: 'v1.0',
+            planVersion: 'V1',
             status: 'Draft',
             primaryApproach: 'Calculation-based (Tier 2)',
             submittedDate: '—',
@@ -878,7 +879,7 @@ export const DataEntryView: React.FC = () => {
                     <th className="py-2.5 px-2.5 whitespace-nowrap">Primary Monitoring Approach</th>
                     <th className="py-2.5 px-2.5 whitespace-nowrap">Submitted Date</th>
                     <th className="py-2.5 px-2.5 whitespace-nowrap">Updated Date</th>
-                    <th className="py-2.5 px-2.5 whitespace-nowrap text-left">Status</th>
+                    <th className="py-2.5 px-2.5 whitespace-nowrap text-left">Monitoring Status</th>
                     <th className="py-2.5 px-2.5 whitespace-nowrap">Correction Deadline</th>
                     <th className="py-2.5 px-2.5 text-center whitespace-nowrap">Version</th>
                     <th className="py-2.5 px-3 text-right whitespace-nowrap">Actions</th>
@@ -992,7 +993,7 @@ export const DataEntryView: React.FC = () => {
                           {/* Version */}
                           <td className="py-2.5 px-2.5 text-center whitespace-nowrap">
                             <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                              {plan.planVersion || 'v1.0'}
+                              {formatVersion(plan.planVersion)}
                             </span>
                           </td>
 
@@ -1145,7 +1146,7 @@ export const DataEntryView: React.FC = () => {
               )}
             </div>
             <p className="text-xs text-slate-500 font-medium mt-0.5 ml-7">
-              {currentPlan.facilityName || 'New Facility'} ({currentPlan.facilityId || 'N/A'}) • Reporting Year: {currentPlan.reportingYear || '2026'} • Version: {currentPlan.planVersion || 'v1.0'}
+              {currentPlan.facilityName || 'New Facility'} ({currentPlan.facilityId || 'N/A'}) • Reporting Year: {currentPlan.reportingYear || '2026'} • Version: {formatVersion(currentPlan.planVersion)}
             </p>
           </div>
 
@@ -1161,16 +1162,21 @@ export const DataEntryView: React.FC = () => {
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-y-auto p-5 space-y-6 text-xs no-scrollbar">
+        <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 sm:p-6 flex flex-col overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-6 pr-1 sm:pr-2 py-1 text-xs no-scrollbar">
           {/* Section 1: Facility Overview */}
           <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
             <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
               <span className="text-xs font-bold text-[#004B87]">Facility Overview</span>
             </div>
-            <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <div>
                 <span className="block text-slate-500 font-medium text-[11px] mb-1">Facility Name</span>
                 <span className="font-semibold text-slate-900 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 block">{currentPlan.facilityName || '—'}</span>
+              </div>
+              <div>
+                <span className="block text-slate-500 font-medium text-[11px] mb-1">Calendar Year</span>
+                <span className="font-semibold text-slate-900 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 block">{currentPlan.reportingYear || '2026'}</span>
               </div>
               <div>
                 <span className="block text-slate-500 font-medium text-[11px] mb-1">Facility ID</span>
@@ -1444,7 +1450,8 @@ export const DataEntryView: React.FC = () => {
           </div>
         </div>
       </div>
-    );
+    </div>
+  );
   }
 
   // =========================================================================
@@ -1508,47 +1515,6 @@ export const DataEntryView: React.FC = () => {
             Production Streams, Emission Sources, Estimation Models & Source Streams
           </p>
         </div>
-
-        {/* Facility / Plant Name & Calendar Year Dropdowns on the Right */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <label className="text-xs font-semibold text-slate-600 whitespace-nowrap">Facility / Plant Name</label>
-            <div className="relative w-48 sm:w-56">
-              <select
-                value={selectedFacilityId}
-                onChange={(e) => {
-                  setSelectedFacilityId(e.target.value);
-                  setActiveFacilityId(e.target.value);
-                }}
-                className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 font-semibold focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer truncate"
-              >
-                {Object.entries(facilityPlans).map(([id, p]) => (
-                  <option key={id} value={id}>
-                    {p.facilityName || `New Facility Plan (${id})`}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <label className="text-xs font-semibold text-slate-600 whitespace-nowrap">Calendar Year</label>
-            <div className="relative w-24">
-              <select
-                value={currentPlan.reportingYear || '2026'}
-                onChange={(e) => {
-                  const yr = e.target.value;
-                  updateCurrentPlan((p) => ({ ...p, reportingYear: yr }));
-                }}
-                className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 font-semibold focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer"
-              >
-                <option value="2026">2026</option>
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-              </select>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Main Scrollable Form Content */}
@@ -1560,7 +1526,7 @@ export const DataEntryView: React.FC = () => {
               <span className="text-xs font-bold text-[#004B87]">Facility Overview</span>
             </div>
             <div className="p-5 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1.5">Facility Name</label>
                   <input
@@ -1569,6 +1535,18 @@ export const DataEntryView: React.FC = () => {
                     value={currentPlan.facilityName || ''}
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-navy-900 font-semibold focus:outline-none cursor-not-allowed shadow-xs"
                   />
+                </div>
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1.5">Calendar Year</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      readOnly
+                      value={currentPlan.reportingYear || reportingYear || '2026'}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-navy-900 font-semibold focus:outline-none cursor-not-allowed shadow-xs"
+                    />
+                    <Lock className="w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  </div>
                 </div>
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1.5">Facility ID</label>
