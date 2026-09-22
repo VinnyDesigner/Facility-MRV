@@ -30,6 +30,7 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
+  XCircle,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
 import { formatVersion } from '../types/mrv';
@@ -125,7 +126,7 @@ export const AnnualEmissionDataView: React.FC = () => {
       operatorName: 'Al Noor Energy & Power Operations LLC',
       reportingYear: '2026',
       version: 'V1',
-      status: 'Verified',
+      status: 'Approved',
       totalEmissions: '142,800',
       scope1Stationary: '142,800',
       scope1Process: '0',
@@ -242,7 +243,7 @@ export const AnnualEmissionDataView: React.FC = () => {
       operatorName: 'Emirates Steel Arkan PJSC',
       reportingYear: '2026',
       version: 'V1',
-      status: 'Verification In Progress',
+      status: 'Reverted',
       totalEmissions: '1,680,000',
       scope1Stationary: '1,120,000',
       scope1Process: '560,000',
@@ -350,7 +351,7 @@ export const AnnualEmissionDataView: React.FC = () => {
       operatorName: 'Abu Dhabi Waste Management PJSC (Tadweer)',
       reportingYear: '2026',
       version: 'V2',
-      status: 'Verified',
+      status: 'Approved',
       totalEmissions: '310,400',
       scope1Stationary: '310,400',
       scope1Process: '0',
@@ -776,6 +777,42 @@ export const AnnualEmissionDataView: React.FC = () => {
     setTimeout(() => setIsSavedNotice(false), 3500);
   };
 
+  const handleApprove = () => {
+    updateCurrentRecord((r) => ({
+      ...r,
+      status: 'Approved',
+      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    }));
+    setAnnualEmissionStatus?.('Approved');
+    setIsSavedNotice(true);
+    setNoticeMessage('Annual Emission Data Approved!');
+    setTimeout(() => setIsSavedNotice(false), 3500);
+  };
+
+  const handleReject = () => {
+    updateCurrentRecord((r) => ({
+      ...r,
+      status: 'Rejected',
+      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    }));
+    setAnnualEmissionStatus?.('Rejected');
+    setIsSavedNotice(true);
+    setNoticeMessage('Annual Emission Data Rejected.');
+    setTimeout(() => setIsSavedNotice(false), 3500);
+  };
+
+  const handleRevert = () => {
+    updateCurrentRecord((r) => ({
+      ...r,
+      status: 'Reverted',
+      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    }));
+    setAnnualEmissionStatus?.('Reverted');
+    setIsSavedNotice(true);
+    setNoticeMessage('Annual Emission Data Reverted for Correction.');
+    setTimeout(() => setIsSavedNotice(false), 3500);
+  };
+
   // =========================================================================
   // 1. OVERVIEW TABLE VIEW (viewMode === 'table')
   // =========================================================================
@@ -783,9 +820,9 @@ export const AnnualEmissionDataView: React.FC = () => {
     return (
       <div className="h-full flex flex-col overflow-hidden font-sans py-1">
         {/* Top Header Row with Title, Search, Filter & Enter Data Button (Strictly Single Row) */}
-        <div className="flex-shrink-0 pb-3 pt-0.5 flex items-center justify-between gap-3 min-w-0">
+        <div className="flex-shrink-0 pb-[18px] pt-0.5 flex items-center justify-between gap-3 min-w-0">
           <div className="min-w-0 shrink">
-            <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight whitespace-nowrap">
+            <h1 className="text-[18px] font-bold font-display text-[#336D9F] tracking-tight whitespace-nowrap">
               Annual Emission Data
             </h1>
             <p className="text-xs text-slate-500 font-medium mt-0.5 truncate max-w-lg xl:max-w-xl">
@@ -805,7 +842,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                   setTableSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full pl-8 pr-7 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all font-medium shadow-xs"
+                className="w-full h-9 pl-8 pr-7 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all font-medium shadow-xs"
               />
               {tableSearchTerm && (
                 <button
@@ -828,16 +865,15 @@ export const AnnualEmissionDataView: React.FC = () => {
                   setStatusFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all cursor-pointer"
+                className="w-28 sm:w-36 h-9 px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer truncate"
               >
                 <option value="ALL">All Statuses</option>
-                <option value="Draft">Draft</option>
-                <option value="Submitted">Submitted</option>
-                <option value="Verification In Progress">Verification In Progress</option>
-                <option value="Verified">Verified</option>
-                <option value="Reverted">Reverted (Correction Required)</option>
-                <option value="EAD Approved">EAD Approved</option>
+                <option value="Approved">Approved</option>
                 <option value="Rejected">Rejected</option>
+                <option value="Reverted">Reverted</option>
+                <option value="Submitted">Submitted</option>
+                <option value="Draft">Draft</option>
+                <option value="Correction Required">Correction Required</option>
               </select>
             </div>
 
@@ -849,7 +885,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                   setYearFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all cursor-pointer"
+                className="w-24 sm:w-26 h-9 px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer truncate"
               >
                 <option value="ALL">All Years</option>
                 <option value="2026">2026</option>
@@ -867,7 +903,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                   setYearFilter('ALL');
                   setCurrentPage(1);
                 }}
-                className="px-2 py-1.5 text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 font-semibold transition-colors flex items-center gap-1 cursor-pointer text-xs"
+                className="h-9 px-2.5 text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 font-semibold transition-colors flex items-center gap-1 cursor-pointer text-xs"
                 title="Reset all filters"
               >
                 <RotateCcw className="w-3 h-3" />
@@ -878,7 +914,7 @@ export const AnnualEmissionDataView: React.FC = () => {
             {/* Enter Emission Data Button */}
             <button
               onClick={handleEnterEmissionData}
-              className="px-4 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
+              className="h-9 px-4 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
               <span>Enter Emission Data</span>
@@ -886,133 +922,124 @@ export const AnnualEmissionDataView: React.FC = () => {
           </div>
         </div>
 
-        {/* Level 1 Card Container with All Facilities Table & Pagination */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col flex-1 min-h-0">
-          {/* Inset Container with Padding and Rounded Border */}
-          <div className="p-3 sm:p-3.5 flex-1 min-h-0 flex flex-col justify-between">
-            <div className="flex-1 min-h-0 overflow-hidden rounded-xl border border-slate-200/90 bg-white">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="bg-[#E9F1F8] text-slate-700 font-semibold text-xs border-b border-slate-200 sticky top-0 z-10 shadow-xs">
-                    <th className="py-2.5 px-3 w-10 text-center">#</th>
-                    <th className="py-2.5 px-3 w-[22%]">Facility Name</th>
-                    <th className="py-2.5 px-3 w-[15%] whitespace-nowrap">Facility ID</th>
-                    <th className="py-2.5 px-3 w-[11%] whitespace-nowrap text-left">Reporting Year</th>
-                    <th className="py-2.5 px-3 w-[7%] text-center whitespace-nowrap">Version</th>
-                    <th className="py-2.5 px-3 w-[17%] whitespace-nowrap">Total Scope 1 (tCO₂e)</th>
-                    <th className="py-2.5 px-3 w-[13%] whitespace-nowrap">Submitted Date</th>
-                    <th className="py-2.5 px-3 w-[10%] whitespace-nowrap text-left">Status</th>
-                    <th className="py-2.5 px-3 w-[5%] text-right whitespace-nowrap">Actions</th>
+        {/* Table & Pagination Container (Without outer white card background) */}
+        <div className="flex flex-col flex-1 min-h-0 justify-between overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-xs">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="h-[38px] bg-[#6692B7]/30 text-slate-800 font-bold text-xs border-b border-[#6692B7]/20 sticky top-0 z-10 shadow-xs">
+                  <th className="h-[38px] px-3 w-10 text-center align-middle">#</th>
+                  <th className="h-[38px] px-3 w-[26%] align-middle">Facility Name</th>
+                  <th className="h-[38px] px-3 w-[16%] whitespace-nowrap align-middle">Facility ID</th>
+                  <th className="h-[38px] px-3 w-[12%] whitespace-nowrap text-center align-middle">Reporting Year</th>
+                  <th className="h-[38px] px-3 w-[20%] whitespace-nowrap text-center align-middle">Total Scope 1 (tCO₂e)</th>
+                  <th className="h-[38px] px-3 w-[14%] whitespace-nowrap align-middle">Submitted Date</th>
+                  <th className="h-[38px] px-2.5 w-28 whitespace-nowrap text-left align-middle">Status</th>
+                  <th className="h-[38px] px-3 w-16 text-right whitespace-nowrap align-middle">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                {paginatedEmissions.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="h-[60px] py-8 text-center text-slate-400 font-semibold align-middle">
+                      No annual emission records match the selected filter criteria.
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                  {paginatedEmissions.length === 0 ? (
-                    <tr>
-                      <td colSpan={9} className="py-8 text-center text-slate-400 font-semibold">
-                        No annual emission records match the selected filter criteria.
-                      </td>
-                    </tr>
-                  ) : (
-                    paginatedEmissions.map(([facId, rec], idx) => {
-                      const rowNumber = (currentPage - 1) * itemsPerPage + idx + 1;
+                ) : (
+                  paginatedEmissions.map(([facId, rec], idx) => {
+                    const rowNumber = (currentPage - 1) * itemsPerPage + idx + 1;
 
-                      return (
-                        <tr
-                          key={facId}
-                          className="hover:bg-slate-50/80 transition-colors group cursor-default"
-                        >
-                          <td className="py-2.5 px-3 text-center font-mono font-bold text-slate-400">
-                            {rowNumber}
-                          </td>
+                    return (
+                      <tr
+                        key={facId}
+                        className="h-[60px] hover:bg-slate-50/80 transition-colors group cursor-default"
+                      >
+                        <td className="h-[60px] px-3 text-center font-mono font-bold text-slate-400 align-middle">
+                          {rowNumber}
+                        </td>
 
-                          {/* Facility Name */}
-                          <td className="py-2.5 px-3 font-semibold text-slate-800 leading-snug">
-                            <span>{rec.facilityName}</span>
-                          </td>
+                        {/* Facility Name */}
+                        <td className="h-[60px] px-3 font-semibold text-slate-800 leading-snug align-middle">
+                          <span>{rec.facilityName}</span>
+                        </td>
 
-                          {/* Facility ID */}
-                          <td className="py-2.5 px-3 font-mono text-[#004B87] font-semibold whitespace-nowrap">
-                            {rec.facilityId || '—'}
-                          </td>
+                        {/* Facility ID */}
+                        <td className="h-[60px] px-3 font-mono text-[#004B87] font-semibold whitespace-nowrap align-middle">
+                          {rec.facilityId || '—'}
+                        </td>
 
-                          {/* Reporting Year */}
-                          <td className="py-2.5 px-3 text-left font-semibold text-slate-700 whitespace-nowrap">
-                            {rec.reportingYear || '2026'}
-                          </td>
+                        {/* Reporting Year */}
+                        <td className="h-[60px] px-3 text-center font-semibold text-slate-700 whitespace-nowrap align-middle">
+                          {rec.reportingYear || '2026'}
+                        </td>
 
-                          {/* Version */}
-                          <td className="py-2.5 px-3 text-center whitespace-nowrap">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                              {formatVersion(rec.version)}
-                            </span>
-                          </td>
+                        {/* Total Scope 1 (tCO₂e) */}
+                        <td className="h-[60px] px-3 font-mono font-bold text-[#004B87] text-center whitespace-nowrap align-middle">
+                          {rec.totalScope1 ? `${rec.totalScope1}` : '—'}
+                        </td>
 
-                          {/* Total Scope 1 (tCO₂e) */}
-                          <td className="py-2.5 px-3 font-mono font-bold text-[#004B87] whitespace-nowrap">
-                            {rec.totalScope1 ? `${rec.totalScope1}` : '—'}
-                          </td>
-
-                          {/* Submitted Date */}
-                          <td className="py-2.5 px-3 text-slate-600 whitespace-nowrap">
-                            {rec.submittedDate && rec.submittedDate !== '—' ? (
-                              <div className="flex items-center gap-1.5">
-                                <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                <span>{rec.submittedDate}</span>
-                              </div>
-                            ) : (
-                              <span>—</span>
-                            )}
-                          </td>
-
-                          {/* Status */}
-                          <td className="py-2.5 px-3 text-left whitespace-nowrap">
-                            <span
-                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap inline-block ${
-                                rec.status === 'Verified' || rec.status === 'EAD Approved'
-                                  ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
-                                  : rec.status === 'Submitted' || rec.status.includes('Submitted') || rec.status === 'Verification In Progress'
-                                  ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
-                                  : rec.status === 'Correction Required' || rec.status === 'Reverted'
-                                  ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
-                                  : rec.status === 'Rejected'
-                                  ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 font-bold'
-                                  : 'bg-slate-100 text-slate-700 border border-slate-200'
-                              }`}
-                            >
-                              {rec.status}
-                            </span>
-                          </td>
-
-                          {/* Actions: Eye View & Edit Icon Buttons */}
-                          <td className="py-2.5 px-3 text-right whitespace-nowrap">
-                            <div className="flex items-center justify-end gap-1">
-                              <button
-                                onClick={() => handleViewEmissionData(facId)}
-                                title="View Annual Emission Details"
-                                className="p-1 rounded-lg text-slate-500 hover:text-[#004B87] hover:bg-slate-100 transition-colors cursor-pointer"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleEditEmissionData(facId)}
-                                title="Edit Annual Emission Data"
-                                className="p-1 rounded-lg text-slate-500 hover:text-[#004B87] hover:bg-slate-100 transition-colors cursor-pointer"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </button>
+                        {/* Submitted Date */}
+                        <td className="h-[60px] px-3 text-slate-600 whitespace-nowrap align-middle">
+                          {rec.submittedDate && rec.submittedDate !== '—' ? (
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span>{rec.submittedDate}</span>
                             </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
+                          ) : (
+                            <span>—</span>
+                          )}
+                        </td>
+
+                        {/* Status */}
+                        <td className="h-[60px] px-2.5 text-left whitespace-nowrap align-middle">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap inline-block ${
+                              rec.status === 'Approved' || rec.status === 'Verified' || rec.status === 'EAD Approved'
+                                ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
+                                : rec.status === 'Submitted' || rec.status?.includes('Submitted')
+                                ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
+                                : rec.status === 'Correction Required'
+                                ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80'
+                                : rec.status === 'Reverted'
+                                ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80'
+                                : rec.status === 'Rejected'
+                                ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60'
+                                : 'bg-slate-100 text-slate-700 border border-slate-200'
+                            }`}
+                          >
+                            {rec.status}
+                          </span>
+                        </td>
+
+                        {/* Actions: Eye View & Edit Icon Buttons */}
+                        <td className="h-[60px] px-3 text-right whitespace-nowrap align-middle">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => handleViewEmissionData(facId)}
+                              title="View Annual Emission Details"
+                              className="p-1 rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleEditEmissionData(facId)}
+                              title="Edit Annual Emission Data"
+                              className="p-1 rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
 
           {/* Pagination & Counter Footer */}
-          <div className="p-2.5 sm:p-3 bg-[#F8FAFC] border-t border-slate-200/90 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 font-medium flex-shrink-0">
+          <div className="pt-2.5 pb-1 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 font-medium flex-shrink-0">
             <div className="flex items-center gap-2">
               <span>
                 Showing <span className="font-bold text-slate-800">{filteredTableList.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> to{' '}
@@ -1037,36 +1064,37 @@ export const AnnualEmissionDataView: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
+            {/* Pagination Controls */}
+            <div className="flex items-center gap-1.5">
               <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                 disabled={currentPage === 1}
-                className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-slate-600 transition-colors cursor-pointer"
-                title="Previous Page"
+                className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-semibold flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Previous</span>
               </button>
-              <div className="flex items-center gap-1 px-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-7 h-7 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-                      currentPage === page
-                        ? 'bg-[#004B87] text-white shadow-xs'
-                        : 'text-slate-600 hover:bg-slate-200/70'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-              </div>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    currentPage === pageNum
+                      ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white shadow-xs'
+                      : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
+
               <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages || totalPages === 0}
-                className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-slate-600 transition-colors cursor-pointer"
-                title="Next Page"
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                disabled={currentPage >= totalPages}
+                className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-semibold flex items-center gap-1 cursor-pointer transition-colors"
               >
+                <span>Next</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -1081,26 +1109,26 @@ export const AnnualEmissionDataView: React.FC = () => {
   // =========================================================================
   if (viewMode === 'view') {
     return (
-      <div className="h-full flex flex-col overflow-hidden font-sans py-1">
+      <div className="h-full flex flex-col overflow-hidden font-sans py-0.5">
         {/* Top Action Header */}
-        <div className="flex-shrink-0 flex items-center justify-between gap-3 pb-3 pt-0.5">
+        <div className="flex-shrink-0 flex items-center justify-between gap-3 pb-[18px] pt-0.5">
           <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => setViewMode('table')}
-                className="p-1 -ml-1 text-[#004B87] hover:text-[#003865] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                className="p-1 -ml-1 text-[#336D9F] hover:text-[#004B87] hover:bg-[#E9F1F8] rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 border border-slate-200/70 shadow-2xs"
                 title="Back to Overview"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4" />
               </button>
-              <h1 className="text-xl font-bold font-display text-[#004B87] tracking-tight">
+              <h1 className="text-[18px] font-bold font-display text-[#336D9F] tracking-tight">
                 {currentRecord.facilityName || 'Facility'} — Annual Emission Data (Read-Only)
               </h1>
               <span
                 className={`px-3 py-0.5 rounded-full text-xs font-bold tracking-wide transition-all shrink-0 ${
-                  currentRecord.status === 'Verified' || currentRecord.status === 'EAD Approved'
+                  currentRecord.status === 'Approved' || currentRecord.status === 'Verified' || currentRecord.status === 'EAD Approved'
                     ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
-                    : currentRecord.status === 'Submitted' || currentRecord.status?.includes('Submitted') || currentRecord.status?.includes('Verification')
+                    : currentRecord.status === 'Submitted' || currentRecord.status?.includes('Submitted')
                     ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
                     : currentRecord.status === 'Correction Required' || currentRecord.status === 'Reverted'
                     ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
@@ -1117,6 +1145,13 @@ export const AnnualEmissionDataView: React.FC = () => {
             </p>
           </div>
 
+          {isSavedNotice && (
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs font-bold animate-fade-in shrink-0">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>{noticeMessage}</span>
+            </div>
+          )}
+
           <div className="flex items-center gap-2">
             <button
               onClick={() => setViewMode('form')}
@@ -1129,28 +1164,34 @@ export const AnnualEmissionDataView: React.FC = () => {
         </div>
 
         {/* Main Container on White Frame with 4-Tab Navigation */}
-        <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm flex flex-col overflow-hidden">
-          {/* Tab Selector Navigation */}
-          <div className="flex-shrink-0 px-3.5 pt-3 pb-2.5 border-b border-slate-200/90 flex items-center justify-between gap-1.5 bg-[#F8FAFC]">
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
+          {/* Sticky Tabs Navigation Bar (Fixed at top, outside scroll area) */}
+          <div className="flex-shrink-0 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-2.5">
+            <div className="inline-flex items-center gap-1 p-1 bg-[#EAEFF4] border border-[#D5E0EA] rounded-[6px] shadow-2xs">
               {[
-                { id: 'monitoring-methods', label: 'Monitoring Methods' },
-                { id: 'mitigation-measures', label: 'Mitigation Measures' },
-                { id: 'qa-qc', label: 'Data Management & QA/QC' },
-                { id: 'review-submit', label: 'Review & Submit' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer ${
-                    activeTab === tab.id
-                      ? 'bg-[#004B87] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+                { id: 'monitoring-methods', label: 'Monitoring Methods', icon: Activity },
+                { id: 'mitigation-measures', label: 'Mitigation Measures', icon: BarChart3 },
+                { id: 'qa-qc', label: 'Data Management & QA/QC', icon: ShieldCheck },
+                { id: 'review-submit', label: 'Review & Submit', icon: CheckCircle2 },
+              ].map((tab) => {
+                const IconComponent = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                      isActive
+                        ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                        : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+                    }`}
+                  >
+                    <IconComponent className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-500'}`} />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
             </div>
 
             <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
@@ -1160,11 +1201,10 @@ export const AnnualEmissionDataView: React.FC = () => {
           </div>
 
           {/* Scrollable Tab Content */}
-          <div className="flex-1 min-h-0 p-3.5 flex flex-col overflow-hidden">
-            <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pr-1 text-xs no-scrollbar">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-1 pt-2 pb-0.5 text-xs no-scrollbar">
               {/* TAB 1: MONITORING METHODS (READ-ONLY) */}
               {activeTab === 'monitoring-methods' && (
-                <div className="space-y-4">
+                <div className="space-y-[18px]">
                   <MonitoringMethodsTab
                     data={currentRecord.monitoringMethods}
                     isReadOnly={true}
@@ -1174,17 +1214,16 @@ export const AnnualEmissionDataView: React.FC = () => {
 
               {/* TAB 2: MITIGATION MEASURES (READ-ONLY) */}
               {activeTab === 'mitigation-measures' && (
-                <div className="space-y-4">
-                  {/* Section 1: Greenhouse Gas Mitigation Measures Table */}
-                  <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-                    <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#004B87]">
+                <div className="space-y-4 pt-1">
+                  {/* Greenhouse Gas Mitigation Measures Table */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-[#336D9F]">
                         Greenhouse Gas Mitigation Measures
                       </span>
                     </div>
 
-                    <div className="p-3.5 bg-white space-y-3">
-                      <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
+                    <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                         <table className="w-full text-left text-xs min-w-[1500px]">
                           <thead>
                             <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -1233,11 +1272,10 @@ export const AnnualEmissionDataView: React.FC = () => {
                         </table>
                       </div>
                     </div>
-                  </div>
 
                   {/* Section 2: Additional Relevant Information */}
                   <div className="space-y-2 pt-1">
-                    <p className="text-xs font-semibold text-slate-700">
+                    <p className="text-xs font-bold text-[#336D9F]">
                       Additional Relevant Information
                     </p>
                     <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs leading-relaxed min-h-[60px]">
@@ -1249,24 +1287,21 @@ export const AnnualEmissionDataView: React.FC = () => {
 
               {/* TAB 3: DATA MANAGEMENT & QA/QC (READ-ONLY) */}
               {activeTab === 'qa-qc' && (
-                <div className="space-y-4">
-                  {/* Section 1: Internal QA/QC Methodology */}
-                  <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-                    <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80">
-                      <span className="text-xs font-bold text-[#004B87]">Internal QA/QC Methodology</span>
+                <div className="space-y-[18px]">
+                  {/* Internal QA/QC Methodology */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-[#336D9F]">Internal QA/QC Methodology</span>
                     </div>
-                    <div className="p-3.5 bg-white space-y-2">
-                      <p className="text-xs text-slate-600 font-medium">Internal QA/QC methodology applied for all source streams and sources:</p>
-                      <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs leading-relaxed">
-                        {currentRecord.qaVerificationDesc || 'Standard plant internal QA/QC protocols applied per EAD Technical Guidelines.'}
-                      </div>
+                    <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs leading-relaxed">
+                      {currentRecord.qaVerificationDesc || 'Standard plant internal QA/QC protocols applied per EAD Technical Guidelines.'}
                     </div>
                   </div>
 
                   {/* Section 2: Data Gaps */}
                   <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                     <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80">
-                      <span className="text-xs font-bold text-[#004B87]">Data Gaps</span>
+                      <span className="text-xs font-bold text-[#336D9F]">Data Gaps</span>
                     </div>
                     <div className="p-3.5 bg-white space-y-3">
                       <div className="overflow-x-auto rounded-xl border border-slate-200">
@@ -1309,7 +1344,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                   {/* Section 3: Management Responsibilities */}
                   <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                     <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80">
-                      <span className="text-xs font-bold text-[#004B87]">Management Responsibilities</span>
+                      <span className="text-xs font-bold text-[#336D9F]">Management Responsibilities</span>
                     </div>
                     <div className="p-3.5 bg-white space-y-3">
                       <div className="overflow-x-auto rounded-xl border border-slate-200">
@@ -1344,7 +1379,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                   {/* Section 4: Quality Assurance Procedures */}
                   <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                     <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80">
-                      <span className="text-xs font-bold text-[#004B87]">Quality Assurance Procedures</span>
+                      <span className="text-xs font-bold text-[#336D9F]">Quality Assurance Procedures</span>
                     </div>
                     <div className="p-3.5 bg-white space-y-4">
                       <div className="overflow-x-auto rounded-xl border border-slate-200">
@@ -1383,7 +1418,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                       {/* Uploaded QA Diagrams */}
                       {currentRecord.qaDiagramFiles && currentRecord.qaDiagramFiles.length > 0 && (
                         <div className="pt-2 border-t border-slate-100 space-y-2">
-                          <h4 className="text-xs font-bold text-slate-800">Attached QA Diagrams & Supporting Files</h4>
+                          <h4 className="text-xs font-bold text-[#336D9F]">Attached QA Diagrams & Supporting Files</h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             {currentRecord.qaDiagramFiles.map((f: any) => (
                               <div key={f.id} className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
@@ -1415,7 +1450,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                   {/* Section 5: Internal Review & Validation */}
                   <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                     <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80">
-                      <span className="text-xs font-bold text-[#004B87]">Internal Review & Validation</span>
+                      <span className="text-xs font-bold text-[#336D9F]">Internal Review & Validation</span>
                     </div>
                     <div className="p-3.5 bg-white space-y-4">
                       <div className="overflow-x-auto rounded-xl border border-slate-200">
@@ -1454,7 +1489,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                       {/* Uploaded Internal Review Diagrams */}
                       {currentRecord.internalReviewFiles && currentRecord.internalReviewFiles.length > 0 && (
                         <div className="pt-2 border-t border-slate-100 space-y-2">
-                          <h4 className="text-xs font-bold text-slate-800">Attached Internal Review Schematics & Workflows</h4>
+                          <h4 className="text-xs font-bold text-[#336D9F]">Attached Internal Review Schematics & Workflows</h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             {currentRecord.internalReviewFiles.map((f: any) => (
                               <div key={f.id} className="flex items-center justify-between p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
@@ -1485,7 +1520,7 @@ export const AnnualEmissionDataView: React.FC = () => {
 
                   {/* Section 6: Additional Details */}
                   <div className="space-y-2 pt-1">
-                    <p className="text-xs font-semibold text-slate-700">Further QA/QC Details</p>
+                    <p className="text-xs font-bold text-[#336D9F]">Further QA/QC Details</p>
                     <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs leading-relaxed min-h-[60px]">
                       {currentRecord.qaFurtherDetails || 'No additional QA/QC details provided.'}
                     </div>
@@ -1495,11 +1530,11 @@ export const AnnualEmissionDataView: React.FC = () => {
 
               {/* TAB 4: REVIEW & SUBMIT (READ-ONLY) */}
               {activeTab === 'review-submit' && (
-                <div className="space-y-4">
+                <div className="space-y-[18px]">
                   {/* Section 1: Submission Summary */}
                   <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                     <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#004B87]">Submission Summary</span>
+                      <span className="text-xs font-bold text-[#336D9F]">Submission Summary</span>
                     </div>
                     <div className="p-3.5 sm:p-4 bg-white">
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-4 gap-x-6">
@@ -1523,12 +1558,16 @@ export const AnnualEmissionDataView: React.FC = () => {
                         <div>
                           <span className="block text-[11px] text-slate-400 font-medium">Verification Status</span>
                           <span className="font-semibold text-slate-800 text-xs">
-                            {currentRecord.status === 'Verified' || currentRecord.status === 'EAD Approved'
-                              ? 'Verification Statement Uploaded & Verified'
-                              : currentRecord.status.includes('Verification')
-                              ? 'Verification In Progress'
+                            {currentRecord.status === 'Approved' || currentRecord.status === 'Verified' || currentRecord.status === 'EAD Approved'
+                              ? 'Approved & Verified'
                               : currentRecord.status === 'Submitted'
-                              ? 'Submitted (Pending Verification)'
+                              ? 'Submitted (Under Review)'
+                              : currentRecord.status === 'Correction Required'
+                              ? 'Correction Required'
+                              : currentRecord.status === 'Reverted'
+                              ? 'Reverted for Correction'
+                              : currentRecord.status === 'Rejected'
+                              ? 'Rejected'
                               : 'Draft / Unsubmitted'}
                           </span>
                         </div>
@@ -1564,7 +1603,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                   {/* Section 2: Final Declaration */}
                   <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                     <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#004B87]">Final Declaration</span>
+                      <span className="text-xs font-bold text-[#336D9F]">Final Declaration</span>
                     </div>
                     <div className="p-3.5 sm:p-4 bg-white space-y-4">
                       <div className="space-y-2.5">
@@ -1596,7 +1635,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-2">
                         <div>
                           <label className="block text-slate-500 font-semibold mb-1 text-[11px]">Authorized Signatory</label>
                           <p className="font-semibold text-slate-900 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">{currentRecord.declarationForm?.name || '—'}</p>
@@ -1616,37 +1655,69 @@ export const AnnualEmissionDataView: React.FC = () => {
               )}
             </div>
           </div>
+
+          {/* Bottom Action Bar in Read-Only View */}
+          <div className="flex-shrink-0 pt-2.5 pb-1 flex items-center justify-end gap-2.5 flex-wrap">
+            <button
+              type="button"
+              onClick={handleRevert}
+              className="px-4 py-2 bg-amber-50 hover:bg-amber-100 border border-amber-300 text-xs font-bold text-amber-800 flex items-center gap-1.5 rounded-xl shadow-2xs transition-all cursor-pointer"
+              title="Revert submission for corrections"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-amber-700" />
+              <span>Revert</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleReject}
+              className="px-4 py-2 bg-rose-50 hover:bg-rose-100 border border-rose-300 text-xs font-bold text-rose-800 flex items-center gap-1.5 rounded-xl shadow-2xs transition-all cursor-pointer"
+              title="Reject annual emission data"
+            >
+              <XCircle className="w-3.5 h-3.5 text-rose-700" />
+              <span>Reject</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleApprove}
+              className="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              title="Approve annual emission data"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Approve</span>
+            </button>
+          </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
   // =========================================================================
   // 3. EDIT / ADD FORM VIEW (viewMode === 'form')
   // =========================================================================
   return (
-    <div className="h-full flex flex-col overflow-hidden font-sans py-1">
+    <div className="h-full flex flex-col overflow-hidden font-sans py-0.5">
       {/* Top Header Bar with Title, Status Chip, Facility Name, and Reporting Year */}
-      <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-3 pb-3 pt-0.5">
+      <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-3 pb-[18px] pt-0.5">
         {/* Left: Back Arrow, Title, Status Chip, Subtext, and Save Notice */}
         <div className="flex items-center gap-3 min-w-0">
           <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => setViewMode('table')}
-                className="p-1 -ml-1 text-[#004B87] hover:text-[#003865] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                className="p-1 -ml-1 text-[#336D9F] hover:text-[#004B87] hover:bg-[#E9F1F8] rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 border border-slate-200/70 shadow-2xs"
                 title="Back to Overview"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4" />
               </button>
-              <h1 className="text-xl font-bold font-display text-[#004B87] tracking-tight whitespace-nowrap">
+              <h1 className="text-[18px] font-bold font-display text-[#336D9F] tracking-tight whitespace-nowrap">
                 Annual Emission Data — Data Entry
               </h1>
               <span
                 className={`px-3 py-0.5 rounded-full text-xs font-bold tracking-wide transition-all shrink-0 ${
-                  currentRecord.status === 'Verified' || currentRecord.status === 'EAD Approved'
+                  currentRecord.status === 'Approved' || currentRecord.status === 'Verified' || currentRecord.status === 'EAD Approved'
                     ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
-                    : currentRecord.status === 'Submitted' || currentRecord.status?.includes('Submitted') || currentRecord.status?.includes('Verification')
+                    : currentRecord.status === 'Submitted' || currentRecord.status?.includes('Submitted')
                     ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
                     : currentRecord.status === 'Correction Required' || currentRecord.status === 'Reverted'
                     ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
@@ -1717,35 +1788,41 @@ export const AnnualEmissionDataView: React.FC = () => {
                 <option value="2025">2025</option>
                 <option value="2024">2024</option>
               </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Container on White Frame (Enclosing Tab Navigation at the top) */}
-      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm flex flex-col overflow-hidden">
-        {/* Tab Selector Navigation inside white frame above data */}
-        <div className="flex-shrink-0 px-3.5 pt-3 pb-2.5 border-b border-slate-200/90 flex items-center justify-between gap-1.5 bg-[#F8FAFC]">
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
+        {/* Sticky Tabs Navigation Bar (Fixed at top, outside scroll area) */}
+        <div className="flex-shrink-0 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-2.5">
+          <div className="inline-flex items-center gap-1 p-1 bg-[#EAEFF4] border border-[#D5E0EA] rounded-[6px] shadow-2xs">
             {[
-              { id: 'monitoring-methods', label: 'Monitoring Methods' },
-              { id: 'mitigation-measures', label: 'Mitigation Measures' },
-              { id: 'qa-qc', label: 'Data Management & QA/QC' },
-              { id: 'review-submit', label: 'Review & Submit' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer ${
-                  activeTab === tab.id
-                    ? 'bg-[#004B87] text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+              { id: 'monitoring-methods', label: 'Monitoring Methods', icon: Activity },
+              { id: 'mitigation-measures', label: 'Mitigation Measures', icon: BarChart3 },
+              { id: 'qa-qc', label: 'Data Management & QA/QC', icon: ShieldCheck },
+              { id: 'review-submit', label: 'Review & Submit', icon: CheckCircle2 },
+            ].map((tab) => {
+              const IconComponent = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                    isActive
+                      ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                      : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+                  }`}
+                >
+                  <IconComponent className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-500'}`} />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
           </div>
 
           {activeTab === 'qa-qc' && (
@@ -1764,11 +1841,10 @@ export const AnnualEmissionDataView: React.FC = () => {
         </div>
 
         {/* Scrollable Form Content */}
-        <div className="flex-1 min-h-0 p-3.5 flex flex-col overflow-hidden">
-          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pr-1 text-xs no-scrollbar">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-1 pt-2 pb-0.5 text-xs no-scrollbar">
             {/* TAB 1: MONITORING METHODS */}
             {activeTab === 'monitoring-methods' && (
-              <div className="space-y-4">
+              <div className="space-y-[18px]">
                 <MonitoringMethodsTab
                   data={currentRecord.monitoringMethods}
                   onChange={(methods) => {
@@ -1780,17 +1856,16 @@ export const AnnualEmissionDataView: React.FC = () => {
 
             {/* TAB 2: MITIGATION MEASURES */}
             {activeTab === 'mitigation-measures' && (
-              <div className="space-y-4">
-                {/* Section 1: Greenhouse Gas Mitigation Measures Table */}
-                <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-                  <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#004B87]">
+              <div className="space-y-4 pt-1">
+                {/* Greenhouse Gas Mitigation Measures Table */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[#336D9F]">
                       Greenhouse Gas Mitigation Measures
                     </span>
                   </div>
 
-                  <div className="p-3.5 bg-white space-y-3">
-                    <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
+                  <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                       <table className="w-full text-left text-xs min-w-[1550px]">
                         <thead>
                           <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
@@ -2077,11 +2152,10 @@ export const AnnualEmissionDataView: React.FC = () => {
                       </table>
                     </div>
                   </div>
-                </div>
 
                 {/* Section 2: Additional Relevant Information */}
                 <div className="space-y-2 pt-1">
-                  <p className="text-xs font-semibold text-slate-700">
+                  <p className="text-xs font-bold text-[#336D9F]">
                     Please provide any other information that you think may be relevant. If there is nothing, please add N/A below.
                   </p>
                   <textarea
@@ -2097,32 +2171,30 @@ export const AnnualEmissionDataView: React.FC = () => {
 
             {/* TAB 3: DATA MANAGEMENT & QA/QC */}
             {activeTab === 'qa-qc' && (
-              <div className="space-y-4">
-                {/* Section 1: Internal QA/QC Methodology */}
-                <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-                  <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#004B87]">
+              <div className="space-y-[18px]">
+                {/* Internal QA/QC Methodology */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[#336D9F]">
                       Internal QA/QC Methodology
                     </span>
                   </div>
-                  <div className="p-3.5 bg-white space-y-2.5">
-                    <p className="text-xs font-semibold text-slate-700">
-                      Provide a detailed description of the internal QA/QC methodology applied for all source streams and sources
-                    </p>
-                    <textarea
-                      rows={4}
-                      value={qaVerificationDesc}
-                      placeholder="Provide a detailed description of the internal QA/QC methodology applied for all source streams and sources..."
-                      onChange={(e) => setQaVerificationDesc(e.target.value)}
-                      className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#004B87] shadow-xs leading-relaxed"
-                    />
-                  </div>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Provide a detailed description of the internal QA/QC methodology applied for all source streams and sources
+                  </p>
+                  <textarea
+                    rows={4}
+                    value={qaVerificationDesc}
+                    placeholder="Provide a detailed description of the internal QA/QC methodology applied for all source streams and sources..."
+                    onChange={(e) => setQaVerificationDesc(e.target.value)}
+                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#004B87] shadow-xs leading-relaxed"
+                  />
                 </div>
 
                 {/* Section 2: Data Gaps */}
                 <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                   <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#004B87]">Data Gaps</span>
+                    <span className="text-xs font-bold text-[#336D9F]">Data Gaps</span>
                   </div>
 
                   <div className="p-3.5 bg-white space-y-3">
@@ -2278,7 +2350,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                 {/* Section 3: Management Responsibilities */}
                 <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                   <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#004B87]">Management Responsibilities</span>
+                    <span className="text-xs font-bold text-[#336D9F]">Management Responsibilities</span>
                   </div>
 
                   <div className="p-3.5 bg-white space-y-3">
@@ -2366,7 +2438,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                 {/* Section 4: Quality Assurance Procedures */}
                 <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                   <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#004B87]">Quality Assurance Procedures</span>
+                    <span className="text-xs font-bold text-[#336D9F]">Quality Assurance Procedures</span>
                   </div>
 
                   <div className="p-3.5 bg-white space-y-4">
@@ -2504,7 +2576,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                     <div className="pt-2 border-t border-slate-100 space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div>
-                          <h4 className="text-xs font-bold text-slate-800">Diagram References (Optional)</h4>
+                          <h4 className="text-xs font-bold text-[#336D9F]">Diagram References (Optional)</h4>
                           <p className="text-[11px] text-slate-500">Attach diagram-related workflows, schematics, or architecture documents for the QA procedures.</p>
                         </div>
                         <div>
@@ -2583,7 +2655,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                 {/* Section 5: Internal Review & Validation */}
                 <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                   <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#004B87]">Internal Review & Validation</span>
+                    <span className="text-xs font-bold text-[#336D9F]">Internal Review & Validation</span>
                   </div>
 
                   <div className="p-3.5 bg-white space-y-4">
@@ -2721,7 +2793,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                     <div className="pt-2 border-t border-slate-100 space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div>
-                          <h4 className="text-xs font-bold text-slate-800">Diagram References (Optional)</h4>
+                          <h4 className="text-xs font-bold text-[#336D9F]">Diagram References (Optional)</h4>
                           <p className="text-[11px] text-slate-500">Attach diagram-related workflows, review trees, or validation process schematics for internal review procedures.</p>
                         </div>
                         <div>
@@ -2799,7 +2871,7 @@ export const AnnualEmissionDataView: React.FC = () => {
 
                 {/* Section 6: Additional Details */}
                 <div className="space-y-2 pt-1">
-                  <p className="text-xs font-semibold text-slate-700">
+                  <p className="text-xs font-bold text-[#336D9F]">
                     Please provide any further details pertaining to quality control / quality assurance that you think may be relevant
                   </p>
                   <textarea
@@ -2815,11 +2887,11 @@ export const AnnualEmissionDataView: React.FC = () => {
 
             {/* TAB 4: REVIEW & SUBMIT */}
             {activeTab === 'review-submit' && (
-              <div className="space-y-4">
+              <div className="space-y-[18px]">
                 {/* Section 1: Submission Summary */}
                 <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                   <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#004B87]">Submission Summary</span>
+                    <span className="text-xs font-bold text-[#336D9F]">Submission Summary</span>
                   </div>
                   <div className="p-3.5 sm:p-4 bg-white">
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-4 gap-x-6">
@@ -2843,12 +2915,16 @@ export const AnnualEmissionDataView: React.FC = () => {
                       <div>
                         <span className="block text-[11px] text-slate-400 font-medium">Verification Status</span>
                         <span className="font-semibold text-slate-800 text-xs">
-                          {currentRecord.status === 'Verified' || currentRecord.status === 'EAD Approved'
-                            ? 'Verification Statement Uploaded & Verified'
-                            : currentRecord.status.includes('Verification')
-                            ? 'Verification In Progress'
+                          {currentRecord.status === 'Approved' || currentRecord.status === 'Verified' || currentRecord.status === 'EAD Approved'
+                            ? 'Approved & Verified'
                             : currentRecord.status === 'Submitted'
-                            ? 'Submitted (Pending Verification)'
+                            ? 'Submitted (Under Review)'
+                            : currentRecord.status === 'Correction Required'
+                            ? 'Correction Required'
+                            : currentRecord.status === 'Reverted'
+                            ? 'Reverted for Correction'
+                            : currentRecord.status === 'Rejected'
+                            ? 'Rejected'
                             : 'Draft / Unsubmitted'}
                         </span>
                       </div>
@@ -2888,7 +2964,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                 {/* Section 2: Final Declaration */}
                 <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
                   <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#004B87]">Final Declaration</span>
+                    <span className="text-xs font-bold text-[#336D9F]">Final Declaration</span>
                   </div>
                   <div className="p-3.5 sm:p-4 bg-white space-y-4">
                     <div className="space-y-2.5">
@@ -2929,7 +3005,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                       </label>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-2">
                       <div>
                         <label className="block text-slate-600 font-semibold mb-1 text-xs">Name</label>
                         <input
@@ -2966,7 +3042,6 @@ export const AnnualEmissionDataView: React.FC = () => {
             )}
           </div>
         </div>
-      </div>
 
       {/* Bottom Action Buttons */}
       <div className="flex-shrink-0 pt-2 pb-1 flex items-center justify-end gap-2.5">

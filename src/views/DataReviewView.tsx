@@ -272,11 +272,11 @@ export const DataReviewView: React.FC = () => {
       {/* ------------------------------------------------------------------------- */}
       {/* 1. TOP FIXED HEADER (Title & Global Controls) */}
       {/* ------------------------------------------------------------------------- */}
-      <div className="flex-shrink-0 pt-1 pb-[14px] flex flex-wrap items-center justify-between gap-4">
+      <div className="flex-shrink-0 pt-0.5 pb-2 flex flex-wrap items-center justify-between gap-3">
         {/* Left: View Title & Subtitle + Action Notifications */}
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
+            <h1 className="text-[20px] font-bold font-display text-[#004B87] tracking-tight">
               Data Review & Submission
             </h1>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
@@ -346,7 +346,7 @@ export const DataReviewView: React.FC = () => {
       {/* ------------------------------------------------------------------------- */}
       {/* 2. MAIN WHITE CARD FRAME (Contains table list or submission details) */}
       {/* ------------------------------------------------------------------------- */}
-      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-7 flex flex-col overflow-hidden">
+      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
         {selectedSubmissionId === null ? (
           /* ========================================================================= */
           /* VIEW 1: DATA REVIEW TABLE LIST VIEW (Screenshot 1) */
@@ -548,7 +548,7 @@ export const DataReviewView: React.FC = () => {
           /* ========================================================================= */
           /* VIEW 2: SUBMISSION DETAIL & AUDIT DOSSIER (Screenshots 2, 3, 4) */
           /* ========================================================================= */
-          <div className="flex-1 min-h-0 flex flex-col overflow-hidden space-y-4">
+          <div className="flex-1 min-h-0 flex flex-col overflow-hidden space-y-[18px]">
             {/* Top Summary Info Card */}
             <div className="flex-shrink-0 p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
@@ -652,12 +652,12 @@ export const DataReviewView: React.FC = () => {
             </div>
 
             {/* Scrollable Detail Body */}
-            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-6 pr-1 pb-6">
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-[18px] pr-1 pb-6">
               {detailTab === 'details' ? (
                 /* ========================================================================= */
                 /* TAB A: SUBMISSION DETAILS (Screenshots 2 & 3) */
                 /* ========================================================================= */
-                <div className="space-y-5 animate-fade-in text-xs">
+                <div className="space-y-[18px] animate-fade-in text-xs">
                   {/* 1. Facility Information Card */}
                   <div className="p-5 rounded-2xl border border-slate-200/90 bg-white space-y-4 shadow-xs">
                     <h3 className="font-bold text-slate-900 text-sm">Facility Information</h3>
@@ -1042,7 +1042,7 @@ export const DataReviewView: React.FC = () => {
                 /* ========================================================================= */
                 /* TAB B: SUBMISSION HISTORY & VERSION COMPARISON (Screenshot 4) */
                 /* ========================================================================= */
-                <div className="space-y-6 animate-fade-in text-xs">
+                <div className="space-y-[18px] animate-fade-in text-xs">
                   {/* 1. Submission Versions Table */}
                   <div className="p-5 rounded-2xl border border-slate-200/90 bg-white space-y-3 shadow-xs">
                     <h3 className="font-bold text-slate-900 text-sm">Submission Versions</h3>

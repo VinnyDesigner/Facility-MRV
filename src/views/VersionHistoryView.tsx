@@ -90,9 +90,9 @@ export const VersionHistoryView: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in pb-16 font-sans">
+    <div className="space-y-[18px] animate-fade-in pb-8 font-sans">
       {/* Sticky Title Bar */}
-      <div className="sticky -top-4 sm:-top-6 lg:-top-8 -mt-4 sm:-mt-6 lg:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-3.5 bg-[#F4F9FD]/95 backdrop-blur-md z-20 border-b border-slate-200/80 flex items-center justify-between gap-4 transition-all">
+      <div className="sticky -top-4 sm:-top-6 lg:-top-8 -mt-4 sm:-mt-6 lg:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-2 bg-[#F4F9FD]/95 backdrop-blur-md z-20 border-b border-slate-200/80 flex items-center justify-between gap-4 transition-all">
         <div className="flex items-center gap-3">
           <h1 className="text-[20px] font-bold font-display text-[#004B87] tracking-tight">
             Submission Version History & Evolution Tree
@@ -144,7 +144,7 @@ export const VersionHistoryView: React.FC = () => {
       </GlassCard>
 
       {/* Version Evolution Tree */}
-      <div className="space-y-4 relative before:absolute before:inset-0 before:left-6 before:w-0.5 before:bg-slate-200 before:z-0">
+      <div className="space-y-[18px] relative before:absolute before:inset-0 before:left-6 before:w-0.5 before:bg-slate-200 before:z-0">
         {versionsList.map((item, idx) => (
           <div key={idx} className="relative z-10 pl-14">
             {/* Timeline Node */}

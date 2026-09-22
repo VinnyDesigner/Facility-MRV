@@ -579,9 +579,9 @@ export const FacilityDashboardView: React.FC = () => {
   return (
     <div className="h-full flex flex-col overflow-hidden font-sans animate-fade-in">
       {/* 1. TOP FIXED HEADER (Title & Date / Export Controls) */}
-      <div className="flex-shrink-0 pt-1 pb-[14px] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex-shrink-0 pt-0.5 pb-[18px] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
+          <h1 className="text-[18px] font-bold font-display text-[#004B87] tracking-tight">
             Facility MRV Dashboard
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-0.5">
@@ -636,26 +636,26 @@ export const FacilityDashboardView: React.FC = () => {
       </div>
 
       {/* 2. SCROLLABLE DASHBOARD BODY */}
-      <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-5 pb-16 font-sans no-scrollbar">
+      <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-[18px] pb-16 font-sans no-scrollbar">
         {/* 2. TOP METRIC CARDS (Using the NotchCard scooped-corner design as before) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Metric 1: Total Facilities */}
         <NotchCard
-          icon={<Building2 className="w-4 h-4" />}
+          icon={<Building2 className="w-3.5 h-3.5" />}
           iconGradient="from-[#005B9F] to-[#004B87]"
           iconShadow="shadow-blue-900/25"
           badgeShape="circle"
         >
-          <p className="text-xs font-bold text-slate-800 leading-tight max-w-[65%]">
+          <p className="text-[11px] font-bold text-slate-800 leading-tight max-w-[65%]">
             Total<br />Facilities
           </p>
-          <div className="my-auto">
-            <div className="text-[24px] font-extrabold text-[#004B87] tracking-tight leading-none">
+          <div className="my-auto py-0.5">
+            <div className="text-[20px] font-extrabold text-[#004B87] tracking-tight leading-none">
               {activePeriodData.kpis.totalFacilities.value}
             </div>
-            <p className="text-[10px] text-slate-400 font-medium mt-0.5">Registered Facilities</p>
+            <p className="text-[9.5px] text-slate-400 font-medium mt-0.5">Registered Facilities</p>
           </div>
-          <div className="border-t border-slate-100 pt-1.5 flex items-center justify-between text-[10px]">
+          <div className="border-t border-slate-100 pt-1 flex items-center justify-between text-[10px]">
             <span className="text-slate-400 font-medium">Cycle</span>
             <span className="text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.2 rounded-full">
               {activePeriodData.kpis.totalFacilities.sub}
@@ -665,21 +665,21 @@ export const FacilityDashboardView: React.FC = () => {
 
         {/* Metric 2: Active Facilities */}
         <NotchCard
-          icon={<Users className="w-4 h-4" />}
+          icon={<Users className="w-3.5 h-3.5" />}
           iconGradient="from-emerald-500 to-emerald-600"
           iconShadow="shadow-emerald-500/25"
           badgeShape="circle"
         >
-          <p className="text-xs font-bold text-slate-800 leading-tight max-w-[65%]">
+          <p className="text-[11px] font-bold text-slate-800 leading-tight max-w-[65%]">
             Active<br />Facilities
           </p>
-          <div className="my-auto">
-            <div className="text-[24px] font-extrabold text-emerald-600 tracking-tight leading-none">
+          <div className="my-auto py-0.5">
+            <div className="text-[20px] font-extrabold text-emerald-600 tracking-tight leading-none">
               {activePeriodData.kpis.activeFacilities.value}
             </div>
-            <p className="text-[10px] text-slate-400 font-medium mt-0.5">89% of registered</p>
+            <p className="text-[9.5px] text-slate-400 font-medium mt-0.5">89% of registered</p>
           </div>
-          <div className="border-t border-slate-100 pt-1.5 flex items-center justify-between text-[10px]">
+          <div className="border-t border-slate-100 pt-1 flex items-center justify-between text-[10px]">
             <span className="text-slate-400 font-medium">Status</span>
             <span className="text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.2 rounded-full">
               {activePeriodData.kpis.activeFacilities.sub}
@@ -689,18 +689,18 @@ export const FacilityDashboardView: React.FC = () => {
 
         {/* Metric 3: Data Submission */}
         <NotchCard
-          icon={<FileText className="w-4 h-4" />}
+          icon={<FileText className="w-3.5 h-3.5" />}
           iconGradient="from-purple-500 to-purple-600"
           iconShadow="shadow-purple-500/25"
           badgeShape="circle"
         >
-          <p className="text-xs font-bold text-slate-800 leading-tight max-w-[65%]">
+          <p className="text-[11px] font-bold text-slate-800 leading-tight max-w-[65%]">
             Data<br />Submission
           </p>
-          <div className="space-y-1 my-auto">
-            <div className="text-[22px] font-extrabold text-purple-700 tracking-tight leading-none">
+          <div className="space-y-1 my-auto py-0.5">
+            <div className="text-[18px] font-extrabold text-purple-700 tracking-tight leading-none">
               {activePeriodData.kpis.dataSubmission.value}{' '}
-              <span className="text-xs font-semibold text-slate-400">
+              <span className="text-[11px] font-semibold text-slate-400">
                 {activePeriodData.kpis.dataSubmission.total}
               </span>
             </div>
@@ -711,7 +711,7 @@ export const FacilityDashboardView: React.FC = () => {
               ></div>
             </div>
           </div>
-          <div className="border-t border-slate-100 pt-1.5 flex items-center justify-between text-[10px]">
+          <div className="border-t border-slate-100 pt-1 flex items-center justify-between text-[10px]">
             <span className="text-slate-400 font-medium">Rate</span>
             <span className="text-purple-700 font-bold bg-purple-50 px-1.5 py-0.2 rounded-full">
               {activePeriodData.kpis.dataSubmission.sub}
@@ -721,27 +721,27 @@ export const FacilityDashboardView: React.FC = () => {
 
         {/* Metric 4: Pending Verification */}
         <NotchCard
-          icon={<ShieldCheck className="w-4 h-4" />}
+          icon={<ShieldCheck className="w-3.5 h-3.5" />}
           iconGradient="from-amber-400 to-amber-500"
           iconShadow="shadow-amber-500/25"
           badgeShape="circle"
         >
-          <p className="text-xs font-bold text-slate-800 leading-tight max-w-[65%]">
+          <p className="text-[11px] font-bold text-slate-800 leading-tight max-w-[65%]">
             Pending<br />Verification
           </p>
-          <div className="my-auto">
+          <div className="my-auto py-0.5">
             <div
-              className={`text-[24px] font-extrabold tracking-tight leading-none ${
+              className={`text-[20px] font-extrabold tracking-tight leading-none ${
                 activePeriodData.kpis.pendingVerification.isZero ? 'text-emerald-600' : 'text-amber-500'
               }`}
             >
               {activePeriodData.kpis.pendingVerification.value}
             </div>
-            <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+            <p className="text-[9.5px] text-slate-400 font-medium mt-0.5">
               {activePeriodData.kpis.pendingVerification.isZero ? 'All Finalized' : 'Awaiting 3rd-party'}
             </p>
           </div>
-          <div className="border-t border-slate-100 pt-1.5 flex items-center justify-between text-[10px]">
+          <div className="border-t border-slate-100 pt-1 flex items-center justify-between text-[10px]">
             <span className="text-slate-400 font-medium">Audit</span>
             <span
               className={`font-bold px-1.5 py-0.2 rounded-full ${
@@ -757,16 +757,16 @@ export const FacilityDashboardView: React.FC = () => {
 
         {/* Metric 5: Reporting Compliance */}
         <NotchCard
-          icon={<TrendingUp className="w-4 h-4" />}
+          icon={<TrendingUp className="w-3.5 h-3.5" />}
           iconGradient="from-teal-500 to-teal-600"
           iconShadow="shadow-teal-500/25"
           badgeShape="circle"
         >
-          <p className="text-xs font-bold text-slate-800 leading-tight max-w-[65%]">
+          <p className="text-[11px] font-bold text-slate-800 leading-tight max-w-[65%]">
             Reporting<br />Compliance
           </p>
-          <div className="space-y-1 my-auto">
-            <div className="text-[24px] font-extrabold text-teal-700 tracking-tight leading-none">
+          <div className="space-y-1 my-auto py-0.5">
+            <div className="text-[20px] font-extrabold text-teal-700 tracking-tight leading-none">
               {activePeriodData.kpis.compliance.value}
             </div>
             <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
@@ -776,7 +776,7 @@ export const FacilityDashboardView: React.FC = () => {
               ></div>
             </div>
           </div>
-          <div className="border-t border-slate-100 pt-1.5 flex items-center justify-between text-[10px]">
+          <div className="border-t border-slate-100 pt-1 flex items-center justify-between text-[10px]">
             <span className="text-slate-400 font-medium">vs Prev</span>
             <span className="text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.2 rounded-full">
               {activePeriodData.kpis.compliance.sub}

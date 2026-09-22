@@ -392,8 +392,8 @@ export const SubmissionDetailView: React.FC = () => {
       {/* ------------------------------------------------------------------------- */}
       {/* 2. MAIN REGISTRATION-STYLE CONTAINER FRAME                                */}
       {/* ------------------------------------------------------------------------- */}
-      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm px-3.5 sm:px-4 py-3.5 sm:py-4 flex flex-col overflow-hidden">
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-400">
+      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3 sm:p-3.5 flex flex-col overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-400">
 
           {/* ===================================================================== */}
           {/* SUBMISSION SUMMARY (MATCHING REGISTRATION SECTION CARD UI)           */}

@@ -67,11 +67,11 @@ export const SubmissionTrackingView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in pb-12">
+    <div className="space-y-[18px] animate-fade-in pb-6">
       {/* Top Header Row */}
-      <div className="flex-shrink-0 pt-1 pb-[14px] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex-shrink-0 pt-0.5 pb-[18px] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
+          <h1 className="text-[18px] font-bold font-display text-[#004B87] tracking-tight">
             Submission Lifecycle & Version Tracking
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-0.5">
@@ -135,9 +135,9 @@ export const SubmissionTrackingView: React.FC = () => {
       </div>
 
       {activeSub ? (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[18px]">
           {/* Left: Interactive Workflow Stages & Summary (5 cols) */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-[18px]">
             <GlassCard className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -262,7 +262,7 @@ export const SubmissionTrackingView: React.FC = () => {
               </span>
             </div>
 
-            <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-primary-100">
+            <div className="relative pl-6 space-y-[18px] before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-primary-100">
               {activeSub.history.map((ev) => (
                 <div key={ev.id} className="relative group">
                   {/* Timeline Node */}

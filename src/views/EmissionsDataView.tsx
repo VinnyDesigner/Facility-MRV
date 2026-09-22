@@ -53,9 +53,9 @@ export const EmissionsDataView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in pb-12 font-sans">
+    <div className="space-y-[18px] animate-fade-in pb-6 font-sans">
       {/* Sticky Single-Row Title Bar */}
-      <div className="sticky -top-4 sm:-top-6 lg:-top-8 -mt-4 sm:-mt-6 lg:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-3.5 bg-[#F4F9FD]/95 backdrop-blur-md z-20 border-b border-slate-200/80 flex items-center justify-between gap-4 transition-all">
+      <div className="sticky -top-4 sm:-top-6 lg:-top-8 -mt-4 sm:-mt-6 lg:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-2 bg-[#F4F9FD]/95 backdrop-blur-md z-20 border-b border-slate-200/80 flex items-center justify-between gap-4 transition-all">
         <div className="flex items-center gap-3">
           <h1 className="text-[20px] font-bold font-display text-[#0B3A60] tracking-tight">
             Emissions Data — Reporting Year {reportingYear}
@@ -97,9 +97,9 @@ export const EmissionsDataView: React.FC = () => {
       </div>
 
       {/* Main Emissions Input Panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-[18px]">
         {/* Left Form: Large Total & Category Breakdown (8 cols) */}
-        <GlassCard className="lg:col-span-8 p-6 sm:p-8 space-y-6">
+        <GlassCard className="lg:col-span-8 p-6 sm:p-8 space-y-[18px]">
           {/* Hero Input: Total Estimated Emissions */}
           <div className="p-6 rounded-3xl bg-gradient-to-br from-primary-50 via-cyan-50/40 to-white border border-primary-200">
             <div className="flex items-center justify-between mb-2">
@@ -253,7 +253,7 @@ export const EmissionsDataView: React.FC = () => {
         </GlassCard>
 
         {/* Right Guidance & Regulatory Support Cards (4 cols) */}
-        <div className="lg:col-span-4 space-y-4">
+        <div className="lg:col-span-4 space-y-[18px]">
           <GlassCard className="p-5 space-y-3" variant="subtle">
             <div className="flex items-center gap-2 text-primary-700 text-xs font-bold uppercase tracking-wider">
               <ShieldCheck className="w-4 h-4 text-cyan-brand" />

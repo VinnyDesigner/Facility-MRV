@@ -76,9 +76,9 @@ export const ComplianceCenterView: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in pb-12">
+    <div className="space-y-[18px] animate-fade-in pb-6">
       {/* Sticky Single-Row Title Bar */}
-      <div className="sticky -top-4 sm:-top-6 lg:-top-8 -mt-4 sm:-mt-6 lg:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-3.5 bg-[#F4F9FD]/95 backdrop-blur-md z-20 border-b border-slate-200/80 flex items-center justify-between gap-4 transition-all font-sans">
+      <div className="sticky -top-4 sm:-top-6 lg:-top-8 -mt-4 sm:-mt-6 lg:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-2 bg-[#F4F9FD]/95 backdrop-blur-md z-20 border-b border-slate-200/80 flex items-center justify-between gap-4 transition-all font-sans">
         <h1 className="text-[20px] font-bold font-display text-[#0B3A60] tracking-tight">
           MRV Compliance Readiness & Statutory Obligations
         </h1>
@@ -88,7 +88,7 @@ export const ComplianceCenterView: React.FC = () => {
       </div>
 
       {/* Hero Readiness Score + Deadline Breakdown */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-[18px]">
         <GlassCard className="lg:col-span-4 p-6 flex flex-col items-center justify-center text-center">
           <ProgressCircle
             value={activeFacility.complianceScore || 82}
@@ -106,7 +106,7 @@ export const ComplianceCenterView: React.FC = () => {
         </GlassCard>
 
         {/* Regulatory Summary Cards (8 cols) */}
-        <div className="lg:col-span-8 space-y-4">
+        <div className="lg:col-span-8 space-y-[18px]">
           <GlassCard className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold font-display text-navy-900">

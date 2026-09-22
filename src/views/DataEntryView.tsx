@@ -22,6 +22,7 @@ import {
   Settings,
   Gauge,
   ArrowRight,
+  Workflow,
   Eye,
   Edit,
   ArrowLeft,
@@ -55,6 +56,11 @@ export const DataEntryView: React.FC = () => {
   // VIEW MODE: 'table' (Overview Table) | 'form' (Edit Form) | 'view' (Read-Only Inspection)
   const [viewMode, setViewMode] = useState<'table' | 'form' | 'view'>('table');
   const [selectedFacilityId, setSelectedFacilityId] = useState<string>(activeFacility?.id || 'fac-1');
+
+  // Tab Navigation State for Form and View Mode
+  const [formActiveTab, setFormActiveTab] = useState<
+    'facility-description' | 'emissions-estimated' | 'emission-sources' | 'methane-emission' | 'source-stream'
+  >('facility-description');
 
   // Table Search & Filter State
   const [tableSearchTerm, setTableSearchTerm] = useState('');
@@ -601,6 +607,7 @@ export const DataEntryView: React.FC = () => {
   const handleEditFacilityPlan = (facId: string) => {
     setSelectedFacilityId(facId);
     setActiveFacilityId(facId);
+    setFormActiveTab('facility-description');
     setViewMode('form');
   };
 
@@ -608,6 +615,7 @@ export const DataEntryView: React.FC = () => {
   const handleViewFacilityPlan = (facId: string) => {
     setSelectedFacilityId(facId);
     setActiveFacilityId(facId);
+    setFormActiveTab('facility-description');
     setViewMode('view');
   };
 
@@ -615,6 +623,7 @@ export const DataEntryView: React.FC = () => {
   const handleCreatePlanForFacility = (facId: string) => {
     setSelectedFacilityId(facId);
     setActiveFacilityId(facId);
+    setFormActiveTab('facility-description');
 
     setFacilityPlans((prev) => {
       const existing = prev[facId];
@@ -770,9 +779,9 @@ export const DataEntryView: React.FC = () => {
     return (
       <div className="h-full flex flex-col overflow-hidden font-sans py-1">
         {/* Top Header Row with Title, Search, Filter & Add Button (Strictly Single Row) */}
-        <div className="flex-shrink-0 pb-3 pt-0.5 flex items-center justify-between gap-3 min-w-0">
+        <div className="flex-shrink-0 pb-[18px] pt-0.5 flex items-center justify-between gap-3 min-w-0">
           <div className="min-w-0 shrink">
-            <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight whitespace-nowrap">
+            <h1 className="text-[18px] font-bold font-display text-[#336D9F] tracking-tight whitespace-nowrap">
               Monitoring Plan
             </h1>
             <p className="text-xs text-slate-500 font-medium mt-0.5 truncate max-w-lg xl:max-w-xl">
@@ -792,7 +801,7 @@ export const DataEntryView: React.FC = () => {
                   setTableSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full pl-8 pr-7 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all font-medium shadow-xs"
+                className="w-full h-9 pl-8 pr-7 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all font-medium shadow-xs"
               />
               {tableSearchTerm && (
                 <button
@@ -815,7 +824,7 @@ export const DataEntryView: React.FC = () => {
                   setStatusFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all cursor-pointer"
+                className="w-28 sm:w-32 h-9 px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer truncate"
               >
                 <option value="ALL">All Statuses</option>
                 <option value="To Be Submitted">To Be Submitted</option>
@@ -836,7 +845,7 @@ export const DataEntryView: React.FC = () => {
                   setYearFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all cursor-pointer"
+                className="w-24 sm:w-26 h-9 px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer truncate"
               >
                 <option value="ALL">All Years</option>
                 <option value="2026">2026</option>
@@ -854,7 +863,7 @@ export const DataEntryView: React.FC = () => {
                   setYearFilter('ALL');
                   setCurrentPage(1);
                 }}
-                className="px-2 py-1.5 text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 font-semibold transition-colors flex items-center gap-1 cursor-pointer text-xs"
+                className="h-9 px-2.5 text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 font-semibold transition-colors flex items-center gap-1 cursor-pointer text-xs"
                 title="Reset all filters"
               >
                 <RotateCcw className="w-3 h-3" />
@@ -864,180 +873,169 @@ export const DataEntryView: React.FC = () => {
           </div>
         </div>
 
-        {/* Level 1 Card Container with All Facilities Table & Pagination */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col flex-1 min-h-0">
-          {/* Inset Container with Padding and Rounded Border */}
-          <div className="p-3 sm:p-3.5 flex-1 min-h-0 flex flex-col justify-between">
-            <div className="flex-1 min-h-0 overflow-hidden rounded-xl border border-slate-200/90 bg-white">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="bg-[#E9F1F8] text-slate-700 font-semibold text-xs border-b border-slate-200 sticky top-0 z-10 shadow-xs">
-                    <th className="py-2.5 px-2.5 w-10 text-center">#</th>
-                    <th className="py-2.5 px-2.5 w-44 max-w-[180px]">Facility Name</th>
-                    <th className="py-2.5 px-2.5 whitespace-nowrap">Facility ID</th>
-                    <th className="py-2.5 px-2.5 whitespace-nowrap text-left">Applicable Year</th>
-                    <th className="py-2.5 px-2.5 whitespace-nowrap">Primary Monitoring Approach</th>
-                    <th className="py-2.5 px-2.5 whitespace-nowrap">Submitted Date</th>
-                    <th className="py-2.5 px-2.5 whitespace-nowrap">Updated Date</th>
-                    <th className="py-2.5 px-2.5 whitespace-nowrap text-left">Monitoring Status</th>
-                    <th className="py-2.5 px-2.5 whitespace-nowrap">Correction Deadline</th>
-                    <th className="py-2.5 px-2.5 text-center whitespace-nowrap">Version</th>
-                    <th className="py-2.5 px-3 text-right whitespace-nowrap">Actions</th>
+        {/* Table & Pagination Container (Without outer white card background) */}
+        <div className="flex flex-col flex-1 min-h-0 justify-between overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-xs">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="h-[38px] bg-[#6692B7]/30 text-slate-800 font-bold text-xs border-b border-[#6692B7]/20 sticky top-0 z-10 shadow-xs">
+                  <th className="h-[38px] px-2.5 w-10 text-center align-middle">#</th>
+                  <th className="h-[38px] px-2.5 w-44 max-w-[180px] align-middle">Facility Name</th>
+                  <th className="h-[38px] px-2.5 whitespace-nowrap align-middle">Facility ID</th>
+                  <th className="h-[38px] px-2.5 whitespace-nowrap text-center align-middle">Applicable Year</th>
+                  <th className="h-[38px] px-2.5 whitespace-nowrap align-middle">Primary Monitoring Approach</th>
+                  <th className="h-[38px] px-2.5 whitespace-nowrap align-middle">Submitted Date</th>
+                  <th className="h-[38px] px-2.5 whitespace-nowrap align-middle">Updated Date</th>
+                  <th className="h-[38px] px-2.5 w-28 whitespace-nowrap text-left align-middle">Status</th>
+                  <th className="h-[38px] px-2.5 w-36 whitespace-nowrap align-middle">Correction Deadline</th>
+                  <th className="h-[38px] px-3 w-16 text-right whitespace-nowrap align-middle">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                {paginatedPlans.length === 0 ? (
+                  <tr>
+                    <td colSpan={10} className="h-[60px] py-8 text-center text-slate-400 font-semibold align-middle">
+                      No monitoring plan records match the selected filter criteria.
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                  {paginatedPlans.length === 0 ? (
-                    <tr>
-                      <td colSpan={11} className="py-8 text-center text-slate-400 font-semibold">
-                        No monitoring plan records match the selected filter criteria.
-                      </td>
-                    </tr>
-                  ) : (
-                    paginatedPlans.map(([facId, plan], idx) => {
-                      const deadlineInfo = getCorrectionDeadlineInfo(plan.eadCorrectionDate, plan.status);
-                      const rowNumber = (currentPage - 1) * itemsPerPage + idx + 1;
+                ) : (
+                  paginatedPlans.map(([facId, plan], idx) => {
+                    const deadlineInfo = getCorrectionDeadlineInfo(plan.eadCorrectionDate, plan.status);
+                    const rowNumber = (currentPage - 1) * itemsPerPage + idx + 1;
 
-                      return (
-                        <tr
-                          key={facId}
-                          className="hover:bg-slate-50/80 transition-colors group cursor-default"
-                        >
-                          <td className="py-2.5 px-2.5 text-center font-mono font-bold text-slate-400">
-                            {rowNumber}
-                          </td>
+                    return (
+                      <tr
+                        key={facId}
+                        className="h-[60px] hover:bg-slate-50/80 transition-colors group cursor-default"
+                      >
+                        <td className="h-[60px] px-2.5 text-center font-mono font-bold text-slate-400 align-middle">
+                          {rowNumber}
+                        </td>
 
-                          {/* Facility Name */}
-                          <td className="py-2.5 px-2.5 font-semibold text-slate-800 w-44 max-w-[180px] leading-snug">
-                            <span>{plan.facilityName}</span>
-                          </td>
+                        {/* Facility Name */}
+                        <td className="h-[60px] px-2.5 font-semibold text-slate-800 w-44 max-w-[180px] leading-snug align-middle">
+                          <span>{plan.facilityName}</span>
+                        </td>
 
-                          {/* Facility ID */}
-                          <td className="py-2.5 px-2.5 font-mono text-[#004B87] font-semibold whitespace-nowrap">
-                            {plan.facilityId || '—'}
-                          </td>
+                        {/* Facility ID */}
+                        <td className="h-[60px] px-2.5 font-mono text-[#004B87] font-semibold whitespace-nowrap align-middle">
+                          {plan.facilityId || '—'}
+                        </td>
 
-                          {/* Applicable Year */}
-                          <td className="py-2.5 px-2.5 text-left font-semibold text-slate-700 whitespace-nowrap">
-                            {plan.reportingYear || '2026'}
-                          </td>
+                        {/* Applicable Year */}
+                        <td className="h-[60px] px-2.5 text-center font-semibold text-slate-700 whitespace-nowrap align-middle">
+                          {plan.reportingYear || '2026'}
+                        </td>
 
-                          {/* Primary Monitoring Approach */}
-                          <td className="py-2.5 px-2.5 text-slate-600 leading-snug">
-                            <span>{plan.primaryApproach || plan.primaryActivity || 'Calculation-based (Tier 3)'}</span>
-                          </td>
+                        {/* Primary Monitoring Approach */}
+                        <td className="h-[60px] px-2.5 text-slate-600 leading-snug align-middle">
+                          <span>{plan.primaryApproach || plan.primaryActivity || 'Calculation-based (Tier 3)'}</span>
+                        </td>
 
-                          {/* Submitted Date */}
-                          <td className="py-2.5 px-2.5 text-slate-600 whitespace-nowrap">
-                            {plan.submittedDate && plan.submittedDate !== '—' ? (
-                              <div className="flex items-center gap-1.5">
-                                <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                <span>{plan.submittedDate}</span>
+                        {/* Submitted Date */}
+                        <td className="h-[60px] px-2.5 text-slate-600 whitespace-nowrap align-middle">
+                          {plan.submittedDate && plan.submittedDate !== '—' ? (
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span>{plan.submittedDate}</span>
+                            </div>
+                          ) : (
+                            <span>—</span>
+                          )}
+                        </td>
+
+                        {/* Updated Date */}
+                        <td className="h-[60px] px-2.5 text-slate-600 whitespace-nowrap align-middle">
+                          {plan.updatedDate && plan.updatedDate !== '—' ? (
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span>{plan.updatedDate}</span>
+                            </div>
+                          ) : (
+                            <span>—</span>
+                          )}
+                        </td>
+
+                        {/* Status */}
+                        <td className="h-[60px] px-2.5 text-left whitespace-nowrap align-middle">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap inline-block ${
+                              plan.status === 'Approved' || plan.status === 'Approved / Active' || plan.status === 'Active'
+                                ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60 font-bold'
+                                : plan.status === 'Submitted' || plan.status === 'Under EAD Review'
+                                ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60 font-bold'
+                                : plan.status === 'To Be Submitted'
+                                ? 'bg-[#EFF6FF] text-[#1D4ED8] border border-blue-200/80 font-bold'
+                                : plan.status === 'Correction Required' || plan.status === 'Reverted'
+                                ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
+                                : plan.status === 'Rejected'
+                                ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 font-bold'
+                                : 'bg-slate-100 text-slate-700 border border-slate-200 font-bold'
+                            }`}
+                          >
+                            {plan.status}
+                          </span>
+                        </td>
+
+                        {/* Submission / Correction Deadline */}
+                        <td className="h-[60px] px-2.5 whitespace-nowrap text-slate-600 align-middle">
+                          {(plan.status === 'Correction Required' || plan.status === 'To Be Submitted') && deadlineInfo.daysRemaining !== null ? (
+                            <div className="flex items-start gap-1.5">
+                              <Calendar className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${plan.status === 'To Be Submitted' ? 'text-blue-600' : 'text-amber-600'}`} />
+                              <div className="flex flex-col leading-tight">
+                                <span className="font-semibold text-slate-800 text-[11px]">Due: {deadlineInfo.deadlineStr}</span>
+                                <span className={`text-[10px] font-medium ${deadlineInfo.isOverdue ? 'text-rose-600 font-bold' : plan.status === 'To Be Submitted' ? 'text-blue-700 font-bold' : 'text-amber-700 font-bold'}`}>
+                                  {deadlineInfo.isOverdue
+                                    ? `Overdue (${Math.abs(deadlineInfo.daysRemaining)} days late)`
+                                    : `(${deadlineInfo.daysRemaining} days left)`}
+                                </span>
                               </div>
-                            ) : (
-                              <span>—</span>
-                            )}
-                          </td>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 font-medium pl-2">—</span>
+                          )}
+                        </td>
 
-                          {/* Updated Date */}
-                          <td className="py-2.5 px-2.5 text-slate-600 whitespace-nowrap">
-                            {plan.updatedDate && plan.updatedDate !== '—' ? (
-                              <div className="flex items-center gap-1.5">
-                                <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                <span>{plan.updatedDate}</span>
-                              </div>
-                            ) : (
-                              <span>—</span>
-                            )}
-                          </td>
-
-                          {/* Status */}
-                          <td className="py-2.5 px-2.5 text-left whitespace-nowrap">
-                            <span
-                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap inline-block ${
-                                plan.status === 'Approved' || plan.status === 'Approved / Active' || plan.status === 'Active'
-                                  ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60 font-bold'
-                                  : plan.status === 'Submitted' || plan.status === 'Under EAD Review'
-                                  ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60 font-bold'
-                                  : plan.status === 'To Be Submitted'
-                                  ? 'bg-[#EFF6FF] text-[#1D4ED8] border border-blue-200/80 font-bold'
-                                  : plan.status === 'Correction Required' || plan.status === 'Reverted'
-                                  ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
-                                  : plan.status === 'Rejected'
-                                  ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 font-bold'
-                                  : 'bg-slate-100 text-slate-700 border border-slate-200 font-bold'
-                              }`}
+                        {/* Actions: "Create Monitoring Plan" button for 'To Be Submitted', or Eye View & Edit Icons */}
+                        <td className="h-[60px] px-3 text-right whitespace-nowrap align-middle">
+                          {plan.status === 'To Be Submitted' ? (
+                            <button
+                              onClick={() => handleCreatePlanForFacility(facId)}
+                              className="px-2.5 py-1 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-lg text-[11px] font-bold flex items-center gap-1 shadow-xs hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer whitespace-nowrap ml-auto active:scale-95"
+                              title="Create Plan for this facility"
                             >
-                              {plan.status}
-                            </span>
-                          </td>
-
-                          {/* Submission / Correction Deadline */}
-                          <td className="py-2.5 px-2.5 whitespace-nowrap text-slate-600">
-                            {(plan.status === 'Correction Required' || plan.status === 'To Be Submitted') && deadlineInfo.daysRemaining !== null ? (
-                              <div className="flex items-start gap-1.5">
-                                <Calendar className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${plan.status === 'To Be Submitted' ? 'text-blue-600' : 'text-amber-600'}`} />
-                                <div className="flex flex-col leading-tight">
-                                  <span className="font-semibold text-slate-800 text-[11px]">Due: {deadlineInfo.deadlineStr}</span>
-                                  <span className={`text-[10px] font-medium ${deadlineInfo.isOverdue ? 'text-rose-600 font-bold' : plan.status === 'To Be Submitted' ? 'text-blue-700 font-bold' : 'text-amber-700 font-bold'}`}>
-                                    {deadlineInfo.isOverdue
-                                      ? `Overdue (${Math.abs(deadlineInfo.daysRemaining)} days late)`
-                                      : `(${deadlineInfo.daysRemaining} days left)`}
-                                  </span>
-                                </div>
-                              </div>
-                            ) : (
-                              <span className="text-slate-400 font-medium pl-2">—</span>
-                            )}
-                          </td>
-
-                          {/* Version */}
-                          <td className="py-2.5 px-2.5 text-center whitespace-nowrap">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                              {formatVersion(plan.planVersion)}
-                            </span>
-                          </td>
-
-                          {/* Actions: "Create Monitoring Plan" button for 'To Be Submitted', or Eye View & Edit Icons */}
-                          <td className="py-2.5 px-3 text-right whitespace-nowrap">
-                            {plan.status === 'To Be Submitted' ? (
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>Create Plan</span>
+                            </button>
+                          ) : (
+                            <div className="flex items-center justify-end gap-1">
                               <button
-                                onClick={() => handleCreatePlanForFacility(facId)}
-                                className="px-2.5 py-1 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-lg text-[11px] font-bold flex items-center gap-1 shadow-xs hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer whitespace-nowrap ml-auto active:scale-95"
-                                title="Create Plan for this facility"
+                                onClick={() => handleViewFacilityPlan(facId)}
+                                title="View Monitoring Plan Details"
+                                className="p-1 rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer"
                               >
-                                <Plus className="w-3.5 h-3.5" />
-                                <span>Create Plan</span>
+                                <Eye className="w-4 h-4" />
                               </button>
-                            ) : (
-                              <div className="flex items-center justify-end gap-1">
-                                <button
-                                  onClick={() => handleViewFacilityPlan(facId)}
-                                  title="View Monitoring Plan Details"
-                                  className="p-1 rounded-lg text-slate-500 hover:text-[#004B87] hover:bg-slate-100 transition-colors cursor-pointer"
-                                >
-                                  <Eye className="w-4 h-4" />
-                                </button>
-                                <button
-                                  onClick={() => handleEditFacilityPlan(facId)}
-                                  title="Edit Monitoring Plan"
-                                  className="p-1 rounded-lg text-slate-500 hover:text-[#004B87] hover:bg-slate-100 transition-colors cursor-pointer"
-                                >
-                                  <Edit className="w-4 h-4" />
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
+                              <button
+                                onClick={() => handleEditFacilityPlan(facId)}
+                                title="Edit Monitoring Plan"
+                                className="p-1 rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
 
           {/* Pagination & Counter Footer */}
-          <div className="p-2.5 sm:p-3 bg-[#F8FAFC] border-t border-slate-200/90 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 font-medium flex-shrink-0">
+          <div className="pt-2.5 pb-1 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 font-medium flex-shrink-0">
             <div className="flex items-center gap-2">
               <span>
                 Showing <span className="font-bold text-slate-800">{filteredTableList.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> to{' '}
@@ -1079,7 +1077,7 @@ export const DataEntryView: React.FC = () => {
                   onClick={() => setCurrentPage(pageNum)}
                   className={`w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     currentPage === pageNum
-                      ? 'bg-[#004B87] text-white shadow-xs'
+                      ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white shadow-xs'
                       : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
@@ -1107,19 +1105,19 @@ export const DataEntryView: React.FC = () => {
   // =========================================================================
   if (viewMode === 'view') {
     return (
-      <div className="h-full flex flex-col overflow-hidden font-sans py-1">
+      <div className="h-full flex flex-col overflow-hidden font-sans py-0.5">
         {/* Top Action Header */}
-        <div className="flex-shrink-0 pb-3.5 pt-1 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex-shrink-0 pb-[18px] pt-0.5 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => setViewMode('table')}
-                className="p-1 -ml-1 text-[#004B87] hover:text-[#003865] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0"
+                className="p-1 -ml-1 text-[#336D9F] hover:text-[#004B87] hover:bg-[#E9F1F8] rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 border border-slate-200/70 shadow-2xs"
                 title="Back to Overview"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4" />
               </button>
-              <h1 className="text-[20px] font-bold font-display text-[#004B87] tracking-tight">
+              <h1 className="text-[18px] font-bold font-display text-[#336D9F] tracking-tight">
                 {currentPlan.facilityName || 'Facility'} — Monitoring Plan (Read-Only)
               </h1>
               <span
@@ -1139,7 +1137,7 @@ export const DataEntryView: React.FC = () => {
               </span>
 
               {currentPlan.facilityId && (
-                <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200 flex items-center gap-1">
+                <span className="px-2.5 py-1 rounded-full bg-[#D1FAE5] text-[#065F46] text-xs font-mono font-bold border border-emerald-300 flex items-center gap-1 shadow-2xs">
                   <span>Facility ID:</span>
                   <span>{currentPlan.facilityId}</span>
                 </span>
@@ -1150,7 +1148,12 @@ export const DataEntryView: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 border border-slate-200/90 rounded-xl text-xs font-semibold text-slate-700">
+              <Calendar className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-slate-500">Calendar Year:</span>
+              <span className="font-bold text-slate-900">{currentPlan.reportingYear || '2026'}</span>
+            </div>
             <button
               onClick={() => setViewMode('form')}
               className="px-4 py-1.5 bg-[#004B87] text-white rounded-xl text-xs font-bold hover:bg-[#003a6b] flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
@@ -1161,108 +1164,160 @@ export const DataEntryView: React.FC = () => {
           </div>
         </div>
 
-        {/* Scrollable Content */}
-        <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 sm:p-6 flex flex-col overflow-hidden">
-          <div className="flex-1 min-h-0 overflow-y-auto space-y-6 pr-1 sm:pr-2 py-1 text-xs no-scrollbar">
-          {/* Section 1: Facility Overview */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Facility Overview</span>
-            </div>
-            <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div>
-                <span className="block text-slate-500 font-medium text-[11px] mb-1">Facility Name</span>
-                <span className="font-semibold text-slate-900 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 block">{currentPlan.facilityName || '—'}</span>
-              </div>
-              <div>
-                <span className="block text-slate-500 font-medium text-[11px] mb-1">Calendar Year</span>
-                <span className="font-semibold text-slate-900 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 block">{currentPlan.reportingYear || '2026'}</span>
-              </div>
-              <div>
-                <span className="block text-slate-500 font-medium text-[11px] mb-1">Facility ID</span>
-                <span className="font-semibold font-mono text-[#004B87] bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 block">{currentPlan.facilityId || '—'}</span>
-              </div>
-              <div>
-                <span className="block text-slate-500 font-medium text-[11px] mb-1">Primary Business Sector</span>
-                <span className="font-semibold text-slate-900 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 block">{currentPlan.businessSector || '—'}</span>
-              </div>
-              <div>
-                <span className="block text-slate-500 font-medium text-[11px] mb-1">Primary Activity</span>
-                <span className="font-semibold text-slate-900 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 block">{currentPlan.primaryActivity || '—'}</span>
-              </div>
+        {/* Scrollable Content Card */}
+        <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
+          {/* Sticky Tabs Navigation Bar (Fixed at top, outside scroll area) */}
+          <div className="flex-shrink-0 flex items-center overflow-x-auto no-scrollbar pb-2.5">
+            <div className="inline-flex items-center gap-1 p-1 bg-[#EAEFF4] border border-[#D5E0EA] rounded-[6px] shadow-2xs">
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('facility-description')}
+                className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                  formActiveTab === 'facility-description'
+                    ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                    : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+                }`}
+              >
+                <Layers className={`w-3.5 h-3.5 ${formActiveTab === 'facility-description' ? 'text-white' : 'text-slate-500'}`} />
+                <span>Facility Description</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('emissions-estimated')}
+                className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                  formActiveTab === 'emissions-estimated'
+                    ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                    : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+                }`}
+              >
+                <Gauge className={`w-3.5 h-3.5 ${formActiveTab === 'emissions-estimated' ? 'text-white' : 'text-slate-500'}`} />
+                <span>Emissions Estimated</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('emission-sources')}
+                className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                  formActiveTab === 'emission-sources'
+                    ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                    : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+                }`}
+              >
+                <Flame className={`w-3.5 h-3.5 ${formActiveTab === 'emission-sources' ? 'text-white' : 'text-slate-500'}`} />
+                <span>Emission Sources</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('methane-emission')}
+                className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                  formActiveTab === 'methane-emission'
+                    ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                    : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+                }`}
+              >
+                <ShieldCheck className={`w-3.5 h-3.5 ${formActiveTab === 'methane-emission' ? 'text-white' : 'text-slate-500'}`} />
+                <span>Methane Emission</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('source-stream')}
+                className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                  formActiveTab === 'source-stream'
+                    ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                    : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+                }`}
+              >
+                <Workflow className={`w-3.5 h-3.5 ${formActiveTab === 'source-stream' ? 'text-white' : 'text-slate-500'}`} />
+                <span>Source Stream</span>
+              </button>
             </div>
           </div>
 
-          {/* Section 2: Primary Production Streams */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Primary Production Streams</span>
-            </div>
-            <div className="p-4 sm:p-5">
-              <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                      <th className="py-2.5 px-3 min-w-[80px]" title="Product ID">Product ID</th>
-                      <th className="py-2.5 px-3 min-w-[155px]" title="Product Category">Product Category</th>
-                      <th className="py-2.5 px-3 min-w-[200px]" title="Production Technology/Process">Production Technology/Process</th>
-                      <th className="py-2.5 px-3 min-w-[125px]" title="Energy Related Emissions?">Energy Related Emissions?</th>
-                      <th className="py-2.5 px-3 min-w-[125px]" title="Process Emissions?">Process Emissions?</th>
-                      <th className="py-2.5 px-3 min-w-[130px]" title="Production Capacity">Production Capacity</th>
-                      <th className="py-2.5 px-3 min-w-[130px]" title="Production Capacity Unit">Production Capacity Unit</th>
-                      <th className="py-2.5 px-3 min-w-[135px]" title="Actual Production Quantity">Actual Production Quantity</th>
-                      <th className="py-2.5 px-3 min-w-[135px]" title="Actual Production Quantity Unit">Actual Production Quantity Unit</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 bg-white">
-                    {currentPlan.productionStreams.map((row: any, i: number) => (
-                      <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="py-2 px-3 font-mono font-bold text-[#004B87]" title={row.id}>{row.id}</td>
-                        <td className="py-2 px-3 text-slate-800" title={row.category}>{row.category}</td>
-                        <td className="py-2 px-3 text-slate-800" title={row.technology}>{row.technology}</td>
-                        <td className="py-2 px-3 text-slate-800" title={row.energyRelated}>{row.energyRelated}</td>
-                        <td className="py-2 px-3 text-slate-800" title={row.processEmissions}>{row.processEmissions}</td>
-                        <td className="py-2 px-3 font-mono text-slate-800" title={row.capacity}>{row.capacity}</td>
-                        <td className="py-2 px-3 text-slate-800" title={row.capacityUnit}>{row.capacityUnit}</td>
-                        <td className="py-2 px-3 font-mono text-slate-800" title={row.actualQuantity}>{row.actualQuantity}</td>
-                        <td className="py-2 px-3 text-slate-800" title={row.actualQuantityUnit}>{row.actualQuantityUnit}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+          {/* Scrollable Content */}
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-1 pt-2 pb-0.5 text-xs no-scrollbar">
 
-          {/* Section 3: Emissions Estimation */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Emissions Estimation</span>
-            </div>
-            <div className="p-5 space-y-4">
+          {/* Tab 1: Facility Description */}
+          {formActiveTab === 'facility-description' && (
+            <div className="space-y-4 pt-1">
+              {/* Primary Business Sector & Primary Activity */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
-                  <span className="block text-slate-700 font-semibold mb-1.5" title="Estimated Annual Emissions (tCO₂e)">Estimated Annual Emissions (tCO₂e)</span>
-                  <div className="px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-navy-900 font-mono font-bold" title={currentPlan.emissionsEstimation.estimatedAnnualEmissions}>
+                  <span className="block text-slate-500 font-medium text-[11px] mb-1">Primary Business Sector</span>
+                  <span className="font-semibold text-slate-900 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 block text-xs">{currentPlan.businessSector || '—'}</span>
+                </div>
+                <div>
+                  <span className="block text-slate-500 font-medium text-[11px] mb-1">Primary Activity</span>
+                  <span className="font-semibold text-slate-900 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 block text-xs">{currentPlan.primaryActivity || '—'}</span>
+                </div>
+              </div>
+
+              {/* Primary Production Streams */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#336D9F]">Primary Production Streams</span>
+                </div>
+                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
+                        <th className="py-2.5 px-3 min-w-[80px]" title="Product ID">Product ID</th>
+                        <th className="py-2.5 px-3 min-w-[155px]" title="Product Category">Product Category</th>
+                        <th className="py-2.5 px-3 min-w-[200px]" title="Production Technology/Process">Production Technology/Process</th>
+                        <th className="py-2.5 px-3 min-w-[125px]" title="Energy Related Emissions?">Energy Related Emissions?</th>
+                        <th className="py-2.5 px-3 min-w-[125px]" title="Process Emissions?">Process Emissions?</th>
+                        <th className="py-2.5 px-3 min-w-[130px]" title="Production Capacity">Production Capacity</th>
+                        <th className="py-2.5 px-3 min-w-[130px]" title="Production Capacity Unit">Production Capacity Unit</th>
+                        <th className="py-2.5 px-3 min-w-[135px]" title="Actual Production Quantity">Actual Production Quantity</th>
+                        <th className="py-2.5 px-3 min-w-[135px]" title="Actual Production Quantity Unit">Actual Production Quantity Unit</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 bg-white">
+                      {currentPlan.productionStreams.map((row: any, i: number) => (
+                        <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="py-2 px-3 font-mono font-bold text-[#004B87]" title={row.id}>{row.id}</td>
+                          <td className="py-2 px-3 text-slate-800" title={row.category}>{row.category}</td>
+                          <td className="py-2 px-3 text-slate-800" title={row.technology}>{row.technology}</td>
+                          <td className="py-2 px-3 text-slate-800" title={row.energyRelated}>{row.energyRelated}</td>
+                          <td className="py-2 px-3 text-slate-800" title={row.processEmissions}>{row.processEmissions}</td>
+                          <td className="py-2 px-3 font-mono text-slate-800" title={row.capacity}>{row.capacity}</td>
+                          <td className="py-2 px-3 text-slate-800" title={row.capacityUnit}>{row.capacityUnit}</td>
+                          <td className="py-2 px-3 font-mono text-slate-800" title={row.actualQuantity}>{row.actualQuantity}</td>
+                          <td className="py-2 px-3 text-slate-800" title={row.actualQuantityUnit}>{row.actualQuantityUnit}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tab 2: Emissions Estimation */}
+          {formActiveTab === 'emissions-estimated' && (
+            <div className="space-y-4 pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <span className="block text-slate-700 font-semibold mb-1.5 text-xs" title="Estimated Annual Emissions (tCO₂e)">Estimated Annual Emissions (tCO₂e)</span>
+                  <div className="px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-navy-900 font-mono font-bold text-xs" title={currentPlan.emissionsEstimation.estimatedAnnualEmissions}>
                     {currentPlan.emissionsEstimation.estimatedAnnualEmissions}
                   </div>
                 </div>
               </div>
               <div>
-                <span className="block text-slate-700 font-semibold mb-1.5" title="Justification for the estimated value">Justification for the estimated value</span>
-                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-navy-900 leading-relaxed" title={currentPlan.emissionsEstimation.justification}>
+                <span className="block text-slate-700 font-semibold mb-1.5 text-xs" title="Justification for the estimated value">Justification for the estimated value</span>
+                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-navy-900 leading-relaxed text-xs" title={currentPlan.emissionsEstimation.justification}>
                   {currentPlan.emissionsEstimation.justification}
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Section 4: Emission Sources */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Emission Sources</span>
-            </div>
-            <div className="p-4 sm:p-5">
+          {/* Tab 3: Emission Sources */}
+          {formActiveTab === 'emission-sources' && (
+            <div className="space-y-2 pt-1">
               <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -1294,14 +1349,11 @@ export const DataEntryView: React.FC = () => {
                 </table>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Section 5: Methane Emission */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Methane Emission</span>
-            </div>
-            <div className="p-5 space-y-4">
+          {/* Tab 4: Methane Emission */}
+          {formActiveTab === 'methane-emission' && (
+            <div className="space-y-4 pt-1">
               <div className="flex items-center gap-3">
                 <span className="text-xs font-semibold text-slate-700">Do methane emissions occur at your facility?</span>
                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${currentPlan.methaneData?.hasMethaneEmissions ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}`}>
@@ -1319,9 +1371,9 @@ export const DataEntryView: React.FC = () => {
                       </div>
                     </div>
                     <div>
-                      <span className="block text-slate-500 font-medium text-[11px] mb-1" title="Estimated CO₂e from methane emissions (100-year GWP)">Estimated CO₂e from methane emissions (100-year GWP)</span>
-                      <div className="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs text-slate-900 font-semibold flex justify-between items-center" title={`${currentPlan.methaneData.estimatedCo2e || 'N/A'} ${currentPlan.methaneData.estimatedCo2eUnit || 't CO₂e/year'}`}>
-                        <span>{currentPlan.methaneData.estimatedCo2e || 'N/A'}</span>
+                      <span className="block text-slate-500 font-medium text-[11px] mb-1 whitespace-nowrap" title="Estimated CO₂e from methane emissions (100-year GWP)">Estimated CO₂e from methane emissions (100-year GWP)</span>
+                      <div className="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs text-slate-900 font-semibold flex justify-between items-center" title={`${currentPlan.methaneData.estimatedCO2e || currentPlan.methaneData.estimatedCo2e || 'N/A'} ${currentPlan.methaneData.estimatedCo2eUnit || 't CO₂e/year'}`}>
+                        <span>{currentPlan.methaneData.estimatedCO2e || currentPlan.methaneData.estimatedCo2e || 'N/A'}</span>
                         <span className="text-slate-500 text-[11px]">{currentPlan.methaneData.estimatedCo2eUnit || 't CO₂e/year'}</span>
                       </div>
                     </div>
@@ -1377,14 +1429,11 @@ export const DataEntryView: React.FC = () => {
                 </div>
               )}
             </div>
-          </div>
+          )}
 
-          {/* Section 6: Source Stream */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Source Stream</span>
-            </div>
-            <div className="p-4 sm:p-5">
+          {/* Tab 5: Source Stream */}
+          {formActiveTab === 'source-stream' && (
+            <div className="space-y-2 pt-1">
               <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -1420,30 +1469,25 @@ export const DataEntryView: React.FC = () => {
                 </table>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Section 7: Supporting Documents */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Supporting Documents</span>
-            </div>
-            <div className="p-5 text-xs">
-              <label className="text-[11px] text-slate-500 font-semibold block mb-2">Attached Files</label>
-              <div className="flex flex-wrap gap-2.5">
-                {(currentPlan.attachedFiles && currentPlan.attachedFiles.length > 0 ? currentPlan.attachedFiles : [{ name: 'Uncertainty Guidance.PDF', size: '3MB', status: 'Completed' }]).map((f: any, i: number) => (
-                  <span key={i} className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-800 shadow-xs">
-                    <FileText className="w-4 h-4 text-rose-600" />
-                    <span className="font-bold">{f.name}</span>
-                    <span className="text-slate-400 text-[10px]">{f.size} • <span className="text-emerald-600 font-bold">{f.status || 'Completed'}</span></span>
-                  </span>
-                ))}
-              </div>
+          {/* Supporting Documents */}
+          <div className="space-y-2 pt-1">
+            <span className="text-xs font-bold text-[#336D9F]">Supporting Documents</span>
+            <div className="flex flex-wrap gap-2.5">
+              {(currentPlan.attachedFiles && currentPlan.attachedFiles.length > 0 ? currentPlan.attachedFiles : [{ name: 'Uncertainty Guidance.PDF', size: '3MB', status: 'Completed' }]).map((f: any, i: number) => (
+                <span key={i} className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-800 shadow-xs">
+                  <FileText className="w-4 h-4 text-rose-600" />
+                  <span className="font-bold">{f.name}</span>
+                  <span className="text-slate-400 text-[10px]">{f.size} • <span className="text-emerald-600 font-bold">{f.status || 'Completed'}</span></span>
+                </span>
+              ))}
             </div>
           </div>
 
           {/* Remarks / Description */}
-          <div className="pt-2 text-xs">
-            <label className="block text-slate-700 font-semibold mb-1.5 text-xs">Remarks / Description</label>
+          <div className="space-y-1.5 pt-1 text-xs">
+            <label className="block text-xs font-bold text-[#336D9F]">Remarks / Description</label>
             <p className="font-medium text-navy-900 bg-white p-3.5 rounded-xl border border-slate-200 leading-relaxed">
               {currentPlan.remarks || 'Standard monitoring plan submitted in accordance with statutory guidelines.'}
             </p>
@@ -1458,7 +1502,8 @@ export const DataEntryView: React.FC = () => {
   // 3. EDIT / ADD FORM VIEW (viewMode === 'form')
   // =========================================================================
   return (
-    <div className="h-full flex flex-col overflow-hidden font-sans py-1">
+    <div className="h-full flex flex-col overflow-hidden font-sans py-0.5">
+      {/* Hidden File Input for Excel/CSV/DOCX Upload */}
       <input
         type="file"
         ref={fileInputRef}
@@ -1468,17 +1513,17 @@ export const DataEntryView: React.FC = () => {
       />
 
       {/* Top Header Row with Title Group on Left and Facility / Year Selectors on Right */}
-      <div className="flex-shrink-0 pb-3.5 pt-1 flex flex-wrap items-center justify-between gap-4">
+      <div className="flex-shrink-0 pb-[18px] pt-0.5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setViewMode('table')}
-              className="p-1 -ml-1 text-[#004B87] hover:text-[#003865] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0"
+              className="p-1 -ml-1 text-[#336D9F] hover:text-[#004B87] hover:bg-[#E9F1F8] rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 border border-slate-200/70 shadow-2xs"
               title="Back to Overview Table"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4" />
             </button>
-            <h1 className="text-[20px] font-bold font-display text-[#004B87] tracking-tight">
+            <h1 className="text-[18px] font-bold font-display text-[#336D9F] tracking-tight">
               {currentPlan.facilityName ? `${currentPlan.facilityName} — Monitoring Plan` : 'Monitoring Plan — New Facility'}
             </h1>
             <span
@@ -1498,7 +1543,7 @@ export const DataEntryView: React.FC = () => {
             </span>
 
             {currentPlan.facilityId && (
-              <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200 flex items-center gap-1">
+              <span className="px-2.5 py-1 rounded-full bg-[#D1FAE5] text-[#065F46] text-xs font-mono font-bold border border-emerald-300 flex items-center gap-1 shadow-2xs">
                 <span>Facility ID:</span>
                 <span>{currentPlan.facilityId}</span>
               </span>
@@ -1515,61 +1560,118 @@ export const DataEntryView: React.FC = () => {
             Production Streams, Emission Sources, Estimation Models & Source Streams
           </p>
         </div>
+
+        {/* Calendar Year selection in title row towards right side */}
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-semibold text-slate-600 whitespace-nowrap">Calendar Year:</label>
+          <div className="relative">
+            <select
+              value={currentPlan.reportingYear || reportingYear || '2026'}
+              onChange={(e) => {
+                const val = e.target.value;
+                updateCurrentPlan((p) => ({ ...p, reportingYear: val }));
+              }}
+              className="h-9 px-3 pr-8 bg-white border border-slate-300 hover:border-[#004B87] rounded-xl text-slate-900 font-bold text-xs focus:outline-none focus:border-[#004B87] shadow-2xs cursor-pointer appearance-none transition-colors"
+            >
+              <option value="2026">2026</option>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+        </div>
       </div>
 
-      {/* Main Scrollable Form Content */}
-      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 flex flex-col overflow-hidden">
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-6 pr-2 py-1 text-xs no-scrollbar">
-          {/* Section 1: Facility Overview */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Facility Overview</span>
-            </div>
-            <div className="p-5 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      {/* Main Form Content Card */}
+      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
+        {/* Sticky Tabs Navigation Bar (Fixed at top, outside scroll area) */}
+        <div className="flex-shrink-0 flex items-center overflow-x-auto no-scrollbar pb-2.5">
+          <div className="inline-flex items-center gap-1 p-1 bg-[#EAEFF4] border border-[#D5E0EA] rounded-[6px] shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setFormActiveTab('facility-description')}
+              className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                formActiveTab === 'facility-description'
+                  ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+              }`}
+            >
+              <Layers className={`w-3.5 h-3.5 ${formActiveTab === 'facility-description' ? 'text-white' : 'text-slate-500'}`} />
+              <span>Facility Description</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setFormActiveTab('emissions-estimated')}
+              className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                formActiveTab === 'emissions-estimated'
+                  ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+              }`}
+            >
+              <Gauge className={`w-3.5 h-3.5 ${formActiveTab === 'emissions-estimated' ? 'text-white' : 'text-slate-500'}`} />
+              <span>Emissions Estimated</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setFormActiveTab('emission-sources')}
+              className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                formActiveTab === 'emission-sources'
+                  ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+              }`}
+            >
+              <Flame className={`w-3.5 h-3.5 ${formActiveTab === 'emission-sources' ? 'text-white' : 'text-slate-500'}`} />
+              <span>Emission Sources</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setFormActiveTab('methane-emission')}
+              className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                formActiveTab === 'methane-emission'
+                  ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+              }`}
+            >
+              <ShieldCheck className={`w-3.5 h-3.5 ${formActiveTab === 'methane-emission' ? 'text-white' : 'text-slate-500'}`} />
+              <span>Methane Emission</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setFormActiveTab('source-stream')}
+              className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                formActiveTab === 'source-stream'
+                  ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+              }`}
+            >
+              <Workflow className={`w-3.5 h-3.5 ${formActiveTab === 'source-stream' ? 'text-white' : 'text-slate-500'}`} />
+              <span>Source Stream</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Scrollable Form Content */}
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-1 pt-2 pb-0.5 text-xs no-scrollbar">
+
+          {/* Tab 1: Facility Description */}
+          {formActiveTab === 'facility-description' && (
+            <div className="space-y-4 pt-1">
+              {/* Primary Business Sector & Primary Activity */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">Facility Name</label>
-                  <input
-                    type="text"
-                    readOnly
-                    value={currentPlan.facilityName || ''}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-navy-900 font-semibold focus:outline-none cursor-not-allowed shadow-xs"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">Calendar Year</label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      readOnly
-                      value={currentPlan.reportingYear || reportingYear || '2026'}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-navy-900 font-semibold focus:outline-none cursor-not-allowed shadow-xs"
-                    />
-                    <Lock className="w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">Facility ID</label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      readOnly
-                      value={currentPlan.facilityId || ''}
-                      placeholder="FAC-EAD-2026-XXXX"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[#004B87] font-mono font-bold focus:outline-none cursor-not-allowed shadow-xs"
-                    />
-                    <Lock className="w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">Primary Business Sector</label>
+                  <label className="block text-slate-700 font-semibold mb-1.5 text-xs">Primary Business Sector</label>
                   <select
                     value={currentPlan.businessSector || ''}
                     onChange={(e) => {
                       const val = e.target.value;
                       updateCurrentPlan((p) => ({ ...p, businessSector: val }));
                     }}
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm cursor-pointer"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer text-xs"
                   >
                     <option value="">Select Business Sector</option>
                     <option value="Energy">Energy</option>
@@ -1580,14 +1682,14 @@ export const DataEntryView: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">Primary Activity</label>
+                  <label className="block text-slate-700 font-semibold mb-1.5 text-xs">Primary Activity</label>
                   <select
                     value={currentPlan.primaryActivity || ''}
                     onChange={(e) => {
                       const val = e.target.value;
                       updateCurrentPlan((p) => ({ ...p, primaryActivity: val }));
                     }}
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm cursor-pointer"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer text-xs"
                   >
                     <option value="">Select Primary Activity</option>
                     <option value="Manufacturing of cement / clinker">Manufacturing of cement / clinker</option>
@@ -1598,264 +1700,259 @@ export const DataEntryView: React.FC = () => {
                   </select>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Section 2: Primary Production Streams */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Primary Production Streams</span>
-            </div>
-            <div className="p-4 sm:p-5">
-              <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                      <th className="py-2.5 px-3 min-w-[80px]" title="Product ID">Product ID</th>
-                      <th className="py-2.5 px-3 min-w-[155px]" title="Product Category">Product Category</th>
-                      <th className="py-2.5 px-3 min-w-[200px]" title="Production Technology/Process">Production Technology/Process</th>
-                      <th className="py-2.5 px-3 min-w-[125px]" title="Energy Related Emissions?">Energy Related Emissions?</th>
-                      <th className="py-2.5 px-3 min-w-[125px]" title="Process Emissions?">Process Emissions?</th>
-                      <th className="py-2.5 px-3 min-w-[130px]" title="Production Capacity">Production Capacity</th>
-                      <th className="py-2.5 px-3 min-w-[130px]" title="Production Capacity Unit">Production Capacity Unit</th>
-                      <th className="py-2.5 px-3 min-w-[135px]" title="Actual Production Quantity">Actual Production Quantity</th>
-                      <th className="py-2.5 px-3 min-w-[135px]" title="Actual Production Quantity Unit">Actual Production Quantity Unit</th>
-                      <th className="py-2.5 px-3 text-center min-w-[65px]" title="Actions">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 bg-white">
-                    {currentPlan.productionStreams.map((row: any, idx: number) => (
-                      <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="py-2 px-3">
-                          <input
-                            type="text"
-                            placeholder="P01"
-                            value={row.id}
-                            title={row.id || 'Product ID'}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              updateCurrentPlan((p) => {
-                                const copy = [...p.productionStreams];
-                                copy[idx].id = val;
-                                return { ...p, productionStreams: copy };
-                              });
-                            }}
-                            className="w-full min-w-[65px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-center"
-                          />
-                        </td>
-                        <td className="py-2 px-3">
-                          <select
-                            value={row.category}
-                            title={row.category || 'Select category'}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              updateCurrentPlan((p) => {
-                                const copy = [...p.productionStreams];
-                                copy[idx].category = val;
-                                return { ...p, productionStreams: copy };
-                              });
-                            }}
-                            className="w-full min-w-[145px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
-                          >
-                            <option value="" title="Select category">Select category</option>
-                            <option value="Primary Products" title="Primary Products">Primary Products</option>
-                            <option value="Secondary Products" title="Secondary Products">Secondary Products</option>
-                            <option value="By-Products" title="By-Products">By-Products</option>
-                          </select>
-                        </td>
-                        <td className="py-2 px-3">
-                          <input
-                            type="text"
-                            placeholder="Enter technology/process"
-                            value={row.technology}
-                            title={row.technology || 'Enter technology/process'}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              updateCurrentPlan((p) => {
-                                const copy = [...p.productionStreams];
-                                copy[idx].technology = val;
-                                return { ...p, productionStreams: copy };
-                              });
-                            }}
-                            className="w-full min-w-[190px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                          />
-                        </td>
-                        <td className="py-2 px-3">
-                          <select
-                            value={row.energyRelated}
-                            title={row.energyRelated || 'Select...'}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              updateCurrentPlan((p) => {
-                                const copy = [...p.productionStreams];
-                                copy[idx].energyRelated = val;
-                                return { ...p, productionStreams: copy };
-                              });
-                            }}
-                            className="w-full min-w-[90px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
-                          >
-                            <option value="" title="Select...">Select...</option>
-                            <option value="Yes" title="Yes">Yes</option>
-                            <option value="No" title="No">No</option>
-                          </select>
-                        </td>
-                        <td className="py-2 px-3">
-                          <select
-                            value={row.processEmissions}
-                            title={row.processEmissions || 'Select...'}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              updateCurrentPlan((p) => {
-                                const copy = [...p.productionStreams];
-                                copy[idx].processEmissions = val;
-                                return { ...p, productionStreams: copy };
-                              });
-                            }}
-                            className="w-full min-w-[90px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
-                          >
-                            <option value="" title="Select...">Select...</option>
-                            <option value="Yes" title="Yes">Yes</option>
-                            <option value="No" title="No">No</option>
-                          </select>
-                        </td>
-                        <td className="py-2 px-3">
-                          <input
-                            type="text"
-                            placeholder="Enter capacity"
-                            value={row.capacity}
-                            title={row.capacity ? `${row.capacity} ${row.capacityUnit || ''}` : 'Enter capacity'}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              updateCurrentPlan((p) => {
-                                const copy = [...p.productionStreams];
-                                copy[idx].capacity = val;
-                                return { ...p, productionStreams: copy };
-                              });
-                            }}
-                            className="w-full min-w-[110px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                          />
-                        </td>
-                        <td className="py-2 px-3">
-                          <select
-                            value={row.capacityUnit}
-                            title={row.capacityUnit || 'Select unit'}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              updateCurrentPlan((p) => {
-                                const copy = [...p.productionStreams];
-                                copy[idx].capacityUnit = val;
-                                return { ...p, productionStreams: copy };
-                              });
-                            }}
-                            className="w-full min-w-[110px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
-                          >
-                            <option value="" title="Select unit">Select unit</option>
-                            <option value="t/year" title="t/year">t/year</option>
-                            <option value="MWh/year" title="MWh/year">MWh/year</option>
-                            <option value="t/day" title="t/day">t/day</option>
-                            <option value="Nm³/year" title="Nm³/year">Nm³/year</option>
-                          </select>
-                        </td>
-                        <td className="py-2 px-3">
-                          <input
-                            type="text"
-                            placeholder="Enter quantity"
-                            value={row.actualQuantity}
-                            title={row.actualQuantity ? `${row.actualQuantity} ${row.actualQuantityUnit || ''}` : 'Enter quantity'}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              updateCurrentPlan((p) => {
-                                const copy = [...p.productionStreams];
-                                copy[idx].actualQuantity = val;
-                                return { ...p, productionStreams: copy };
-                              });
-                            }}
-                            className="w-full min-w-[110px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                          />
-                        </td>
-                        <td className="py-2 px-3">
-                          <select
-                            value={row.actualQuantityUnit}
-                            title={row.actualQuantityUnit || 'Select unit'}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              updateCurrentPlan((p) => {
-                                const copy = [...p.productionStreams];
-                                copy[idx].actualQuantityUnit = val;
-                                return { ...p, productionStreams: copy };
-                              });
-                            }}
-                            className="w-full min-w-[110px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
-                          >
-                            <option value="" title="Select unit">Select unit</option>
-                            <option value="t/year" title="t/year">t/year</option>
-                            <option value="MWh/year" title="MWh/year">MWh/year</option>
-                            <option value="t/day" title="t/day">t/day</option>
-                            <option value="Nm³/year" title="Nm³/year">Nm³/year</option>
-                          </select>
-                        </td>
-                        <td className="py-2 px-3 text-center">
-                          {idx === 0 ? (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const nextId = `P${String(currentPlan.productionStreams.length + 1).padStart(2, '0')}`;
-                                updateCurrentPlan((p) => ({
-                                  ...p,
-                                  productionStreams: [
-                                    ...p.productionStreams,
-                                    {
-                                      id: nextId,
-                                      category: '',
-                                      technology: '',
-                                      energyRelated: '',
-                                      processEmissions: '',
-                                      capacity: '',
-                                      capacityUnit: '',
-                                      actualQuantity: '',
-                                      actualQuantityUnit: '',
-                                    },
-                                  ],
-                                }));
-                              }}
-                              className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200 cursor-pointer"
-                              title="Add Production Stream"
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                updateCurrentPlan((p) => ({
-                                  ...p,
-                                  productionStreams: p.productionStreams.filter((_: any, i: number) => i !== idx),
-                                }));
-                              }}
-                              className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200 cursor-pointer"
-                              title="Remove Production Stream"
-                            >
-                              <X className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                        </td>
+              {/* Primary Production Streams */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#336D9F]">Primary Production Streams</span>
+                </div>
+                <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
+                        <th className="py-2.5 px-3 min-w-[80px]" title="Product ID">Product ID</th>
+                        <th className="py-2.5 px-3 min-w-[155px]" title="Product Category">Product Category</th>
+                        <th className="py-2.5 px-3 min-w-[200px]" title="Production Technology/Process">Production Technology/Process</th>
+                        <th className="py-2.5 px-3 min-w-[125px]" title="Energy Related Emissions?">Energy Related Emissions?</th>
+                        <th className="py-2.5 px-3 min-w-[125px]" title="Process Emissions?">Process Emissions?</th>
+                        <th className="py-2.5 px-3 min-w-[130px]" title="Production Capacity">Production Capacity</th>
+                        <th className="py-2.5 px-3 min-w-[130px]" title="Production Capacity Unit">Production Capacity Unit</th>
+                        <th className="py-2.5 px-3 min-w-[135px]" title="Actual Production Quantity">Actual Production Quantity</th>
+                        <th className="py-2.5 px-3 min-w-[135px]" title="Actual Production Quantity Unit">Actual Production Quantity Unit</th>
+                        <th className="py-2.5 px-3 text-center min-w-[65px]" title="Actions">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 bg-white">
+                      {currentPlan.productionStreams.map((row: any, idx: number) => (
+                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="py-2 px-3">
+                            <input
+                              type="text"
+                              placeholder="P01"
+                              value={row.id}
+                              title={row.id || 'Product ID'}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                updateCurrentPlan((p) => {
+                                  const copy = [...p.productionStreams];
+                                  copy[idx].id = val;
+                                  return { ...p, productionStreams: copy };
+                                });
+                              }}
+                              className="w-full min-w-[65px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-center"
+                            />
+                          </td>
+                          <td className="py-2 px-3">
+                            <select
+                              value={row.category}
+                              title={row.category || 'Select category'}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                updateCurrentPlan((p) => {
+                                  const copy = [...p.productionStreams];
+                                  copy[idx].category = val;
+                                  return { ...p, productionStreams: copy };
+                                });
+                              }}
+                              className="w-full min-w-[145px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
+                            >
+                              <option value="" title="Select category">Select category</option>
+                              <option value="Primary Products" title="Primary Products">Primary Products</option>
+                              <option value="Secondary Products" title="Secondary Products">Secondary Products</option>
+                              <option value="By-Products" title="By-Products">By-Products</option>
+                            </select>
+                          </td>
+                          <td className="py-2 px-3">
+                            <input
+                              type="text"
+                              placeholder="Enter technology/process"
+                              value={row.technology}
+                              title={row.technology || 'Enter technology/process'}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                updateCurrentPlan((p) => {
+                                  const copy = [...p.productionStreams];
+                                  copy[idx].technology = val;
+                                  return { ...p, productionStreams: copy };
+                                });
+                              }}
+                              className="w-full min-w-[190px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                            />
+                          </td>
+                          <td className="py-2 px-3">
+                            <select
+                              value={row.energyRelated}
+                              title={row.energyRelated || 'Select...'}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                updateCurrentPlan((p) => {
+                                  const copy = [...p.productionStreams];
+                                  copy[idx].energyRelated = val;
+                                  return { ...p, productionStreams: copy };
+                                });
+                              }}
+                              className="w-full min-w-[90px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
+                            >
+                              <option value="" title="Select...">Select...</option>
+                              <option value="Yes" title="Yes">Yes</option>
+                              <option value="No" title="No">No</option>
+                            </select>
+                          </td>
+                          <td className="py-2 px-3">
+                            <select
+                              value={row.processEmissions}
+                              title={row.processEmissions || 'Select...'}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                updateCurrentPlan((p) => {
+                                  const copy = [...p.productionStreams];
+                                  copy[idx].processEmissions = val;
+                                  return { ...p, productionStreams: copy };
+                                });
+                              }}
+                              className="w-full min-w-[90px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
+                            >
+                              <option value="" title="Select...">Select...</option>
+                              <option value="Yes" title="Yes">Yes</option>
+                              <option value="No" title="No">No</option>
+                            </select>
+                          </td>
+                          <td className="py-2 px-3">
+                            <input
+                              type="text"
+                              placeholder="Enter capacity"
+                              value={row.capacity}
+                              title={row.capacity ? `${row.capacity} ${row.capacityUnit || ''}` : 'Enter capacity'}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                updateCurrentPlan((p) => {
+                                  const copy = [...p.productionStreams];
+                                  copy[idx].capacity = val;
+                                  return { ...p, productionStreams: copy };
+                                });
+                              }}
+                              className="w-full min-w-[110px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                            />
+                          </td>
+                          <td className="py-2 px-3">
+                            <select
+                              value={row.capacityUnit}
+                              title={row.capacityUnit || 'Select unit'}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                updateCurrentPlan((p) => {
+                                  const copy = [...p.productionStreams];
+                                  copy[idx].capacityUnit = val;
+                                  return { ...p, productionStreams: copy };
+                                });
+                              }}
+                              className="w-full min-w-[110px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
+                            >
+                              <option value="" title="Select unit">Select unit</option>
+                              <option value="t/year" title="t/year">t/year</option>
+                              <option value="MWh/year" title="MWh/year">MWh/year</option>
+                              <option value="t/day" title="t/day">t/day</option>
+                              <option value="Nm³/year" title="Nm³/year">Nm³/year</option>
+                            </select>
+                          </td>
+                          <td className="py-2 px-3">
+                            <input
+                              type="text"
+                              placeholder="Enter actual quantity"
+                              value={row.actualQuantity}
+                              title={row.actualQuantity ? `${row.actualQuantity} ${row.actualQuantityUnit || ''}` : 'Enter actual quantity'}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                updateCurrentPlan((p) => {
+                                  const copy = [...p.productionStreams];
+                                  copy[idx].actualQuantity = val;
+                                  return { ...p, productionStreams: copy };
+                                });
+                              }}
+                              className="w-full min-w-[120px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                            />
+                          </td>
+                          <td className="py-2 px-3">
+                            <select
+                              value={row.actualQuantityUnit}
+                              title={row.actualQuantityUnit || 'Select unit'}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                updateCurrentPlan((p) => {
+                                  const copy = [...p.productionStreams];
+                                  copy[idx].actualQuantityUnit = val;
+                                  return { ...p, productionStreams: copy };
+                                });
+                              }}
+                              className="w-full min-w-[110px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
+                            >
+                              <option value="" title="Select unit">Select unit</option>
+                              <option value="t/year" title="t/year">t/year</option>
+                              <option value="MWh/year" title="MWh/year">MWh/year</option>
+                              <option value="t/day" title="t/day">t/day</option>
+                              <option value="Nm³/year" title="Nm³/year">Nm³/year</option>
+                            </select>
+                          </td>
+                          <td className="py-2 px-3 text-center">
+                            {idx === 0 ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const nextId = `P${String(currentPlan.productionStreams.length + 1).padStart(2, '0')}`;
+                                  updateCurrentPlan((p) => ({
+                                    ...p,
+                                    productionStreams: [
+                                      ...p.productionStreams,
+                                      {
+                                        id: nextId,
+                                        category: '',
+                                        technology: '',
+                                        energyRelated: '',
+                                        processEmissions: '',
+                                        capacity: '',
+                                        capacityUnit: '',
+                                        actualQuantity: '',
+                                        actualQuantityUnit: '',
+                                      },
+                                    ],
+                                  }));
+                                }}
+                                className="w-6 h-6 rounded-full bg-sky-50 text-[#004B87] hover:bg-[#004B87] hover:text-white flex items-center justify-center mx-auto transition-colors border border-sky-200 cursor-pointer"
+                                title="Add Production Stream"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  updateCurrentPlan((p) => ({
+                                    ...p,
+                                    productionStreams: p.productionStreams.filter((_: any, i: number) => i !== idx),
+                                  }));
+                                }}
+                                className="w-6 h-6 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center mx-auto transition-colors border border-rose-200 cursor-pointer"
+                                title="Remove Production Stream"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Section 3: Emissions Estimation */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Emissions Estimation</span>
-            </div>
-            <div className="p-5 space-y-4">
+          {/* Tab 2: Emissions Estimation */}
+          {formActiveTab === 'emissions-estimated' && (
+            <div className="space-y-4 pt-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5" title="Estimated Annual Emissions (tCO₂e)">Estimated Annual Emissions (tCO₂e)</label>
+                  <label className="block text-slate-700 font-semibold mb-1.5 text-xs" title="Estimated Annual Emissions (tCO₂e)">Estimated Annual Emissions (tCO₂e)</label>
                   <input
                     type="text"
                     value={currentPlan.emissionsEstimation.estimatedAnnualEmissions}
@@ -1868,14 +1965,14 @@ export const DataEntryView: React.FC = () => {
                       }));
                     }}
                     placeholder="124,450"
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 font-mono font-bold focus:outline-none focus:border-[#004B87] shadow-sm"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 font-mono font-bold focus:outline-none focus:border-[#004B87] shadow-xs text-xs"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-slate-700 font-semibold mb-1.5" title="Justification for the estimated value">Justification for the estimated value</label>
+                <label className="block text-slate-700 font-semibold mb-1.5 text-xs" title="Justification for the estimated value">Justification for the estimated value</label>
                 <textarea
-                  rows={2}
+                  rows={3}
                   value={currentPlan.emissionsEstimation.justification}
                   title={currentPlan.emissionsEstimation.justification || 'Justification for the estimated value'}
                   onChange={(e) => {
@@ -1886,18 +1983,15 @@ export const DataEntryView: React.FC = () => {
                     }));
                   }}
                   placeholder="Estimated based on production data and IPCC Guidelines"
-                  className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
+                  className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-xs leading-relaxed text-xs placeholder-slate-400"
                 />
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Section 4: Emission Sources */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Emission Sources</span>
-            </div>
-            <div className="p-4 sm:p-5">
+          {/* Tab 3: Emission Sources */}
+          {formActiveTab === 'emission-sources' && (
+            <div className="space-y-2 pt-1">
               <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -2117,14 +2211,11 @@ export const DataEntryView: React.FC = () => {
                 </table>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Section 5: Methane Emission */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Methane Emission</span>
-            </div>
-            <div className="p-5 space-y-4">
+          {/* Tab 4: Methane Emission */}
+          {formActiveTab === 'methane-emission' && (
+            <div className="space-y-4 pt-1">
               <div className="flex items-center gap-3">
                 <span className="text-xs font-semibold text-slate-700">Do methane emissions occur at your facility?</span>
                 <div className="flex items-center gap-2">
@@ -2188,7 +2279,7 @@ export const DataEntryView: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-slate-700 font-semibold mb-1.5 text-xs" title="Estimated CO₂e from methane emissions (100-year GWP)">Estimated CO₂e from methane emissions (100-year GWP)</label>
+                      <label className="block text-slate-700 font-semibold mb-1.5 text-xs whitespace-nowrap" title="Estimated CO₂e from methane emissions (100-year GWP)">Estimated CO₂e from methane emissions (100-year GWP)</label>
                       <div className="flex rounded-xl border border-slate-200 bg-white overflow-hidden shadow-xs focus-within:border-[#004B87]">
                         <input
                           type="text"
@@ -2440,14 +2531,11 @@ export const DataEntryView: React.FC = () => {
                 </div>
               )}
             </div>
-          </div>
+          )}
 
-          {/* Section 6: Source Stream */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Source Stream</span>
-            </div>
-            <div className="p-4 sm:p-5">
+          {/* Tab 5: Source Stream */}
+          {formActiveTab === 'source-stream' && (
+            <div className="space-y-2 pt-1">
               <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -2709,67 +2797,79 @@ export const DataEntryView: React.FC = () => {
                 </table>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Section 7: Supporting Documents */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Supporting Documents</span>
-            </div>
-            <div className="p-4 sm:p-5 text-xs space-y-3">
-              <label className="block text-slate-700 font-semibold mb-1">Attach Files</label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                <div className="border border-dashed border-sky-300 bg-sky-50/40 rounded-xl p-3.5 px-4 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 text-slate-600 text-xs font-medium truncate">
-                    <Upload className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                    <span className="truncate">Drag and drop files here or upload</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-1.5 bg-white border border-slate-300 hover:border-slate-400 text-xs font-bold text-slate-700 rounded-lg shadow-xs transition-colors flex-shrink-0 cursor-pointer"
-                  >
-                    Upload
-                  </button>
+          {/* Supporting Documents */}
+          <div className="space-y-2 pt-1">
+            <span className="text-xs font-bold text-[#336D9F]">Supporting Documents</span>
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
+              {/* Upload Input Area */}
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="border border-dashed border-sky-300 bg-sky-50/40 hover:bg-sky-50/70 rounded-xl px-4 py-2 flex items-center justify-between gap-3 shrink-0 cursor-pointer transition-colors min-w-[280px]"
+              >
+                <div className="flex items-center gap-2 text-slate-600 text-xs font-medium">
+                  <Upload className="w-4 h-4 text-slate-500 shrink-0" />
+                  <span className="whitespace-nowrap">Drag and drop files here or upload</span>
                 </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                  className="px-3.5 py-1.5 bg-white border border-slate-300 hover:border-slate-400 text-xs font-bold text-slate-700 rounded-lg shadow-2xs transition-colors shrink-0 cursor-pointer"
+                >
+                  Upload
+                </button>
+              </div>
 
-                {(currentPlan.attachedFiles && currentPlan.attachedFiles.length > 0 ? currentPlan.attachedFiles : [{ name: 'Uncertainty Guidance.PDF', size: '3MB', status: 'Completed' }]).map((file: any, idx: number) => (
-                  <div
-                    key={idx}
-                    className="border border-slate-200 bg-white rounded-xl p-2.5 px-3.5 flex items-center justify-between gap-3 shadow-xs"
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center flex-shrink-0">
-                        <FileText className="w-4 h-4 text-rose-600" />
+              {/* Remaining area: Uploaded documents in one line */}
+              <div className="flex-1 min-w-0 flex items-center gap-2.5 overflow-x-auto py-1 no-scrollbar">
+                {currentPlan.attachedFiles && currentPlan.attachedFiles.length > 0 ? (
+                  currentPlan.attachedFiles.map((file: any, idx: number) => (
+                    <div
+                      key={idx}
+                      className="border border-slate-200 bg-white rounded-xl py-1.5 px-3 flex items-center gap-2.5 shadow-2xs shrink-0 max-w-[240px] hover:border-slate-300 transition-all"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0">
+                        <FileText className="w-3.5 h-3.5 text-rose-600" />
                       </div>
-                      <div className="min-w-0">
-                        <div className="text-xs font-bold text-slate-800 truncate">{file.name}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-bold text-slate-800 truncate" title={file.name}>
+                          {file.name}
+                        </div>
                         <div className="text-[10px] text-slate-400 flex items-center gap-1.5 font-medium">
                           <span>{file.size}</span>
                           <span className="w-1 h-1 rounded-full bg-slate-300"></span>
                           <span className="text-emerald-600 font-bold">{file.status || 'Completed'}</span>
                         </div>
                       </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateCurrentPlan((p) => ({
+                            ...p,
+                            attachedFiles: (p.attachedFiles || []).filter((_: any, i: number) => i !== idx),
+                          }))
+                        }
+                        className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer shrink-0"
+                        title="Remove file"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => updateCurrentPlan((p) => ({
-                        ...p,
-                        attachedFiles: (p.attachedFiles || []).filter((_: any, i: number) => i !== idx),
-                      }))}
-                      className="p-1 text-slate-400 hover:text-rose-600 rounded-md transition-colors cursor-pointer"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <span className="text-xs text-slate-400 italic">No files attached yet</span>
+                )}
               </div>
             </div>
           </div>
 
           {/* Remarks / Description */}
-          <div className="pt-2 text-xs">
-            <label className="block text-slate-700 font-semibold mb-1.5 text-xs">Remarks / Description</label>
+          <div className="space-y-1.5 pt-1 text-xs">
+            <label className="block text-xs font-bold text-[#336D9F]">Remarks / Description</label>
             <textarea
               rows={3}
               value={currentPlan.remarks || ''}

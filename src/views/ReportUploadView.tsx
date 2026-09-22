@@ -114,7 +114,7 @@ export const ReportUploadView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in pb-12">
+    <div className="space-y-[18px] animate-fade-in pb-6">
       {/* Hidden file input */}
       <input
         type="file"
@@ -125,7 +125,7 @@ export const ReportUploadView: React.FC = () => {
       />
 
       {/* Sticky Single-Row Title Bar */}
-      <div className="sticky -top-4 sm:-top-6 lg:-top-8 -mt-4 sm:-mt-6 lg:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-3.5 bg-[#F4F9FD]/95 backdrop-blur-md z-20 border-b border-slate-200/80 flex items-center justify-between gap-4 transition-all font-sans">
+      <div className="sticky -top-4 sm:-top-6 lg:-top-8 -mt-4 sm:-mt-6 lg:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-2 bg-[#F4F9FD]/95 backdrop-blur-md z-20 border-b border-slate-200/80 flex items-center justify-between gap-4 transition-all font-sans">
         <h1 className="text-[20px] font-bold font-display text-[#0B3A60] tracking-tight">
           Submit Verified MRV Report Package — Year {reportingYear}
         </h1>

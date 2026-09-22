@@ -20,7 +20,7 @@ export const NotchCard: React.FC<NotchCardProps> = ({
   onClick,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [dims, setDims] = useState<{ w: number; h: number }>({ w: 220, h: 170 });
+  const [dims, setDims] = useState<{ w: number; h: number }>({ w: 220, h: 142 });
   const rawId = useId();
   const id = rawId.replace(/[^a-zA-Z0-9-_]/g, '');
 
@@ -44,13 +44,13 @@ export const NotchCard: React.FC<NotchCardProps> = ({
   }, []);
 
   const { w, h } = dims;
-  const rCard = 24; // Smooth outer card corner radius
-  const btnOffset = 30; // Button center (cx = w - 30, cy = 30)
-  const R = 30; // Circular cutout radius around the badge
-  const rf = 18; // Smooth inverted concave fillet radius
+  const rCard = 18; // Smooth outer card corner radius
+  const btnOffset = 24; // Button center (cx = w - 24, cy = 24)
+  const R = 24; // Circular cutout radius around the badge
+  const rf = 14; // Smooth inverted concave fillet radius
 
-  const pW = Math.max(w, 120);
-  const pH = Math.max(h, 120);
+  const pW = Math.max(w, 100);
+  const pH = Math.max(h, 100);
 
   const cx = pW - btnOffset;
   const cy = btnOffset;
@@ -92,11 +92,11 @@ export const NotchCard: React.FC<NotchCardProps> = ({
     <div
       ref={containerRef}
       onClick={onClick}
-      className={`relative group transition-all duration-300 h-[185px] rounded-[24px] ${
+      className={`relative group transition-all duration-300 h-[142px] rounded-[18px] ${
         onClick ? 'cursor-pointer' : ''
       } ${className}`}
       style={{
-        filter: 'drop-shadow(0 10px 24px rgba(0, 75, 135, 0.08)) drop-shadow(0 2px 6px rgba(0, 75, 135, 0.04))',
+        filter: 'drop-shadow(0 6px 18px rgba(0, 75, 135, 0.07)) drop-shadow(0 2px 4px rgba(0, 75, 135, 0.03))',
       }}
     >
       {/* SVG Background Path with Glass Gradients */}
@@ -130,25 +130,25 @@ export const NotchCard: React.FC<NotchCardProps> = ({
         />
       </svg>
 
-      {/* Radiant Blue Ambient Glow at bottom of the card (matches reference image) */}
-      <div className="absolute inset-x-2 bottom-1 h-24 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-sky-400/25 via-sky-300/10 to-transparent rounded-b-[22px] pointer-events-none opacity-80 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-500" />
+      {/* Radiant Blue Ambient Glow at bottom of the card */}
+      <div className="absolute inset-x-2 bottom-1 h-16 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-sky-400/20 via-sky-300/10 to-transparent rounded-b-[16px] pointer-events-none opacity-80 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-500" />
 
       {/* Top Specular Rim Highlight */}
-      <div className="absolute inset-x-6 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white to-transparent pointer-events-none z-20 opacity-90" />
+      <div className="absolute inset-x-5 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white to-transparent pointer-events-none z-20 opacity-90" />
 
-      {/* Top-Right Nestled Icon Badge with Tactile 3D Glass Ring */}
-      <div className="absolute top-[6px] right-[6px] p-1 bg-white/70 backdrop-blur-md rounded-full shadow-[0_4px_12px_rgba(0,75,135,0.10),inset_0_1px_1px_rgba(255,255,255,0.9)] border border-white/80 z-10">
+      {/* Top-Right Nestled Icon Badge */}
+      <div className="absolute top-[4px] right-[4px] p-0.5 bg-white/70 backdrop-blur-md rounded-full shadow-[0_3px_8px_rgba(0,75,135,0.08),inset_0_1px_1px_rgba(255,255,255,0.9)] border border-white/80 z-10">
         <div
-          className={`w-[40px] h-[40px] ${
-            badgeShape === 'squircle' ? 'rounded-[14px]' : 'rounded-full'
-          } bg-gradient-to-br ${iconGradient} flex items-center justify-center text-white shadow-md ${iconShadow} ring-2 ring-white/90 group-hover:scale-105 transition-all duration-300`}
+          className={`w-[34px] h-[34px] ${
+            badgeShape === 'squircle' ? 'rounded-[10px]' : 'rounded-full'
+          } bg-gradient-to-br ${iconGradient} flex items-center justify-center text-white shadow-sm ${iconShadow} ring-2 ring-white/90 group-hover:scale-105 transition-all duration-300`}
         >
           {icon}
         </div>
       </div>
 
       {/* Card Content Area */}
-      <div className="relative z-10 h-full p-5 flex flex-col justify-between">
+      <div className="relative z-10 h-full p-3.5 flex flex-col justify-between">
         {children}
       </div>
     </div>

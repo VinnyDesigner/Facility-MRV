@@ -258,6 +258,8 @@ export type AnnualEmissionStatus =
   | 'Verified'
   | 'Under EAD Review'
   | 'Correction Required'
+  | 'Reverted'
+  | 'Rejected'
   | 'Approved / Accepted'
   | 'Approved'
   | 'Accepted';

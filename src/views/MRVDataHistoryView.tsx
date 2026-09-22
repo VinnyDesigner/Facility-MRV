@@ -445,10 +445,10 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
     return (
       <div className="h-full flex flex-col overflow-hidden font-sans">
         {/* 1. TOP FIXED HEADER: Data Review Title, Subtitle & Export */}
-        <div className="flex-shrink-0 pt-1 pb-[14px] flex flex-wrap items-center justify-between gap-4">
+        <div className="flex-shrink-0 pt-0.5 pb-[18px] flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
+              <h1 className="text-[18px] font-bold font-display text-[#004B87] tracking-tight">
                 Data Review
               </h1>
               <p className="text-xs text-slate-500 font-medium mt-0.5">
@@ -571,11 +571,11 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
             <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto rounded-xl border border-slate-200/90 bg-white">
               <table className="w-full text-left text-xs border-collapse min-w-[1100px]">
                 <thead>
-                  <tr className="bg-[#E9F1F8] text-slate-700 font-semibold text-xs border-b border-slate-200 sticky top-0 z-10 shadow-xs">
+                  <tr className="h-[38px] bg-[#6692B7]/30 text-slate-800 font-bold text-xs border-b border-[#6692B7]/20 sticky top-0 z-10 shadow-xs">
                     {/* 1. Facility ID */}
                     <th
                       onClick={() => handleSort('facilityId')}
-                      className="py-3.5 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap"
+                      className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap align-middle"
                     >
                     <div className="flex items-center gap-1">
                       <span>Facility ID</span>
@@ -586,7 +586,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                   {/* 3. Facility */}
                   <th
                     onClick={() => handleSort('facilityName')}
-                    className="py-3.5 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors min-w-[150px]"
+                    className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors min-w-[150px] align-middle"
                   >
                     <div className="flex items-center gap-1">
                       <span>Facility</span>
@@ -597,7 +597,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                   {/* 4. Reporting Entity */}
                   <th
                     onClick={() => handleSort('operatorName')}
-                    className="py-3.5 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors min-w-[150px]"
+                    className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors min-w-[150px] align-middle"
                   >
                     <div className="flex items-center gap-1">
                       <span>Reporting Entity</span>
@@ -608,7 +608,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                   {/* 5. Sector */}
                   <th
                     onClick={() => handleSort('sector')}
-                    className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap"
+                    className="h-[38px] px-3 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap align-middle"
                   >
                     <div className="flex items-center gap-1">
                       <span>Sector</span>
@@ -619,7 +619,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                   {/* 6. Tier Level */}
                   <th
                     onClick={() => handleSort('tierLevel')}
-                    className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap"
+                    className="h-[38px] px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap align-middle"
                   >
                     <div className="flex items-center justify-center gap-1">
                       <span>Tier Level</span>
@@ -630,7 +630,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                   {/* 7. Reporting Year */}
                   <th
                     onClick={() => handleSort('reportingYear')}
-                    className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap"
+                    className="h-[38px] px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap align-middle"
                   >
                     <div className="flex items-center justify-center gap-1">
                       <span>Reporting Year</span>
@@ -641,7 +641,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                   {/* 8. Version */}
                   <th
                     onClick={() => handleSort('version')}
-                    className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap"
+                    className="h-[38px] px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap align-middle"
                   >
                     <div className="flex items-center justify-center gap-1">
                       <span>Version</span>
@@ -652,7 +652,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                   {/* 9. Last Updated */}
                   <th
                     onClick={() => handleSort('lastUpdated')}
-                    className="py-3.5 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap"
+                    className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap align-middle"
                   >
                     <div className="flex items-center gap-1">
                       <span>Last Updated</span>
@@ -663,7 +663,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                   {/* 10. Review Status */}
                   <th
                     onClick={() => handleSort('currentStatus')}
-                    className="py-3.5 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap"
+                    className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap align-middle"
                   >
                     <div className="flex items-center gap-1">
                       <span>Review Status</span>
@@ -674,7 +674,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                   {/* 11. Correction Deadline */}
                   <th
                     onClick={() => handleSort('correctionDeadline')}
-                    className="py-3.5 px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap"
+                    className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap align-middle"
                   >
                     <div className="flex items-center gap-1">
                       <span>Correction Deadline</span>
@@ -683,7 +683,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                   </th>
 
                   {/* 12. Actions */}
-                  <th className="py-3.5 px-4 text-right whitespace-nowrap">
+                  <th className="h-[38px] px-4 text-right whitespace-nowrap align-middle">
                     <span className="sr-only">Actions</span>
                   </th>
                 </tr>
@@ -692,7 +692,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
               <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
                 {filteredFacilities.length === 0 ? (
                   <tr>
-                    <td colSpan={11} className="py-8 text-center text-slate-400 font-semibold">
+                    <td colSpan={11} className="h-[60px] py-8 text-center text-slate-400 font-semibold align-middle">
                       No MRV submission records match the selected filter criteria.
                     </td>
                   </tr>
@@ -701,44 +701,44 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                     const isCorrection = row.currentStatus === 'Correction Required';
 
                     return (
-                      <tr key={row.facility.id} className="hover:bg-slate-50/80 transition-colors group">
+                      <tr key={row.facility.id} className="h-[60px] hover:bg-slate-50/80 transition-colors group">
                         {/* 1. Facility ID */}
-                        <td className="py-3.5 px-3.5 font-mono font-bold text-[#004B87] text-xs whitespace-nowrap">
+                        <td className="h-[60px] px-3.5 font-mono font-bold text-[#004B87] text-xs whitespace-nowrap align-middle">
                           {row.facilityId}
                         </td>
 
                         {/* 3. Facility */}
-                        <td className="py-3.5 px-3.5 font-semibold text-slate-800 min-w-[150px]">
+                        <td className="h-[60px] px-3.5 font-semibold text-slate-800 min-w-[150px] align-middle">
                           <span>{row.facilityName}</span>
                         </td>
 
                         {/* 4. Reporting Entity */}
-                        <td className="py-3.5 px-3.5 text-slate-600 min-w-[150px]">
+                        <td className="h-[60px] px-3.5 text-slate-600 min-w-[150px] align-middle">
                           {row.operatorName}
                         </td>
 
                         {/* 5. Sector */}
-                        <td className="py-3.5 px-3 text-slate-600 whitespace-nowrap">
+                        <td className="h-[60px] px-3 text-slate-600 whitespace-nowrap align-middle">
                           {row.sector}
                         </td>
 
                         {/* 6. Tier Level */}
-                        <td className="py-3.5 px-3 text-center font-bold text-slate-700 whitespace-nowrap">
+                        <td className="h-[60px] px-3 text-center font-bold text-slate-700 whitespace-nowrap align-middle">
                           {row.tierLevel}
                         </td>
 
                         {/* 7. Reporting Year */}
-                        <td className="py-3.5 px-3 text-center text-slate-600 whitespace-nowrap">
+                        <td className="h-[60px] px-3 text-center text-slate-600 whitespace-nowrap align-middle">
                           {row.reportingYear}
                         </td>
 
                         {/* 8. Version */}
-                        <td className="py-3.5 px-3 text-center font-mono text-slate-600 whitespace-nowrap">
+                        <td className="h-[60px] px-3 text-center font-mono text-slate-600 whitespace-nowrap align-middle">
                           {row.version}
                         </td>
 
                         {/* 9. Last Updated */}
-                        <td className="py-3.5 px-3.5 text-slate-600 text-xs whitespace-nowrap">
+                        <td className="h-[60px] px-3.5 text-slate-600 text-xs whitespace-nowrap align-middle">
                           <div className="flex items-center gap-1.5">
                             <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                             <span>{row.lastUpdated}</span>
@@ -746,12 +746,12 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                         </td>
 
                         {/* 10. Review Status */}
-                        <td className="py-3.5 px-3.5 text-left whitespace-nowrap">
+                        <td className="h-[60px] px-3.5 text-left whitespace-nowrap align-middle">
                           {getStatusBadge(row.currentStatus)}
                         </td>
 
                         {/* 11. Correction Deadline */}
-                        <td className="py-3.5 px-3.5 whitespace-nowrap text-slate-600">
+                        <td className="h-[60px] px-3.5 whitespace-nowrap text-slate-600 align-middle">
                           {isCorrection ? (
                             <div className="flex items-center gap-1.5 text-slate-700 font-semibold text-[11px]">
                               <Calendar className="w-3.5 h-3.5 text-[#004B87] shrink-0" />
@@ -763,7 +763,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                         </td>
 
                         {/* 12. Actions: Eye for all; Edit icon ONLY when Correction Required */}
-                        <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <td className="h-[60px] px-4 text-right whitespace-nowrap align-middle">
                           <div className="flex items-center justify-end gap-2">
                             {/* Eye Icon (View) */}
                             <button
@@ -827,7 +827,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
   return (
     <div className="h-full flex flex-col overflow-hidden font-sans">
       {/* 1. TOP FIXED HEADER: Back Icon, Data Review Title, Subtitle & Export */}
-      <div className="flex-shrink-0 pt-1 pb-[14px] flex flex-wrap items-center justify-between gap-4">
+      <div className="flex-shrink-0 pt-0.5 pb-[18px] flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div>
             <div className="flex items-center gap-2">
@@ -841,7 +841,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
               >
                 <ArrowLeft className="w-5 h-5 text-[#004B87]" />
               </button>
-              <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
+              <h1 className="text-[18px] font-bold font-display text-[#004B87] tracking-tight">
                 Data Review
               </h1>
               <span className="text-slate-300">•</span>
@@ -917,29 +917,29 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto rounded-xl border border-slate-200/90 bg-white">
             <table className="w-full text-left text-xs border-collapse min-w-[950px]">
               <thead>
-                <tr className="bg-[#E9F1F8] text-slate-700 font-bold text-xs border-b border-slate-200 sticky top-0 z-10 shadow-xs">
-                  <th className="py-3 px-3.5 whitespace-nowrap">Version</th>
-                  <th className="py-3 px-3.5 whitespace-nowrap">Submission Date</th>
-                  <th className="py-3 px-3.5 min-w-[150px]">Submitted By</th>
-                  <th className="py-3 px-3.5 whitespace-nowrap">Status</th>
-                  <th className="py-3 px-3.5 min-w-[280px]">Review / Correction Status</th>
-                  <th className="py-3 px-3.5 whitespace-nowrap">Last Updated</th>
-                  <th className="py-3 px-4 text-right whitespace-nowrap">Action</th>
+                <tr className="h-[38px] bg-[#6692B7]/30 text-slate-800 font-bold text-xs border-b border-[#6692B7]/20 sticky top-0 z-10 shadow-xs">
+                  <th className="h-[38px] px-3.5 whitespace-nowrap align-middle">Version</th>
+                  <th className="h-[38px] px-3.5 whitespace-nowrap align-middle">Submission Date</th>
+                  <th className="h-[38px] px-3.5 min-w-[150px] align-middle">Submitted By</th>
+                  <th className="h-[38px] px-3.5 whitespace-nowrap align-middle">Status</th>
+                  <th className="h-[38px] px-3.5 min-w-[280px] align-middle">Review / Correction Status</th>
+                  <th className="h-[38px] px-3.5 whitespace-nowrap align-middle">Last Updated</th>
+                  <th className="h-[38px] px-4 text-right whitespace-nowrap align-middle">Action</th>
                 </tr>
               </thead>
 
             <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
               {filteredVersionRecords.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-slate-400 font-semibold">
+                  <td colSpan={7} className="h-[60px] py-8 text-center text-slate-400 font-semibold align-middle">
                     No version history records match the selected filter criteria.
                   </td>
                 </tr>
               ) : (
                 filteredVersionRecords.map((row) => (
-                  <tr key={row.id} className="hover:bg-slate-50/80 transition-colors group">
+                  <tr key={row.id} className="h-[60px] hover:bg-slate-50/80 transition-colors group">
                     {/* 1. Version */}
-                    <td className="py-3.5 px-3.5 whitespace-nowrap">
+                    <td className="h-[60px] px-3.5 whitespace-nowrap align-middle">
                       <div className="flex items-center gap-2">
                         <span className="font-mono font-extrabold text-[#004B87] text-sm">
                           {row.version}
@@ -957,7 +957,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                     </td>
 
                     {/* 2. Submission Date */}
-                    <td className="py-3.5 px-3.5 whitespace-nowrap text-slate-800 font-semibold">
+                    <td className="h-[60px] px-3.5 whitespace-nowrap text-slate-800 font-semibold align-middle">
                       <div className="flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span>{row.submissionDate}</span>
@@ -965,7 +965,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                     </td>
 
                     {/* 3. Submitted By */}
-                    <td className="py-3.5 px-3.5 font-bold text-slate-900">
+                    <td className="h-[60px] px-3.5 font-bold text-slate-900 align-middle">
                       <div className="flex items-center gap-1.5">
                         <User className="w-3.5 h-3.5 text-[#004B87] shrink-0" />
                         <span>{row.submittedBy}</span>
@@ -973,12 +973,12 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                     </td>
 
                     {/* 4. Status */}
-                    <td className="py-3.5 px-3.5 whitespace-nowrap">
+                    <td className="h-[60px] px-3.5 whitespace-nowrap align-middle">
                       {getStatusBadge(row.status)}
                     </td>
 
                     {/* 5. Review / Correction Status */}
-                    <td className="py-3.5 px-3.5 text-xs">
+                    <td className="h-[60px] px-3.5 text-xs align-middle">
                       <div>
                         <p className="font-bold text-slate-800">{row.reviewCorrectionStatus}</p>
                         <p className="text-[11px] text-slate-500 italic mt-0.5 line-clamp-1 max-w-md">
@@ -988,7 +988,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                     </td>
 
                     {/* 6. Last Updated */}
-                    <td className="py-3.5 px-3.5 whitespace-nowrap text-slate-600 text-[11px]">
+                    <td className="h-[60px] px-3.5 whitespace-nowrap text-slate-600 text-[11px] align-middle">
                       <div className="flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span>{row.lastUpdated}</span>
@@ -996,7 +996,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                     </td>
 
                     {/* 7. Action -> View Icon Only (Drills down to Level 3: Complete Submitted Data) */}
-                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                    <td className="h-[60px] px-4 text-right whitespace-nowrap align-middle">
                       <button
                         onClick={() => handleViewVersionDetail(row)}
                         title={`Open complete entered details for Version ${row.version}`}
@@ -1008,7 +1008,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                   </tr>
                 ))
               )}
-              </tbody>
+            </tbody>
             </table>
           </div>
         </div>

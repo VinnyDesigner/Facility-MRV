@@ -109,19 +109,23 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
   onChange,
   isReadOnly = false,
 }) => {
-  // Accordion Expand/Collapse State
+  // Accordion Expand/Collapse State (Closed by default)
   const [openSections, setOpenSections] = useState<{
     calc: boolean;
     meas: boolean;
     fallback: boolean;
   }>({
-    calc: true,
-    meas: true,
-    fallback: true,
+    calc: false,
+    meas: false,
+    fallback: false,
   });
 
   const toggleSection = (key: 'calc' | 'meas' | 'fallback') => {
-    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+    setOpenSections((prev) => ({
+      calc: key === 'calc' ? !prev.calc : false,
+      meas: key === 'meas' ? !prev.meas : false,
+      fallback: key === 'fallback' ? !prev.fallback : false,
+    }));
   };
 
   // Section 1: Calculation - Based Monitoring State
@@ -417,11 +421,11 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
             openSections.calc ? 'border-b border-slate-200/80' : 'border-b-0'
           } flex items-center justify-between transition-colors cursor-pointer text-left select-none group`}
         >
-          <span className="text-xs font-bold text-[#004B87] group-hover:text-[#003460]">
+          <span className="text-xs font-bold text-[#336D9F] group-hover:text-[#003460]">
             Calculation - Based Monitoring
           </span>
           <ChevronDown
-            className={`w-4 h-4 text-[#004B87] transition-transform duration-200 ${
+            className={`w-4 h-4 text-[#336D9F] transition-transform duration-200 ${
               openSections.calc ? 'rotate-180' : 'rotate-0'
             }`}
           />
@@ -431,7 +435,7 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
           <div className="p-3.5 bg-white space-y-6 text-xs animate-in fade-in duration-150">
             {/* Subsection 1: Source Stream Identification & Classification */}
             <div>
-              <h4 className="text-xs font-bold text-[#004B87] mb-3">Source Stream Identification & Classification</h4>
+              <h4 className="text-xs font-bold text-[#336D9F] mb-3">Source Stream Identification & Classification</h4>
               <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -573,7 +577,7 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
 
             {/* Subsection 2: Tier & Uncertainty Level */}
             <div>
-              <h4 className="text-xs font-bold text-[#004B87] mb-3">Tier & Uncertainty Level for Each Source Stream</h4>
+              <h4 className="text-xs font-bold text-[#336D9F] mb-3">Tier & Uncertainty Level for Each Source Stream</h4>
               <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -815,7 +819,7 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
 
             {/* Subsection 3: Calculation Approach */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold text-[#004B87]">Calculation Approach</h4>
+              <h4 className="text-xs font-bold text-[#336D9F]">Calculation Approach</h4>
               <div>
                 <label className="block text-slate-600 font-semibold mb-1">
                   Calculation based approaches for monitoring CO2 emissions at your facility, if applicable
@@ -838,7 +842,7 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
 
             {/* Subsection 4: Detailed Calculation Information */}
             <div>
-              <h4 className="text-xs font-bold text-[#004B87] mb-3">Detailed Calculation Information</h4>
+              <h4 className="text-xs font-bold text-[#336D9F] mb-3">Detailed Calculation Information</h4>
               <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -1001,7 +1005,7 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
 
             {/* Subsection 5: Other Inputs / Outputs */}
             <div>
-              <h4 className="text-xs font-bold text-[#004B87] mb-3">Other Inputs / Outputs</h4>
+              <h4 className="text-xs font-bold text-[#336D9F] mb-3">Other Inputs / Outputs</h4>
               <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -1201,7 +1205,7 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
 
             {/* Subsection 6: Specification and location of measurement systems */}
             <div>
-              <h4 className="text-xs font-bold text-[#004B87] mb-3 leading-relaxed" title="Specification and location of measurement systems for determining the activity data for source streams">
+              <h4 className="text-xs font-bold text-[#336D9F] mb-3 leading-relaxed" title="Specification and location of measurement systems for determining the activity data for source streams">
                 Specification and location of measurement systems for determining the activity data for source streams
               </h4>
 
@@ -1442,11 +1446,11 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
             openSections.meas ? 'border-b border-slate-200/80' : 'border-b-0'
           } flex items-center justify-between transition-colors cursor-pointer text-left select-none group`}
         >
-          <span className="text-xs font-bold text-[#004B87] group-hover:text-[#003460]">
+          <span className="text-xs font-bold text-[#336D9F] group-hover:text-[#003460]">
             Measurement - Based Monitoring
           </span>
           <ChevronDown
-            className={`w-4 h-4 text-[#004B87] transition-transform duration-200 ${
+            className={`w-4 h-4 text-[#336D9F] transition-transform duration-200 ${
               openSections.meas ? 'rotate-180' : 'rotate-0'
             }`}
           />
@@ -1456,7 +1460,7 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
           <div className="p-3.5 bg-white space-y-6 text-xs animate-in fade-in duration-150">
             {/* Subsection 1: Identify Relevant Measured Emission Source */}
             <div>
-              <h4 className="text-xs font-bold text-[#004B87] mb-3" title="Identify Relevant Measured Emission Source">Identify Relevant Measured Emission Source</h4>
+              <h4 className="text-xs font-bold text-[#336D9F] mb-3" title="Identify Relevant Measured Emission Source">Identify Relevant Measured Emission Source</h4>
               <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -1565,7 +1569,7 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
 
             {/* Subsection 2: Uncertainty Levels for Each Emission Source */}
             <div>
-              <h4 className="text-xs font-bold text-[#004B87] mb-3" title="Uncertainty Levels for Each Emission Source">Uncertainty Levels for Each Emission Source</h4>
+              <h4 className="text-xs font-bold text-[#336D9F] mb-3" title="Uncertainty Levels for Each Emission Source">Uncertainty Levels for Each Emission Source</h4>
               <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -1799,7 +1803,7 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
 
             {/* Subsection 3: Measurement - Based Approach */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold text-[#004B87]" title="Measurement - Based Approach">Measurement - Based Approach</h4>
+              <h4 className="text-xs font-bold text-[#336D9F]" title="Measurement - Based Approach">Measurement - Based Approach</h4>
               <div>
                 <label className="block text-slate-600 font-semibold mb-1" title="Measurement Approach Description">Measurement Approach Description</label>
                 {isReadOnly ? (
@@ -1821,7 +1825,7 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
 
             {/* Subsection 4: Measurement Points Details */}
             <div>
-              <h4 className="text-xs font-bold text-[#004B87] mb-3" title="Measurement Points Details">Measurement Points Details</h4>
+              <h4 className="text-xs font-bold text-[#336D9F] mb-3" title="Measurement Points Details">Measurement Points Details</h4>
               <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -1954,7 +1958,7 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
 
             {/* Subsection 5: Comments */}
             <div className="space-y-2">
-              <h4 className="text-xs font-bold text-[#004B87]" title="Comments">Comments</h4>
+              <h4 className="text-xs font-bold text-[#336D9F]" title="Comments">Comments</h4>
               {isReadOnly ? (
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs leading-relaxed min-h-[50px]">
                   {measComments || 'No comments provided.'}
@@ -1985,11 +1989,11 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
             openSections.fallback ? 'border-b border-slate-200/80' : 'border-b-0'
           } flex items-center justify-between transition-colors cursor-pointer text-left select-none group`}
         >
-          <span className="text-xs font-bold text-[#004B87] group-hover:text-[#003460]">
+          <span className="text-xs font-bold text-[#336D9F] group-hover:text-[#003460]">
             Fallback Approach
           </span>
           <ChevronDown
-            className={`w-4 h-4 text-[#004B87] transition-transform duration-200 ${
+            className={`w-4 h-4 text-[#336D9F] transition-transform duration-200 ${
               openSections.fallback ? 'rotate-180' : 'rotate-0'
             }`}
           />

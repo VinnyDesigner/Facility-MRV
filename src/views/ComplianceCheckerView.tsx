@@ -88,9 +88,9 @@ export const ComplianceCheckerView: React.FC = () => {
   const isVoluntary = !isMandatory && answers[3];
 
   return (
-    <div className="space-y-6 animate-fade-in max-w-4xl mx-auto pb-12">
+    <div className="space-y-[18px] animate-fade-in max-w-4xl mx-auto pb-6">
       {/* Header Banner */}
-      <div className="p-6 rounded-3xl bg-gradient-to-r from-navy-900 via-primary-900 to-teal-900 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-navy-900 via-primary-900 to-teal-900 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-brand/20 text-cyan-300 text-xs font-bold mb-2">
             <Compass className="w-3.5 h-3.5" />
@@ -116,7 +116,7 @@ export const ComplianceCheckerView: React.FC = () => {
       </div>
 
       {!isCompleted ? (
-        <div className="space-y-6">
+        <div className="space-y-[18px]">
           {/* Progress Indicator */}
           <div className="flex items-center justify-between text-xs font-bold text-navy-900">
             <span>
@@ -135,7 +135,7 @@ export const ComplianceCheckerView: React.FC = () => {
           </div>
 
           {/* Active Question Glass Card */}
-          <GlassCard className="p-8">
+          <GlassCard className="p-5 sm:p-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 text-primary-800 text-xs font-bold mb-3">
               <span>{questions[currentQuestion].title}</span>
             </div>
@@ -179,7 +179,7 @@ export const ComplianceCheckerView: React.FC = () => {
         </div>
       ) : (
         /* Result Screen */
-        <GlassCard className="p-8 space-y-6">
+        <GlassCard className="p-8 space-y-[18px]">
           <div className="text-center max-w-xl mx-auto">
             {isMandatory ? (
               <div className="w-16 h-16 rounded-3xl bg-rose-500/10 border border-rose-500/30 text-rose-600 flex items-center justify-center mx-auto mb-4">

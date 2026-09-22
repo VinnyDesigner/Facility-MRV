@@ -80,7 +80,7 @@ export const EADReviewDetailView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in pb-12">
+    <div className="space-y-[18px] animate-fade-in pb-12">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl bg-gradient-to-r from-navy-950 via-[#0B2238] to-[#143E65] text-white shadow-xl">
         <div className="flex items-center gap-3">
@@ -133,9 +133,9 @@ export const EADReviewDetailView: React.FC = () => {
       )}
 
       {/* Split Interface */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-[18px]">
         {/* LEFT PANEL: Complete Submission Dossier (7 cols) */}
-        <div className="lg:col-span-7 space-y-6">
+        <div className="lg:col-span-7 space-y-[18px]">
           {/* Facility & Permit Summary */}
           <GlassCard className="p-6">
             <div className="flex items-center justify-between mb-4 border-b border-primary-100/60 pb-3">
@@ -264,8 +264,8 @@ export const EADReviewDetailView: React.FC = () => {
         </div>
 
         {/* RIGHT PANEL: Regulatory Decision Actions (5 cols) */}
-        <div className="lg:col-span-5 space-y-6">
-          <GlassCard className="p-6 sm:p-8 space-y-6" variant="glow">
+        <div className="lg:col-span-5 space-y-[18px]">
+          <GlassCard className="p-6 sm:p-8 space-y-[18px]" variant="glow">
             <div className="border-b border-primary-100/60 pb-3">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-brand/15 text-cyan-800 text-xs font-bold mb-2">
                 <ShieldCheck className="w-4 h-4 text-cyan-brand" />

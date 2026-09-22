@@ -303,11 +303,11 @@ export const VerificationModuleView: React.FC = () => {
   // =========================================================================
   if (viewMode === 'table') {
     return (
-      <div className="h-full flex flex-col overflow-hidden font-sans py-1">
+      <div className="h-full flex flex-col overflow-hidden font-sans py-0.5">
         {/* Top Header Row with Title, Search, Filter & Perform Verification Button (Strictly Single Row) */}
-        <div className="flex-shrink-0 pb-3 pt-0.5 flex items-center justify-between gap-3 min-w-0">
+        <div className="flex-shrink-0 pb-[18px] pt-0.5 flex items-center justify-between gap-3 min-w-0">
           <div className="min-w-0 shrink">
-            <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight whitespace-nowrap">
+            <h1 className="text-[18px] font-bold font-display text-[#004B87] tracking-tight whitespace-nowrap">
               Verification
             </h1>
             <p className="text-xs text-slate-500 font-medium mt-0.5 truncate max-w-lg xl:max-w-xl">
@@ -418,24 +418,24 @@ export const VerificationModuleView: React.FC = () => {
             <div className="flex-1 min-h-0 overflow-hidden rounded-xl border border-slate-200/90 bg-white">
               <div className="h-full overflow-y-auto no-scrollbar">
                 <table className="w-full text-left text-xs border-collapse">
-                  <thead className="sticky top-0 z-10 bg-[#EBF3FA] border-b border-slate-200/90 text-[#004B87] font-bold text-[11px]">
-                    <tr>
-                      <th className="py-2.5 px-3 w-10 text-center font-bold">#</th>
-                      <th className="py-2.5 px-3 font-bold">Facility Name</th>
-                      <th className="py-2.5 px-3 font-bold">Facility ID</th>
-                      <th className="py-2.5 px-3 font-bold">Reporting Year</th>
-                      <th className="py-2.5 px-3 font-bold text-center">Version</th>
-                      <th className="py-2.5 px-3 font-bold">Total Emissions (tCO₂e)</th>
-                      <th className="py-2.5 px-3 font-bold">Submitted Date</th>
-                      <th className="py-2.5 px-3 font-bold">Verification Status</th>
-                      <th className="py-2.5 px-3 font-bold">Updated Date</th>
-                      <th className="py-2.5 px-3 text-right whitespace-nowrap font-bold">Actions</th>
+                  <thead className="sticky top-0 z-10 shadow-xs">
+                    <tr className="h-[38px] bg-[#6692B7]/30 text-slate-800 font-bold text-xs border-b border-[#6692B7]/20 sticky top-0 z-10 shadow-xs">
+                      <th className="h-[38px] px-3 w-10 text-center font-bold align-middle">#</th>
+                      <th className="h-[38px] px-3 font-bold align-middle">Facility Name</th>
+                      <th className="h-[38px] px-3 font-bold align-middle">Facility ID</th>
+                      <th className="h-[38px] px-3 font-bold align-middle">Reporting Year</th>
+                      <th className="h-[38px] px-3 font-bold text-center align-middle">Version</th>
+                      <th className="h-[38px] px-3 font-bold align-middle">Total Emissions (tCO₂e)</th>
+                      <th className="h-[38px] px-3 font-bold align-middle">Submitted Date</th>
+                      <th className="h-[38px] px-3 font-bold align-middle">Verification Status</th>
+                      <th className="h-[38px] px-3 font-bold align-middle">Updated Date</th>
+                      <th className="h-[38px] px-3 text-right whitespace-nowrap font-bold align-middle">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 bg-white">
                     {paginatedTableList.length === 0 ? (
                       <tr>
-                        <td colSpan={10} className="py-8 text-center text-slate-400 italic font-medium">
+                        <td colSpan={10} className="h-[60px] py-8 text-center text-slate-400 italic font-medium align-middle">
                           No verification records match your search and filter criteria.
                         </td>
                       </tr>
@@ -443,31 +443,31 @@ export const VerificationModuleView: React.FC = () => {
                       paginatedTableList.map(([facId, rec], index) => {
                         const actualIdx = (currentPage - 1) * itemsPerPage + index + 1;
                         return (
-                          <tr key={facId} className="hover:bg-slate-50/70 transition-colors">
-                            <td className="py-2.5 px-3 text-center font-mono text-slate-400 font-medium">
+                          <tr key={facId} className="h-[60px] hover:bg-slate-50/70 transition-colors">
+                            <td className="h-[60px] px-3 text-center font-mono text-slate-400 font-medium align-middle">
                               {actualIdx}
                             </td>
-                            <td className="py-2.5 px-3 font-semibold text-slate-900 leading-snug">
+                            <td className="h-[60px] px-3 font-semibold text-slate-900 leading-snug align-middle">
                               <span>{rec.facilityName}</span>
                             </td>
-                            <td className="py-2.5 px-3 font-mono text-slate-600 text-[11px]">
+                            <td className="h-[60px] px-3 font-mono text-slate-600 text-[11px] align-middle">
                               {rec.facilityId}
                             </td>
-                            <td className="py-2.5 px-3 font-medium text-slate-700">
+                            <td className="h-[60px] px-3 font-medium text-slate-700 align-middle">
                               {rec.reportingYear}
                             </td>
-                            <td className="py-2.5 px-3 text-center whitespace-nowrap">
+                            <td className="h-[60px] px-3 text-center whitespace-nowrap align-middle">
                               <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
                                 {rec.version}
                               </span>
                             </td>
-                            <td className="py-2.5 px-3 font-mono font-bold text-[#004B87]">
+                            <td className="h-[60px] px-3 font-mono font-bold text-[#004B87] align-middle">
                               {rec.totalEmissions}
                             </td>
-                            <td className="py-2.5 px-3 text-slate-600 font-medium">
+                            <td className="h-[60px] px-3 text-slate-600 font-medium align-middle">
                               {rec.submittedDate}
                             </td>
-                            <td className="py-2.5 px-3 text-left whitespace-nowrap">
+                            <td className="h-[60px] px-3 text-left whitespace-nowrap align-middle">
                               <span
                                 className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap inline-block ${
                                   rec.verificationStatus === 'Verified & Approved'
@@ -484,10 +484,10 @@ export const VerificationModuleView: React.FC = () => {
                                 {rec.verificationStatus}
                               </span>
                             </td>
-                            <td className="py-2.5 px-3 text-slate-600 font-medium">
+                            <td className="h-[60px] px-3 text-slate-600 font-medium align-middle">
                               {rec.updatedDate}
                             </td>
-                            <td className="py-2.5 px-3 text-right whitespace-nowrap">
+                            <td className="h-[60px] px-3 text-right whitespace-nowrap align-middle">
                               <div className="flex items-center justify-end gap-1">
                                 <button
                                   onClick={() => {
@@ -593,9 +593,9 @@ export const VerificationModuleView: React.FC = () => {
   // =========================================================================
   if (viewMode === 'view') {
     return (
-      <div className="h-full flex flex-col overflow-hidden font-sans space-y-3">
+      <div className="h-full flex flex-col overflow-hidden font-sans space-y-2">
         {/* Top Header */}
-        <div className="flex-shrink-0 flex items-center justify-between gap-3 pt-1">
+        <div className="flex-shrink-0 flex items-center justify-between gap-3 pt-0.5">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setViewMode('table')}
@@ -641,8 +641,8 @@ export const VerificationModuleView: React.FC = () => {
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 flex flex-col overflow-hidden">
-          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pr-1 text-xs no-scrollbar">
+        <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-1 text-xs no-scrollbar">
           {/* Verifier Details Card */}
           <div className="rounded-xl border border-slate-200 p-4 space-y-3">
             <div className="font-bold text-[#004B87] flex items-center justify-between">
@@ -861,8 +861,8 @@ export const VerificationModuleView: React.FC = () => {
       </div>
 
       {/* Main Verification Workspace Form */}
-      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 flex flex-col overflow-hidden">
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pr-1 text-xs no-scrollbar">
+      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-1 text-xs no-scrollbar">
           {opinionError && (
             <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs font-semibold flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />

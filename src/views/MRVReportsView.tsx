@@ -293,11 +293,11 @@ export const MRVReportsView: React.FC = () => {
       {/* ------------------------------------------------------------------------- */}
       {/* 1. TOP HEADER ROW (Outside the card: Title on Left, Controls on Right) */}
       {/* ------------------------------------------------------------------------- */}
-      <div className="flex-shrink-0 pt-1 pb-[14px] flex flex-wrap items-center justify-between gap-4">
+      <div className="flex-shrink-0 pt-0.5 pb-[18px] flex flex-wrap items-center justify-between gap-3">
         {/* Left: View Title & Subtitle */}
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
+            <h1 className="text-[18px] font-bold font-display text-[#336D9F] tracking-tight">
               MRV Reports & Analytics
             </h1>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
@@ -359,62 +359,42 @@ export const MRVReportsView: React.FC = () => {
       {/* ------------------------------------------------------------------------- */}
       {/* 2. MAIN WHITE CARD CONTAINER (Tabs inside the white card header) */}
       {/* ------------------------------------------------------------------------- */}
-      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-7 flex flex-col overflow-hidden">
-        {/* Navigation Sub-Tabs (Inside Card Header) */}
-        <div className="flex-shrink-0 pb-3 mb-4 overflow-x-auto no-scrollbar">
-          <div className="inline-flex items-center gap-1.5 p-1 bg-slate-100/90 border border-slate-200/80 rounded-xl text-xs font-semibold">
-            <button
-              type="button"
-              onClick={() => setActiveTab('emission-summary')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
-                activeTab === 'emission-summary'
-                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
-              }`}
-            >
-              Emission Summary Report
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('submission-status')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
-                activeTab === 'submission-status'
-                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
-              }`}
-            >
-              Submission Status
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('history')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
-                activeTab === 'history'
-                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
-              }`}
-            >
-              Submission History
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('version')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all relative cursor-pointer whitespace-nowrap ${
-                activeTab === 'version'
-                  ? 'bg-white text-[#004B87] shadow-xs border-b-2 border-[#004B87]'
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-white/50 border-b-2 border-transparent'
-              }`}
-            >
-              Audit Log
-            </button>
+      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
+        {/* Navigation Sub-Tabs (Sticky Bar inside Card Header) */}
+        <div className="flex-shrink-0 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-2.5">
+          <div className="inline-flex items-center gap-1 p-1 bg-[#EAEFF4] border border-[#D5E0EA] rounded-[6px] shadow-2xs">
+            {[
+              { id: 'emission-summary', label: 'Emission Summary Report', icon: BarChart3 },
+              { id: 'submission-status', label: 'Submission Status', icon: Layers },
+              { id: 'history', label: 'Submission History', icon: History },
+              { id: 'version', label: 'Audit Log', icon: FileText },
+            ].map((tab) => {
+              const IconComponent = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                    isActive
+                      ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                      : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+                  }`}
+                >
+                  <IconComponent className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-500'}`} />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Scrollable Card Body */}
-        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-6 pr-1">
+        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-[18px] pr-1">
           {/* TAB 1: EMISSION SUMMARY REPORT */}
           {activeTab === 'emission-summary' && (
-            <div className="space-y-6 animate-fade-in">
+            <div className="space-y-[18px] animate-fade-in">
           {/* Top Chart Card: Emission Trends */}
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 space-y-4">
             <div className="flex items-center justify-between">
@@ -585,7 +565,7 @@ export const MRVReportsView: React.FC = () => {
       {/* TAB 2: SUBMISSION STATUS (Matching Screenshot 2) */}
       {/* ------------------------------------------------------------------------- */}
       {activeTab === 'submission-status' && (
-        <div className="space-y-6 animate-fade-in">
+        <div className="space-y-[18px] animate-fade-in">
           {/* Top 2 Cards: Overview Donut Chart & Version Summary Bar Chart */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left Card: Submission Status Overview */}
@@ -718,37 +698,35 @@ export const MRVReportsView: React.FC = () => {
       {/* TAB 3: SUBMISSION HISTORY (Original Archive) */}
       {/* ------------------------------------------------------------------------- */}
       {activeTab === 'history' && (
-        <div className="space-y-6 animate-fade-in">
+        <div className="space-y-[18px] animate-fade-in">
           <GlassCard className="p-6 border-slate-200 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+            <div className="overflow-x-auto rounded-xl border border-slate-200/90">
+              <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-200 text-slate-500 font-bold text-[11px] uppercase tracking-wider">
-                    <th className="pb-3">Reporting Year</th>
-                    <th className="pb-3">Submission ID</th>
-                    <th className="pb-3">Version</th>
-                    <th className="pb-3">Emissions</th>
-                    <th className="pb-3">Submitted Date</th>
-                    <th className="pb-3">Status</th>
-                    <th className="pb-3">Verifier</th>
-                    <th className="pb-3 text-right">Actions</th>
+                  <tr className="h-[38px] bg-[#6692B7]/30 text-slate-800 font-bold text-xs border-b border-[#6692B7]/20 sticky top-0 z-10 shadow-xs">
+                    <th className="h-[38px] px-3.5 align-middle">Reporting Year</th>
+                    <th className="h-[38px] px-3.5 align-middle">Submission ID</th>
+                    <th className="h-[38px] px-3.5 align-middle">Version</th>
+                    <th className="h-[38px] px-3.5 align-middle">Emissions</th>
+                    <th className="h-[38px] px-3.5 align-middle">Submitted Date</th>
+                    <th className="h-[38px] px-3.5 align-middle">Status</th>
+                    <th className="h-[38px] px-4 text-right align-middle">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
                   {reportsList.map((row, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-4 font-extrabold text-[#004B87] text-sm">{row.year}</td>
-                      <td className="py-4 font-mono font-bold text-slate-800">{row.id}</td>
-                      <td className="py-4 font-mono font-bold text-slate-600">{row.version}</td>
-                      <td className="py-4 font-bold text-navy-900">{row.emissions}</td>
-                      <td className="py-4 text-slate-500">{row.submittedDate}</td>
-                      <td className="py-4">
+                    <tr key={idx} className="h-[60px] hover:bg-slate-50/80 transition-colors">
+                      <td className="h-[60px] px-3.5 font-extrabold text-[#004B87] text-sm align-middle">{row.year}</td>
+                      <td className="h-[60px] px-3.5 font-mono font-bold text-slate-800 align-middle">{row.id}</td>
+                      <td className="h-[60px] px-3.5 font-mono font-bold text-slate-600 align-middle">{row.version}</td>
+                      <td className="h-[60px] px-3.5 font-bold text-navy-900 align-middle">{row.emissions}</td>
+                      <td className="h-[60px] px-3.5 text-slate-500 align-middle">{row.submittedDate}</td>
+                      <td className="h-[60px] px-3.5 align-middle">
                         <Badge variant={row.statusVariant} size="sm">
                           {row.status}
                         </Badge>
                       </td>
-                      <td className="py-4 text-slate-700 font-medium">{row.verifier}</td>
-                      <td className="py-4 text-right">
+                      <td className="h-[60px] px-4 text-right align-middle">
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => openReadOnlyViewer({
@@ -785,8 +763,8 @@ export const MRVReportsView: React.FC = () => {
       {/* TAB 4: VERSION HISTORY & AUDIT LOG */}
       {/* ------------------------------------------------------------------------- */}
       {activeTab === 'version' && (
-        <div className="space-y-6 animate-fade-in">
-          <GlassCard className="p-6 border-slate-200 shadow-sm space-y-6">
+        <div className="space-y-[18px] animate-fade-in">
+          <GlassCard className="p-6 border-slate-200 shadow-sm space-y-[18px]">
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-base font-bold text-navy-950 flex items-center gap-2">
                 <History className="w-5 h-5 text-[#004B87]" />

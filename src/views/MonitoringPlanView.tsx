@@ -109,9 +109,9 @@ export const MonitoringPlanView: React.FC = () => {
   );
 
   return (
-    <div className="space-y-6 animate-fade-in pb-12">
+    <div className="space-y-[18px] animate-fade-in pb-6">
       {/* Sticky Single-Row Title Bar */}
-      <div className="sticky -top-4 sm:-top-6 lg:-top-8 -mt-4 sm:-mt-6 lg:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-3.5 bg-[#F4F9FD]/95 backdrop-blur-md z-20 border-b border-slate-200/80 flex items-center justify-between gap-4 transition-all font-sans">
+      <div className="sticky -top-4 sm:-top-6 lg:-top-8 -mt-4 sm:-mt-6 lg:-mt-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-2 bg-[#F4F9FD]/95 backdrop-blur-md z-20 border-b border-slate-200/80 flex items-center justify-between gap-4 transition-all font-sans">
         <div className="flex items-center gap-3">
           <h1 className="text-[20px] font-bold font-display text-[#0B3A60] tracking-tight">
             Emissions & Monitoring Plan (MP) Specification
@@ -160,7 +160,7 @@ export const MonitoringPlanView: React.FC = () => {
       <GlassCard className="p-6 sm:p-8">
         {/* Section 1: Facility & Plant Details */}
         {activeSection === 1 && (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-[18px] animate-fade-in">
             <div className="border-b border-primary-100/60 pb-3">
               <h3 className="text-lg font-bold font-display text-navy-900">
                 1. Facility & Plant Identification
@@ -223,7 +223,7 @@ export const MonitoringPlanView: React.FC = () => {
 
         {/* Section 2: Facility Description */}
         {activeSection === 2 && (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-[18px] animate-fade-in">
             <div className="border-b border-primary-100/60 pb-3">
               <h3 className="text-lg font-bold font-display text-navy-900">
                 2. Facility Description & Operational Status
@@ -265,7 +265,7 @@ export const MonitoringPlanView: React.FC = () => {
 
         {/* Section 3: Production Streams */}
         {activeSection === 3 && (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-[18px] animate-fade-in">
             <div className="flex items-center justify-between border-b border-primary-100/60 pb-3">
               <div>
                 <h3 className="text-lg font-bold font-display text-navy-900">
@@ -363,7 +363,7 @@ export const MonitoringPlanView: React.FC = () => {
 
         {/* Section 4: Monitoring Approach */}
         {activeSection === 4 && (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-[18px] animate-fade-in">
             <div className="border-b border-primary-100/60 pb-3">
               <h3 className="text-lg font-bold font-display text-navy-900">
                 4. GHG Monitoring Approach Selection
@@ -436,7 +436,7 @@ export const MonitoringPlanView: React.FC = () => {
 
         {/* Section 5: GHG Measurement */}
         {activeSection === 5 && (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-[18px] animate-fade-in">
             <div className="border-b border-primary-100/60 pb-3">
               <h3 className="text-lg font-bold font-display text-navy-900">
                 5. GHG Measurement Standards, Equipment & Calibration
@@ -516,7 +516,7 @@ export const MonitoringPlanView: React.FC = () => {
 
         {/* Section 6: QA/QC Protocols */}
         {activeSection === 6 && (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-[18px] animate-fade-in">
             <div className="border-b border-primary-100/60 pb-3">
               <h3 className="text-lg font-bold font-display text-navy-900">
                 6. Quality Assurance, Internal Review & Data Archival
@@ -570,7 +570,7 @@ export const MonitoringPlanView: React.FC = () => {
 
         {/* Section 7: Mitigation Measures */}
         {activeSection === 7 && (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-[18px] animate-fade-in">
             <div className="flex items-center justify-between border-b border-primary-100/60 pb-3">
               <div>
                 <h3 className="text-lg font-bold font-display text-navy-900">
@@ -681,7 +681,7 @@ export const MonitoringPlanView: React.FC = () => {
 
         {/* Section 8: Preparer Declaration */}
         {activeSection === 8 && (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-[18px] animate-fade-in">
             <div className="border-b border-primary-100/60 pb-3">
               <h3 className="text-lg font-bold font-display text-navy-900">
                 8. Preparer Declaration & Regulatory Sign-off

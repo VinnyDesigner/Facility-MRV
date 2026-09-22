@@ -17,9 +17,9 @@ export const NotificationsView: React.FC = () => {
   const { notifications, markNotificationRead, markAllNotificationsRead, setActiveView } = useMRV();
 
   return (
-    <div className="space-y-6 animate-fade-in max-w-4xl mx-auto pb-12">
+    <div className="space-y-[18px] animate-fade-in max-w-4xl mx-auto pb-6">
       {/* Top Banner */}
-      <div className="p-6 rounded-3xl bg-gradient-to-r from-navy-900 via-primary-900 to-navy-850 text-white shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-navy-900 via-primary-900 to-navy-850 text-white shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="px-2.5 py-0.5 rounded-full bg-cyan-brand/20 text-cyan-300 text-xs font-bold">

@@ -1,37 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Menu,
-  X,
-  ChevronDown,
-  Moon,
-  Sun,
   Bell,
-  Search,
-  Mail,
   CheckCircle2,
-  Check,
   AlertTriangle,
   Info,
   LogOut,
   UserCheck,
   ShieldCheck,
-  HelpCircle,
-  LayoutGrid,
-  Building2,
-  ClipboardList,
-  BarChart2,
-  BarChart3,
-  FileText,
-  History,
-  Globe,
-  Lock,
-  ArrowRight,
-  Eye,
-  FileSearch,
+  ChevronDown,
 } from 'lucide-react';
-import { DataReviewIcon } from '../icons/DataReviewIcon';
+import { SidebarToggleIcon } from '../icons/NavIcons';
 import { useMRV } from '../../context/MRVContext';
-import colorLogo from '../../assets/color-logo.svg';
+import eadLogo from '../../assets/logo.svg';
 
 interface HeaderProps {
   onLogout: () => void;
@@ -39,82 +19,26 @@ interface HeaderProps {
   setIsSidebarCollapsed?: (collapsed: boolean) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
+export const Header: React.FC<HeaderProps> = ({
+  onLogout,
+  isSidebarCollapsed,
+  setIsSidebarCollapsed,
+}) => {
   const {
-    currentUser,
     currentRole,
     setCurrentRole,
     notifications,
-    unreadNotificationCount,
     markNotificationRead,
     markAllNotificationsRead,
     activeView,
     setActiveView,
-    setSelectedSubmissionForReview,
-    activeFacility,
-    reportingYear,
-    submissions,
-    workflowState,
-    isMonitoringPlanUnlocked,
-    isAnnualEmissionUnlocked,
-    isVerificationUnlocked,
-    getLockReason,
   } = useMRV();
-
-  const [lockedModalInfo, setLockedModalInfo] = useState<{
-    title: string;
-    reason: string;
-    prerequisiteView: string;
-    prerequisiteName: string;
-  } | null>(null);
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isLangOpen, setIsLangOpen] = useState(false);
-  const [isReportsMenuOpen, setIsReportsMenuOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [language, setLanguage] = useState<'English' | 'العربية'>('English');
-  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const notifRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const langRef = useRef<HTMLDivElement>(null);
-  const reportsRef = useRef<HTMLDivElement>(null);
-
-  const pendingReviewCount = (submissions || []).filter(
-    (s) => s.status === 'Submitted' || s.status === 'Under Review'
-  ).length;
-
-  // Active view match flags
-  const isDashboardActive = activeView === 'dashboard';
-  const isFacilityActive =
-    activeView === 'facility' ||
-    activeView === 'registration' ||
-    activeView === 'annual-renewal' ||
-    activeView === 'report-change' ||
-    activeView === 'compliance-checker';
-  const isDataEntryActive =
-    activeView === 'data-entry' ||
-    activeView === 'monitoring-plan-module' ||
-    activeView === 'monitoring-plan' ||
-    activeView === 'report-upload';
-  const isAnnualEmissionActive =
-    activeView === 'annual-emission-data' ||
-    activeView === 'emissions-data';
-  const isVerificationActive = activeView === 'verification';
-  const isVerificationCompleted =
-    workflowState.verificationStatus === 'Verification Completed' ||
-    workflowState.verificationStatus === 'Verification Statement Uploaded';
-  const isReportsActive =
-    activeView === 'reports' ||
-    activeView === 'mrv-reports' ||
-    activeView === 'submissions' ||
-    activeView === 'version-history';
-
-  const isEadDashboardActive = activeView === 'ead-dashboard' || (currentRole === 'EAD_REVIEWER' && activeView === 'dashboard');
-  const isEadQueueActive = activeView === 'ead-queue' || activeView === 'ead-review-detail';
-  const isEadFacilitiesActive = activeView === 'ead-facilities';
-  const isEadAnalyticsActive = activeView === 'ead-[#analytics]' || activeView === 'ead-analytics' || activeView === 'reports';
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -125,252 +49,63 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
       }
-      if (langRef.current && !langRef.current.contains(event.target as Node)) {
-        setIsLangOpen(false);
-      }
-      if (reportsRef.current && !reportsRef.current.contains(event.target as Node)) {
-        setIsReportsMenuOpen(false);
-      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 bg-[#E5E8ED] text-[#0D0E12] border-b border-slate-300/40 transition-all shrink-0">
-      <div className="px-4 sm:px-8 py-2.5 flex items-center justify-between relative">
-        {/* Left Section: Brand Logo */}
-        <div className="flex items-center shrink-0">
-          <div
-            className="flex items-center cursor-pointer shrink-0 hover:opacity-90 transition-opacity"
-            onClick={() => setActiveView(currentRole === 'EAD_REVIEWER' ? 'ead-dashboard' : 'dashboard')}
-            title="Go to Dashboard"
-          >
-            <img
-              src={colorLogo}
-              alt="Environment Agency Abu Dhabi"
-              className="h-10 sm:h-12 w-auto object-contain drop-shadow-sm"
-            />
-          </div>
+    <header className="sticky top-0 z-20 bg-gradient-to-r from-[#4A6E9E] via-[#3B5B88] to-[#2E4D77] text-white border-b border-white/15 transition-all shrink-0 shadow-sm h-11 max-h-11 min-h-[44px]">
+      <div className="h-full px-3 sm:px-4 flex items-center justify-between gap-3 max-w-full font-sans">
+        {/* Left Section: Sidebar Toggle Button */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          {setIsSidebarCollapsed && (
+            <button
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              className="p-1 rounded-lg text-white hover:text-white/80 hover:bg-white/10 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+              title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            >
+              <SidebarToggleIcon className="w-5 h-5 text-white" />
+            </button>
+          )}
+
+          {isSidebarCollapsed && (
+            <div
+              className="flex items-center gap-2 cursor-pointer shrink-0 hover:opacity-90 transition-opacity"
+              onClick={() => setActiveView(currentRole === 'EAD_REVIEWER' ? 'ead-dashboard' : 'dashboard')}
+              title="Go to Dashboard"
+            >
+              <img
+                src={eadLogo}
+                alt="Environment Agency Abu Dhabi"
+                className="h-7 w-auto object-contain drop-shadow-2xs"
+              />
+            </div>
+          )}
         </div>
 
-        {/* Center Section: Top Navigation Bar */}
-        <div className="hidden md:flex items-center justify-center absolute left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
-          <nav className="h-[46px] flex items-center gap-1 sm:gap-1.5 p-1 bg-gradient-to-b from-[#5575A3] to-[#365785] backdrop-blur-md rounded-full shadow-lg border border-white/60 transition-all duration-300 whitespace-nowrap shrink-0">
-            {currentRole === 'FACILITY_OPERATOR' ? (
-              <>
-                {/* 1. Dashboard */}
-                <button
-                  onClick={() => setActiveView('dashboard')}
-                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
-                    isDashboardActive
-                      ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
-                      : 'text-white/85 hover:text-white hover:bg-white/15'
-                  }`}
-                  title="Dashboard"
-                >
-                  <span>Dashboard</span>
-                </button>
-
-                {/* 2. Facility Registration */}
-                <button
-                  onClick={() => setActiveView('registration')}
-                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
-                    isFacilityActive
-                      ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
-                      : 'text-white/85 hover:text-white hover:bg-white/15'
-                  }`}
-                  title="Facility Registration"
-                >
-                  <span>Facility Registration</span>
-                </button>
-
-                {/* 3. Monitoring Plan */}
-                <button
-                  onClick={() => {
-                    if (isMonitoringPlanUnlocked) {
-                      setActiveView('data-entry');
-                    } else {
-                      setLockedModalInfo(getLockReason('data-entry'));
-                    }
-                  }}
-                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
-                    isDataEntryActive
-                      ? isMonitoringPlanUnlocked
-                        ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
-                        : 'bg-white/90 text-amber-950 font-bold shadow-sm border border-amber-300'
-                      : isMonitoringPlanUnlocked
-                      ? 'text-white/85 hover:text-white hover:bg-white/15'
-                      : 'text-white/60 hover:text-white/80 hover:bg-white/10'
-                  }`}
-                  title={
-                    isMonitoringPlanUnlocked
-                      ? 'Monitoring Plan (Unlocked)'
-                      : `Monitoring Plan Locked (${getLockReason('data-entry').reason})`
-                  }
-                >
-                  <span>Monitoring Plan</span>
-                  {!isMonitoringPlanUnlocked && (
-                    <Lock className="w-3 h-3 text-amber-300 flex-shrink-0" />
-                  )}
-                </button>
-
-                {/* 4. Annual Emission Data */}
-                <button
-                  onClick={() => {
-                    if (isAnnualEmissionUnlocked) {
-                      setActiveView('annual-emission-data');
-                    } else {
-                      setLockedModalInfo(getLockReason('annual-emission-data'));
-                    }
-                  }}
-                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
-                    isAnnualEmissionActive
-                      ? isAnnualEmissionUnlocked
-                        ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
-                        : 'bg-white/90 text-amber-950 font-bold shadow-sm border border-amber-300'
-                      : isAnnualEmissionUnlocked
-                      ? 'text-white/85 hover:text-white hover:bg-white/15'
-                      : 'text-white/60 hover:text-white/80 hover:bg-white/10'
-                  }`}
-                  title={
-                    isAnnualEmissionUnlocked
-                      ? 'Annual Emission Data (Unlocked)'
-                      : `Annual Emission Data Locked (${getLockReason('annual-emission-data').reason})`
-                  }
-                >
-                  <span>Annual Emission Data</span>
-                  {!isAnnualEmissionUnlocked && (
-                    <Lock className="w-3 h-3 text-amber-300 flex-shrink-0" />
-                  )}
-                </button>
-
-                {/* 5. Verification */}
-                <button
-                  onClick={() => {
-                    if (isVerificationUnlocked) {
-                      setActiveView('verification');
-                    } else {
-                      setLockedModalInfo(getLockReason('verification'));
-                    }
-                  }}
-                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
-                    isVerificationActive
-                      ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
-                      : isVerificationUnlocked
-                      ? 'text-white/85 hover:text-white hover:bg-white/15'
-                      : 'text-white/60 hover:text-white/80 hover:bg-white/10'
-                  }`}
-                  title={
-                    isVerificationUnlocked
-                      ? 'Verification (Unlocked)'
-                      : `Verification Locked (${getLockReason('verification').reason})`
-                  }
-                >
-                  <span>Verification</span>
-                  {!isVerificationUnlocked && (
-                    <Lock className="w-3 h-3 text-amber-300 flex-shrink-0" />
-                  )}
-                </button>
-
-                {/* 6. Reports */}
-                <button
-                  onClick={() => setActiveView('reports')}
-                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
-                    isReportsActive
-                      ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
-                      : 'text-white/85 hover:text-white hover:bg-white/15'
-                  }`}
-                  title="Reports"
-                >
-                  <span>Reports</span>
-                </button>
-              </>
-            ) : (
-              /* EAD Regulator View Categories */
-              <>
-                {/* 1. Dashboard */}
-                <button
-                  onClick={() => setActiveView('ead-dashboard')}
-                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
-                    isEadDashboardActive
-                      ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
-                      : 'text-white/85 hover:text-white hover:bg-white/15'
-                  }`}
-                  title="Oversight Dashboard"
-                >
-                  <span>Dashboard</span>
-                </button>
-
-                {/* 2. Review Queue */}
-                <button
-                  onClick={() => setActiveView('ead-queue')}
-                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
-                    isEadQueueActive
-                      ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
-                      : 'text-white/85 hover:text-white hover:bg-white/15'
-                  }`}
-                  title="Review Queue"
-                >
-                  <span>Review Queue</span>
-                  {pendingReviewCount > 0 && (
-                    <span className="px-1.5 py-0.5 rounded-full bg-cyan-500 text-white font-bold text-[10px]">
-                      {pendingReviewCount}
-                    </span>
-                  )}
-                </button>
-
-                {/* 3. Facilities */}
-                <button
-                  onClick={() => setActiveView('ead-facilities')}
-                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
-                    isEadFacilitiesActive
-                      ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
-                      : 'text-white/85 hover:text-white hover:bg-white/15'
-                  }`}
-                  title="Regulated Facilities"
-                >
-                  <span>Facilities</span>
-                </button>
-
-                {/* 4. Reports */}
-                <button
-                  onClick={() => setActiveView('ead-analytics')}
-                  className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
-                    isEadAnalyticsActive
-                      ? 'bg-white text-[#3B5B88] font-bold shadow-sm'
-                      : 'text-white/85 hover:text-white hover:bg-white/15'
-                  }`}
-                  title="Reports & Analytics"
-                >
-                  <span>Reports</span>
-                </button>
-              </>
-            )}
-          </nav>
-        </div>
-
-        {/* Right Section: Header Controls & Profile */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
-
-          {/* Notifications Bell Button */}
-          <div className="relative" ref={notifRef}>
+        {/* Right Section: Notifications & Profile */}
+        <div className="flex items-center gap-3.5 sm:gap-4 shrink-0 ml-auto h-full">
+          {/* Notifications Bell Button with Badge */}
+          <div className="relative flex items-center" ref={notifRef}>
             <button
               onClick={() => setIsNotifOpen(!isNotifOpen)}
-              className="relative w-9 h-9 rounded-full bg-white border border-slate-200/90 shadow-xs flex items-center justify-center text-slate-700 hover:bg-slate-50 hover:shadow transition-all"
+              className="relative p-1 text-white hover:text-white/80 hover:bg-white/10 rounded-full transition-all cursor-pointer flex items-center justify-center shrink-0"
               title="Notifications"
             >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1 right-1 flex h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
+              <Bell className="w-5 h-5 text-white stroke-[1.8]" />
+              <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-[#E94E77] text-[10px] font-bold text-white shadow-xs leading-none">
+                {notifications.filter((n) => !n.read).length || 3}
+              </span>
             </button>
 
             {isNotifOpen && (
-              <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white text-navy-900 rounded-2xl shadow-2xl border border-slate-200 p-3 z-50 animate-slide-up">
+              <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white text-navy-900 rounded-2xl shadow-2xl border border-slate-200 p-3 z-50 animate-slide-up">
                 <div className="flex items-center justify-between px-2 py-1.5 border-b border-slate-100">
                   <span className="text-xs font-bold text-navy-900">Regulatory Notifications</span>
                   <button
                     onClick={markAllNotificationsRead}
-                    className="text-[11px] text-primary-600 hover:underline font-semibold"
+                    className="text-[11px] text-primary-600 hover:underline font-semibold cursor-pointer"
                   >
                     Mark all read
                   </button>
@@ -397,9 +132,9 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
                             <p className="text-xs font-bold text-navy-900">{notif.title}</p>
-                            <span className="text-[10px] text-mrv-muted">{notif.timestamp.slice(11)}</span>
+                            <span className="text-[10px] text-slate-400">{notif.timestamp.slice(11)}</span>
                           </div>
-                          <p className="text-xs text-mrv-muted mt-0.5 leading-relaxed">{notif.message}</p>
+                          <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{notif.message}</p>
                         </div>
                       </div>
                     </div>
@@ -409,27 +144,27 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
             )}
           </div>
 
-          {/* User Profile Avatar */}
-          <div className="relative" ref={userMenuRef}>
+          {/* User Profile Avatar & Name with Dropdown */}
+          <div className="relative flex items-center" ref={userMenuRef}>
             <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="flex items-center gap-1.5 p-0.5 rounded-full hover:ring-2 ring-black/20 transition-all text-left"
+              className="flex items-center gap-2 py-1 px-1.5 rounded-lg hover:bg-white/10 transition-all cursor-pointer text-left shrink-0"
+              title="User Profile Menu"
             >
               <img
                 src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
                 alt="User Profile"
-                className="w-9 h-9 rounded-full object-cover shadow-xs border border-white"
+                className="w-8 h-8 min-w-[32px] min-h-[32px] max-w-[32px] max-h-[32px] rounded-full object-cover border border-white/30 shrink-0 block"
               />
+              <span className="text-sm font-semibold text-white tracking-tight">Ahmed Mohammed</span>
+              <ChevronDown className={`w-3.5 h-3.5 text-white/80 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isUserMenuOpen && (
-              <div className="absolute right-0 mt-2 w-60 bg-white text-navy-900 rounded-2xl shadow-2xl border border-slate-100 p-2 z-50 animate-slide-up text-xs">
+              <div className="absolute right-0 top-full mt-2 w-64 bg-white text-navy-900 rounded-2xl shadow-2xl border border-slate-200 p-2.5 z-50 animate-slide-up text-xs font-sans">
                 <div className="p-3 border-b border-slate-100">
-                  <p className="font-bold text-navy-900">Ahmed Al-Zaabi</p>
-                  <p className="text-[11px] text-mrv-muted">ahmed.zaabi@alnoor-energy.ae</p>
-                  <span className="mt-1 inline-block px-2 py-0.5 rounded bg-primary-50 text-primary-800 font-semibold text-[10px]">
-                    Al Noor Facility • Energy
-                  </span>
+                  <p className="font-bold text-slate-900 text-sm">Ahmed Mohammed</p>
+                  <p className="text-[11px] text-slate-500">ahmed.mohammed@alnoor-energy.ae</p>
                 </div>
 
                 <div className="py-2 space-y-1">
@@ -438,14 +173,14 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                       setCurrentRole('FACILITY_OPERATOR');
                       setIsUserMenuOpen(false);
                     }}
-                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors ${
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors cursor-pointer ${
                       currentRole === 'FACILITY_OPERATOR'
                         ? 'bg-primary-50 text-primary-800 font-bold'
-                        : 'hover:bg-slate-50'
+                        : 'hover:bg-slate-50 text-slate-700'
                     }`}
                   >
-                    <UserCheck className="w-4 h-4 text-primary-600" />
-                    Facility Operator View
+                    <UserCheck className="w-4 h-4 text-primary-600 shrink-0" />
+                    <span>Facility Operator View</span>
                   </button>
 
                   <button
@@ -453,295 +188,34 @@ export const Header: React.FC<HeaderProps> = ({ onLogout }) => {
                       setCurrentRole('EAD_REVIEWER');
                       setIsUserMenuOpen(false);
                     }}
-                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors ${
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors cursor-pointer ${
                       currentRole === 'EAD_REVIEWER'
-                        ? 'bg-teal-50 text-teal-800 font-bold'
-                        : 'hover:bg-slate-50'
+                        ? 'bg-primary-50 text-primary-800 font-bold'
+                        : 'hover:bg-slate-50 text-slate-700'
                     }`}
                   >
-                    <ShieldCheck className="w-4 h-4 text-teal-600" />
-                    EAD Regulator View
+                    <ShieldCheck className="w-4 h-4 text-primary-600 shrink-0" />
+                    <span>EAD Regulator View</span>
                   </button>
                 </div>
 
                 <div className="pt-2 border-t border-slate-100">
                   <button
-                    onClick={onLogout}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
+                    onClick={() => {
+                      setIsUserMenuOpen(false);
+                      onLogout();
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 font-bold transition-colors cursor-pointer"
                   >
                     <LogOut className="w-4 h-4" />
-                    Logout
+                    <span>Sign Out</span>
                   </button>
                 </div>
               </div>
             )}
           </div>
-
-          {/* Mobile Navigation Toggle (Hamburger) */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-1.5 rounded-lg hover:bg-white/10 text-white transition-colors"
-            title="Toggle Navigation Menu"
-          >
-            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
         </div>
       </div>
-
-      {/* Mobile Navigation Menu Dropdown */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-white/10 bg-[#0C1E3A] px-4 py-3 space-y-2 animate-slide-down">
-          {currentRole === 'FACILITY_OPERATOR' ? (
-            <>
-              <button
-                onClick={() => {
-                  setActiveView('dashboard');
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold ${
-                  isDashboardActive ? 'bg-white text-[#004B87]' : 'text-slate-200 hover:bg-white/10'
-                }`}
-              >
-                <LayoutGrid className="w-4 h-4" />
-                Dashboard
-              </button>
-              <button
-                onClick={() => {
-                  setActiveView('registration');
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold ${
-                  isFacilityActive ? 'bg-white text-[#004B87]' : 'text-slate-200 hover:bg-white/10'
-                }`}
-              >
-                <Building2 className="w-4 h-4" />
-                Facility Registration
-              </button>
-              <button
-                onClick={() => {
-                  setActiveView('data-entry');
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                  isDataEntryActive
-                    ? isMonitoringPlanUnlocked
-                      ? 'bg-white text-[#004B87]'
-                      : 'bg-white/90 text-amber-950 border border-amber-300'
-                    : isMonitoringPlanUnlocked
-                    ? 'text-slate-200 hover:bg-white/10'
-                    : 'text-slate-400 hover:bg-white/5'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <ClipboardList className="w-4 h-4" />
-                  <span>Monitoring Plan</span>
-                </div>
-                {!isMonitoringPlanUnlocked && (
-                  <Lock className="w-3.5 h-3.5 text-amber-300" />
-                )}
-              </button>
-              <button
-                onClick={() => {
-                  setActiveView('annual-emission-data');
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                  isAnnualEmissionActive
-                    ? isAnnualEmissionUnlocked
-                      ? 'bg-white text-[#004B87]'
-                      : 'bg-white/90 text-amber-950 border border-amber-300'
-                    : isAnnualEmissionUnlocked
-                    ? 'text-slate-200 hover:bg-white/10'
-                    : 'text-slate-400 hover:bg-white/5'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <BarChart2 className="w-4 h-4" />
-                  <span>Annual Emission Data</span>
-                </div>
-                {!isAnnualEmissionUnlocked && (
-                  <Lock className="w-3.5 h-3.5 text-amber-300" />
-                )}
-              </button>
-              <button
-                onClick={() => {
-                  setActiveView('verification');
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                  isVerificationActive
-                    ? 'bg-white text-[#004B87]'
-                    : isVerificationCompleted
-                    ? 'text-white hover:bg-white/10'
-                    : isVerificationUnlocked
-                    ? 'text-slate-200 hover:bg-white/10'
-                    : 'text-slate-400 hover:bg-white/5'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>Verification</span>
-                </div>
-                {isVerificationCompleted ? (
-                  <Check className="w-4 h-4 text-emerald-300 stroke-[2.5]" />
-                ) : !isVerificationUnlocked ? (
-                  <Lock className="w-3.5 h-3.5 text-amber-300" />
-                ) : null}
-              </button>
-
-              <div className="pt-2 border-t border-white/10">
-                <div className="px-3.5 py-1 text-[10px] uppercase tracking-wider text-cyan-200/70 font-bold">
-                  Reports
-                </div>
-                <button
-                  onClick={() => {
-                    setActiveView('mrv-reports');
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className={`w-full text-left px-3.5 py-2 text-xs font-medium rounded-lg ${
-                    activeView === 'mrv-reports' ? 'text-cyan-300 font-bold' : 'text-slate-300'
-                  }`}
-                >
-                  • MRV Reports
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveView('submissions');
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className={`w-full text-left px-3.5 py-2 text-xs font-medium rounded-lg ${
-                    activeView === 'submissions' ? 'text-cyan-300 font-bold' : 'text-slate-300'
-                  }`}
-                >
-                  • Submission History
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveView('version-history');
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className={`w-full text-left px-3.5 py-2 text-xs font-medium rounded-lg ${
-                    activeView === 'version-history' ? 'text-cyan-300 font-bold' : 'text-slate-300'
-                  }`}
-                >
-                  • Version History
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => {
-                  setActiveView('ead-dashboard');
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold ${
-                  isEadDashboardActive ? 'bg-white text-[#004B87]' : 'text-slate-200 hover:bg-white/10'
-                }`}
-              >
-                <LayoutGrid className="w-4 h-4" />
-                Oversight Dashboard
-              </button>
-              <button
-                onClick={() => {
-                  setActiveView('ead-queue');
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold ${
-                  isEadQueueActive ? 'bg-white text-[#004B87]' : 'text-slate-200 hover:bg-white/10'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <ClipboardList className="w-4 h-4" />
-                  Review Queue
-                </div>
-                {pendingReviewCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-full bg-cyan-400 text-navy-950 font-bold text-[10px]">
-                    {pendingReviewCount}
-                  </span>
-                )}
-              </button>
-              <button
-                onClick={() => {
-                  setActiveView('ead-facilities');
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold ${
-                  isEadFacilitiesActive ? 'bg-white text-[#004B87]' : 'text-slate-200 hover:bg-white/10'
-                }`}
-              >
-                <Building2 className="w-4 h-4" />
-                Regulated Facilities
-              </button>
-              <button
-                onClick={() => {
-                  setActiveView('ead-analytics');
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold ${
-                  isEadAnalyticsActive ? 'bg-white text-[#004B87]' : 'text-slate-200 hover:bg-white/10'
-                }`}
-              >
-                <BarChart3 className="w-4 h-4" />
-                Sector Analytics
-              </button>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* Interactive Lock Reason Modal */}
-      {lockedModalInfo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden">
-            <div className="px-5 py-4 bg-[#F4F6F8] border-b border-slate-200 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-amber-800">
-                <Lock className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                <span className="text-xs font-bold text-slate-800">{lockedModalInfo.title}</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setLockedModalInfo(null)}
-                className="p-1 text-slate-400 hover:text-slate-700 rounded-md transition-colors cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="p-6 text-center space-y-3">
-              <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto text-amber-600">
-                <Lock className="w-7 h-7" />
-              </div>
-              <p className="text-xs text-slate-700 leading-relaxed font-medium">
-                {lockedModalInfo.reason}
-              </p>
-              <div className="p-3 bg-amber-50/60 rounded-xl border border-amber-200/80 text-[11px] text-amber-900 text-left">
-                <strong>Prerequisite Requirement:</strong> You must first complete and obtain approval on <strong>{lockedModalInfo.prerequisiteName}</strong> before this module can be unlocked.
-              </div>
-            </div>
-            <div className="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2.5">
-              <button
-                type="button"
-                onClick={() => setLockedModalInfo(null)}
-                className="px-4 py-2 bg-white border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
-              >
-                Dismiss
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveView(lockedModalInfo.prerequisiteView);
-                  setLockedModalInfo(null);
-                }}
-                className="px-4 py-2 bg-[#004B87] text-white text-xs font-bold rounded-xl hover:bg-[#003865] transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
-              >
-                <span>Go to {lockedModalInfo.prerequisiteName}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </header>
   );
 };
-

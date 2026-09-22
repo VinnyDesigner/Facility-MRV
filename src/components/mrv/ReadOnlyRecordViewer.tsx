@@ -641,13 +641,13 @@ export const ReadOnlyRecordViewer: React.FC = () => {
         {/* =================================================================== */}
         {/* 3. COMPLETE SUBMITTED DATA (BOUND TO SELECTED SUBMISSION)           */}
         {/* =================================================================== */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-6 bg-slate-50/60">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-[18px] bg-slate-50/60">
 
           {/* --------------------------------------------------------------- */}
           {/* TAB 1: REGISTRATION DATA                                        */}
           {/* --------------------------------------------------------------- */}
           {activeTab === 'registration' && (
-            <div className="space-y-6">
+            <div className="space-y-[18px]">
               {/* Operator Details */}
               <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -870,7 +870,7 @@ export const ReadOnlyRecordViewer: React.FC = () => {
           {/* TAB 2: MONITORING PLAN                                          */}
           {/* --------------------------------------------------------------- */}
           {activeTab === 'monitoring-plan' && (
-            <div className="space-y-6">
+            <div className="space-y-[18px]">
               {/* Production Streams */}
               <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -972,7 +972,7 @@ export const ReadOnlyRecordViewer: React.FC = () => {
           {/* TAB 3: ANNUAL EMISSION DATA                                     */}
           {/* --------------------------------------------------------------- */}
           {activeTab === 'annual-emissions' && (
-            <div className="space-y-6">
+            <div className="space-y-[18px]">
               {/* Summary Metrics */}
               <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -1074,7 +1074,7 @@ export const ReadOnlyRecordViewer: React.FC = () => {
           {/* TAB 4: VERIFICATION                                            */}
           {/* --------------------------------------------------------------- */}
           {activeTab === 'verification' && (
-            <div className="space-y-6">
+            <div className="space-y-[18px]">
               <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div className="flex items-center gap-2">
@@ -1113,7 +1113,7 @@ export const ReadOnlyRecordViewer: React.FC = () => {
           {/* TAB 5: REVIEW, SUBMIT & APPROVAL                                */}
           {/* --------------------------------------------------------------- */}
           {activeTab === 'review-submit' && (
-            <div className="space-y-6">
+            <div className="space-y-[18px]">
               <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div className="flex items-center gap-2">
@@ -1146,7 +1146,7 @@ export const ReadOnlyRecordViewer: React.FC = () => {
           {/* TAB 6: SECTION CHECKLIST                                        */}
           {/* --------------------------------------------------------------- */}
           {activeTab === 'checklist' && (
-            <div className="space-y-4">
+            <div className="space-y-[18px]">
               <div className="bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-between">
                 <div>
                   <h3 className="text-xs font-bold text-slate-900 uppercase">Section Validation Checklist</h3>
@@ -1185,7 +1185,7 @@ export const ReadOnlyRecordViewer: React.FC = () => {
           {/* TAB 7: SUPPORTING DOCUMENTS (BELONGING ONLY TO THIS SUBMISSION)  */}
           {/* --------------------------------------------------------------- */}
           {activeTab === 'documents' && (
-            <div className="space-y-4">
+            <div className="space-y-[18px]">
               <div className="bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-between">
                 <div>
                   <h3 className="text-xs font-bold text-slate-900 uppercase">Supporting Files for {currentSub.id}</h3>
@@ -1241,7 +1241,7 @@ export const ReadOnlyRecordViewer: React.FC = () => {
           {/* TAB 8: VERSION HISTORY (BELONGING ONLY TO THIS SUBMISSION)      */}
           {/* --------------------------------------------------------------- */}
           {activeTab === 'version-history' && (
-            <div className="space-y-4">
+            <div className="space-y-[18px]">
               <div className="bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-between">
                 <div>
                   <h3 className="text-xs font-bold text-slate-900 uppercase">Version History for {currentSub.id}</h3>
@@ -1309,7 +1309,7 @@ export const ReadOnlyRecordViewer: React.FC = () => {
           {/* TAB 9: AUDIT TRAIL (BELONGING ONLY TO THIS SUBMISSION)          */}
           {/* --------------------------------------------------------------- */}
           {activeTab === 'audit' && (
-            <div className="space-y-4">
+            <div className="space-y-[18px]">
               <div className="bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-between">
                 <div>
                   <h3 className="text-xs font-bold text-slate-900 uppercase">Audit Trail for {currentSub.id}</h3>

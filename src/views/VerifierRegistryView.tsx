@@ -44,10 +44,10 @@ export const VerifierRegistryView: React.FC = () => {
   return (
     <div className="h-full flex flex-col overflow-hidden font-sans">
       {/* Fixed Sticky Header */}
-      <div className="flex-shrink-0 pt-1 pb-[14px] flex flex-wrap items-center justify-between gap-4">
+      <div className="flex-shrink-0 pt-0.5 pb-[18px] flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight">
+            <h1 className="text-[18px] font-bold font-display text-[#004B87] tracking-tight">
               Accredited Third-Party Verifier Registry
             </h1>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
@@ -64,7 +64,7 @@ export const VerifierRegistryView: React.FC = () => {
       </div>
 
       {/* Scrollable Content Container */}
-      <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-6 pb-12">
+      <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-[18px] pb-12">
         {/* Search & Filter Bar */}
       <GlassCard className="p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="relative flex-1 w-full">

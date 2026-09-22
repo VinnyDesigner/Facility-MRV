@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MRVProvider, useMRV } from './context/MRVContext';
 import { Header } from './components/layout/Header';
+import { Sidebar } from './components/layout/Sidebar';
 import { AmbientBackground } from './components/ui/AmbientBackground';
 
 // Views
@@ -35,6 +36,7 @@ import { ReadOnlyRecordViewer } from './components/mrv/ReadOnlyRecordViewer';
 const MainAppContent: React.FC = () => {
   const { currentRole, activeView, setActiveView } = useMRV();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   if (!isAuthenticated) {
     return <LoginView onLoginSuccess={() => setIsAuthenticated(true)} />;
@@ -95,19 +97,32 @@ const MainAppContent: React.FC = () => {
   };
 
   return (
-    <div className="relative h-screen w-screen flex flex-col bg-[#E5E8ED] text-[#0D0E12] font-sans antialiased overflow-hidden">
+    <div className="relative h-screen w-screen flex bg-[#E5E8ED] text-[#0D0E12] font-sans antialiased overflow-hidden">
       {/* Dynamic Ambient Mesh Canvas */}
       <AmbientBackground />
 
-      {/* Fixed Top Header with SugarCRM Navigation Styling */}
-      <Header onLogout={() => setIsAuthenticated(false)} />
+      {/* Left Navigation Sidebar */}
+      <Sidebar
+        isCollapsed={isSidebarCollapsed}
+        setIsCollapsed={setIsSidebarCollapsed}
+        onLogout={() => setIsAuthenticated(false)}
+      />
 
-      {/* Body Area with Scrollable Main Content */}
-      <div className="flex-1 min-h-0 flex overflow-hidden px-3 sm:px-4 lg:px-5 py-2.5 sm:py-3 max-w-[1600px] w-full mx-auto">
-        {/* Main View Container (No corner radius to prevent clipping buttons) */}
-        <main className="flex-1 min-h-0 h-full overflow-hidden">
-          {renderActiveView()}
-        </main>
+      {/* Right Column Area with Fixed Header & Scrollable Main Views */}
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+        {/* Top Header */}
+        <Header
+          isSidebarCollapsed={isSidebarCollapsed}
+          setIsSidebarCollapsed={setIsSidebarCollapsed}
+          onLogout={() => setIsAuthenticated(false)}
+        />
+
+        {/* Main View Container */}
+        <div className="flex-1 min-h-0 flex overflow-hidden px-2.5 sm:px-3.5 py-1.5 sm:py-2 w-full mx-auto">
+          <main className="flex-1 min-h-0 h-full overflow-hidden">
+            {renderActiveView()}
+          </main>
+        </div>
       </div>
 
       {/* Global Comprehensive Read-Only Record Viewer Modal */}

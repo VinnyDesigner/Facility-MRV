@@ -29,6 +29,7 @@ import {
   ShieldCheck,
   ChevronLeft,
   ChevronRight,
+  Users,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
 import { EmirateType, SectorType, Facility, RegistrationStatus, formatVersion } from '../types/mrv';
@@ -1399,6 +1400,9 @@ export const FacilityRegistrationView: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(7);
 
+  // Add/Edit Form Active Tab
+  const [formActiveTab, setFormActiveTab] = useState<'facility-details' | 'contact-persons' | 'declaration-supporting'>('facility-details');
+
   const totalPages = Math.ceil(filteredFacilities.length / itemsPerPage) || 1;
 
   const paginatedFacilities = useMemo(() => {
@@ -1519,6 +1523,7 @@ export const FacilityRegistrationView: React.FC = () => {
       setSelectedVersion('V1');
     }
     setIsVersionDropdownOpen(false);
+    setFormActiveTab('facility-details');
     setViewMode('form');
   };
 
@@ -1554,7 +1559,7 @@ export const FacilityRegistrationView: React.FC = () => {
       facilityDescription: '',
       activityDescription: '',
       address: '',
-      emirate: 'Abu Dhabi' as EmirateType,
+      emirate: '',
       coordinates: '',
       primaryActivity: '',
       secondaryActivity: '',
@@ -1564,7 +1569,7 @@ export const FacilityRegistrationView: React.FC = () => {
       productDescription: '',
       permitAvailable: false,
       permitNumber: '',
-      permitStatus: 'Active',
+      permitStatus: '',
       permitIssueDate: '',
       permitExpiryDate: '',
       voluntaryParticipation: false,
@@ -1596,6 +1601,7 @@ export const FacilityRegistrationView: React.FC = () => {
       correctionDeadlineDate: null,
     };
     setFormData(newBlankData);
+    setFormActiveTab('facility-details');
     setViewMode('form');
   };
 
@@ -1842,9 +1848,9 @@ export const FacilityRegistrationView: React.FC = () => {
     return (
       <div className="h-full flex flex-col overflow-hidden font-sans py-1">
         {/* Top Header Row with Title, Search, Filter & Add New Facility Button (Strictly Single Row) */}
-        <div className="flex-shrink-0 pb-3 pt-0.5 flex items-center justify-between gap-3 min-w-0">
+        <div className="flex-shrink-0 pb-[18px] pt-0.5 flex items-center justify-between gap-3 min-w-0">
           <div className="min-w-0 shrink">
-            <h1 className="text-[22px] font-bold font-display text-[#004B87] tracking-tight whitespace-nowrap">
+            <h1 className="text-[18px] font-bold font-display text-[#336D9F] tracking-tight whitespace-nowrap">
               Facility Registration
             </h1>
             <p className="text-xs text-slate-500 font-medium mt-0.5 truncate max-w-lg xl:max-w-xl">
@@ -1864,7 +1870,7 @@ export const FacilityRegistrationView: React.FC = () => {
                   setTableSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full pl-8 pr-7 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all font-medium shadow-xs"
+                className="w-full h-9 pl-8 pr-7 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all font-medium shadow-xs"
               />
               {tableSearchTerm && (
                 <button
@@ -1887,13 +1893,13 @@ export const FacilityRegistrationView: React.FC = () => {
                   setStatusFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all cursor-pointer"
+                className="w-28 sm:w-32 h-9 px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer truncate"
               >
                 <option value="ALL">All Statuses</option>
                 <option value="Approved">Approved</option>
                 <option value="Submitted">Submitted</option>
-                <option value="Under EAD Review">Under EAD Review</option>
-                <option value="Reverted">Reverted (Correction Required)</option>
+                <option value="Under EAD Review">Under Review</option>
+                <option value="Reverted">Reverted</option>
                 <option value="Draft">Draft</option>
                 <option value="Rejected">Rejected</option>
               </select>
@@ -1907,7 +1913,7 @@ export const FacilityRegistrationView: React.FC = () => {
                   setStatusFilter('ALL');
                   setCurrentPage(1);
                 }}
-                className="px-2 py-1.5 text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 font-semibold transition-colors flex items-center gap-1 cursor-pointer text-xs"
+                className="h-9 px-2.5 text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 font-semibold transition-colors flex items-center gap-1 cursor-pointer text-xs"
                 title="Reset all filters"
               >
                 <RotateCcw className="w-3 h-3" />
@@ -1915,11 +1921,11 @@ export const FacilityRegistrationView: React.FC = () => {
               </button>
             )}
 
-            {/* + Add New Facility Button */}
+            {/* + Add New Facility Button (Locked to 36px height) */}
             {isFacilityOperator && (
               <button
                 onClick={handleAddNewFacility}
-                className="px-4 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
+                className="h-9 px-4 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add New Facility</span>
@@ -1928,173 +1934,164 @@ export const FacilityRegistrationView: React.FC = () => {
           </div>
         </div>
 
-        {/* Level 1 Card Container with All Facilities Table & Pagination */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden flex flex-col flex-1 min-h-0">
-          {/* Inset Container with Padding and Rounded Border */}
-          <div className="p-3 sm:p-3.5 flex-1 min-h-0 flex flex-col justify-between">
-            <div className="flex-1 min-h-0 overflow-hidden rounded-xl border border-slate-200/90 bg-white">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="bg-[#E9F1F8] text-slate-700 font-semibold text-xs border-b border-slate-200 sticky top-0 z-10 shadow-xs">
-                    <th className="py-2.5 px-2.5 w-10 text-center">#</th>
-                    <th className="py-2.5 px-2.5">Facility Name</th>
-                    <th className="py-2.5 px-2.5">Facility Type</th>
-                    <th className="py-2.5 px-2.5">Primary Contact</th>
-                    <th className="py-2.5 px-2.5 whitespace-nowrap">Submitted Date</th>
-                    <th className="py-2.5 px-2.5 whitespace-nowrap">Updated Date</th>
-                    <th className="py-2.5 px-2.5 whitespace-nowrap text-left">Status</th>
-                    <th className="py-2.5 px-2.5 whitespace-nowrap">Correction Deadline</th>
-                    <th className="py-2.5 px-2.5 text-center whitespace-nowrap">Version</th>
-                    <th className="py-2.5 px-3 text-right whitespace-nowrap">Actions</th>
+        {/* Table & Pagination Container (Without outer white card background) */}
+        <div className="flex flex-col flex-1 min-h-0 justify-between overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-xs">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="h-[38px] bg-[#6692B7]/30 text-slate-800 font-bold text-xs border-b border-[#6692B7]/20 sticky top-0 z-10 shadow-xs">
+                  <th className="h-[38px] px-2 w-8 text-center align-middle">#</th>
+                  <th className="h-[38px] px-2.5 w-44 max-w-[180px] align-middle">Facility Name</th>
+                  <th className="h-[38px] px-2.5 w-36 max-w-[150px] align-middle">Facility Type</th>
+                  <th className="h-[38px] px-2.5 w-40 max-w-[170px] align-middle">Primary Contact</th>
+                  <th className="h-[38px] px-2.5 w-28 whitespace-nowrap align-middle">Submitted Date</th>
+                  <th className="h-[38px] px-2.5 w-28 whitespace-nowrap align-middle">Updated Date</th>
+                  <th className="h-[38px] px-2.5 w-28 whitespace-nowrap text-left align-middle">Status</th>
+                  <th className="h-[38px] px-2.5 w-36 whitespace-nowrap align-middle">Correction Deadline</th>
+                  <th className="h-[38px] px-3 w-16 text-right whitespace-nowrap align-middle">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                {paginatedFacilities.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="h-[60px] py-8 text-center text-slate-400 font-semibold align-middle">
+                      No facility registration records match the selected filter criteria.
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                  {paginatedFacilities.length === 0 ? (
-                    <tr>
-                      <td colSpan={10} className="py-8 text-center text-slate-400 font-semibold">
-                        No facility registration records match the selected filter criteria.
-                      </td>
-                    </tr>
-                  ) : (
-                    paginatedFacilities.map((fac, idx) => {
-                      const reg = facilityRegistrations[fac.id] || {};
-                      const rawStatus = reg.status || fac.status || 'Approved';
-                      const currentStatus = rawStatus === 'Approved / Registered' || rawStatus === 'Registered' ? 'Approved' : rawStatus;
-                      const deadlineInfo = getCorrectionDeadlineInfo(reg.correctionDeadlineDate, currentStatus);
-                      const rowNumber = (currentPage - 1) * itemsPerPage + idx + 1;
+                ) : (
+                  paginatedFacilities.map((fac, idx) => {
+                    const reg = facilityRegistrations[fac.id] || {};
+                    const rawStatus = reg.status || fac.status || 'Approved';
+                    const currentStatus = rawStatus === 'Approved / Registered' || rawStatus === 'Registered' ? 'Approved' : rawStatus;
+                    const deadlineInfo = getCorrectionDeadlineInfo(reg.correctionDeadlineDate, currentStatus);
+                    const rowNumber = (currentPage - 1) * itemsPerPage + idx + 1;
 
-                      return (
-                        <tr
-                          key={fac.id}
-                          className="hover:bg-slate-50/80 transition-colors group cursor-default"
-                        >
-                          <td className="py-2.5 px-2.5 text-center font-mono font-bold text-slate-400">
-                            {rowNumber}
-                          </td>
+                    return (
+                      <tr
+                        key={fac.id}
+                        className="h-[60px] hover:bg-slate-50/80 transition-colors group cursor-default"
+                      >
+                        <td className="h-[60px] px-2 text-center font-mono font-bold text-slate-400 align-middle">
+                          {rowNumber}
+                        </td>
 
-                          {/* Facility Name (NO Facility ID subtitle!) */}
-                          <td className="py-2.5 px-2.5 font-semibold text-slate-800">
-                            <span>{fac.name}</span>
-                          </td>
+                        {/* Facility Name (2-line wrap) */}
+                        <td className="h-[60px] px-2.5 font-semibold text-slate-800 max-w-[180px] align-middle">
+                          <span className="line-clamp-2 leading-snug">{fac.name}</span>
+                        </td>
 
-                          {/* Facility Type */}
-                          <td className="py-2.5 px-2.5 text-slate-600">
+                        {/* Facility Type (2-line wrap) */}
+                        <td className="h-[60px] px-2.5 text-slate-600 max-w-[150px] align-middle">
+                          <span className="line-clamp-2 leading-snug">
                             {reg.facilityType || fac.primaryActivity || fac.sector || 'Manufacturing Plant'}
-                          </td>
+                          </span>
+                        </td>
 
-                          {/* Primary Contact */}
-                          <td className="py-2.5 px-2.5 text-slate-600">
-                            <div className="flex flex-col leading-tight">
-                              <span className="font-semibold text-slate-800 text-xs">
-                                {reg.primaryName || fac.contactPerson?.name || 'Authorized Lead'}
-                              </span>
-                              <span className="text-[11px] text-slate-500">
-                                {reg.primaryEmail || fac.contactPerson?.email || 'contact@facility.ae'}
-                              </span>
+                        {/* Primary Contact */}
+                        <td className="h-[60px] px-2.5 text-slate-600 max-w-[170px] align-middle">
+                          <div className="flex flex-col leading-tight">
+                            <span className="font-semibold text-slate-800 text-xs truncate">
+                              {reg.primaryName || fac.contactPerson?.name || 'Authorized Lead'}
+                            </span>
+                            <span className="text-[11px] text-slate-500 truncate">
+                              {reg.primaryEmail || fac.contactPerson?.email || 'contact@facility.ae'}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Submitted Date */}
+                        <td className="h-[60px] px-2.5 text-slate-600 whitespace-nowrap align-middle">
+                          {reg.submittedDate && reg.submittedDate !== '—' ? (
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span>{reg.submittedDate}</span>
                             </div>
-                          </td>
+                          ) : (
+                            <span>—</span>
+                          )}
+                        </td>
 
-                          {/* Submitted Date */}
-                          <td className="py-2.5 px-2.5 text-slate-600 whitespace-nowrap">
-                            {reg.submittedDate && reg.submittedDate !== '—' ? (
-                              <div className="flex items-center gap-1.5">
-                                <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                <span>{reg.submittedDate}</span>
+                        {/* Updated Date */}
+                        <td className="h-[60px] px-2.5 text-slate-600 whitespace-nowrap align-middle">
+                          {currentStatus === 'Under EAD Review' || currentStatus === 'Submitted' || !reg.updatedDate || reg.updatedDate === '—' ? (
+                            <span>—</span>
+                          ) : (
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span>{reg.updatedDate}</span>
+                            </div>
+                          )}
+                        </td>
+
+                        {/* Status */}
+                        <td className="h-[60px] px-2.5 text-left whitespace-nowrap align-middle">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap inline-block ${
+                              currentStatus === 'Approved / Registered' || currentStatus === 'Approved' || currentStatus === 'Registered'
+                                ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
+                                : currentStatus === 'Submitted'
+                                ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
+                                : currentStatus === 'Under EAD Review'
+                                ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
+                                : currentStatus === 'Correction Required'
+                                ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
+                                : currentStatus === 'Rejected'
+                                ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60'
+                                : 'bg-slate-100 text-slate-700 border border-slate-200'
+                            }`}
+                          >
+                            {currentStatus}
+                          </span>
+                        </td>
+
+                        {/* Correction Deadline */}
+                        <td className="h-[60px] px-2.5 whitespace-nowrap text-slate-600 align-middle">
+                          {currentStatus === 'Correction Required' && deadlineInfo.daysRemaining !== null ? (
+                            <div className="flex items-start gap-1.5">
+                              <Calendar className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                              <div className="flex flex-col leading-tight">
+                                <span className="font-semibold text-slate-800 text-[11px]">Due: {deadlineInfo.deadlineStr}</span>
+                                <span className={`text-[10px] font-medium ${deadlineInfo.isOverdue ? 'text-rose-600 font-bold' : 'text-amber-700'}`}>
+                                  {deadlineInfo.isOverdue
+                                    ? `Overdue (${Math.abs(deadlineInfo.daysRemaining)} days late)`
+                                    : `(${deadlineInfo.daysRemaining} days left)`}
+                                </span>
                               </div>
-                            ) : (
-                              <span>—</span>
-                            )}
-                          </td>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 font-medium pl-2">—</span>
+                          )}
+                        </td>
 
-                          {/* Updated Date */}
-                          <td className="py-2.5 px-2.5 text-slate-600 whitespace-nowrap">
-                            {currentStatus === 'Under EAD Review' || currentStatus === 'Submitted' || !reg.updatedDate || reg.updatedDate === '—' ? (
-                              <span>—</span>
-                            ) : (
-                              <div className="flex items-center gap-1.5">
-                                <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                <span>{reg.updatedDate}</span>
-                              </div>
-                            )}
-                          </td>
-
-                          {/* Status */}
-                          <td className="py-2.5 px-2.5 text-left whitespace-nowrap">
-                            <span
-                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap inline-block ${
-                                currentStatus === 'Approved / Registered' || currentStatus === 'Approved' || currentStatus === 'Registered'
-                                  ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
-                                  : currentStatus === 'Submitted'
-                                  ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
-                                  : currentStatus === 'Under EAD Review'
-                                  ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
-                                  : currentStatus === 'Correction Required'
-                                  ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
-                                  : currentStatus === 'Rejected'
-                                  ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60'
-                                  : 'bg-slate-100 text-slate-700 border border-slate-200'
-                              }`}
+                        {/* Actions: Eye View & Edit Icon Buttons */}
+                        <td className="h-[60px] px-3 text-right whitespace-nowrap align-middle">
+                          <div className="flex items-center justify-end gap-1">
+                            <button
+                              onClick={() => handleViewFacility(fac.id)}
+                              title="View Facility Details"
+                              className="p-1 rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer"
                             >
-                              {currentStatus}
-                            </span>
-                          </td>
-
-                          {/* Correction Deadline */}
-                          <td className="py-2.5 px-2.5 whitespace-nowrap text-slate-600">
-                            {currentStatus === 'Correction Required' && deadlineInfo.daysRemaining !== null ? (
-                              <div className="flex items-start gap-1.5">
-                                <Calendar className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                                <div className="flex flex-col leading-tight">
-                                  <span className="font-semibold text-slate-800 text-[11px]">Due: {deadlineInfo.deadlineStr}</span>
-                                  <span className={`text-[10px] font-medium ${deadlineInfo.isOverdue ? 'text-rose-600 font-bold' : 'text-amber-700'}`}>
-                                    {deadlineInfo.isOverdue
-                                      ? `Overdue (${Math.abs(deadlineInfo.daysRemaining)} days late)`
-                                      : `(${deadlineInfo.daysRemaining} days left)`}
-                                  </span>
-                                </div>
-                              </div>
-                            ) : (
-                              <span className="text-slate-400 font-medium pl-2">—</span>
-                            )}
-                          </td>
-
-                          {/* Version */}
-                          <td className="py-2.5 px-2.5 text-center whitespace-nowrap">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                              {formatVersion(reg.version)}
-                            </span>
-                          </td>
-
-                          {/* Actions: Eye View & Edit Icon Buttons */}
-                          <td className="py-2.5 px-3 text-right whitespace-nowrap">
-                            <div className="flex items-center justify-end gap-1">
-                              <button
-                                onClick={() => handleViewFacility(fac.id)}
-                                title="View Facility Details"
-                                className="p-1 rounded-lg text-slate-500 hover:text-[#004B87] hover:bg-slate-100 transition-colors cursor-pointer"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleEditFacility(fac.id)}
-                                title="Edit Facility Details"
-                                className="p-1 rounded-lg text-slate-500 hover:text-[#004B87] hover:bg-slate-100 transition-colors cursor-pointer"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleEditFacility(fac.id)}
+                              title="Edit Facility Details"
+                              className="p-1 rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
 
           {/* Pagination & Counter Footer */}
-          <div className="p-2.5 sm:p-3 bg-[#F8FAFC] border-t border-slate-200/90 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 font-medium flex-shrink-0">
+          <div className="pt-2.5 pb-1 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 font-medium flex-shrink-0">
             <div className="flex items-center gap-2">
               <span>
                 Showing <span className="font-bold text-slate-800">{filteredFacilities.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> to{' '}
@@ -2136,7 +2133,7 @@ export const FacilityRegistrationView: React.FC = () => {
                   onClick={() => setCurrentPage(pageNum)}
                   className={`w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     currentPage === pageNum
-                      ? 'bg-[#004B87] text-white shadow-xs'
+                      ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white shadow-xs'
                       : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
                   }`}
                 >
@@ -2164,52 +2161,51 @@ export const FacilityRegistrationView: React.FC = () => {
   // =========================================================================
   if (viewMode === 'view') {
     const formattedVersionLabel = formatVersion(selectedVersionMeta.version);
-    const isCurrentActive = Boolean(selectedVersionMeta.isCurrent);
+    const isCurrentActive = selectedVersionMeta.isCurrent;
 
     return (
-      <div className="h-full flex flex-col overflow-hidden font-sans py-1">
+      <div className="h-full flex flex-col overflow-hidden font-sans py-0.5">
         {/* Navigation Bar Back to Overview & Version Selection */}
-        <div className="flex-shrink-0 pb-3.5 pt-1 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3 flex-wrap">
-            <button
-              onClick={() => setViewMode('table')}
-              className="p-1.5 -ml-1 text-[#004B87] hover:text-[#003865] hover:bg-slate-100 rounded-xl transition-colors cursor-pointer flex items-center justify-center shrink-0 border border-slate-200/70 shadow-2xs"
-              title="Back to Registration Overview"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-[20px] font-bold text-[#004B87] tracking-tight">
-                  {viewingData.facilityName || 'Facility Registration'} — Read-Only Record
-                </h1>
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold ${
-                    viewingData.status === 'Approved / Registered' || viewingData.status === 'Approved' || viewingData.status === 'Registered'
-                      ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60 font-bold'
-                      : viewingData.status === 'Submitted' || viewingData.status === 'Under EAD Review'
-                      ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60 font-bold'
-                      : viewingData.status === 'Correction Required' || viewingData.status === 'Reverted'
-                      ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
-                      : viewingData.status === 'Rejected'
-                      ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 font-bold'
-                      : 'bg-slate-100 text-slate-700 border border-slate-200 font-bold'
-                  }`}
-                >
-                  {(viewingData.status === 'Approved / Registered' || viewingData.status === 'Registered') ? 'Approved' : (viewingData.status || 'Approved')}
-                </span>
+        <div className="flex-shrink-0 pb-[18px] pt-0.5 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => setViewMode('table')}
+                className="p-1 -ml-1 text-[#336D9F] hover:text-[#004B87] hover:bg-[#E9F1F8] rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 border border-slate-200/70 shadow-2xs"
+                title="Back to Registration Overview"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
 
-                {(viewingData.status === 'Approved / Registered' || viewingData.status === 'Approved' || viewingData.status === 'Registered') && viewingData.facilityId && (
-                  <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200 flex items-center gap-1">
-                    <span>Facility ID:</span>
-                    <span>{viewingData.facilityId}</span>
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-slate-500 font-medium mt-0.5 ml-0.5">
-                Official Registered Dossier • Version: {formattedVersionLabel} {isCurrentActive ? '(Current Active)' : `(Historical Snapshot — Updated ${selectedVersionMeta.updatedDate})`}
-              </p>
+              <h1 className="text-[18px] font-bold text-[#336D9F] tracking-tight">
+                {viewingData.facilityName || 'Facility Registration'} — Read-Only Record
+              </h1>
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-bold ${
+                  viewingData.status === 'Approved / Registered' || viewingData.status === 'Approved' || viewingData.status === 'Registered'
+                    ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60 font-bold'
+                    : viewingData.status === 'Submitted' || viewingData.status === 'Under EAD Review'
+                    ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60 font-bold'
+                    : viewingData.status === 'Correction Required' || viewingData.status === 'Reverted'
+                    ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
+                    : viewingData.status === 'Rejected'
+                    ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 font-bold'
+                    : 'bg-slate-100 text-slate-700 border border-slate-200 font-bold'
+                }`}
+              >
+                {(viewingData.status === 'Approved / Registered' || viewingData.status === 'Registered') ? 'Approved' : (viewingData.status || 'Approved')}
+              </span>
+
+              {(viewingData.status === 'Approved / Registered' || viewingData.status === 'Approved' || viewingData.status === 'Registered') && viewingData.facilityId && (
+                <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-200 flex items-center gap-1">
+                  <span>Facility ID:</span>
+                  <span>{viewingData.facilityId}</span>
+                </span>
+              )}
             </div>
+            <p className="text-xs text-slate-500 font-medium mt-0.5 ml-7">
+              Official Registered Dossier • Version: {formattedVersionLabel} {isCurrentActive ? '(Current Active)' : `(Historical Snapshot — Updated ${selectedVersionMeta.updatedDate})`}
+            </p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -2218,16 +2214,16 @@ export const FacilityRegistrationView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsVersionDropdownOpen(!isVersionDropdownOpen)}
-                className="px-3.5 py-2 bg-white hover:bg-slate-50 border border-[#004B87]/30 text-[#004B87] rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#004B87]/20"
+                className="px-3.5 py-2 bg-white hover:bg-slate-50 border border-[#336D9F]/30 text-[#336D9F] rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20"
                 id="registration-version-dropdown-trigger"
                 title="Select Version to Inspect"
               >
-                <Clock className="w-3.5 h-3.5 text-[#004B87]" />
+                <Clock className="w-3.5 h-3.5 text-[#336D9F]" />
                 <span>
                   Version: {formattedVersionLabel} {isCurrentActive ? '(Current)' : ''}
                 </span>
                 <ChevronDown
-                  className={`w-3.5 h-3.5 text-[#004B87] transition-transform duration-200 ${
+                  className={`w-3.5 h-3.5 text-[#336D9F] transition-transform duration-200 ${
                     isVersionDropdownOpen ? 'rotate-180' : ''
                   }`}
                 />
@@ -2253,7 +2249,7 @@ export const FacilityRegistrationView: React.FC = () => {
                           }}
                           className={`w-full text-left px-3 py-2.5 rounded-xl transition-all flex flex-col gap-1 cursor-pointer ${
                             isSelected
-                              ? 'bg-[#EBF3FA] border border-[#004B87]/40 shadow-2xs'
+                              ? 'bg-[#EBF3FA] border border-[#336D9F]/40 shadow-2xs'
                               : 'hover:bg-slate-50 border border-transparent'
                           }`}
                         >
@@ -2263,7 +2259,7 @@ export const FacilityRegistrationView: React.FC = () => {
                                 {vCode}
                               </span>
                               {v.isCurrent && (
-                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#004B87] text-white">
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#336D9F] text-white">
                                   Current
                                 </span>
                               )}
@@ -2287,7 +2283,7 @@ export const FacilityRegistrationView: React.FC = () => {
                           <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
                             <span>Updated: {v.updatedDate}</span>
                             {isSelected ? (
-                              <span className="text-[#004B87] font-bold flex items-center gap-1 text-[10px]">
+                              <span className="text-[#336D9F] font-bold flex items-center gap-1 text-[10px]">
                                 <Check className="w-3 h-3" /> Active View
                               </span>
                             ) : (
@@ -2309,7 +2305,7 @@ export const FacilityRegistrationView: React.FC = () => {
                   setFormData(viewingData);
                   setViewMode('form');
                 }}
-                className="px-4 py-2 bg-[#004B87] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm hover:bg-[#003865] cursor-pointer transition-colors"
+                className="px-4 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm hover:from-[#003d6e] hover:to-[#005c9e] cursor-pointer transition-colors"
               >
                 <Edit className="w-3.5 h-3.5" />
                 <span>Edit Details</span>
@@ -2319,8 +2315,8 @@ export const FacilityRegistrationView: React.FC = () => {
         </div>
 
         {/* Scrollable View Content displaying exact entered data */}
-        <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 sm:p-6 flex flex-col overflow-hidden">
-          <div className="flex-1 min-h-0 overflow-y-auto space-y-6 pr-1 sm:pr-2 py-1 no-scrollbar">
+        <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-5 pr-1 py-0.5 no-scrollbar">
           {/* Historical Snapshot Alert Banner (Shown when an older version is selected) */}
           {!isCurrentActive && (
             <div className="p-3.5 bg-amber-50/95 border border-amber-300/80 rounded-xl flex flex-wrap items-center justify-between gap-3 text-amber-900 text-xs shadow-2xs">
@@ -2343,38 +2339,37 @@ export const FacilityRegistrationView: React.FC = () => {
             </div>
           )}
 
-          {/* Operator Details */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Operator Details</span>
+          {/* Combined Card: Facility & Registration Details */}
+          <div className="space-y-5 text-xs">
+            {/* Subsection 1: Operator Details */}
+            <div>
+              <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Operator Details</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
+                <div>
+                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Operator Name *</label>
+                  <p className="font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.operatorName || '—'}</p>
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Registration / License Number *</label>
+                  <p className="font-mono font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.licenseNumber || '—'}</p>
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Registered Address *</label>
+                  <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.registeredAddress || '—'}</p>
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Correspondence Address</label>
+                  <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.correspondenceAddress || '—'}</p>
+                </div>
+              </div>
             </div>
-            <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-              <div>
-                <label className="text-[11px] text-slate-500 font-semibold block mb-1">Operator Name *</label>
-                <p className="font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.operatorName || '—'}</p>
-              </div>
-              <div>
-                <label className="text-[11px] text-slate-500 font-semibold block mb-1">Registration / License Number *</label>
-                <p className="font-mono font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.licenseNumber || '—'}</p>
-              </div>
-              <div>
-                <label className="text-[11px] text-slate-500 font-semibold block mb-1">Registered Address *</label>
-                <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.registeredAddress || '—'}</p>
-              </div>
-              <div>
-                <label className="text-[11px] text-slate-500 font-semibold block mb-1">Correspondence Address</label>
-                <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.correspondenceAddress || '—'}</p>
-              </div>
-            </div>
-          </div>
 
-          {/* Facility Details & Location */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Facility Details & Location</span>
-            </div>
-            <div className="p-5 space-y-5 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Subsection 2: Facility Details & Location */}
+            <div>
+              <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Facility Details & Location</h4>
+              
+              {/* Facility fields in a compact row/grid: 2 fields + 2 empty slots */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 mb-2.5">
                 <div>
                   <label className="text-[11px] text-slate-500 font-semibold block mb-1">Facility Name</label>
                   <p className="font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.facilityName || '—'}</p>
@@ -2385,43 +2380,34 @@ export const FacilityRegistrationView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Subsection: Location Details */}
-              <div className="pt-3 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Location Details</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Address</label>
-                    <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.address || '—'}</p>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Emirate / Region</label>
-                    <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.emirate || 'Abu Dhabi'}</p>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Location Coordinates</label>
-                    <p className="font-mono font-bold text-[#004B87] bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.coordinates || '—'}</p>
-                  </div>
+              {/* Location fields in a compact row/grid: 3 fields + 1 empty slot */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 items-end">
+                <div>
+                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Address</label>
+                  <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.address || '—'}</p>
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Emirate / Region</label>
+                  <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.emirate || 'Abu Dhabi'}</p>
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Location Coordinates</label>
+                  <p className="font-mono font-bold text-[#336D9F] bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.coordinates || '—'}</p>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Environmental Permit */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Environmental Permit</span>
-            </div>
-            <div className="p-5 space-y-5 text-xs">
-              {/* Permit Details */}
-              <div>
-                <h4 className="text-xs font-bold text-[#004B87] mb-2.5">Permit Details</h4>
-                <div className="flex items-center gap-2 mb-3 text-[11px] font-semibold text-slate-600">
-                  <span>Environmental Permit Available:</span>
-                  <span className={`px-2 py-0.5 rounded-md font-bold ${viewingData.permitAvailable !== false ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}`}>
-                    {viewingData.permitAvailable !== false ? 'Yes' : 'No'}
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Subsection 3: Environmental Permit */}
+            <div>
+              <div className="flex items-center gap-3 mb-2.5">
+                <h4 className="text-xs font-bold text-[#336D9F]">Environmental Permit Available:</h4>
+                <span className={`px-2 py-0.5 rounded-md font-bold text-xs ${viewingData.permitAvailable !== false ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}`}>
+                  {viewingData.permitAvailable !== false ? 'Yes' : 'No'}
+                </span>
+              </div>
+
+              {viewingData.permitAvailable !== false ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
                   <div>
                     <label className="text-[11px] text-slate-500 font-semibold block mb-1">Environmental Permit Number</label>
                     <p className="font-mono font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.permitNumber || '—'}</p>
@@ -2439,138 +2425,130 @@ export const FacilityRegistrationView: React.FC = () => {
                     <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.permitExpiryDate || '—'}</p>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 text-xs italic">
+                  No statutory environmental permit active or reported.
+                </div>
+              )}
             </div>
           </div>
 
           {/* Contact Persons */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Contact Persons</span>
-            </div>
-            <div className="p-5 space-y-5 text-xs">
-              {/* Primary Contact Person */}
-              <div>
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Primary Contact Person</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Name</label>
-                    <p className="font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.primaryName || '—'}</p>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Title / Designation</label>
-                    <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.primaryTitle || '—'}</p>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Email</label>
-                    <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.primaryEmail || '—'}</p>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Number</label>
-                    <p className="font-mono font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.primaryPhone || '—'}</p>
-                  </div>
+          <div className="space-y-5 text-xs">
+            {/* Primary Contact Person */}
+            <div>
+              <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Primary Contact Person</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div>
+                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Name</label>
+                  <p className="font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.primaryName || '—'}</p>
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Title / Designation</label>
+                  <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.primaryTitle || '—'}</p>
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Email</label>
+                  <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.primaryEmail || '—'}</p>
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Number</label>
+                  <p className="font-mono font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.primaryPhone || '—'}</p>
                 </div>
               </div>
+            </div>
 
-              {/* Alternate Contact Person */}
-              <div className="pt-3 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Alternate Contact Person</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Name</label>
-                    <p className="font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.alternateName || viewingData.primaryName || '—'}</p>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Title / Designation</label>
-                    <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.alternateTitle || viewingData.primaryTitle || '—'}</p>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Email</label>
-                    <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.alternateEmail || viewingData.primaryEmail || '—'}</p>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Number</label>
-                    <p className="font-mono font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.alternatePhone || viewingData.primaryPhone || '—'}</p>
-                  </div>
+            {/* Alternate Contact Person */}
+            <div>
+              <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Alternate Contact Person</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div>
+                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Name</label>
+                  <p className="font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.alternateName || viewingData.primaryName || '—'}</p>
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Title / Designation</label>
+                  <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.alternateTitle || viewingData.primaryTitle || '—'}</p>
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Email</label>
+                  <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.alternateEmail || viewingData.primaryEmail || '—'}</p>
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Number</label>
+                  <p className="font-mono font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.alternatePhone || viewingData.primaryPhone || '—'}</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Annual Renewal & Report a Change (Only for Approved Facilities) / Declaration & Supporting Documents (First-time) */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">
-                {isViewingApprovedVersion ? 'Annual Renewal & Report a Change' : 'Declaration & Supporting Documents'}
-              </span>
-            </div>
-            <div className="p-5 space-y-5 text-xs">
-              {/* Annual Renewal (Only for approved facility version) */}
-              {isViewingApprovedVersion && (
-                <div>
-                  <h4 className="text-xs font-bold text-[#004B87] mb-2.5">Annual Renewal</h4>
-                  <div className="flex flex-wrap gap-4 text-xs font-medium text-slate-700">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-[#004B87]" />
-                      <span>Confirm registration details are correct</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Declaration */}
+          <div className="space-y-5 text-xs">
+            {/* Annual Renewal (Only for approved facility version) */}
+            {isViewingApprovedVersion && (
               <div>
-                <h4 className="text-xs font-bold text-[#004B87] mb-2.5">Declaration</h4>
-                <div className="p-3.5 bg-[#F4F8FC] border border-sky-100 rounded-xl text-slate-700 font-medium flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>I confirm that the information provided is true and accurate</span>
+                <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Annual Renewal</h4>
+                <div className="flex flex-wrap gap-4 text-xs font-medium text-slate-700">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#336D9F]" />
+                    <span>Confirm registration details are correct</span>
+                  </div>
                 </div>
               </div>
+            )}
 
-              {/* Report a Change (Only shown for approved facility versions in View mode) */}
-              {isViewingApprovedVersion && (
-                <div className="pt-3 border-t border-slate-100">
-                  <h4 className="text-xs font-bold text-[#004B87] mb-3">Report a Change</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-3.5">
-                    <div>
-                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Change Type</label>
-                      <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.changeType || 'Change of Operator'}</p>
-                    </div>
-                    <div>
-                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Effective Date</label>
-                      <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.changeEffectiveDate || '01-Jan-2026'}</p>
-                    </div>
+            {/* Declaration */}
+            <div>
+              <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Declaration</h4>
+              <div className="p-3.5 bg-[#F4F8FC] border border-sky-100 rounded-xl text-slate-700 font-medium flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>I confirm that the information provided is true and accurate</span>
+              </div>
+            </div>
+
+            {/* Report a Change (Only shown for approved facility versions in View mode) */}
+            {isViewingApprovedVersion && (
+              <div>
+                <h4 className="text-xs font-bold text-[#336D9F] mb-3">Report a Change</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-3.5">
+                  <div>
+                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Change Type</label>
+                    <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.changeType || 'Change of Operator'}</p>
                   </div>
-
-                  <div className="mb-3.5">
-                    <label className="text-[11px] text-slate-600 font-semibold block mb-1.5">Change Description</label>
-                    <p className="font-medium text-navy-900 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                      {viewingData.changeDescription || 'Additional production line commissioned in July 2026.'}
-                    </p>
+                  <div>
+                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Effective Date</label>
+                    <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.changeEffectiveDate || '01-Jan-2026'}</p>
                   </div>
                 </div>
-              )}
 
-              {/* Supporting Documents */}
-              <div className="pt-3 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-[#004B87] mb-2.5">Supporting Documents</h4>
-                <label className="text-[11px] text-slate-500 font-semibold block mb-2">Attached Files for {formattedVersionLabel}</label>
-                <div className="flex flex-wrap gap-2.5">
-                  {(viewingData.attachedFiles && viewingData.attachedFiles.length > 0 ? viewingData.attachedFiles : [{ name: 'Registration_Permit_Doc.pdf', size: '2.4MB', status: 'Completed' }]).map((f: any, i: number) => (
-                    <span key={i} className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-800 shadow-xs">
-                      <FileText className="w-4 h-4 text-rose-600" />
-                      <span className="font-bold">{f.name}</span>
-                      <span className="text-slate-400 text-[10px]">{f.size} • <span className="text-emerald-600 font-bold">{f.status}</span></span>
-                    </span>
-                  ))}
+                <div className="mb-3.5">
+                  <label className="text-[11px] text-slate-600 font-semibold block mb-1.5">Change Description</label>
+                  <p className="font-medium text-navy-900 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    {viewingData.changeDescription || 'Additional production line commissioned in July 2026.'}
+                  </p>
                 </div>
+              </div>
+            )}
+
+            {/* Supporting Documents */}
+            <div>
+              <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Supporting Documents</h4>
+              <label className="text-[11px] text-slate-500 font-semibold block mb-2">Attached Files for {formattedVersionLabel}</label>
+              <div className="flex flex-wrap gap-2.5">
+                {(viewingData.attachedFiles && viewingData.attachedFiles.length > 0 ? viewingData.attachedFiles : [{ name: 'Registration_Permit_Doc.pdf', size: '2.4MB', status: 'Completed' }]).map((f: any, i: number) => (
+                  <span key={i} className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-800 shadow-xs">
+                    <FileText className="w-4 h-4 text-rose-600" />
+                    <span className="font-bold">{f.name}</span>
+                    <span className="text-slate-400 text-[10px]">{f.size} • <span className="text-emerald-600 font-bold">{f.status}</span></span>
+                  </span>
+                ))}
               </div>
             </div>
           </div>
 
           {/* Remarks / Description */}
-          <div className="pt-2 text-xs">
-            <label className="block text-slate-700 font-semibold mb-1.5 text-xs">Remarks / Description</label>
+          <div className="pt-1 text-xs">
+            <label className="block font-bold text-[#336D9F] mb-1.5 text-xs">Remarks / Description</label>
             <p className="font-medium text-navy-900 bg-white p-3.5 rounded-xl border border-slate-200 leading-relaxed">
               {viewingData.generalRemarks || 'All facility data, operational parameters, and statutory environmental details have been reviewed and verified for annual registration submission.'}
             </p>
@@ -2587,7 +2565,7 @@ export const FacilityRegistrationView: React.FC = () => {
   const isDraftOrNewFacility = formData.status === 'Draft' || !formData.facilityName;
 
   return (
-    <div className="h-full flex flex-col overflow-hidden font-sans py-1">
+    <div className="h-full flex flex-col overflow-hidden font-sans py-0.5">
       {/* Hidden file input */}
       <input
         type="file"
@@ -2598,19 +2576,20 @@ export const FacilityRegistrationView: React.FC = () => {
       />
 
       {/* Title & Actions Row */}
-      <div className="flex-shrink-0 pb-3.5 pt-1 flex flex-wrap items-center justify-between gap-4">
+      <div className="flex-shrink-0 pb-[14px] pt-0.5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
+              type="button"
               onClick={() => setViewMode('table')}
-              className="p-1 -ml-1 text-[#004B87] hover:text-[#003865] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0"
-              title="Back to Registration Overview"
+              className="p-1 -ml-1 text-[#336D9F] hover:text-[#004B87] hover:bg-[#E9F1F8] rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 border border-slate-200/70 shadow-2xs"
+              title="Back to facilities list"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4" />
             </button>
 
-            <h1 className="text-[20px] font-bold font-display text-[#004B87] tracking-tight">
-              {formData.facilityName ? `${formData.facilityName} — Edit Form` : 'Facility Registration — New Facility'}
+            <h1 className="text-[18px] font-bold font-display text-[#336D9F] tracking-tight">
+              {formData.facilityName ? `${formData.facilityName} — Edit Registration` : 'New Facility Registration'}
             </h1>
 
             <span
@@ -2643,298 +2622,324 @@ export const FacilityRegistrationView: React.FC = () => {
               </div>
             )}
           </div>
-
           <p className="text-xs text-slate-500 font-medium mt-0.5 ml-7">
-            Statutory Details, Environmental Permitting & Contact Profile
+            Statutory Operator Profiles, Environmental Permits & Regulatory Registration Register
           </p>
-        </div>
-
-        {/* Right Search Input (Actions dropdown button completely removed) */}
-        <div className="flex items-center gap-2.5">
-          <div className="relative w-48 sm:w-60">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search sections..."
-              className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-xs"
-            />
-          </div>
         </div>
       </div>
 
-      {/* Scrollable Form Content */}
-      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-5 flex flex-col overflow-hidden">
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-6 pr-2 py-1 no-scrollbar">
-          {/* Operator Details */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Operator Details</span>
-            </div>
-            <div className="p-5 space-y-5 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">Operator Name *</label>
-                  <input
-                    type="text"
-                    value={formData.operatorName}
-                    onChange={(e) => handleInputChange('operatorName', e.target.value)}
-                    placeholder="Green Mountain Holding LLC"
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">Registration / License Number *</label>
-                  <input
-                    type="text"
-                    value={formData.licenseNumber}
-                    onChange={(e) => handleInputChange('licenseNumber', e.target.value)}
-                    placeholder="CN-456987321"
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">Registered Address *</label>
-                  <input
-                    type="text"
-                    value={formData.registeredAddress}
-                    onChange={(e) => handleInputChange('registeredAddress', e.target.value)}
-                    placeholder="P.O. Box 12456, Abu Dhabi, UAE"
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">Correspondence Address</label>
-                  <input
-                    type="text"
-                    value={formData.correspondenceAddress}
-                    onChange={(e) => handleInputChange('correspondenceAddress', e.target.value)}
-                    placeholder="Same as Registered Address"
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
-                  />
-                </div>
-              </div>
-            </div>
+      {/* Single White Background Container with 3 Tabs Inside */}
+      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
+        {/* Form Tab Navigation (Corner radius 6px, primary gradient active tab, light grayish background, no bottom line) */}
+        <div className="flex-shrink-0 flex items-center pb-3 mb-1 overflow-x-auto no-scrollbar">
+          <div className="inline-flex items-center gap-1 p-1 bg-[#EAEFF4] border border-[#D5E0EA] rounded-[6px] shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setFormActiveTab('facility-details')}
+              className={`px-4 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-2 cursor-pointer ${
+                formActiveTab === 'facility-details'
+                  ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+              }`}
+            >
+              <Building2 className={`w-4 h-4 ${formActiveTab === 'facility-details' ? 'text-white' : 'text-slate-500'}`} />
+              <span>Facility Details</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setFormActiveTab('contact-persons')}
+              className={`px-4 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-2 cursor-pointer ${
+                formActiveTab === 'contact-persons'
+                  ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+              }`}
+            >
+              <Users className={`w-4 h-4 ${formActiveTab === 'contact-persons' ? 'text-white' : 'text-slate-500'}`} />
+              <span>Contact Persons</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setFormActiveTab('declaration-supporting')}
+              className={`px-4 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-2 cursor-pointer ${
+                formActiveTab === 'declaration-supporting'
+                  ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+              }`}
+            >
+              <FileText className={`w-4 h-4 ${formActiveTab === 'declaration-supporting' ? 'text-white' : 'text-slate-500'}`} />
+              <span>Declaration & Supporting Documents</span>
+            </button>
           </div>
+        </div>
 
-          {/* Facility Details & Location */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Facility Details & Location</span>
-            </div>
-            <div className="p-5 space-y-5 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">Facility Name</label>
-                  <input
-                    type="text"
-                    value={formData.facilityName}
-                    onChange={(e) => handleInputChange('facilityName', e.target.value)}
-                    placeholder="Green Mountain Cement Plant"
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5">Facility Type</label>
-                  <select
-                    value={formData.facilityType}
-                    onChange={(e) => handleInputChange('facilityType', e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm cursor-pointer"
-                  >
-                    <option value="Manufacturing Plant">Manufacturing Plant</option>
-                    <option value="Power Plant">Power Plant</option>
-                    <option value="Refinery">Refinery</option>
-                    <option value="Chemical Plant">Chemical Plant</option>
-                    <option value="Waste-to-Energy Plant">Waste-to-Energy Plant</option>
-                  </select>
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-5 pr-1 py-0.5 no-scrollbar text-xs">
+          {/* Tab 1: Facility Details */}
+          {formActiveTab === 'facility-details' && (
+            <div className="space-y-5">
+              {/* Operator Details */}
+              <div>
+                <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Operator Details</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                  <div>
+                    <label className="block text-slate-700 font-semibold mb-1">Operator Name *</label>
+                    <input
+                      type="text"
+                      value={formData.operatorName}
+                      onChange={(e) => handleInputChange('operatorName', e.target.value)}
+                      placeholder="e.g. Al Noor Energy LLC"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-700 font-semibold mb-1">Registration / License Number *</label>
+                    <input
+                      type="text"
+                      value={formData.licenseNumber}
+                      onChange={(e) => handleInputChange('licenseNumber', e.target.value)}
+                      placeholder="e.g. CN-1094821-AD"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-mono text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-700 font-semibold mb-1">Registered Address *</label>
+                    <input
+                      type="text"
+                      value={formData.registeredAddress}
+                      onChange={(e) => handleInputChange('registeredAddress', e.target.value)}
+                      placeholder="e.g. Plot 12, Musaffah, Abu Dhabi"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-700 font-semibold mb-1">Correspondence Address</label>
+                    <input
+                      type="text"
+                      value={formData.correspondenceAddress}
+                      onChange={(e) => handleInputChange('correspondenceAddress', e.target.value)}
+                      placeholder="e.g. Same as Registered Address or P.O. Box 9022"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs"
+                    />
+                  </div>
                 </div>
               </div>
 
-              {/* Subsection: Location Details */}
-              <div className="pt-3 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Location Details</h4>
+              {/* Facility Details & Location */}
+              <div>
+                <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Facility Details & Location</h4>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 mb-2.5">
+                  <div>
+                    <label className="block text-slate-700 font-semibold mb-1">Facility Name</label>
+                    <input
+                      type="text"
+                      value={formData.facilityName}
+                      onChange={(e) => handleInputChange('facilityName', e.target.value)}
+                      placeholder="e.g. Al Noor Cogeneration Plant"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-700 font-semibold mb-1">Facility Type</label>
+                    <select
+                      value={formData.facilityType || ''}
+                      onChange={(e) => handleInputChange('facilityType', e.target.value)}
+                      className={`w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#336D9F] shadow-xs cursor-pointer text-xs ${!formData.facilityType ? 'text-slate-400 font-normal' : 'text-navy-900 font-medium'}`}
+                    >
+                      <option value="" disabled className="text-slate-400">Select Facility Type</option>
+                      <option value="Cogeneration Plant" className="text-navy-900">Cogeneration Plant</option>
+                      <option value="Manufacturing Plant" className="text-navy-900">Manufacturing Plant</option>
+                      <option value="Power Plant" className="text-navy-900">Power Plant</option>
+                      <option value="Refinery" className="text-navy-900">Refinery</option>
+                      <option value="Chemical Plant" className="text-navy-900">Chemical Plant</option>
+                      <option value="Waste-to-Energy Plant" className="text-navy-900">Waste-to-Energy Plant</option>
+                      <option value="Heavy Manufacturing Complex" className="text-navy-900">Heavy Manufacturing Complex</option>
+                      <option value="Petrochemical Refining Plant" className="text-navy-900">Petrochemical Refining Plant</option>
+                      <option value="Utility Power & Desalination" className="text-navy-900">Utility Power & Desalination</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Location fields */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 items-end">
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Address</label>
+                    <label className="block text-slate-700 font-semibold mb-1">Address</label>
                     <input
                       type="text"
                       value={formData.address}
                       onChange={(e) => handleInputChange('address', e.target.value)}
-                      placeholder="Mussafah Industrial Area, Abu Dhabi, UAE"
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
+                      placeholder="e.g. Sector M-34, Musaffah, Abu Dhabi"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs"
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Emirate / Region</label>
+                    <label className="block text-slate-700 font-semibold mb-1">Emirate / Region</label>
                     <select
-                      value={formData.emirate}
+                      value={formData.emirate || ''}
                       onChange={(e) => handleInputChange('emirate', e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm cursor-pointer"
+                      className={`w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#336D9F] shadow-xs cursor-pointer text-xs ${!formData.emirate ? 'text-slate-400 font-normal' : 'text-navy-900 font-medium'}`}
                     >
-                      <option value="Abu Dhabi">Abu Dhabi</option>
-                      <option value="Al Ain">Al Ain</option>
-                      <option value="Al Dhafra">Al Dhafra</option>
+                      <option value="" disabled className="text-slate-400">Select Emirate / Region</option>
+                      <option value="Abu Dhabi" className="text-navy-900">Abu Dhabi</option>
+                      <option value="Al Ain" className="text-navy-900">Al Ain</option>
+                      <option value="Al Dhafra" className="text-navy-900">Al Dhafra</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Location Coordinates</label>
+                    <label className="block text-slate-700 font-semibold mb-1">Location Coordinates</label>
                     <div className="relative">
                       <input
                         type="text"
                         value={formData.coordinates}
                         onChange={(e) => handleInputChange('coordinates', e.target.value)}
-                        placeholder="23.44, 56.37"
-                        className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-mono text-xs"
+                        placeholder="e.g. 24.3644, 54.4988"
+                        className="w-full pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-mono text-xs"
                       />
-                      <MapPin className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <MapPin className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     </div>
                   </div>
                   <div>
                     <button
                       type="button"
-                      onClick={() => alert(`GIS Coordinates verified for ${formData.facilityName || 'Facility'}: ${formData.coordinates || '23.44, 56.37'}`)}
-                      className="w-full py-2.5 px-3 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl text-slate-700 font-bold text-xs shadow-sm flex items-center justify-center gap-1 transition-all cursor-pointer"
+                      onClick={() => alert(`GIS Coordinates verified for ${formData.facilityName || 'Facility'}: ${formData.coordinates || '24.3644, 54.4988'}`)}
+                      className="w-full py-2 px-3 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl text-slate-700 font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                     >
+                      <MapPin className="w-3.5 h-3.5 text-[#336D9F]" />
                       <span>Locate on Map</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="w-3 h-3 text-slate-400" />
                     </button>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Environmental Permit */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Environmental Permit</span>
-            </div>
-            <div className="p-5 space-y-5 text-xs">
-              {/* Permit Details */}
+              {/* Environmental Permit */}
               <div>
-                <h4 className="text-xs font-bold text-[#004B87] mb-2.5">Permit Details</h4>
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-xs font-semibold text-slate-700">Environmental Permit Available</span>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs font-bold ${formData.permitAvailable !== false ? 'text-[#004B87]' : 'text-slate-400'}`}>Yes</span>
+                <div className="flex items-center gap-3 mb-2.5">
+                  <h4 className="text-xs font-bold text-[#336D9F]">Environmental Permit Available</h4>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`text-[11px] font-bold ${formData.permitAvailable !== false ? 'text-[#336D9F]' : 'text-slate-400'}`}>Yes</span>
                     <button
                       type="button"
                       onClick={() => handleInputChange('permitAvailable', formData.permitAvailable === false ? true : false)}
-                      className={`w-11 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors ${formData.permitAvailable !== false ? 'bg-[#004B87]' : 'bg-slate-300'}`}
+                      className={`w-9 h-5 flex items-center rounded-full p-0.5 cursor-pointer transition-colors ${formData.permitAvailable !== false ? 'bg-[#336D9F]' : 'bg-slate-300'}`}
                     >
-                      <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${formData.permitAvailable !== false ? 'translate-x-5' : 'translate-x-0'}`} />
+                      <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${formData.permitAvailable !== false ? 'translate-x-4' : 'translate-x-0'}`} />
                     </button>
-                    <span className={`text-xs font-bold ${formData.permitAvailable === false ? 'text-slate-700' : 'text-slate-400'}`}>No</span>
+                    <span className={`text-[11px] font-bold ${formData.permitAvailable === false ? 'text-slate-700' : 'text-slate-400'}`}>No</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-                  <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Environmental Permit Number</label>
-                    <input
-                      type="text"
-                      value={formData.permitNumber}
-                      onChange={(e) => handleInputChange('permitNumber', e.target.value)}
-                      placeholder="EP-2026-001245"
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-mono"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Permit Status</label>
-                    <select
-                      value={formData.permitStatus}
-                      onChange={(e) => handleInputChange('permitStatus', e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm cursor-pointer"
-                    >
-                      <option value="Active">Active</option>
-                      <option value="Under Review">Under Review</option>
-                      <option value="Suspended">Suspended</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Permit Issue Date</label>
-                    <div className="relative">
+                {formData.permitAvailable !== false ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">Environmental Permit Number</label>
                       <input
                         type="text"
-                        value={formData.permitIssueDate}
-                        onChange={(e) => handleInputChange('permitIssueDate', e.target.value)}
-                        placeholder="01-Jan-2026"
-                        className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
+                        value={formData.permitNumber}
+                        onChange={(e) => handleInputChange('permitNumber', e.target.value)}
+                        placeholder="e.g. EAD-EP-2026-001245"
+                        className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-mono text-xs"
                       />
-                      <Calendar className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">Permit Status</label>
+                      <select
+                        value={formData.permitStatus || ''}
+                        onChange={(e) => handleInputChange('permitStatus', e.target.value)}
+                        className={`w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#336D9F] shadow-xs cursor-pointer text-xs ${!formData.permitStatus ? 'text-slate-400 font-normal' : 'text-navy-900 font-medium'}`}
+                      >
+                        <option value="" disabled className="text-slate-400">Select Permit Status</option>
+                        <option value="Active" className="text-navy-900">Active</option>
+                        <option value="Under Review" className="text-navy-900">Under Review</option>
+                        <option value="Suspended" className="text-navy-900">Suspended</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">Permit Issue Date</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={formData.permitIssueDate}
+                          onChange={(e) => handleInputChange('permitIssueDate', e.target.value)}
+                          placeholder="e.g. 01-Jan-2026"
+                          className="w-full pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs"
+                        />
+                        <Calendar className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">Permit Expiry Date</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={formData.permitExpiryDate}
+                          onChange={(e) => handleInputChange('permitExpiryDate', e.target.value)}
+                          placeholder="e.g. 31-Dec-2026"
+                          className="w-full pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs"
+                        />
+                        <Calendar className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Permit Expiry Date</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={formData.permitExpiryDate}
-                        onChange={(e) => handleInputChange('permitExpiryDate', e.target.value)}
-                        placeholder="31-Dec-2026"
-                        className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
-                      />
-                      <Calendar className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    </div>
+                ) : (
+                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 text-xs italic">
+                    No active statutory environmental permit reported for this facility.
                   </div>
-                </div>
+                )}
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Contact Persons */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">Contact Persons</span>
-            </div>
-            <div className="p-5 space-y-5 text-xs">
+          {/* Tab 2: Contact Persons */}
+          {formActiveTab === 'contact-persons' && (
+            <div className="space-y-5">
               {/* Primary Contact Person */}
               <div>
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Primary Contact Person</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Primary Contact Person</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Name</label>
+                    <label className="block text-slate-700 font-semibold mb-1">Name</label>
                     <input
                       type="text"
                       value={formData.primaryName}
                       onChange={(e) => handleInputChange('primaryName', e.target.value)}
-                      placeholder="Sara Mohammed Al Kaabi"
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
+                      placeholder="e.g. Ahmed Al-Zaabi"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium"
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Title / Designation</label>
+                    <label className="block text-slate-700 font-semibold mb-1">Title / Designation</label>
                     <input
                       type="text"
                       value={formData.primaryTitle}
                       onChange={(e) => handleInputChange('primaryTitle', e.target.value)}
-                      placeholder="Environmental Manager"
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
+                      placeholder="e.g. Senior Environmental Lead"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium"
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Email</label>
+                    <label className="block text-slate-700 font-semibold mb-1">Email</label>
                     <div className="relative">
                       <input
                         type="email"
                         value={formData.primaryEmail}
                         onChange={(e) => handleInputChange('primaryEmail', e.target.value)}
-                        placeholder="sara.alkaabi@gmcf.ae"
-                        className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
+                        placeholder="e.g. ahmed.zaabi@example.ae"
+                        className="w-full pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium"
                       />
                       <Mail className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Number</label>
+                    <label className="block text-slate-700 font-semibold mb-1">Number</label>
                     <div className="relative">
                       <input
                         type="text"
                         value={formData.primaryPhone}
                         onChange={(e) => handleInputChange('primaryPhone', e.target.value)}
-                        placeholder="+971 50 123 4567"
-                        className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-mono"
+                        placeholder="e.g. +971 50 123 4567"
+                        className="w-full pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-mono"
                       />
                       <Phone className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     </div>
@@ -2943,51 +2948,51 @@ export const FacilityRegistrationView: React.FC = () => {
               </div>
 
               {/* Alternate Contact Person */}
-              <div className="pt-3 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-[#004B87] mb-3">Alternate Contact Person</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+              <div>
+                <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Alternate Contact Person</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Name</label>
+                    <label className="block text-slate-700 font-semibold mb-1">Name</label>
                     <input
                       type="text"
                       value={formData.alternateName}
                       onChange={(e) => handleInputChange('alternateName', e.target.value)}
-                      placeholder="Sara Mohammed Al Kaabi"
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
+                      placeholder="e.g. Eng. Tariq Al-Hashimi"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium"
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Title / Designation</label>
+                    <label className="block text-slate-700 font-semibold mb-1">Title / Designation</label>
                     <input
                       type="text"
                       value={formData.alternateTitle}
                       onChange={(e) => handleInputChange('alternateTitle', e.target.value)}
-                      placeholder="Environmental Manager"
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
+                      placeholder="e.g. Environmental Manager"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium"
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Email</label>
+                    <label className="block text-slate-700 font-semibold mb-1">Email</label>
                     <div className="relative">
                       <input
                         type="email"
                         value={formData.alternateEmail}
                         onChange={(e) => handleInputChange('alternateEmail', e.target.value)}
-                        placeholder="sara.alkaabi@gmcf.ae"
-                        className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
+                        placeholder="e.g. tariq.hashimi@example.ae"
+                        className="w-full pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium"
                       />
                       <Mail className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1.5">Number</label>
+                    <label className="block text-slate-700 font-semibold mb-1">Number</label>
                     <div className="relative">
                       <input
                         type="text"
                         value={formData.alternatePhone}
                         onChange={(e) => handleInputChange('alternatePhone', e.target.value)}
-                        placeholder="+971 50 123 4567"
-                        className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-mono"
+                        placeholder="e.g. +971 50 442 8991"
+                        className="w-full pl-3.5 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-mono"
                       />
                       <Phone className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     </div>
@@ -2995,27 +3000,22 @@ export const FacilityRegistrationView: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Annual Renewal & Report a Change (Only for Approved Facilities) / Declaration & Supporting Documents (First-time) */}
-          <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-            <div className="px-5 py-3 bg-[#E9F1F8] border-b border-slate-200/80 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#004B87]">
-                {isFacilityApproved ? 'Annual Renewal & Report a Change' : 'Declaration & Supporting Documents'}
-              </span>
-            </div>
-            <div className="p-5 space-y-5 text-xs">
+          {/* Tab 3: Declaration & Supporting Documents */}
+          {formActiveTab === 'declaration-supporting' && (
+            <div className="space-y-5">
               {/* Annual Renewal (Only available if facility has already been approved) */}
               {isFacilityApproved && (
                 <div>
-                  <h4 className="text-xs font-bold text-[#004B87] mb-2.5">Annual Renewal</h4>
+                  <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Annual Renewal</h4>
                   <div className="flex flex-wrap gap-6 text-xs font-medium text-slate-700">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={formData.confirmDetailsCorrect !== false}
                         onChange={(e) => handleInputChange('confirmDetailsCorrect', e.target.checked)}
-                        className="w-4 h-4 rounded text-[#004B87] focus:ring-[#004B87]"
+                        className="w-4 h-4 rounded text-[#336D9F] focus:ring-[#336D9F]"
                       />
                       <span>Confirm registration details are correct</span>
                     </label>
@@ -3025,14 +3025,14 @@ export const FacilityRegistrationView: React.FC = () => {
 
               {/* Declaration */}
               <div>
-                <h4 className="text-xs font-bold text-[#004B87] mb-2.5">Declaration</h4>
-                <div className="p-3.5 bg-[#F4F8FC] border border-sky-100 rounded-xl">
+                <h4 className="text-xs font-bold text-[#336D9F] mb-2">Declaration</h4>
+                <div className="p-3 bg-[#F4F8FC] border border-sky-100 rounded-xl">
                   <label className="flex items-center gap-2 text-slate-700 font-medium cursor-pointer">
                     <input
                       type="checkbox"
                       checked={formData.declarationConfirmed !== false}
                       onChange={(e) => handleInputChange('declarationConfirmed', e.target.checked)}
-                      className="w-4 h-4 rounded text-[#004B87] focus:ring-[#004B87]"
+                      className="w-4 h-4 rounded text-[#336D9F] focus:ring-[#336D9F]"
                     />
                     <span>I confirm that the information provided is true and accurate</span>
                   </label>
@@ -3041,22 +3041,21 @@ export const FacilityRegistrationView: React.FC = () => {
 
               {/* Report a Change (Only displayed for approved facilities on update page) */}
               {isFacilityApproved && (
-                <div className="pt-3 border-t border-slate-100">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-xs font-bold text-[#004B87]">Report a Change</h4>
-                  </div>
+                <div>
+                  <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Report a Change</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-3.5">
                     <div>
                       <label className="block text-slate-700 font-semibold mb-1.5">Change Type</label>
                       <select
-                        value={formData.changeType || 'Change of Operator'}
+                        value={formData.changeType || ''}
                         onChange={(e) => handleInputChange('changeType', e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm cursor-pointer"
+                        className={`w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#336D9F] shadow-sm cursor-pointer text-xs ${!formData.changeType ? 'text-slate-400 font-normal' : 'text-navy-900 font-medium'}`}
                       >
-                        <option value="Change of Operator">Change of Operator</option>
-                        <option value="Change of Facility Boundary">Change of Facility Boundary</option>
-                        <option value="Change of Fuel / Material Mix">Change of Fuel / Material Mix</option>
-                        <option value="Operational Capacity Modification">Operational Capacity Modification</option>
+                        <option value="" disabled className="text-slate-400">Select Change Type</option>
+                        <option value="Change of Operator" className="text-navy-900">Change of Operator</option>
+                        <option value="Change of Facility Boundary" className="text-navy-900">Change of Facility Boundary</option>
+                        <option value="Change of Fuel / Material Mix" className="text-navy-900">Change of Fuel / Material Mix</option>
+                        <option value="Operational Capacity Modification" className="text-navy-900">Operational Capacity Modification</option>
                       </select>
                     </div>
                     <div>
@@ -3064,91 +3063,110 @@ export const FacilityRegistrationView: React.FC = () => {
                       <div className="relative">
                         <input
                           type="text"
-                          value={formData.changeEffectiveDate || '01-Jan-2026'}
+                          value={formData.changeEffectiveDate || ''}
                           onChange={(e) => handleInputChange('changeEffectiveDate', e.target.value)}
-                          placeholder="01-Jan-2026"
-                          className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm font-medium"
+                          placeholder="e.g. 01-Jan-2026"
+                          className="w-full pl-3.5 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-sm font-medium"
                         />
                         <Calendar className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                       </div>
                     </div>
                   </div>
 
-                  <div className="mb-3.5">
+                  <div>
                     <label className="block text-slate-700 font-semibold mb-1.5">Change Description</label>
                     <textarea
                       rows={2}
-                      value={formData.changeDescription !== undefined && formData.changeDescription !== '' ? formData.changeDescription : 'Additional production line commissioned in July 2026.'}
+                      value={formData.changeDescription !== undefined ? formData.changeDescription : ''}
                       onChange={(e) => handleInputChange('changeDescription', e.target.value)}
-                      placeholder="Additional production line commissioned in July 2026."
-                      className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
+                      placeholder="e.g. Brief description of operational or capacity changes..."
+                      className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-sm leading-relaxed"
                     />
                   </div>
                 </div>
               )}
 
               {/* Supporting Documents Upload */}
-              <div className="pt-3 border-t border-slate-100">
-                <h4 className="text-xs font-bold text-[#004B87] mb-2.5">Supporting Documents</h4>
-                <label className="block text-slate-700 font-semibold mb-2">Attach Files</label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                  <div className="border border-dashed border-sky-300 bg-sky-50/40 rounded-xl p-3.5 px-4 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-slate-600 text-xs font-medium truncate">
-                      <Upload className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                      <span className="truncate">Drag and drop files here or upload</span>
+              <div>
+                <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Supporting Documents</h4>
+                <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
+                  {/* Upload Input Area */}
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="border border-dashed border-sky-300 bg-sky-50/40 hover:bg-sky-50/70 rounded-xl px-4 py-2 flex items-center justify-between gap-3 shrink-0 cursor-pointer transition-colors min-w-[280px]"
+                  >
+                    <div className="flex items-center gap-2 text-slate-600 text-xs font-medium">
+                      <Upload className="w-4 h-4 text-slate-500 shrink-0" />
+                      <span className="whitespace-nowrap">Drag and drop files here or upload</span>
                     </div>
                     <button
                       type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="px-4 py-1.5 bg-white border border-slate-300 hover:border-slate-400 text-xs font-bold text-slate-700 rounded-lg shadow-xs transition-colors flex-shrink-0 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fileInputRef.current?.click();
+                      }}
+                      className="px-3.5 py-1.5 bg-white border border-slate-300 hover:border-slate-400 text-xs font-bold text-slate-700 rounded-lg shadow-2xs transition-colors shrink-0 cursor-pointer"
                     >
                       Upload
                     </button>
                   </div>
 
-                  {(formData.attachedFiles && formData.attachedFiles.length > 0 ? formData.attachedFiles : [{ name: 'Uncertainty Guidance.PDF', size: '3MB', status: 'Completed' }]).map((file: any, idx: number) => (
-                    <div
-                      key={idx}
-                      className="border border-slate-200 bg-white rounded-xl p-2.5 px-3.5 flex items-center justify-between gap-3 shadow-xs"
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center flex-shrink-0">
-                          <FileText className="w-4 h-4 text-rose-600" />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="text-xs font-bold text-slate-800 truncate">{file.name}</div>
-                          <div className="text-[10px] text-slate-400 flex items-center gap-1.5 font-medium">
-                            <span>{file.size}</span>
-                            <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                            <span className="text-emerald-600 font-bold">{file.status}</span>
+                  {/* Remaining area: Uploaded documents in one line */}
+                  <div className="flex-1 min-w-0 flex items-center gap-2.5 overflow-x-auto py-1 no-scrollbar">
+                    {formData.attachedFiles && formData.attachedFiles.length > 0 ? (
+                      formData.attachedFiles.map((file: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="border border-slate-200 bg-white rounded-xl py-1.5 px-3 flex items-center gap-2.5 shadow-2xs shrink-0 max-w-[240px] hover:border-slate-300 transition-all"
+                        >
+                          <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0">
+                            <FileText className="w-3.5 h-3.5 text-rose-600" />
                           </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs font-bold text-slate-800 truncate" title={file.name}>
+                              {file.name}
+                            </div>
+                            <div className="text-[10px] text-slate-400 flex items-center gap-1.5 font-medium">
+                              <span>{file.size}</span>
+                              <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                              <span className="text-emerald-600 font-bold">{file.status || 'Completed'}</span>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleInputChange(
+                                'attachedFiles',
+                                (formData.attachedFiles || []).filter((_: any, i: number) => i !== idx)
+                              )
+                            }
+                            className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer shrink-0"
+                            title="Remove file"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
                         </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleInputChange('attachedFiles', (formData.attachedFiles || []).filter((_: any, i: number) => i !== idx))}
-                        className="p-1 text-slate-400 hover:text-rose-600 rounded-md transition-colors"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ))}
+                      ))
+                    ) : (
+                      <span className="text-xs text-slate-400 italic">No files attached yet</span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Remarks / Description */}
-          <div className="pt-2 text-xs">
-            <label className="block text-slate-700 font-semibold mb-1.5 text-xs">Remarks / Description</label>
-            <textarea
-              rows={3}
-              value={formData.generalRemarks}
-              onChange={(e) => handleInputChange('generalRemarks', e.target.value)}
-              placeholder="All facility data, operational parameters, and statutory environmental details have been reviewed and verified for annual registration submission."
-              className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed text-xs"
-            />
-          </div>
+              {/* Remarks / Description (At last in Declaration & Supporting Documents tab) */}
+              <div>
+                <label className="block font-bold text-[#336D9F] mb-1.5 text-xs">Remarks / Description</label>
+                <textarea
+                  rows={3}
+                  value={formData.generalRemarks}
+                  onChange={(e) => handleInputChange('generalRemarks', e.target.value)}
+                  placeholder="All facility data, operational parameters, and statutory environmental details have been reviewed and verified for annual registration submission."
+                  className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-sm leading-relaxed text-xs"
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
