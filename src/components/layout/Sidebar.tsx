@@ -50,7 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     prerequisiteName: string;
   } | null>(null);
 
-  const [isAdminExpanded, setIsAdminExpanded] = useState(true);
+  const [isAdminExpanded, setIsAdminExpanded] = useState(false);
 
   const pendingReviewCount = (submissions || []).filter(
     (s) => s.status === 'Submitted' || s.status === 'Under Review'
@@ -637,22 +637,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
 
-        {/* Bottom Section: Help & Support & Logout */}
-        <div className="px-2.5 pt-2.5 pb-[20px] border-t border-white/15 space-y-3 shrink-0">
-          {/* Help & Support Button */}
-          <button
-            onClick={() => setActiveView('help')}
-            className={`rounded-[6px] text-xs font-medium text-white/90 hover:text-white hover:bg-white/15 transition-all flex items-center cursor-pointer ${
-              isCollapsed ? 'w-9 h-9 mx-auto justify-center px-0 py-0' : 'w-full py-2 px-3 gap-2.5'
-            } ${
-              activeView === 'help' ? 'bg-white/20 text-white font-bold' : ''
-            }`}
-            title="Help & Guidance"
-          >
-            <HelpCircle className="w-4 h-4 text-cyan-200 shrink-0" />
-            {!isCollapsed && <span className="truncate font-semibold">Help & Support</span>}
-          </button>
-
+        {/* Bottom Section: Logout */}
+        <div className="px-2.5 pt-2.5 pb-[20px] border-t border-white/15 shrink-0">
           {/* Logout Button */}
           {onLogout && (
             <button
