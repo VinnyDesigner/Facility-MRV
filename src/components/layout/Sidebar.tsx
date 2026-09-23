@@ -7,10 +7,19 @@ import {
   HelpCircle,
   ArrowRight,
   Info,
+  LayoutDashboard,
+  BarChart3,
+  Shield,
+  ShieldCheck,
+  Users,
+  KeyRound,
+  History,
+  ChevronDown,
 } from 'lucide-react';
-import { DashboardBentoIcon, ReportsChartIcon, LogoutNavIcon } from '../icons/NavIcons';
+import { LogoutNavIcon } from '../icons/NavIcons';
 import { useMRV } from '../../context/MRVContext';
 import eadLogo from '../../assets/logo.svg';
+import eadLogoMark from '../../assets/logo-mark.svg';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -41,6 +50,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     prerequisiteName: string;
   } | null>(null);
 
+  const [isAdminExpanded, setIsAdminExpanded] = useState(true);
+
   const pendingReviewCount = (submissions || []).filter(
     (s) => s.status === 'Submitted' || s.status === 'Under Review'
   ).length;
@@ -66,6 +77,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
     activeView === 'mrv-reports' ||
     activeView === 'submissions' ||
     activeView === 'version-history';
+  const isAdministrationActive =
+    activeView === 'administration' ||
+    activeView === 'admin' ||
+    activeView.startsWith('admin-') ||
+    activeView === 'entity' ||
+    activeView === 'roles' ||
+    activeView === 'users' ||
+    activeView === 'permissions' ||
+    activeView === 'action-logs';
 
   const isEadDashboardActive =
     activeView === 'ead-dashboard' || (currentRole === 'EAD_REVIEWER' && activeView === 'dashboard');
@@ -92,11 +112,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
               title="Abu Dhabi MRV Portal"
             >
               <img
-                src={eadLogo}
+                src={isCollapsed ? eadLogoMark : eadLogo}
                 alt="Environment Agency Abu Dhabi"
                 className={`${
-                  isCollapsed ? 'h-8 max-w-[46px]' : 'h-11 max-w-[170px]'
-                } object-contain drop-shadow-md transition-all`}
+                  isCollapsed ? 'h-8 w-8 object-contain' : 'h-11 max-w-[170px] object-contain'
+                } drop-shadow-md transition-all`}
               />
             </div>
           </div>
@@ -108,21 +128,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {/* 1. Dashboard */}
                 <button
                   onClick={() => setActiveView('dashboard')}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                    isCollapsed ? 'w-9 h-9 mx-auto justify-center px-0 py-0' : 'w-full gap-2.5 px-3 py-2'
+                  } ${
                     isDashboardActive
                       ? 'bg-white text-[#365785] shadow-sm font-bold'
                       : 'text-white/90 hover:text-white hover:bg-white/15'
                   }`}
                   title="Dashboard"
                 >
-                  <DashboardBentoIcon className={`w-4 h-4 shrink-0 ${isDashboardActive ? 'text-[#365785]' : 'text-white/85'}`} />
+                  <LayoutDashboard className={`w-4 h-4 shrink-0 ${isDashboardActive ? 'text-[#365785]' : 'text-white/85'}`} />
                   {!isCollapsed && <span className="truncate">Dashboard</span>}
                 </button>
 
                 {/* 2. Facility Registration */}
                 <button
                   onClick={() => setActiveView('registration')}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                    isCollapsed ? 'w-9 h-9 mx-auto justify-center px-0 py-0' : 'w-full gap-2.5 px-3 py-2'
+                  } ${
                     isFacilityActive
                       ? 'bg-white text-[#365785] shadow-sm font-bold'
                       : 'text-white/90 hover:text-white hover:bg-white/15'
@@ -142,7 +166,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       setLockedModalInfo(getLockReason('data-entry'));
                     }
                   }}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                    isCollapsed ? 'w-9 h-9 mx-auto justify-center px-0 py-0' : 'w-full justify-between px-3 py-2'
+                  } ${
                     isDataEntryActive
                       ? isMonitoringPlanUnlocked
                         ? 'bg-white text-[#365785] shadow-sm font-bold'
@@ -157,11 +183,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       : `Monitoring Plan Locked (${getLockReason('data-entry').reason})`
                   }
                 >
-                  <div className="flex items-center gap-2.5 truncate">
+                  <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-2.5 truncate'}`}>
                     <ClipboardList className={`w-4 h-4 shrink-0 ${isDataEntryActive ? 'text-[#365785]' : 'text-white/85'}`} />
                     {!isCollapsed && <span className="truncate">Monitoring Plan</span>}
                   </div>
-                  {!isMonitoringPlanUnlocked && (
+                  {!isCollapsed && !isMonitoringPlanUnlocked && (
                     <Lock className="w-3.5 h-3.5 text-amber-300 flex-shrink-0" />
                   )}
                 </button>
@@ -175,7 +201,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       setLockedModalInfo(getLockReason('annual-emission-data'));
                     }
                   }}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                    isCollapsed ? 'w-9 h-9 mx-auto justify-center px-0 py-0' : 'w-full justify-between px-3 py-2'
+                  } ${
                     isAnnualEmissionActive
                       ? isAnnualEmissionUnlocked
                         ? 'bg-white text-[#365785] shadow-sm font-bold'
@@ -190,11 +218,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       : `Annual Emission Data Locked (${getLockReason('annual-emission-data').reason})`
                   }
                 >
-                  <div className="flex items-center gap-2.5 truncate">
+                  <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-2.5 truncate'}`}>
                     <Flame className={`w-4 h-4 shrink-0 ${isAnnualEmissionActive ? 'text-[#365785]' : 'text-white/85'}`} />
                     {!isCollapsed && <span className="truncate">Annual Emission Data</span>}
                   </div>
-                  {!isAnnualEmissionUnlocked && (
+                  {!isCollapsed && !isAnnualEmissionUnlocked && (
                     <Lock className="w-3.5 h-3.5 text-amber-300 flex-shrink-0" />
                   )}
                 </button>
@@ -202,16 +230,176 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {/* 5. Reports */}
                 <button
                   onClick={() => setActiveView('reports')}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                    isCollapsed ? 'w-9 h-9 mx-auto justify-center px-0 py-0' : 'w-full gap-2.5 px-3 py-2'
+                  } ${
                     isReportsActive
                       ? 'bg-white text-[#365785] shadow-sm font-bold'
                       : 'text-white/90 hover:text-white hover:bg-white/15'
                   }`}
                   title="Reports"
                 >
-                  <ReportsChartIcon className={`w-4 h-4 shrink-0 ${isReportsActive ? 'text-[#365785]' : 'text-white/85'}`} />
+                  <BarChart3 className={`w-4 h-4 shrink-0 ${isReportsActive ? 'text-[#365785]' : 'text-white/85'}`} />
                   {!isCollapsed && <span className="truncate">Reports</span>}
                 </button>
+
+                {/* 6. Administration Accordion */}
+                <div className="space-y-0.5">
+                  <button
+                    onClick={() => {
+                      setIsAdminExpanded(!isAdminExpanded);
+                      if (!isAdministrationActive) {
+                        setActiveView('admin-entity');
+                      }
+                    }}
+                    className={`flex items-center rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                      isCollapsed ? 'w-9 h-9 mx-auto justify-center px-0 py-0' : 'w-full justify-between px-3 py-2'
+                    } ${
+                      isAdministrationActive
+                        ? 'bg-white/20 text-white font-bold'
+                        : 'text-white/90 hover:text-white hover:bg-white/15'
+                    }`}
+                    title="Administration"
+                  >
+                    <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-2.5 truncate'}`}>
+                      <Shield className={`w-4 h-4 shrink-0 ${isAdministrationActive ? 'text-cyan-200' : 'text-white/85'}`} />
+                      {!isCollapsed && <span className="truncate">Administration</span>}
+                    </div>
+                    {!isCollapsed && (
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 text-white/70 transition-transform duration-200 ${
+                          isAdminExpanded ? 'rotate-180' : ''
+                        }`}
+                      />
+                    )}
+                  </button>
+
+                  {/* Administration Sub-items (Timeline Stepper Style matching reference image) */}
+                  {!isCollapsed && isAdminExpanded && (
+                    <div className="relative ml-5 my-1.5 py-1 pl-4">
+                      {/* Continuous Vertical Connecting Line */}
+                      <div className="absolute left-[5.5px] top-2.5 bottom-2.5 w-[1.5px] bg-white/20 rounded-full pointer-events-none" />
+
+                      <div className="space-y-2">
+                        {/* 1. Entity */}
+                        <button
+                          type="button"
+                          onClick={() => setActiveView('admin-entity')}
+                          className={`group relative flex items-center w-full text-left text-xs transition-all cursor-pointer py-1 ${
+                            activeView === 'admin-entity' || activeView === 'administration' || activeView === 'entity'
+                              ? 'text-cyan-200 font-bold'
+                              : 'text-white/75 hover:text-white font-medium'
+                          }`}
+                          title="Entity"
+                        >
+                          {/* Dot Node */}
+                          <span className="absolute -left-4 w-3 h-3 rounded-full flex items-center justify-center">
+                            <span
+                              className={`rounded-full transition-all ${
+                                activeView === 'admin-entity' || activeView === 'administration' || activeView === 'entity'
+                                  ? 'w-2.5 h-2.5 bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.9)] ring-2 ring-[#3B5B88]'
+                                  : 'w-2 h-2 bg-white/35 group-hover:bg-white/65 ring-2 ring-[#3B5B88]'
+                              }`}
+                            />
+                          </span>
+                          <span className="truncate">Entity</span>
+                        </button>
+
+                        {/* 2. Roles */}
+                        <button
+                          type="button"
+                          onClick={() => setActiveView('admin-roles')}
+                          className={`group relative flex items-center w-full text-left text-xs transition-all cursor-pointer py-1 ${
+                            activeView === 'admin-roles' || activeView === 'roles'
+                              ? 'text-cyan-200 font-bold'
+                              : 'text-white/75 hover:text-white font-medium'
+                          }`}
+                          title="Roles"
+                        >
+                          <span className="absolute -left-4 w-3 h-3 rounded-full flex items-center justify-center">
+                            <span
+                              className={`rounded-full transition-all ${
+                                activeView === 'admin-roles' || activeView === 'roles'
+                                  ? 'w-2.5 h-2.5 bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.9)] ring-2 ring-[#3B5B88]'
+                                  : 'w-2 h-2 bg-white/35 group-hover:bg-white/65 ring-2 ring-[#3B5B88]'
+                              }`}
+                            />
+                          </span>
+                          <span className="truncate">Roles</span>
+                        </button>
+
+                        {/* 3. Users */}
+                        <button
+                          type="button"
+                          onClick={() => setActiveView('admin-users')}
+                          className={`group relative flex items-center w-full text-left text-xs transition-all cursor-pointer py-1 ${
+                            activeView === 'admin-users' || activeView === 'users'
+                              ? 'text-cyan-200 font-bold'
+                              : 'text-white/75 hover:text-white font-medium'
+                          }`}
+                          title="Users"
+                        >
+                          <span className="absolute -left-4 w-3 h-3 rounded-full flex items-center justify-center">
+                            <span
+                              className={`rounded-full transition-all ${
+                                activeView === 'admin-users' || activeView === 'users'
+                                  ? 'w-2.5 h-2.5 bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.9)] ring-2 ring-[#3B5B88]'
+                                  : 'w-2 h-2 bg-white/35 group-hover:bg-white/65 ring-2 ring-[#3B5B88]'
+                              }`}
+                            />
+                          </span>
+                          <span className="truncate">Users</span>
+                        </button>
+
+                        {/* 4. Permissions */}
+                        <button
+                          type="button"
+                          onClick={() => setActiveView('admin-permissions')}
+                          className={`group relative flex items-center w-full text-left text-xs transition-all cursor-pointer py-1 ${
+                            activeView === 'admin-permissions' || activeView === 'permissions'
+                              ? 'text-cyan-200 font-bold'
+                              : 'text-white/75 hover:text-white font-medium'
+                          }`}
+                          title="Permissions"
+                        >
+                          <span className="absolute -left-4 w-3 h-3 rounded-full flex items-center justify-center">
+                            <span
+                              className={`rounded-full transition-all ${
+                                activeView === 'admin-permissions' || activeView === 'permissions'
+                                  ? 'w-2.5 h-2.5 bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.9)] ring-2 ring-[#3B5B88]'
+                                  : 'w-2 h-2 bg-white/35 group-hover:bg-white/65 ring-2 ring-[#3B5B88]'
+                              }`}
+                            />
+                          </span>
+                          <span className="truncate">Permissions</span>
+                        </button>
+
+                        {/* 5. User Action Logs */}
+                        <button
+                          type="button"
+                          onClick={() => setActiveView('admin-logs')}
+                          className={`group relative flex items-center w-full text-left text-xs transition-all cursor-pointer py-1 ${
+                            activeView === 'admin-logs' || activeView === 'admin-action-logs' || activeView === 'action-logs'
+                              ? 'text-cyan-200 font-bold'
+                              : 'text-white/75 hover:text-white font-medium'
+                          }`}
+                          title="User Action Logs"
+                        >
+                          <span className="absolute -left-4 w-3 h-3 rounded-full flex items-center justify-center">
+                            <span
+                              className={`rounded-full transition-all ${
+                                activeView === 'admin-logs' || activeView === 'admin-action-logs' || activeView === 'action-logs'
+                                  ? 'w-2.5 h-2.5 bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.9)] ring-2 ring-[#3B5B88]'
+                                  : 'w-2 h-2 bg-white/35 group-hover:bg-white/65 ring-2 ring-[#3B5B88]'
+                              }`}
+                            />
+                          </span>
+                          <span className="truncate">User Action Logs</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
               /* EAD REGULATOR SIDEBAR MENU */
@@ -219,32 +407,36 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {/* 1. Dashboard */}
                 <button
                   onClick={() => setActiveView('ead-dashboard')}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                    isCollapsed ? 'w-9 h-9 mx-auto justify-center px-0 py-0' : 'w-full gap-2.5 px-3 py-2'
+                  } ${
                     isEadDashboardActive
                       ? 'bg-white text-[#365785] shadow-sm font-bold'
                       : 'text-white/90 hover:text-white hover:bg-white/15'
                   }`}
                   title="Oversight Dashboard"
                 >
-                  <DashboardBentoIcon className={`w-4 h-4 shrink-0 ${isEadDashboardActive ? 'text-[#365785]' : 'text-white/85'}`} />
+                  <LayoutDashboard className={`w-4 h-4 shrink-0 ${isEadDashboardActive ? 'text-[#365785]' : 'text-white/85'}`} />
                   {!isCollapsed && <span className="truncate">Dashboard</span>}
                 </button>
 
                 {/* 2. Review Queue */}
                 <button
                   onClick={() => setActiveView('ead-queue')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                    isCollapsed ? 'w-9 h-9 mx-auto justify-center px-0 py-0' : 'w-full justify-between px-3 py-2'
+                  } ${
                     isEadQueueActive
                       ? 'bg-white text-[#365785] shadow-sm font-bold'
                       : 'text-white/90 hover:text-white hover:bg-white/15'
                   }`}
                   title="Review Queue"
                 >
-                  <div className="flex items-center gap-2.5 truncate">
+                  <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-2.5 truncate'}`}>
                     <ClipboardList className={`w-4 h-4 shrink-0 ${isEadQueueActive ? 'text-[#365785]' : 'text-white/85'}`} />
                     {!isCollapsed && <span className="truncate">Review Queue</span>}
                   </div>
-                  {pendingReviewCount > 0 && (
+                  {!isCollapsed && pendingReviewCount > 0 && (
                     <span className="px-1.5 py-0.2 rounded-full bg-cyan-400 text-slate-900 font-bold text-[9px]">
                       {pendingReviewCount}
                     </span>
@@ -254,7 +446,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {/* 3. Regulated Facilities */}
                 <button
                   onClick={() => setActiveView('ead-facilities')}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                    isCollapsed ? 'w-9 h-9 mx-auto justify-center px-0 py-0' : 'w-full gap-2.5 px-3 py-2'
+                  } ${
                     isEadFacilitiesActive
                       ? 'bg-white text-[#365785] shadow-sm font-bold'
                       : 'text-white/90 hover:text-white hover:bg-white/15'
@@ -268,16 +462,176 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {/* 4. Sector Analytics & Reports */}
                 <button
                   onClick={() => setActiveView('ead-analytics')}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                    isCollapsed ? 'w-9 h-9 mx-auto justify-center px-0 py-0' : 'w-full gap-2.5 px-3 py-2'
+                  } ${
                     isEadAnalyticsActive
                       ? 'bg-white text-[#365785] shadow-sm font-bold'
                       : 'text-white/90 hover:text-white hover:bg-white/15'
                   }`}
                   title="Reports & Analytics"
                 >
-                  <ReportsChartIcon className={`w-4 h-4 shrink-0 ${isEadAnalyticsActive ? 'text-[#365785]' : 'text-white/85'}`} />
+                  <BarChart3 className={`w-4 h-4 shrink-0 ${isEadAnalyticsActive ? 'text-[#365785]' : 'text-white/85'}`} />
                   {!isCollapsed && <span className="truncate">Reports</span>}
                 </button>
+
+                {/* 5. Administration Accordion */}
+                <div className="space-y-0.5">
+                  <button
+                    onClick={() => {
+                      setIsAdminExpanded(!isAdminExpanded);
+                      if (!isAdministrationActive) {
+                        setActiveView('admin-entity');
+                      }
+                    }}
+                    className={`flex items-center rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
+                      isCollapsed ? 'w-9 h-9 mx-auto justify-center px-0 py-0' : 'w-full justify-between px-3 py-2'
+                    } ${
+                      isAdministrationActive
+                        ? 'bg-white/20 text-white font-bold'
+                        : 'text-white/90 hover:text-white hover:bg-white/15'
+                    }`}
+                    title="Administration"
+                  >
+                    <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-2.5 truncate'}`}>
+                      <Shield className={`w-4 h-4 shrink-0 ${isAdministrationActive ? 'text-cyan-200' : 'text-white/85'}`} />
+                      {!isCollapsed && <span className="truncate">Administration</span>}
+                    </div>
+                    {!isCollapsed && (
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 text-white/70 transition-transform duration-200 ${
+                          isAdminExpanded ? 'rotate-180' : ''
+                        }`}
+                      />
+                    )}
+                  </button>
+
+                  {/* Administration Sub-items (Timeline Stepper Style matching reference image) */}
+                  {!isCollapsed && isAdminExpanded && (
+                    <div className="relative ml-5 my-1.5 py-1 pl-4">
+                      {/* Continuous Vertical Connecting Line */}
+                      <div className="absolute left-[5.5px] top-2.5 bottom-2.5 w-[1.5px] bg-white/20 rounded-full pointer-events-none" />
+
+                      <div className="space-y-2">
+                        {/* 1. Entity */}
+                        <button
+                          type="button"
+                          onClick={() => setActiveView('admin-entity')}
+                          className={`group relative flex items-center w-full text-left text-xs transition-all cursor-pointer py-1 ${
+                            activeView === 'admin-entity' || activeView === 'administration' || activeView === 'entity'
+                              ? 'text-cyan-200 font-bold'
+                              : 'text-white/75 hover:text-white font-medium'
+                          }`}
+                          title="Entity"
+                        >
+                          {/* Dot Node */}
+                          <span className="absolute -left-4 w-3 h-3 rounded-full flex items-center justify-center">
+                            <span
+                              className={`rounded-full transition-all ${
+                                activeView === 'admin-entity' || activeView === 'administration' || activeView === 'entity'
+                                  ? 'w-2.5 h-2.5 bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.9)] ring-2 ring-[#3B5B88]'
+                                  : 'w-2 h-2 bg-white/35 group-hover:bg-white/65 ring-2 ring-[#3B5B88]'
+                              }`}
+                            />
+                          </span>
+                          <span className="truncate">Entity</span>
+                        </button>
+
+                        {/* 2. Roles */}
+                        <button
+                          type="button"
+                          onClick={() => setActiveView('admin-roles')}
+                          className={`group relative flex items-center w-full text-left text-xs transition-all cursor-pointer py-1 ${
+                            activeView === 'admin-roles' || activeView === 'roles'
+                              ? 'text-cyan-200 font-bold'
+                              : 'text-white/75 hover:text-white font-medium'
+                          }`}
+                          title="Roles"
+                        >
+                          <span className="absolute -left-4 w-3 h-3 rounded-full flex items-center justify-center">
+                            <span
+                              className={`rounded-full transition-all ${
+                                activeView === 'admin-roles' || activeView === 'roles'
+                                  ? 'w-2.5 h-2.5 bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.9)] ring-2 ring-[#3B5B88]'
+                                  : 'w-2 h-2 bg-white/35 group-hover:bg-white/65 ring-2 ring-[#3B5B88]'
+                              }`}
+                            />
+                          </span>
+                          <span className="truncate">Roles</span>
+                        </button>
+
+                        {/* 3. Users */}
+                        <button
+                          type="button"
+                          onClick={() => setActiveView('admin-users')}
+                          className={`group relative flex items-center w-full text-left text-xs transition-all cursor-pointer py-1 ${
+                            activeView === 'admin-users' || activeView === 'users'
+                              ? 'text-cyan-200 font-bold'
+                              : 'text-white/75 hover:text-white font-medium'
+                          }`}
+                          title="Users"
+                        >
+                          <span className="absolute -left-4 w-3 h-3 rounded-full flex items-center justify-center">
+                            <span
+                              className={`rounded-full transition-all ${
+                                activeView === 'admin-users' || activeView === 'users'
+                                  ? 'w-2.5 h-2.5 bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.9)] ring-2 ring-[#3B5B88]'
+                                  : 'w-2 h-2 bg-white/35 group-hover:bg-white/65 ring-2 ring-[#3B5B88]'
+                              }`}
+                            />
+                          </span>
+                          <span className="truncate">Users</span>
+                        </button>
+
+                        {/* 4. Permissions */}
+                        <button
+                          type="button"
+                          onClick={() => setActiveView('admin-permissions')}
+                          className={`group relative flex items-center w-full text-left text-xs transition-all cursor-pointer py-1 ${
+                            activeView === 'admin-permissions' || activeView === 'permissions'
+                              ? 'text-cyan-200 font-bold'
+                              : 'text-white/75 hover:text-white font-medium'
+                          }`}
+                          title="Permissions"
+                        >
+                          <span className="absolute -left-4 w-3 h-3 rounded-full flex items-center justify-center">
+                            <span
+                              className={`rounded-full transition-all ${
+                                activeView === 'admin-permissions' || activeView === 'permissions'
+                                  ? 'w-2.5 h-2.5 bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.9)] ring-2 ring-[#3B5B88]'
+                                  : 'w-2 h-2 bg-white/35 group-hover:bg-white/65 ring-2 ring-[#3B5B88]'
+                              }`}
+                            />
+                          </span>
+                          <span className="truncate">Permissions</span>
+                        </button>
+
+                        {/* 5. User Action Logs */}
+                        <button
+                          type="button"
+                          onClick={() => setActiveView('admin-logs')}
+                          className={`group relative flex items-center w-full text-left text-xs transition-all cursor-pointer py-1 ${
+                            activeView === 'admin-logs' || activeView === 'admin-action-logs' || activeView === 'action-logs'
+                              ? 'text-cyan-200 font-bold'
+                              : 'text-white/75 hover:text-white font-medium'
+                          }`}
+                          title="User Action Logs"
+                        >
+                          <span className="absolute -left-4 w-3 h-3 rounded-full flex items-center justify-center">
+                            <span
+                              className={`rounded-full transition-all ${
+                                activeView === 'admin-logs' || activeView === 'admin-action-logs' || activeView === 'action-logs'
+                                  ? 'w-2.5 h-2.5 bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.9)] ring-2 ring-[#3B5B88]'
+                                  : 'w-2 h-2 bg-white/35 group-hover:bg-white/65 ring-2 ring-[#3B5B88]'
+                              }`}
+                            />
+                          </span>
+                          <span className="truncate">User Action Logs</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </>
             )}
           </div>
@@ -288,9 +642,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Help & Support Button */}
           <button
             onClick={() => setActiveView('help')}
-            className={`w-full py-2 px-3 rounded-[6px] text-xs font-medium text-white/90 hover:text-white hover:bg-white/15 transition-all flex items-center gap-2.5 cursor-pointer ${
+            className={`rounded-[6px] text-xs font-medium text-white/90 hover:text-white hover:bg-white/15 transition-all flex items-center cursor-pointer ${
+              isCollapsed ? 'w-9 h-9 mx-auto justify-center px-0 py-0' : 'w-full py-2 px-3 gap-2.5'
+            } ${
               activeView === 'help' ? 'bg-white/20 text-white font-bold' : ''
-            } ${isCollapsed ? 'justify-center px-1.5' : ''}`}
+            }`}
             title="Help & Guidance"
           >
             <HelpCircle className="w-4 h-4 text-cyan-200 shrink-0" />
@@ -301,8 +657,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {onLogout && (
             <button
               onClick={onLogout}
-              className={`w-full py-2 px-3 rounded-[6px] bg-white text-[#365785] hover:bg-slate-50 transition-all flex items-center gap-2.5 cursor-pointer shadow-sm font-bold text-xs ${
-                isCollapsed ? 'justify-center px-1.5' : ''
+              className={`rounded-[6px] bg-white text-[#365785] hover:bg-slate-50 transition-all flex items-center cursor-pointer shadow-sm font-bold text-xs ${
+                isCollapsed ? 'w-9 h-9 mx-auto justify-center px-0 py-0' : 'w-full py-2 px-3 gap-2.5'
               }`}
               title="Logout"
             >

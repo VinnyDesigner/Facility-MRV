@@ -68,20 +68,6 @@ export const Header: React.FC<HeaderProps> = ({
               <SidebarToggleIcon className="w-5 h-5 text-white" />
             </button>
           )}
-
-          {isSidebarCollapsed && (
-            <div
-              className="flex items-center gap-2 cursor-pointer shrink-0 hover:opacity-90 transition-opacity"
-              onClick={() => setActiveView(currentRole === 'EAD_REVIEWER' ? 'ead-dashboard' : 'dashboard')}
-              title="Go to Dashboard"
-            >
-              <img
-                src={eadLogo}
-                alt="Environment Agency Abu Dhabi"
-                className="h-7 w-auto object-contain drop-shadow-2xs"
-              />
-            </div>
-          )}
         </div>
 
         {/* Right Section: Notifications & Profile */}

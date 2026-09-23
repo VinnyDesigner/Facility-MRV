@@ -418,18 +418,18 @@ export const VerificationModuleView: React.FC = () => {
             <div className="flex-1 min-h-0 overflow-hidden rounded-xl border border-slate-200/90 bg-white">
               <div className="h-full overflow-y-auto no-scrollbar">
                 <table className="w-full text-left text-xs border-collapse">
-                  <thead className="sticky top-0 z-10 shadow-xs">
-                    <tr className="h-[38px] bg-[#6692B7]/30 text-slate-800 font-bold text-xs border-b border-[#6692B7]/20 sticky top-0 z-10 shadow-xs">
-                      <th className="h-[38px] px-3 w-10 text-center font-bold align-middle">#</th>
-                      <th className="h-[38px] px-3 font-bold align-middle">Facility Name</th>
-                      <th className="h-[38px] px-3 font-bold align-middle">Facility ID</th>
-                      <th className="h-[38px] px-3 font-bold align-middle">Reporting Year</th>
-                      <th className="h-[38px] px-3 font-bold text-center align-middle">Version</th>
-                      <th className="h-[38px] px-3 font-bold align-middle">Total Emissions (tCO₂e)</th>
-                      <th className="h-[38px] px-3 font-bold align-middle">Submitted Date</th>
-                      <th className="h-[38px] px-3 font-bold align-middle">Verification Status</th>
-                      <th className="h-[38px] px-3 font-bold align-middle">Updated Date</th>
-                      <th className="h-[38px] px-3 text-right whitespace-nowrap font-bold align-middle">Actions</th>
+                  <thead className="sticky top-0 z-10 shadow-xs bg-[#D6E3EF]">
+                    <tr className="h-[38px] bg-[#D6E3EF] text-slate-800 font-bold text-xs border-b border-[#5B88B0]/30 sticky top-0 z-10 shadow-xs">
+                      <th className="h-[38px] px-3 w-10 text-center font-bold align-middle bg-[#D6E3EF]">#</th>
+                      <th className="h-[38px] px-3 font-bold align-middle bg-[#D6E3EF]">Facility Name</th>
+                      <th className="h-[38px] px-3 font-bold align-middle bg-[#D6E3EF]">Facility ID</th>
+                      <th className="h-[38px] px-3 font-bold align-middle bg-[#D6E3EF]">Reporting Year</th>
+                      <th className="h-[38px] px-3 font-bold text-center align-middle bg-[#D6E3EF]">Version</th>
+                      <th className="h-[38px] px-3 font-bold align-middle bg-[#D6E3EF]">Total Emissions (tCO₂e)</th>
+                      <th className="h-[38px] px-3 font-bold align-middle bg-[#D6E3EF]">Submitted Date</th>
+                      <th className="h-[38px] px-3 font-bold align-middle bg-[#D6E3EF]">Verification Status</th>
+                      <th className="h-[38px] px-3 font-bold align-middle bg-[#D6E3EF]">Updated Date</th>
+                      <th className="h-[38px] px-3 text-center whitespace-nowrap font-bold align-middle bg-[#D6E3EF]">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 bg-white">
@@ -443,7 +443,7 @@ export const VerificationModuleView: React.FC = () => {
                       paginatedTableList.map(([facId, rec], index) => {
                         const actualIdx = (currentPage - 1) * itemsPerPage + index + 1;
                         return (
-                          <tr key={facId} className="h-[60px] hover:bg-slate-50/70 transition-colors">
+                          <tr key={facId} className={`h-[60px] ${index % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}>
                             <td className="h-[60px] px-3 text-center font-mono text-slate-400 font-medium align-middle">
                               {actualIdx}
                             </td>
@@ -487,8 +487,8 @@ export const VerificationModuleView: React.FC = () => {
                             <td className="h-[60px] px-3 text-slate-600 font-medium align-middle">
                               {rec.updatedDate}
                             </td>
-                            <td className="h-[60px] px-3 text-right whitespace-nowrap align-middle">
-                              <div className="flex items-center justify-end gap-1">
+                            <td className="h-[60px] px-3 text-center whitespace-nowrap align-middle">
+                              <div className="flex items-center justify-center gap-1.5">
                                 <button
                                   onClick={() => {
                                     setSelectedFacilityId(facId);

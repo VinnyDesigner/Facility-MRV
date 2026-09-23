@@ -105,49 +105,49 @@ export const EADReviewQueueView: React.FC = () => {
         <div className="overflow-x-auto rounded-xl border border-slate-200/90">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="h-[38px] bg-[#6692B7]/30 text-slate-800 font-bold text-xs border-b border-[#6692B7]/20 sticky top-0 z-10 shadow-xs">
-                <th className="h-[38px] px-4 font-bold align-middle">Facility & Identifier</th>
-                <th className="h-[38px] px-4 font-bold align-middle">Sector</th>
-                <th className="h-[38px] px-4 font-bold align-middle">Year / Version</th>
-                <th className="h-[38px] px-4 font-bold align-middle">Total Emissions</th>
-                <th className="h-[38px] px-4 font-bold align-middle">Submitted Date</th>
-                <th className="h-[38px] px-4 font-bold align-middle">Pending Time</th>
-                <th className="h-[38px] px-4 font-bold align-middle">Status</th>
-                <th className="h-[38px] px-4 font-bold text-right align-middle">Evaluation</th>
+              <tr className="h-[38px] bg-[#D6E3EF] text-slate-800 font-bold text-xs border-b border-[#5B88B0]/30 sticky top-0 z-10 shadow-xs">
+                <th className="h-[38px] px-4 font-bold align-middle bg-[#D6E3EF]">Facility & Identifier</th>
+                <th className="h-[38px] px-4 font-bold align-middle bg-[#D6E3EF]">Sector</th>
+                <th className="h-[38px] px-4 font-bold align-middle bg-[#D6E3EF]">Year / Version</th>
+                <th className="h-[38px] px-4 font-bold align-middle bg-[#D6E3EF]">Total Emissions</th>
+                <th className="h-[38px] px-4 font-bold align-middle bg-[#D6E3EF]">Submitted Date</th>
+                <th className="h-[38px] px-4 font-bold align-middle bg-[#D6E3EF]">Pending Time</th>
+                <th className="h-[38px] px-4 font-bold align-middle bg-[#D6E3EF]">Status</th>
+                <th className="h-[38px] px-4 font-bold text-center align-middle bg-[#D6E3EF]">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-primary-100/40">
-              {filteredSubmissions.map((sub) => (
-                <tr key={sub.id} className="h-[60px] hover:bg-primary-50/50 transition-colors">
+            <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+              {filteredSubmissions.map((sub, idx) => (
+                <tr key={sub.id} className={`h-[60px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}>
                   <td className="h-[60px] px-4 font-bold text-navy-900 align-middle">
                     <div className="flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-cyan-brand shrink-0" />
+                      <Building2 className="w-4 h-4 text-[#004B87] shrink-0" />
                       <div>
                         <div>{sub.facilityName}</div>
-                        <div className="text-[10px] text-mrv-muted font-mono font-normal">
+                        <div className="text-[10px] text-slate-500 font-mono font-normal">
                           {sub.facilityCode} • {sub.emirate}
                         </div>
                       </div>
                     </div>
                   </td>
                   <td className="h-[60px] px-4 align-middle">
-                    <span className="font-semibold text-navy-800">{sub.sector}</span>
-                    <span className="text-[10px] text-mrv-muted block">{sub.tier}</span>
+                    <span className="font-semibold text-slate-800">{sub.sector}</span>
+                    <span className="text-[10px] text-slate-500 block">{sub.tier}</span>
                   </td>
-                  <td className="h-[60px] px-4 font-semibold text-navy-900 align-middle">
+                  <td className="h-[60px] px-4 font-semibold text-slate-900 align-middle">
                     <div>{sub.reportingYear}</div>
-                    <span className="px-1.5 py-0.2 rounded bg-navy-100 text-navy-900 text-[10px] font-mono">
+                    <span className="px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 text-[10px] font-mono border border-slate-200">
                       v{sub.version}.0
                     </span>
                   </td>
-                  <td className="h-[60px] px-4 font-bold text-primary-800 font-mono align-middle">
+                  <td className="h-[60px] px-4 font-bold text-[#004B87] font-mono align-middle">
                     {sub.totalEmissions.toLocaleString()} tCO₂e
                   </td>
-                  <td className="h-[60px] px-4 text-mrv-muted align-middle">{sub.submittedDate}</td>
+                  <td className="h-[60px] px-4 text-slate-500 align-middle">{sub.submittedDate}</td>
                   <td className="h-[60px] px-4 align-middle">
                     <span
                       className={`inline-flex items-center gap-1 font-bold ${
-                        sub.daysPending > 4 ? 'text-rose-600' : 'text-navy-900'
+                        sub.daysPending > 4 ? 'text-rose-600' : 'text-slate-800'
                       }`}
                     >
                       <Clock className="w-3.5 h-3.5" />
@@ -159,8 +159,8 @@ export const EADReviewQueueView: React.FC = () => {
                       {sub.status}
                     </Badge>
                   </td>
-                  <td className="h-[60px] px-4 text-right align-middle">
-                    <div className="flex items-center justify-end gap-2">
+                  <td className="h-[60px] px-4 text-center align-middle">
+                    <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => openReadOnlyViewer({
                           moduleType: 'full-dossier',

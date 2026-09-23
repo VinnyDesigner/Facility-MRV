@@ -32,6 +32,7 @@ import { VerificationModuleView } from './views/VerificationModuleView';
 import { SubmissionDetailView } from './views/SubmissionDetailView';
 import { MRVDataHistoryView } from './views/MRVDataHistoryView';
 import { ReadOnlyRecordViewer } from './components/mrv/ReadOnlyRecordViewer';
+import { AdministrationView } from './views/AdministrationView';
 
 const MainAppContent: React.FC = () => {
   const { currentRole, activeView, setActiveView } = useMRV();
@@ -91,6 +92,20 @@ const MainAppContent: React.FC = () => {
         return <EADAnalyticsView />;
       case 'ead-facilities':
         return <EADFacilitiesView />;
+      case 'administration':
+      case 'admin':
+      case 'admin-entity':
+      case 'admin-roles':
+      case 'admin-users':
+      case 'admin-permissions':
+      case 'admin-logs':
+      case 'admin-action-logs':
+      case 'entity':
+      case 'roles':
+      case 'users':
+      case 'permissions':
+      case 'action-logs':
+        return <AdministrationView />;
       default:
         return currentRole === 'EAD_REVIEWER' ? <EADDashboardView /> : <FacilityDashboardView />;
     }

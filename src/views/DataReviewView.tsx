@@ -355,10 +355,10 @@ export const DataReviewView: React.FC = () => {
             <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-[#E9F1F8] text-slate-700 font-semibold text-xs border-b border-slate-200">
+                  <tr className="h-[38px] bg-[#D6E3EF] text-slate-800 font-bold text-xs border-b border-[#5B88B0]/30 sticky top-0 z-10 shadow-xs">
                     <th
                       onClick={() => handleSort('facilityId' as any)}
-                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors"
+                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors bg-[#D6E3EF]"
                     >
                       <div className="flex items-center gap-1">
                         <span>Facility ID</span>
@@ -367,7 +367,7 @@ export const DataReviewView: React.FC = () => {
                     </th>
                     <th
                       onClick={() => handleSort('facility')}
-                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors"
+                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors bg-[#D6E3EF]"
                     >
                       <div className="flex items-center gap-1">
                         <span>Facility</span>
@@ -376,7 +376,7 @@ export const DataReviewView: React.FC = () => {
                     </th>
                     <th
                       onClick={() => handleSort('reportingEntity')}
-                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors"
+                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors bg-[#D6E3EF]"
                     >
                       <div className="flex items-center gap-1">
                         <span>Reporting Entity</span>
@@ -385,7 +385,7 @@ export const DataReviewView: React.FC = () => {
                     </th>
                     <th
                       onClick={() => handleSort('sector')}
-                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors"
+                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors bg-[#D6E3EF]"
                     >
                       <div className="flex items-center gap-1">
                         <span>Sector</span>
@@ -394,7 +394,7 @@ export const DataReviewView: React.FC = () => {
                     </th>
                     <th
                       onClick={() => handleSort('tierLevel')}
-                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors"
+                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors bg-[#D6E3EF]"
                     >
                       <div className="flex items-center gap-1">
                         <span>Tier Level</span>
@@ -403,7 +403,7 @@ export const DataReviewView: React.FC = () => {
                     </th>
                     <th
                       onClick={() => handleSort('reportingYear')}
-                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors"
+                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors bg-[#D6E3EF]"
                     >
                       <div className="flex items-center gap-1">
                         <span>Reporting Year</span>
@@ -412,7 +412,7 @@ export const DataReviewView: React.FC = () => {
                     </th>
                     <th
                       onClick={() => handleSort('version')}
-                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center"
+                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center bg-[#D6E3EF]"
                     >
                       <div className="flex items-center justify-center gap-1">
                         <span>Version</span>
@@ -421,7 +421,7 @@ export const DataReviewView: React.FC = () => {
                     </th>
                     <th
                       onClick={() => handleSort('lastUpdated')}
-                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors"
+                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors bg-[#D6E3EF]"
                     >
                       <div className="flex items-center gap-1">
                         <span>Last Updated</span>
@@ -430,7 +430,7 @@ export const DataReviewView: React.FC = () => {
                     </th>
                     <th
                       onClick={() => handleSort('reviewStatus')}
-                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors"
+                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors bg-[#D6E3EF]"
                     >
                       <div className="flex items-center gap-1">
                         <span>Review Status</span>
@@ -439,22 +439,22 @@ export const DataReviewView: React.FC = () => {
                     </th>
                     <th
                       onClick={() => handleSort('correctionDeadline')}
-                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors"
+                      className="py-3.5 px-3 cursor-pointer hover:bg-slate-200/60 transition-colors bg-[#D6E3EF]"
                     >
                       <div className="flex items-center gap-1">
                         <span>Correction Deadline</span>
                         <ArrowUpDown className="w-3 h-3 text-slate-400" />
                       </div>
                     </th>
-                    <th className="py-3.5 px-3 text-right">Actions</th>
+                    <th className="py-3.5 px-3 text-center bg-[#D6E3EF]">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                  {filteredSubmissions.map((row) => (
+                  {filteredSubmissions.map((row, idx) => (
                     <tr
                       key={row.id}
                       onClick={() => setSelectedSubmissionId(row.submissionId)}
-                      className="hover:bg-slate-50/80 transition-colors cursor-pointer"
+                      className={`${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors cursor-pointer group`}
                     >
                       <td className="py-3.5 px-3 font-mono font-bold text-[#004B87]">{`FAC-2026-00${row.id}`}</td>
                       <td className="py-3.5 px-3 font-semibold text-slate-800">{row.facility}</td>
@@ -501,8 +501,8 @@ export const DataReviewView: React.FC = () => {
                           <span className="text-slate-400">-</span>
                         )}
                       </td>
-                      <td className="py-3.5 px-3 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="py-3.5 px-3 text-center">
+                        <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();

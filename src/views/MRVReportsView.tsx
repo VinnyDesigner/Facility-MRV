@@ -532,8 +532,8 @@ export const MRVReportsView: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                  {sortedSourceCategory.map((row) => (
-                    <tr key={row.id} className="hover:bg-slate-50/80 transition-colors">
+                  {sortedSourceCategory.map((row, idx) => (
+                    <tr key={row.id} className={`${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors`}>
                       <td className="py-3.5 px-4 text-slate-500">{row.id}</td>
                       <td className="py-3.5 px-4 font-semibold text-slate-800">{row.category}</td>
                       <td className="py-3.5 px-4 text-slate-600">{row.method}</td>
@@ -703,19 +703,19 @@ export const MRVReportsView: React.FC = () => {
             <div className="overflow-x-auto rounded-xl border border-slate-200/90">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="h-[38px] bg-[#6692B7]/30 text-slate-800 font-bold text-xs border-b border-[#6692B7]/20 sticky top-0 z-10 shadow-xs">
-                    <th className="h-[38px] px-3.5 align-middle">Reporting Year</th>
-                    <th className="h-[38px] px-3.5 align-middle">Submission ID</th>
-                    <th className="h-[38px] px-3.5 align-middle">Version</th>
-                    <th className="h-[38px] px-3.5 align-middle">Emissions</th>
-                    <th className="h-[38px] px-3.5 align-middle">Submitted Date</th>
-                    <th className="h-[38px] px-3.5 align-middle">Status</th>
-                    <th className="h-[38px] px-4 text-right align-middle">Actions</th>
+                  <tr className="h-[38px] bg-[#D6E3EF] text-slate-800 font-bold text-xs border-b border-[#5B88B0]/30 sticky top-0 z-10 shadow-xs">
+                    <th className="h-[38px] px-3.5 align-middle bg-[#D6E3EF]">Reporting Year</th>
+                    <th className="h-[38px] px-3.5 align-middle bg-[#D6E3EF]">Submission ID</th>
+                    <th className="h-[38px] px-3.5 align-middle bg-[#D6E3EF]">Version</th>
+                    <th className="h-[38px] px-3.5 align-middle bg-[#D6E3EF]">Emissions</th>
+                    <th className="h-[38px] px-3.5 align-middle bg-[#D6E3EF]">Submitted Date</th>
+                    <th className="h-[38px] px-3.5 align-middle bg-[#D6E3EF]">Status</th>
+                    <th className="h-[38px] px-4 text-center align-middle bg-[#D6E3EF]">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
                   {reportsList.map((row, idx) => (
-                    <tr key={idx} className="h-[60px] hover:bg-slate-50/80 transition-colors">
+                    <tr key={idx} className={`h-[60px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors`}>
                       <td className="h-[60px] px-3.5 font-extrabold text-[#004B87] text-sm align-middle">{row.year}</td>
                       <td className="h-[60px] px-3.5 font-mono font-bold text-slate-800 align-middle">{row.id}</td>
                       <td className="h-[60px] px-3.5 font-mono font-bold text-slate-600 align-middle">{row.version}</td>
@@ -726,8 +726,8 @@ export const MRVReportsView: React.FC = () => {
                           {row.status}
                         </Badge>
                       </td>
-                      <td className="h-[60px] px-4 text-right align-middle">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="h-[60px] px-4 text-center align-middle">
+                        <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => openReadOnlyViewer({
                               moduleType: 'full-dossier',

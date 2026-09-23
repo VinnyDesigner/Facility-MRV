@@ -248,7 +248,8 @@ export type MonitoringPlanStatus =
   | 'Approved / Accepted'
   | 'Approved'
   | 'Accepted'
-  | 'Active';
+  | 'Active'
+  | 'Rejected';
 
 export type AnnualEmissionStatus =
   | 'Not Started'

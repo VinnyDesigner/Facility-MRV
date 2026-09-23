@@ -30,6 +30,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Users,
+  MessageSquare,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
 import { EmirateType, SectorType, Facility, RegistrationStatus, formatVersion } from '../types/mrv';
@@ -77,6 +78,7 @@ export const FacilityRegistrationView: React.FC = () => {
 
   const [isSavedNotice, setIsSavedNotice] = useState(false);
   const [noticeMessage, setNoticeMessage] = useState('Changes Saved!');
+  const [reviewerComments, setReviewerComments] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Facility-specific registration records registry (Single Source of Truth)
@@ -1402,6 +1404,8 @@ export const FacilityRegistrationView: React.FC = () => {
 
   // Add/Edit Form Active Tab
   const [formActiveTab, setFormActiveTab] = useState<'facility-details' | 'contact-persons' | 'declaration-supporting'>('facility-details');
+  // Read-Only View Active Tab
+  const [viewActiveTab, setViewActiveTab] = useState<'facility-details' | 'contact-persons' | 'declaration-supporting'>('facility-details');
 
   const totalPages = Math.ceil(filteredFacilities.length / itemsPerPage) || 1;
 
@@ -1508,6 +1512,7 @@ export const FacilityRegistrationView: React.FC = () => {
       setFormData({
         ...existing,
         confirmUpdateDetails: isApproved ? Boolean(existing.confirmUpdateDetails) : false,
+        declarationConfirmed: false,
       });
       setSelectedVersion(existing.version || 'V1');
     } else {
@@ -1519,6 +1524,7 @@ export const FacilityRegistrationView: React.FC = () => {
         facilityId: isApproved ? (fac?.facilityCode || '') : '',
         operatorName: fac?.operatorName || 'Operator Name',
         address: fac?.address || 'Abu Dhabi, UAE',
+        declarationConfirmed: false,
       });
       setSelectedVersion('V1');
     }
@@ -1535,10 +1541,13 @@ export const FacilityRegistrationView: React.FC = () => {
     if (existing) {
       setFormData(existing);
       setSelectedVersion(existing.version || 'V1');
+      setReviewerComments(existing.reviewerComments || '');
     } else {
       setSelectedVersion('V1');
+      setReviewerComments('');
     }
     setIsVersionDropdownOpen(false);
+    setViewActiveTab('facility-details');
     setViewMode('view');
   };
 
@@ -1682,6 +1691,9 @@ export const FacilityRegistrationView: React.FC = () => {
   };
 
   const handleSubmitRegistration = () => {
+    if (formActiveTab !== 'declaration-supporting' || !formData.declarationConfirmed) {
+      return;
+    }
     const updated = {
       ...formData,
       status: 'Submitted',
@@ -1841,6 +1853,120 @@ export const FacilityRegistrationView: React.FC = () => {
     setTimeout(() => setIsSavedNotice(false), 3000);
   };
 
+  // Dedicated Review determination actions from View Mode
+  const handleViewApprove = () => {
+    const generatedId =
+      viewingData.facilityId ||
+      (activeFacility?.facilityCode && activeFacility.facilityCode.startsWith('FAC-EAD')
+        ? activeFacility.facilityCode
+        : `FAC-EAD-2026-${Math.floor(1000 + Math.random() * 9000)}`);
+
+    const updated = {
+      ...viewingData,
+      facilityId: generatedId,
+      status: 'Approved',
+      reviewerComments: reviewerComments,
+      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    };
+
+    setFacilityRegistrations((prev) => ({
+      ...prev,
+      [selectedFacilityId]: updated,
+    }));
+
+    setFacilityRegistrationHistory((prev) => {
+      const facilityHist = prev[selectedFacilityId] || [];
+      const updatedHist = facilityHist.map((v) => {
+        if (v.version.toLowerCase() === (selectedVersion || 'v1.0').toLowerCase()) {
+          return { ...v, status: 'Approved', updatedDate: updated.updatedDate, data: updated };
+        }
+        return v;
+      });
+      return { ...prev, [selectedFacilityId]: updatedHist };
+    });
+
+    setFormData(updated);
+
+    updateFacility({
+      id: selectedFacilityId,
+      name: updated.facilityName,
+      facilityCode: generatedId,
+      status: 'Approved',
+      sector: updated.reportingSector,
+      primaryActivity: updated.primaryActivity,
+      address: updated.address,
+      operatorName: updated.operatorName,
+    });
+
+    setRegistrationStatus('Approved');
+    setNoticeMessage(`Facility Registration Approved! Facility ID: ${generatedId} • Monitoring Plan Unlocked.`);
+    setIsSavedNotice(true);
+    setTimeout(() => setIsSavedNotice(false), 4000);
+  };
+
+  const handleViewRevert = () => {
+    const updated = {
+      ...viewingData,
+      status: 'Correction Required',
+      reviewerComments: reviewerComments,
+      correctionDeadlineDate: '2026-06-15',
+      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    };
+
+    setFacilityRegistrations((prev) => ({
+      ...prev,
+      [selectedFacilityId]: updated,
+    }));
+
+    setFacilityRegistrationHistory((prev) => {
+      const facilityHist = prev[selectedFacilityId] || [];
+      const updatedHist = facilityHist.map((v) => {
+        if (v.version.toLowerCase() === (selectedVersion || 'v1.0').toLowerCase()) {
+          return { ...v, status: 'Correction Required', updatedDate: updated.updatedDate, data: updated };
+        }
+        return v;
+      });
+      return { ...prev, [selectedFacilityId]: updatedHist };
+    });
+
+    setFormData(updated);
+    setRegistrationStatus('Correction Required');
+    setNoticeMessage('Facility Registration Reverted for Corrections.');
+    setIsSavedNotice(true);
+    setTimeout(() => setIsSavedNotice(false), 3500);
+  };
+
+  const handleViewReject = () => {
+    const updated = {
+      ...viewingData,
+      status: 'Rejected',
+      reviewerComments: reviewerComments,
+      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    };
+
+    setFacilityRegistrations((prev) => ({
+      ...prev,
+      [selectedFacilityId]: updated,
+    }));
+
+    setFacilityRegistrationHistory((prev) => {
+      const facilityHist = prev[selectedFacilityId] || [];
+      const updatedHist = facilityHist.map((v) => {
+        if (v.version.toLowerCase() === (selectedVersion || 'v1.0').toLowerCase()) {
+          return { ...v, status: 'Rejected', updatedDate: updated.updatedDate, data: updated };
+        }
+        return v;
+      });
+      return { ...prev, [selectedFacilityId]: updatedHist };
+    });
+
+    setFormData(updated);
+    setRegistrationStatus('Rejected');
+    setNoticeMessage('Facility Registration Rejected by EAD.');
+    setIsSavedNotice(true);
+    setTimeout(() => setIsSavedNotice(false), 3500);
+  };
+
   // =========================================================================
   // RENDER 1: OVERVIEW TABLE (Default landing when clicking Registration)
   // =========================================================================
@@ -1938,17 +2064,17 @@ export const FacilityRegistrationView: React.FC = () => {
         <div className="flex flex-col flex-1 min-h-0 justify-between overflow-hidden">
           <div className="flex-1 min-h-0 overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-xs">
             <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="h-[38px] bg-[#6692B7]/30 text-slate-800 font-bold text-xs border-b border-[#6692B7]/20 sticky top-0 z-10 shadow-xs">
-                  <th className="h-[38px] px-2 w-8 text-center align-middle">#</th>
-                  <th className="h-[38px] px-2.5 w-44 max-w-[180px] align-middle">Facility Name</th>
-                  <th className="h-[38px] px-2.5 w-36 max-w-[150px] align-middle">Facility Type</th>
-                  <th className="h-[38px] px-2.5 w-40 max-w-[170px] align-middle">Primary Contact</th>
-                  <th className="h-[38px] px-2.5 w-28 whitespace-nowrap align-middle">Submitted Date</th>
-                  <th className="h-[38px] px-2.5 w-28 whitespace-nowrap align-middle">Updated Date</th>
-                  <th className="h-[38px] px-2.5 w-28 whitespace-nowrap text-left align-middle">Status</th>
-                  <th className="h-[38px] px-2.5 w-36 whitespace-nowrap align-middle">Correction Deadline</th>
-                  <th className="h-[38px] px-3 w-16 text-right whitespace-nowrap align-middle">Actions</th>
+              <thead className="sticky top-0 z-20 bg-[#D6E3EF] shadow-xs">
+                <tr className="h-[38px] bg-[#D6E3EF] text-slate-800 font-bold text-xs border-b border-[#5B88B0]/30">
+                  <th className="h-[38px] px-2 w-8 text-center align-middle bg-[#D6E3EF]">#</th>
+                  <th className="h-[38px] px-2.5 w-44 max-w-[180px] align-middle bg-[#D6E3EF]">Facility Name</th>
+                  <th className="h-[38px] px-2.5 w-36 max-w-[150px] align-middle bg-[#D6E3EF]">Facility Type</th>
+                  <th className="h-[38px] px-2.5 w-40 max-w-[170px] align-middle bg-[#D6E3EF]">Primary Contact</th>
+                  <th className="h-[38px] px-2.5 w-28 whitespace-nowrap align-middle bg-[#D6E3EF]">Submitted Date</th>
+                  <th className="h-[38px] px-2.5 w-28 whitespace-nowrap align-middle bg-[#D6E3EF]">Updated Date</th>
+                  <th className="h-[38px] px-2.5 w-28 whitespace-nowrap text-left align-middle bg-[#D6E3EF]">Status</th>
+                  <th className="h-[38px] px-2.5 w-36 whitespace-nowrap align-middle bg-[#D6E3EF]">Correction Deadline</th>
+                  <th className="h-[38px] px-3 w-20 text-center whitespace-nowrap align-middle bg-[#D6E3EF]">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
@@ -1969,7 +2095,7 @@ export const FacilityRegistrationView: React.FC = () => {
                     return (
                       <tr
                         key={fac.id}
-                        className="h-[60px] hover:bg-slate-50/80 transition-colors group cursor-default"
+                        className={`h-[60px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}
                       >
                         <td className="h-[60px] px-2 text-center font-mono font-bold text-slate-400 align-middle">
                           {rowNumber}
@@ -2064,8 +2190,8 @@ export const FacilityRegistrationView: React.FC = () => {
                         </td>
 
                         {/* Actions: Eye View & Edit Icon Buttons */}
-                        <td className="h-[60px] px-3 text-right whitespace-nowrap align-middle">
-                          <div className="flex items-center justify-end gap-1">
+                        <td className="h-[60px] px-3 text-center whitespace-nowrap align-middle">
+                          <div className="flex items-center justify-center gap-1.5">
                             <button
                               onClick={() => handleViewFacility(fac.id)}
                               title="View Facility Details"
@@ -2073,13 +2199,15 @@ export const FacilityRegistrationView: React.FC = () => {
                             >
                               <Eye className="w-4 h-4" />
                             </button>
-                            <button
-                              onClick={() => handleEditFacility(fac.id)}
-                              title="Edit Facility Details"
-                              className="p-1 rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
+                            {currentStatus !== 'Under EAD Review' && (
+                              <button
+                                onClick={() => handleEditFacility(fac.id)}
+                                title="Edit Facility Details"
+                                className="p-1 rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -2109,8 +2237,9 @@ export const FacilityRegistrationView: React.FC = () => {
                   }}
                   className="bg-white border border-slate-200 rounded-lg px-2 py-0.5 text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
                 >
-                  <option value={7}>7</option>
-                  <option value={10}>10</option>
+                  <option value={8}>8</option>
+                  <option value={12}>12</option>
+                  <option value={16}>16</option>
                   <option value={20}>20</option>
                 </select>
               </div>
@@ -2160,12 +2289,9 @@ export const FacilityRegistrationView: React.FC = () => {
   // RENDER 2: READ-ONLY VIEW (When user clicks 'View')
   // =========================================================================
   if (viewMode === 'view') {
-    const formattedVersionLabel = formatVersion(selectedVersionMeta.version);
-    const isCurrentActive = selectedVersionMeta.isCurrent;
-
     return (
       <div className="h-full flex flex-col overflow-hidden font-sans py-0.5">
-        {/* Navigation Bar Back to Overview & Version Selection */}
+        {/* Navigation Bar Back to Overview */}
         <div className="flex-shrink-0 pb-[18px] pt-0.5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 flex-wrap">
@@ -2204,102 +2330,13 @@ export const FacilityRegistrationView: React.FC = () => {
               )}
             </div>
             <p className="text-xs text-slate-500 font-medium mt-0.5 ml-7">
-              Official Registered Dossier • Version: {formattedVersionLabel} {isCurrentActive ? '(Current Active)' : `(Historical Snapshot — Updated ${selectedVersionMeta.updatedDate})`}
+              Official Registered Dossier
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Version Selection Dropdown */}
-            <div className="relative" ref={versionDropdownRef}>
-              <button
-                type="button"
-                onClick={() => setIsVersionDropdownOpen(!isVersionDropdownOpen)}
-                className="px-3.5 py-2 bg-white hover:bg-slate-50 border border-[#336D9F]/30 text-[#336D9F] rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20"
-                id="registration-version-dropdown-trigger"
-                title="Select Version to Inspect"
-              >
-                <Clock className="w-3.5 h-3.5 text-[#336D9F]" />
-                <span>
-                  Version: {formattedVersionLabel} {isCurrentActive ? '(Current)' : ''}
-                </span>
-                <ChevronDown
-                  className={`w-3.5 h-3.5 text-[#336D9F] transition-transform duration-200 ${
-                    isVersionDropdownOpen ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-
-              {isVersionDropdownOpen && (
-                <div className="absolute right-0 mt-1.5 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-2 space-y-1 animate-in fade-in duration-150">
-                  <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 flex items-center justify-between">
-                    <span>Facility Versions ({currentFacilityVersions.length})</span>
-                    <span className="text-[10px] font-normal text-slate-400">Click to switch</span>
-                  </div>
-                  <div className="max-h-64 overflow-y-auto space-y-1 pr-0.5 no-scrollbar">
-                    {currentFacilityVersions.map((v) => {
-                      const isSelected = formatVersion(v.version).toLowerCase() === formatVersion(selectedVersion).toLowerCase();
-                      const vCode = formatVersion(v.version);
-                      return (
-                        <button
-                          key={v.version}
-                          type="button"
-                          onClick={() => {
-                            setSelectedVersion(v.version);
-                            setIsVersionDropdownOpen(false);
-                          }}
-                          className={`w-full text-left px-3 py-2.5 rounded-xl transition-all flex flex-col gap-1 cursor-pointer ${
-                            isSelected
-                              ? 'bg-[#EBF3FA] border border-[#336D9F]/40 shadow-2xs'
-                              : 'hover:bg-slate-50 border border-transparent'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-xs text-navy-900 font-mono">
-                                {vCode}
-                              </span>
-                              {v.isCurrent && (
-                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#336D9F] text-white">
-                                  Current
-                                </span>
-                              )}
-                            </div>
-                            <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                v.status === 'Approved / Registered' || v.status === 'Approved' || v.status === 'Registered'
-                                  ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60 font-bold'
-                                  : v.status === 'Submitted' || v.status === 'Under EAD Review'
-                                  ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60 font-bold'
-                                  : v.status === 'Correction Required' || v.status === 'Reverted'
-                                  ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
-                                  : v.status === 'Rejected'
-                                  ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 font-bold'
-                                  : 'bg-slate-100 text-slate-700 border border-slate-200 font-bold'
-                              }`}
-                            >
-                              {(v.status === 'Approved / Registered' || v.status === 'Registered') ? 'Approved' : v.status}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
-                            <span>Updated: {v.updatedDate}</span>
-                            {isSelected ? (
-                              <span className="text-[#336D9F] font-bold flex items-center gap-1 text-[10px]">
-                                <Check className="w-3 h-3" /> Active View
-                              </span>
-                            ) : (
-                              <span className="text-slate-400 text-[10px]">Click to inspect</span>
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Edit Details Button (For Operators) */}
-            {isFacilityOperator && (
+            {isFacilityOperator && viewingData.status !== 'Under EAD Review' && (
               <button
                 onClick={() => {
                   setFormData(viewingData);
@@ -2314,249 +2351,357 @@ export const FacilityRegistrationView: React.FC = () => {
           </div>
         </div>
 
-        {/* Scrollable View Content displaying exact entered data */}
+        {/* Single White Background Container with 3 Tabs Inside */}
         <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
-          <div className="flex-1 min-h-0 overflow-y-auto space-y-5 pr-1 py-0.5 no-scrollbar">
-          {/* Historical Snapshot Alert Banner (Shown when an older version is selected) */}
-          {!isCurrentActive && (
-            <div className="p-3.5 bg-amber-50/95 border border-amber-300/80 rounded-xl flex flex-wrap items-center justify-between gap-3 text-amber-900 text-xs shadow-2xs">
-              <div className="flex items-center gap-2.5">
-                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>
-                  <strong>Viewing Historical Snapshot:</strong> Version {formattedVersionLabel} (Saved: {selectedVersionMeta.updatedDate} • Status: {selectedVersionMeta.status}). All fields below represent the exact saved record from this version.
-                </span>
-              </div>
+          {/* View Tab Navigation (Corner radius 6px, primary gradient active tab, light grayish background, no bottom line) */}
+          <div className="flex-shrink-0 flex items-center pb-3 mb-1 overflow-x-auto no-scrollbar">
+            <div className="inline-flex items-center gap-1 p-1 bg-[#EAEFF4] border border-[#D5E0EA] rounded-[6px] shadow-2xs">
               <button
                 type="button"
-                onClick={() => {
-                  const latest = currentFacilityVersions.find((v) => v.isCurrent) || currentFacilityVersions[0];
-                  setSelectedVersion(latest.version);
-                }}
-                className="px-3 py-1.5 bg-amber-200/90 hover:bg-amber-300 text-amber-900 rounded-lg font-bold text-xs shrink-0 cursor-pointer transition-colors"
+                onClick={() => setViewActiveTab('facility-details')}
+                className={`px-4 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-2 cursor-pointer ${
+                  viewActiveTab === 'facility-details'
+                    ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                    : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+                }`}
               >
-                Switch to Current Version ({formatVersion((currentFacilityVersions.find((v) => v.isCurrent) || currentFacilityVersions[0]).version)})
+                <Building2 className={`w-4 h-4 ${viewActiveTab === 'facility-details' ? 'text-white' : 'text-slate-500'}`} />
+                <span>Facility Details</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setViewActiveTab('contact-persons')}
+                className={`px-4 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-2 cursor-pointer ${
+                  viewActiveTab === 'contact-persons'
+                    ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                    : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+                }`}
+              >
+                <Users className={`w-4 h-4 ${viewActiveTab === 'contact-persons' ? 'text-white' : 'text-slate-500'}`} />
+                <span>Contact Persons</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setViewActiveTab('declaration-supporting')}
+                className={`px-4 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-2 cursor-pointer ${
+                  viewActiveTab === 'declaration-supporting'
+                    ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                    : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
+                }`}
+              >
+                <FileText className={`w-4 h-4 ${viewActiveTab === 'declaration-supporting' ? 'text-white' : 'text-slate-500'}`} />
+                <span>Declaration & Supporting Documents</span>
               </button>
             </div>
-          )}
-
-          {/* Combined Card: Facility & Registration Details */}
-          <div className="space-y-5 text-xs">
-            {/* Subsection 1: Operator Details */}
-            <div>
-              <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Operator Details</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
-                <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Operator Name *</label>
-                  <p className="font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.operatorName || '—'}</p>
-                </div>
-                <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Registration / License Number *</label>
-                  <p className="font-mono font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.licenseNumber || '—'}</p>
-                </div>
-                <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Registered Address *</label>
-                  <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.registeredAddress || '—'}</p>
-                </div>
-                <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Correspondence Address</label>
-                  <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.correspondenceAddress || '—'}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Subsection 2: Facility Details & Location */}
-            <div>
-              <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Facility Details & Location</h4>
-              
-              {/* Facility fields in a compact row/grid: 2 fields + 2 empty slots */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 mb-2.5">
-                <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Facility Name</label>
-                  <p className="font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.facilityName || '—'}</p>
-                </div>
-                <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Facility Type</label>
-                  <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.facilityType || '—'}</p>
-                </div>
-              </div>
-
-              {/* Location fields in a compact row/grid: 3 fields + 1 empty slot */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 items-end">
-                <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Address</label>
-                  <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.address || '—'}</p>
-                </div>
-                <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Emirate / Region</label>
-                  <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.emirate || 'Abu Dhabi'}</p>
-                </div>
-                <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Location Coordinates</label>
-                  <p className="font-mono font-bold text-[#336D9F] bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.coordinates || '—'}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Subsection 3: Environmental Permit */}
-            <div>
-              <div className="flex items-center gap-3 mb-2.5">
-                <h4 className="text-xs font-bold text-[#336D9F]">Environmental Permit Available:</h4>
-                <span className={`px-2 py-0.5 rounded-md font-bold text-xs ${viewingData.permitAvailable !== false ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}`}>
-                  {viewingData.permitAvailable !== false ? 'Yes' : 'No'}
-                </span>
-              </div>
-
-              {viewingData.permitAvailable !== false ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Environmental Permit Number</label>
-                    <p className="font-mono font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.permitNumber || '—'}</p>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Permit Status</label>
-                    <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.permitStatus || 'Active'}</p>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Permit Issue Date</label>
-                    <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.permitIssueDate || '—'}</p>
-                  </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Permit Expiry Date</label>
-                    <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.permitExpiryDate || '—'}</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 text-xs italic">
-                  No statutory environmental permit active or reported.
-                </div>
-              )}
-            </div>
           </div>
 
-          {/* Contact Persons */}
-          <div className="space-y-5 text-xs">
-            {/* Primary Contact Person */}
-            <div>
-              <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Primary Contact Person</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-5 pr-2.5 py-0.5 text-xs custom-scrollbar">
+            {/* TAB 1: Facility Details */}
+            {viewActiveTab === 'facility-details' && (
+              <div className="space-y-5">
+                {/* Operator Details */}
                 <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Name</label>
-                  <p className="font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.primaryName || '—'}</p>
+                  <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Operator Details</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Operator Name *</label>
+                      <p className="font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.operatorName || '—'}</p>
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Registration / License Number *</label>
+                      <p className="font-mono font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.licenseNumber || '—'}</p>
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Registered Address *</label>
+                      <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.registeredAddress || '—'}</p>
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Correspondence Address</label>
+                      <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.correspondenceAddress || '—'}</p>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Facility Details & Location */}
                 <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Title / Designation</label>
-                  <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.primaryTitle || '—'}</p>
+                  <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Facility Details & Location</h4>
+                  
+                  {/* Facility fields in a compact row/grid: 2 fields + 2 empty slots */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 mb-2.5">
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Facility Name</label>
+                      <p className="font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.facilityName || '—'}</p>
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Facility Type</label>
+                      <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.facilityType || '—'}</p>
+                    </div>
+                  </div>
+
+                  {/* Location fields in a compact row/grid: 3 fields + 1 empty slot */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 items-end">
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Address</label>
+                      <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.address || '—'}</p>
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Emirate / Region</label>
+                      <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.emirate || 'Abu Dhabi'}</p>
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Location Coordinates</label>
+                      <p className="font-mono font-bold text-[#336D9F] bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.coordinates || '—'}</p>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Environmental Permit */}
                 <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Email</label>
-                  <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.primaryEmail || '—'}</p>
-                </div>
-                <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Number</label>
-                  <p className="font-mono font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.primaryPhone || '—'}</p>
+                  <div className="flex items-center gap-3 mb-2.5">
+                    <h4 className="text-xs font-bold text-[#336D9F]">Environmental Permit Available:</h4>
+                    <span className={`px-2 py-0.5 rounded-md font-bold text-xs ${viewingData.permitAvailable !== false ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}`}>
+                      {viewingData.permitAvailable !== false ? 'Yes' : 'No'}
+                    </span>
+                  </div>
+
+                  {viewingData.permitAvailable !== false ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                      <div>
+                        <label className="text-[11px] text-slate-500 font-semibold block mb-1">Environmental Permit Number</label>
+                        <p className="font-mono font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.permitNumber || '—'}</p>
+                      </div>
+                      <div>
+                        <label className="text-[11px] text-slate-500 font-semibold block mb-1">Permit Status</label>
+                        <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.permitStatus || 'Active'}</p>
+                      </div>
+                      <div>
+                        <label className="text-[11px] text-slate-500 font-semibold block mb-1">Permit Issue Date</label>
+                        <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.permitIssueDate || '—'}</p>
+                      </div>
+                      <div>
+                        <label className="text-[11px] text-slate-500 font-semibold block mb-1">Permit Expiry Date</label>
+                        <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.permitExpiryDate || '—'}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 text-xs italic">
+                      No statutory environmental permit active or reported.
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Alternate Contact Person */}
-            <div>
-              <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Alternate Contact Person</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* TAB 2: Contact Persons */}
+            {viewActiveTab === 'contact-persons' && (
+              <div className="space-y-5">
+                {/* Primary Contact Person */}
                 <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Name</label>
-                  <p className="font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.alternateName || viewingData.primaryName || '—'}</p>
+                  <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Primary Contact Person</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Name</label>
+                      <p className="font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.primaryName || '—'}</p>
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Title / Designation</label>
+                      <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.primaryTitle || '—'}</p>
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Email</label>
+                      <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.primaryEmail || '—'}</p>
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Number</label>
+                      <p className="font-mono font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.primaryPhone || '—'}</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Title / Designation</label>
-                  <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.alternateTitle || viewingData.primaryTitle || '—'}</p>
-                </div>
-                <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Email</label>
-                  <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.alternateEmail || viewingData.primaryEmail || '—'}</p>
-                </div>
-                <div>
-                  <label className="text-[11px] text-slate-500 font-semibold block mb-1">Number</label>
-                  <p className="font-mono font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.alternatePhone || viewingData.primaryPhone || '—'}</p>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Annual Renewal & Report a Change (Only for Approved Facilities) / Declaration & Supporting Documents (First-time) */}
-          <div className="space-y-5 text-xs">
-            {/* Annual Renewal (Only for approved facility version) */}
-            {isViewingApprovedVersion && (
-              <div>
-                <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Annual Renewal</h4>
-                <div className="flex flex-wrap gap-4 text-xs font-medium text-slate-700">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#336D9F]" />
-                    <span>Confirm registration details are correct</span>
+                {/* Alternate Contact Person */}
+                <div>
+                  <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Alternate Contact Person</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Name</label>
+                      <p className="font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.alternateName || viewingData.primaryName || '—'}</p>
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Title / Designation</label>
+                      <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.alternateTitle || viewingData.primaryTitle || '—'}</p>
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Email</label>
+                      <p className="font-medium text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">{viewingData.alternateEmail || viewingData.primaryEmail || '—'}</p>
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-slate-500 font-semibold block mb-1">Number</label>
+                      <p className="font-mono font-bold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.alternatePhone || viewingData.primaryPhone || '—'}</p>
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Declaration */}
-            <div>
-              <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Declaration</h4>
-              <div className="p-3.5 bg-[#F4F8FC] border border-sky-100 rounded-xl text-slate-700 font-medium flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>I confirm that the information provided is true and accurate</span>
-              </div>
-            </div>
-
-            {/* Report a Change (Only shown for approved facility versions in View mode) */}
-            {isViewingApprovedVersion && (
-              <div>
-                <h4 className="text-xs font-bold text-[#336D9F] mb-3">Report a Change</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-3.5">
+            {/* TAB 3: Declaration & Supporting Documents */}
+            {viewActiveTab === 'declaration-supporting' && (
+              <div className="space-y-5">
+                {/* Annual Renewal */}
+                {isViewingApprovedVersion && (
                   <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Change Type</label>
-                    <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.changeType || 'Change of Operator'}</p>
+                    <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Annual Renewal</h4>
+                    <div className="flex flex-wrap gap-4 text-xs font-medium text-slate-700">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-[#336D9F]" />
+                        <span>Confirm registration details are correct</span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-[11px] text-slate-500 font-semibold block mb-1">Effective Date</label>
-                    <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.changeEffectiveDate || '01-Jan-2026'}</p>
+                )}
+
+                {/* Declaration */}
+                <div>
+                  <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Declaration</h4>
+                  <div className="p-3.5 bg-[#F4F8FC] border border-sky-100 rounded-xl text-slate-700 font-medium flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>I confirm that the information provided is true and accurate</span>
                   </div>
                 </div>
 
-                <div className="mb-3.5">
-                  <label className="text-[11px] text-slate-600 font-semibold block mb-1.5">Change Description</label>
-                  <p className="font-medium text-navy-900 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                    {viewingData.changeDescription || 'Additional production line commissioned in July 2026.'}
+                {/* Report a Change */}
+                {isViewingApprovedVersion && (
+                  <div>
+                    <h4 className="text-xs font-bold text-[#336D9F] mb-3">Report a Change</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-3.5">
+                      <div>
+                        <label className="text-[11px] text-slate-500 font-semibold block mb-1">Change Type</label>
+                        <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.changeType || 'Change of Operator'}</p>
+                      </div>
+                      <div>
+                        <label className="text-[11px] text-slate-500 font-semibold block mb-1">Effective Date</label>
+                        <p className="font-semibold text-navy-900 bg-slate-50 p-2.5 rounded-xl border border-slate-100">{viewingData.changeEffectiveDate || '01-Jan-2026'}</p>
+                      </div>
+                    </div>
+
+                    <div className="mb-3.5">
+                      <label className="text-[11px] text-slate-600 font-semibold block mb-1.5">Change Description</label>
+                      <p className="font-medium text-navy-900 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        {viewingData.changeDescription || 'Additional production line commissioned in July 2026.'}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Supporting Documents */}
+                <div>
+                  <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Supporting Documents</h4>
+                  <label className="text-[11px] text-slate-500 font-semibold block mb-2">Attached Files</label>
+                  <div className="flex flex-wrap gap-2.5">
+                    {(viewingData.attachedFiles && viewingData.attachedFiles.length > 0 ? viewingData.attachedFiles : [{ name: 'Registration_Permit_Doc.pdf', size: '2.4MB', status: 'Completed' }]).map((f: any, i: number) => (
+                      <span key={i} className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-800 shadow-xs">
+                        <FileText className="w-4 h-4 text-rose-600" />
+                        <span className="font-bold">{f.name}</span>
+                        <span className="text-slate-400 text-[10px]">{f.size} • <span className="text-emerald-600 font-bold">{f.status}</span></span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Remarks / Description */}
+                <div className="pt-1 text-xs">
+                  <label className="block font-bold text-[#336D9F] mb-1.5 text-xs">Remarks / Description</label>
+                  <p className="font-medium text-navy-900 bg-white p-3.5 rounded-xl border border-slate-200 leading-relaxed">
+                    {viewingData.generalRemarks || 'All facility data, operational parameters, and statutory environmental details have been reviewed and verified for annual registration submission.'}
                   </p>
                 </div>
               </div>
             )}
-
-            {/* Supporting Documents */}
-            <div>
-              <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">Supporting Documents</h4>
-              <label className="text-[11px] text-slate-500 font-semibold block mb-2">Attached Files for {formattedVersionLabel}</label>
-              <div className="flex flex-wrap gap-2.5">
-                {(viewingData.attachedFiles && viewingData.attachedFiles.length > 0 ? viewingData.attachedFiles : [{ name: 'Registration_Permit_Doc.pdf', size: '2.4MB', status: 'Completed' }]).map((f: any, i: number) => (
-                  <span key={i} className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-800 shadow-xs">
-                    <FileText className="w-4 h-4 text-rose-600" />
-                    <span className="font-bold">{f.name}</span>
-                    <span className="text-slate-400 text-[10px]">{f.size} • <span className="text-emerald-600 font-bold">{f.status}</span></span>
-                  </span>
-                ))}
-              </div>
-            </div>
           </div>
 
-          {/* Remarks / Description */}
-          <div className="pt-1 text-xs">
-            <label className="block font-bold text-[#336D9F] mb-1.5 text-xs">Remarks / Description</label>
-            <p className="font-medium text-navy-900 bg-white p-3.5 rounded-xl border border-slate-200 leading-relaxed">
-              {viewingData.generalRemarks || 'All facility data, operational parameters, and statutory environmental details have been reviewed and verified for annual registration submission.'}
-            </p>
+          {/* Sticky Bottom Actions Bar for View Mode (Common across all tabs) */}
+          <div className="flex-shrink-0 pt-2.5 mt-1 border-t border-slate-100 bg-white space-y-2.5">
+            {/* Reviewer Comments Box (Common in all 3 tabs) */}
+            <div className="text-xs">
+              <div className="flex items-center gap-1.5 mb-1">
+                <MessageSquare className="w-3.5 h-3.5 text-[#336D9F]" />
+                <label className="font-bold text-[#336D9F] text-xs">Reviewer Comments</label>
+              </div>
+              <textarea
+                rows={2}
+                value={reviewerComments}
+                onChange={(e) => setReviewerComments(e.target.value)}
+                placeholder="Enter reviewer comments, feedback, compliance notes, or correction instructions..."
+                className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-[8px] text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] focus:bg-white transition-all font-medium resize-none shadow-2xs"
+              />
+            </div>
+
+            {/* Bottom Actions Row */}
+            <div className="flex items-center justify-end">
+              {viewActiveTab === 'facility-details' && (
+                <button
+                  type="button"
+                  onClick={() => setViewActiveTab('contact-persons')}
+                  className="px-5 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold text-xs rounded-[8px] shadow-sm hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                >
+                  <span>Next</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              )}
+
+              {viewActiveTab === 'contact-persons' && (
+                <button
+                  type="button"
+                  onClick={() => setViewActiveTab('declaration-supporting')}
+                  className="px-5 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold text-xs rounded-[8px] shadow-sm hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                >
+                  <span>Next</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              )}
+
+              {viewActiveTab === 'declaration-supporting' && (
+                <div className="flex items-center justify-end gap-3">
+                  {/* Revert Button */}
+                  <button
+                    type="button"
+                    onClick={handleViewRevert}
+                    className="px-5 py-2 bg-[#FFF8E7] hover:bg-[#FEF0CD] border border-[#FCD34D] text-[#975A16] font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                    title="Revert submission back to operator for correction"
+                  >
+                    <RotateCcw className="w-4 h-4 text-[#975A16]" />
+                    <span>Revert</span>
+                  </button>
+
+                  {/* Reject Button */}
+                  <button
+                    type="button"
+                    onClick={handleViewReject}
+                    className="px-5 py-2 bg-[#FFF0F3] hover:bg-[#FFE2E6] border border-[#FDA4AF] text-[#9F1239] font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                    title="Reject facility registration"
+                  >
+                    <XCircle className="w-4 h-4 text-[#9F1239]" />
+                    <span>Reject</span>
+                  </button>
+
+                  {/* Approve Button */}
+                  <button
+                    type="button"
+                    onClick={handleViewApprove}
+                    className="px-6 py-2 bg-[#00875A] hover:bg-[#00754E] border border-[#00875A] text-white font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                    title="Approve facility registration"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-white" />
+                    <span>Approve</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
   }
 
   // =========================================================================
@@ -2674,7 +2819,7 @@ export const FacilityRegistrationView: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-5 pr-1 py-0.5 no-scrollbar text-xs">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-5 pr-2.5 py-0.5 custom-scrollbar text-xs">
           {/* Tab 1: Facility Details */}
           {formActiveTab === 'facility-details' && (
             <div className="space-y-5">
@@ -3030,7 +3175,7 @@ export const FacilityRegistrationView: React.FC = () => {
                   <label className="flex items-center gap-2 text-slate-700 font-medium cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={formData.declarationConfirmed !== false}
+                      checked={Boolean(formData.declarationConfirmed)}
                       onChange={(e) => handleInputChange('declarationConfirmed', e.target.checked)}
                       className="w-4 h-4 rounded text-[#336D9F] focus:ring-[#336D9F]"
                     />
@@ -3189,38 +3334,74 @@ export const FacilityRegistrationView: React.FC = () => {
         </button>
 
         {isFacilityOperator && (
-          <button
-            onClick={handleSubmitRegistration}
-            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer"
-          >
-            <span>{formData.status === 'Correction Required' ? 'Resubmit Registration' : 'Submit Registration'}</span>
-            <Send className="w-3.5 h-3.5 fill-current" />
-          </button>
+          <>
+            {formActiveTab === 'facility-details' && (
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('contact-persons')}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {formActiveTab === 'contact-persons' && (
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('declaration-supporting')}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {formActiveTab === 'declaration-supporting' && (
+              <button
+                onClick={handleSubmitRegistration}
+                disabled={!formData.declarationConfirmed}
+                className={`px-6 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all select-none ${
+                  !formData.declarationConfirmed
+                    ? 'bg-[#DFE7EF] text-[#64748B] border border-[#CBD5E1] shadow-2xs cursor-not-allowed'
+                    : 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] cursor-pointer active:scale-95'
+                }`}
+                title={
+                  !formData.declarationConfirmed
+                    ? 'Please check the declaration checkbox above to enable submission'
+                    : 'Submit registration'
+                }
+              >
+                <span>{formData.status === 'Correction Required' ? 'Resubmit Registration' : 'Submit Registration'}</span>
+                <Send className="w-3.5 h-3.5 fill-current opacity-80" />
+              </button>
+            )}
+          </>
         )}
 
         {isEadReviewerOrAdmin && (
           <>
             <button
               onClick={handleReturnForCorrection}
-              className="px-4 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-xs font-bold text-amber-800 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              className="px-5 py-2 bg-[#FFF8E7] hover:bg-[#FEF0CD] border border-[#FCD34D] text-[#975A16] font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-amber-700" />
+              <RotateCcw className="w-4 h-4 text-[#975A16]" />
               <span>Return for Correction</span>
             </button>
 
             <button
               onClick={handleRejectRegistration}
-              className="px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-300 text-xs font-bold text-rose-800 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              className="px-5 py-2 bg-[#FFF0F3] hover:bg-[#FFE2E6] border border-[#FDA4AF] text-[#9F1239] font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
             >
-              <XCircle className="w-3.5 h-3.5 text-rose-700" />
+              <XCircle className="w-4 h-4 text-[#9F1239]" />
               <span>Reject</span>
             </button>
 
             <button
               onClick={handleEadApprove}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-emerald-600/25 hover:shadow-lg transition-all cursor-pointer"
+              className="px-6 py-2 bg-[#00875A] hover:bg-[#00754E] border border-[#00875A] text-white font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
             >
-              <CheckCircle2 className="w-3.5 h-3.5" />
+              <CheckCircle2 className="w-4 h-4 text-white" />
               <span>EAD Approve Registration</span>
             </button>
           </>

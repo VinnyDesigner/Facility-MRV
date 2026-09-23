@@ -31,6 +31,7 @@ import {
   ChevronLeft,
   ChevronRight,
   XCircle,
+  MessageSquare,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
 import { formatVersion } from '../types/mrv';
@@ -67,6 +68,7 @@ export const AnnualEmissionDataView: React.FC = () => {
     'monitoring-methods' | 'mitigation-measures' | 'qa-qc' | 'review-submit'
   >('monitoring-methods');
 
+  const [reviewerComments, setReviewerComments] = useState('');
   const [isSavedNotice, setIsSavedNotice] = useState(false);
   const [noticeMessage, setNoticeMessage] = useState('Data Saved Successfully!');
   const [formReportingYear, setFormReportingYear] = useState('2026');
@@ -926,16 +928,16 @@ export const AnnualEmissionDataView: React.FC = () => {
         <div className="flex flex-col flex-1 min-h-0 justify-between overflow-hidden">
           <div className="flex-1 min-h-0 overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-xs">
             <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="h-[38px] bg-[#6692B7]/30 text-slate-800 font-bold text-xs border-b border-[#6692B7]/20 sticky top-0 z-10 shadow-xs">
-                  <th className="h-[38px] px-3 w-10 text-center align-middle">#</th>
-                  <th className="h-[38px] px-3 w-[26%] align-middle">Facility Name</th>
-                  <th className="h-[38px] px-3 w-[16%] whitespace-nowrap align-middle">Facility ID</th>
-                  <th className="h-[38px] px-3 w-[12%] whitespace-nowrap text-center align-middle">Reporting Year</th>
-                  <th className="h-[38px] px-3 w-[20%] whitespace-nowrap text-center align-middle">Total Scope 1 (tCO₂e)</th>
-                  <th className="h-[38px] px-3 w-[14%] whitespace-nowrap align-middle">Submitted Date</th>
-                  <th className="h-[38px] px-2.5 w-28 whitespace-nowrap text-left align-middle">Status</th>
-                  <th className="h-[38px] px-3 w-16 text-right whitespace-nowrap align-middle">Actions</th>
+              <thead className="sticky top-0 z-20 bg-[#D6E3EF] shadow-xs">
+                <tr className="h-[38px] bg-[#D6E3EF] text-slate-800 font-bold text-xs border-b border-[#5B88B0]/30">
+                  <th className="h-[38px] px-3 w-10 text-center align-middle bg-[#D6E3EF]">#</th>
+                  <th className="h-[38px] px-3 w-[26%] align-middle bg-[#D6E3EF]">Facility Name</th>
+                  <th className="h-[38px] px-3 w-[16%] whitespace-nowrap align-middle bg-[#D6E3EF]">Facility ID</th>
+                  <th className="h-[38px] px-3 w-[12%] whitespace-nowrap text-center align-middle bg-[#D6E3EF]">Reporting Year</th>
+                  <th className="h-[38px] px-3 w-[20%] whitespace-nowrap text-center align-middle bg-[#D6E3EF]">Total Scope 1 (tCO₂e)</th>
+                  <th className="h-[38px] px-3 w-14 whitespace-nowrap align-middle bg-[#D6E3EF]">Submitted Date</th>
+                  <th className="h-[38px] px-2.5 w-28 whitespace-nowrap text-left align-middle bg-[#D6E3EF]">Status</th>
+                  <th className="h-[38px] px-3 w-20 text-center whitespace-nowrap align-middle bg-[#D6E3EF]">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
@@ -952,7 +954,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                     return (
                       <tr
                         key={facId}
-                        className="h-[60px] hover:bg-slate-50/80 transition-colors group cursor-default"
+                        className={`h-[60px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}
                       >
                         <td className="h-[60px] px-3 text-center font-mono font-bold text-slate-400 align-middle">
                           {rowNumber}
@@ -1012,8 +1014,8 @@ export const AnnualEmissionDataView: React.FC = () => {
                         </td>
 
                         {/* Actions: Eye View & Edit Icon Buttons */}
-                        <td className="h-[60px] px-3 text-right whitespace-nowrap align-middle">
-                          <div className="flex items-center justify-end gap-1">
+                        <td className="h-[60px] px-3 text-center whitespace-nowrap align-middle">
+                          <div className="flex items-center justify-center gap-1.5">
                             <button
                               onClick={() => handleViewEmissionData(facId)}
                               title="View Annual Emission Details"
@@ -1057,8 +1059,9 @@ export const AnnualEmissionDataView: React.FC = () => {
                   }}
                   className="bg-white border border-slate-200 rounded-lg px-2 py-0.5 text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
                 >
-                  <option value={7}>7</option>
-                  <option value={10}>10</option>
+                  <option value={8}>8</option>
+                  <option value={12}>12</option>
+                  <option value={16}>16</option>
                   <option value={20}>20</option>
                 </select>
               </div>
@@ -1201,7 +1204,7 @@ export const AnnualEmissionDataView: React.FC = () => {
           </div>
 
           {/* Scrollable Tab Content */}
-          <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-1 pt-2 pb-0.5 text-xs no-scrollbar">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-2.5 pt-2 pb-0.5 text-xs custom-scrollbar">
               {/* TAB 1: MONITORING METHODS (READ-ONLY) */}
               {activeTab === 'monitoring-methods' && (
                 <div className="space-y-[18px]">
@@ -1654,39 +1657,97 @@ export const AnnualEmissionDataView: React.FC = () => {
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Bottom Action Bar in Read-Only View */}
-          <div className="flex-shrink-0 pt-2.5 pb-1 flex items-center justify-end gap-2.5 flex-wrap">
-            <button
-              type="button"
-              onClick={handleRevert}
-              className="px-4 py-2 bg-amber-50 hover:bg-amber-100 border border-amber-300 text-xs font-bold text-amber-800 flex items-center gap-1.5 rounded-xl shadow-2xs transition-all cursor-pointer"
-              title="Revert submission for corrections"
-            >
-              <RotateCcw className="w-3.5 h-3.5 text-amber-700" />
-              <span>Revert</span>
-            </button>
+            {/* Sticky Bottom Actions Bar for View Mode (Common across all tabs) */}
+            <div className="flex-shrink-0 pt-2.5 mt-1 border-t border-slate-100 bg-white space-y-2.5">
+              {/* Reviewer Comments Box (Common across all tabs) */}
+              <div className="text-xs">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <MessageSquare className="w-3.5 h-3.5 text-[#336D9F]" />
+                  <label className="font-bold text-[#336D9F] text-xs">Reviewer Comments</label>
+                </div>
+                <textarea
+                  rows={2}
+                  value={reviewerComments}
+                  onChange={(e) => setReviewerComments(e.target.value)}
+                  placeholder="Enter reviewer comments, feedback, compliance notes, or correction instructions for this annual emission data..."
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-[8px] text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] focus:bg-white transition-all font-medium resize-none shadow-2xs"
+                />
+              </div>
 
-            <button
-              type="button"
-              onClick={handleReject}
-              className="px-4 py-2 bg-rose-50 hover:bg-rose-100 border border-rose-300 text-xs font-bold text-rose-800 flex items-center gap-1.5 rounded-xl shadow-2xs transition-all cursor-pointer"
-              title="Reject annual emission data"
-            >
-              <XCircle className="w-3.5 h-3.5 text-rose-700" />
-              <span>Reject</span>
-            </button>
+              {/* Bottom Actions Row */}
+              <div className="flex items-center justify-end">
+                {activeTab === 'monitoring-methods' && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('mitigation-measures')}
+                    className="px-5 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold text-xs rounded-[8px] shadow-sm hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  >
+                    <span>Next</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
 
-            <button
-              type="button"
-              onClick={handleApprove}
-              className="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-              title="Approve annual emission data"
-            >
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>Approve</span>
-            </button>
+                {activeTab === 'mitigation-measures' && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('qa-qc')}
+                    className="px-5 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold text-xs rounded-[8px] shadow-sm hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  >
+                    <span>Next</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
+
+                {activeTab === 'qa-qc' && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('review-submit')}
+                    className="px-5 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold text-xs rounded-[8px] shadow-sm hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  >
+                    <span>Next</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
+
+                {activeTab === 'review-submit' && (
+                  <div className="flex items-center justify-end gap-3">
+                    {/* Revert Button */}
+                    <button
+                      type="button"
+                      onClick={handleRevert}
+                      className="px-5 py-2 bg-[#FFF8E7] hover:bg-[#FEF0CD] border border-[#FCD34D] text-[#975A16] font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      title="Revert submission for corrections"
+                    >
+                      <RotateCcw className="w-4 h-4 text-[#975A16]" />
+                      <span>Revert</span>
+                    </button>
+
+                    {/* Reject Button */}
+                    <button
+                      type="button"
+                      onClick={handleReject}
+                      className="px-5 py-2 bg-[#FFF0F3] hover:bg-[#FFE2E6] border border-[#FDA4AF] text-[#9F1239] font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      title="Reject annual emission data"
+                    >
+                      <XCircle className="w-4 h-4 text-[#9F1239]" />
+                      <span>Reject</span>
+                    </button>
+
+                    {/* Approve Button */}
+                    <button
+                      type="button"
+                      onClick={handleApprove}
+                      className="px-6 py-2 bg-[#00875A] hover:bg-[#00754E] border border-[#00875A] text-white font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      title="Approve annual emission data"
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-white" />
+                      <span>Approve</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       );
@@ -1841,7 +1902,7 @@ export const AnnualEmissionDataView: React.FC = () => {
         </div>
 
         {/* Scrollable Form Content */}
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-1 pt-2 pb-0.5 text-xs no-scrollbar">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-2.5 pt-2 pb-0.5 text-xs custom-scrollbar">
             {/* TAB 1: MONITORING METHODS */}
             {activeTab === 'monitoring-methods' && (
               <div className="space-y-[18px]">
@@ -3047,32 +3108,68 @@ export const AnnualEmissionDataView: React.FC = () => {
       <div className="flex-shrink-0 pt-2 pb-1 flex items-center justify-end gap-2.5">
         <button
           onClick={() => setViewMode('table')}
-          className="px-5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-xs font-semibold text-slate-700 shadow-2xs transition-all cursor-pointer"
+          className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
         >
-          Cancel
+          <span>Cancel</span>
+          <X className="w-3.5 h-3.5" />
         </button>
 
         <button
           onClick={handleSave}
-          className="px-5 py-2 rounded-xl bg-[#0F2942] hover:bg-[#0A1D30] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+          className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-[#004B87] text-xs font-bold text-[#004B87] flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
         >
-          <Bookmark className="w-3.5 h-3.5 fill-current" />
           <span>Save Draft</span>
+          <Bookmark className="w-3.5 h-3.5 fill-current" />
         </button>
 
-        <button
-          onClick={handleSubmit}
-          disabled={!isDeclarationComplete}
-          title={isDeclarationComplete ? 'Submit Annual Emission Data' : 'Please check all final declaration boxes and fill name/designation to submit'}
-          className={`px-6 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
-            isDeclarationComplete
-              ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white hover:from-[#003d6e] hover:to-[#005c9e] shadow-md shadow-[#004B87]/20 active:scale-[0.99] cursor-pointer'
-              : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed opacity-60'
-          }`}
-        >
-          <Send className={`w-3.5 h-3.5 ${isDeclarationComplete ? 'text-white fill-current' : 'text-slate-400'}`} />
-          <span>Submit Annual Emission Data</span>
-        </button>
+        {activeTab === 'monitoring-methods' && (
+          <button
+            type="button"
+            onClick={() => setActiveTab('mitigation-measures')}
+            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+          >
+            <span>Next</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        )}
+
+        {activeTab === 'mitigation-measures' && (
+          <button
+            type="button"
+            onClick={() => setActiveTab('qa-qc')}
+            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+          >
+            <span>Next</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        )}
+
+        {activeTab === 'qa-qc' && (
+          <button
+            type="button"
+            onClick={() => setActiveTab('review-submit')}
+            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+          >
+            <span>Next</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        )}
+
+        {activeTab === 'review-submit' && (
+          <button
+            onClick={handleSubmit}
+            disabled={!isDeclarationComplete}
+            title={isDeclarationComplete ? 'Submit Annual Emission Data' : 'Please check all final declaration boxes and fill name/designation to submit'}
+            className={`px-6 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all select-none ${
+              !isDeclarationComplete
+                ? 'bg-[#DFE7EF] text-[#64748B] border border-[#CBD5E1] shadow-2xs cursor-not-allowed'
+                : 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] cursor-pointer active:scale-95'
+            }`}
+          >
+            <span>Submit Annual Emission Data</span>
+            <Send className="w-3.5 h-3.5 fill-current opacity-80" />
+          </button>
+        )}
       </div>
 
       {/* Document Preview Modal */}

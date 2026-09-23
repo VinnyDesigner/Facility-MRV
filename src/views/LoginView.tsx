@@ -14,6 +14,7 @@ import {
   Layers,
   Fingerprint,
   LogIn,
+  BarChart3,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
 import { AmbientBackground } from '../components/ui/AmbientBackground';
@@ -83,7 +84,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display leading-[1.1] tracking-tight text-white">
             Monitor. Report. <br />
             <span className="text-[#00B2FE]">
-              Verify with Precision.
+              Comply with Precision.
             </span>
           </h1>
 
@@ -111,7 +112,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
               </div>
             </div>
 
-            {/* Card 2: Emissions & Plans */}
+            {/* Card 2: Emission & Plans */}
             <div className="relative p-4 rounded-2xl bg-gradient-to-b from-white/15 via-white/[0.08] to-white/[0.02] backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.36),inset_0_1px_1px_0_rgba(255,255,255,0.3)] hover:border-[#00B2FE]/60 hover:bg-white/20 hover:shadow-[0_12px_36px_rgba(0,178,254,0.25),inset_0_1px_2px_rgba(255,255,255,0.5)] transition-all duration-300 hover:-translate-y-1.5 group overflow-hidden">
               {/* Top Specular Edge Flare */}
               <div className="absolute inset-x-3 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
@@ -120,16 +121,16 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
 
               <div className="relative z-10">
                 <div className="mb-3 text-[#00B2FE] drop-shadow-[0_2px_10px_rgba(0,178,254,0.5)] group-hover:scale-110 group-hover:text-cyan-300 transition-all duration-300">
-                  <Activity className="w-6 h-6" />
+                  <Layers className="w-6 h-6" />
                 </div>
-                <h4 className="text-xs font-bold text-white tracking-wide">Emissions & Plans</h4>
+                <h4 className="text-xs font-bold text-white tracking-wide">Emission & Plans</h4>
                 <p className="text-[11px] text-slate-300/90 mt-1 leading-snug font-normal">
-                  Structured Monitoring Plans & Tier 1/2/3 calculations
+                  Manage monitoring plans, activity data & emissions
                 </p>
               </div>
             </div>
 
-            {/* Card 3: EAD Verification */}
+            {/* Card 3: Annual Emission Reporting */}
             <div className="relative p-4 rounded-2xl bg-gradient-to-b from-white/15 via-white/[0.08] to-white/[0.02] backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.36),inset_0_1px_1px_0_rgba(255,255,255,0.3)] hover:border-[#00B2FE]/60 hover:bg-white/20 hover:shadow-[0_12px_36px_rgba(0,178,254,0.25),inset_0_1px_2px_rgba(255,255,255,0.5)] transition-all duration-300 hover:-translate-y-1.5 group overflow-hidden">
               {/* Top Specular Edge Flare */}
               <div className="absolute inset-x-3 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
@@ -138,11 +139,11 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
 
               <div className="relative z-10">
                 <div className="mb-3 text-[#00B2FE] drop-shadow-[0_2px_10px_rgba(0,178,254,0.5)] group-hover:scale-110 group-hover:text-cyan-300 transition-all duration-300">
-                  <ShieldCheck className="w-6 h-6" />
+                  <BarChart3 className="w-6 h-6" />
                 </div>
-                <h4 className="text-xs font-bold text-white tracking-wide">EAD Verification</h4>
+                <h4 className="text-xs font-bold text-white tracking-wide">Annual Emission Reporting</h4>
                 <p className="text-[11px] text-slate-300/90 mt-1 leading-snug font-normal">
-                  Accredited third-party audits & 30-day review cycles
+                  Submit annual data, calculate emissions & track status.
                 </p>
               </div>
             </div>
@@ -269,29 +270,32 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
               </div>
             </div>
 
-            {/* Azure AD / UAE Pass SSO Button */}
+            {/* Azure AD SSO Button */}
             <div className="flex justify-center">
               <button
                 type="button"
                 onClick={() => handleSignIn('FACILITY_OPERATOR')}
-                className="w-13 h-13 p-3 rounded-2xl bg-[#00B2FE] hover:bg-[#00C2FF] text-white shadow-lg shadow-[#00B2FE]/40 hover:scale-105 transition-transform flex items-center justify-center"
-                title="Single Sign-On with Azure AD / UAE Pass"
+                className="w-13 h-13 p-2.5 rounded-2xl bg-[#00B2FE] hover:bg-[#009CEB] text-white shadow-lg shadow-[#00B2FE]/35 hover:scale-105 transition-all flex items-center justify-center cursor-pointer active:scale-95"
+                title="Single Sign-On with Azure Active Directory (Azure AD)"
               >
-                {/* Azure AD Hub Connection Icon */}
+                {/* Official Azure AD / Microsoft Entra ID Logo */}
                 <svg
-                  className="w-6 h-6 fill-current text-white"
-                  viewBox="0 0 24 24"
+                  className="w-7 h-7 text-white"
+                  viewBox="0 0 100 100"
+                  fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  <circle cx="12" cy="12" r="3.5" />
-                  <circle cx="5" cy="12" r="2" />
-                  <circle cx="19" cy="12" r="2" />
-                  <circle cx="12" cy="5" r="2" />
-                  <circle cx="12" cy="19" r="2" />
-                  <line x1="7" y1="12" x2="8.5" y2="12" stroke="white" strokeWidth="1.5" />
-                  <line x1="15.5" y1="12" x2="17" y2="12" stroke="white" strokeWidth="1.5" />
-                  <line x1="12" y1="7" x2="12" y2="8.5" stroke="white" strokeWidth="1.5" />
-                  <line x1="12" y1="15.5" x2="12" y2="17" stroke="white" strokeWidth="1.5" />
+                  {/* Connecting struts */}
+                  <line x1="50" y1="21" x2="21" y2="50" stroke="currentColor" strokeWidth="7" strokeLinecap="round" />
+                  <line x1="50" y1="21" x2="79" y2="50" stroke="currentColor" strokeWidth="7" strokeLinecap="round" />
+                  <line x1="50" y1="21" x2="50" y2="79" stroke="currentColor" strokeWidth="7" strokeLinecap="round" />
+                  <line x1="21" y1="50" x2="50" y2="79" stroke="currentColor" strokeWidth="7" strokeLinecap="round" />
+                  <line x1="79" y1="50" x2="50" y2="79" stroke="currentColor" strokeWidth="7" strokeLinecap="round" />
+                  {/* Circular nodes */}
+                  <circle cx="50" cy="21" r="10.5" fill="currentColor" />
+                  <circle cx="21" cy="50" r="10.5" fill="currentColor" />
+                  <circle cx="79" cy="50" r="10.5" fill="currentColor" />
+                  <circle cx="50" cy="79" r="10.5" fill="currentColor" />
                 </svg>
               </button>
             </div>

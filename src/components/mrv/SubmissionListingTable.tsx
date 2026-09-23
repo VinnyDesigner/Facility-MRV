@@ -472,8 +472,8 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
               </th>
 
               {/* 12. Actions */}
-              <th className="py-3.5 px-4 text-right whitespace-nowrap">
-                <span className="sr-only">Actions</span>
+              <th className="py-3.5 px-4 text-center whitespace-nowrap">
+                <span>Actions</span>
               </th>
             </tr>
           </thead>
@@ -486,11 +486,11 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
                 </td>
               </tr>
             ) : (
-              sortedSubmissions.map((row) => {
+              sortedSubmissions.map((row, idx) => {
                 const isCorrectionRequired = row.status === 'Correction Required';
 
                 return (
-                  <tr key={row.id} className="hover:bg-slate-50/80 transition-colors group">
+                  <tr key={row.id} className={`${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}>
                     {/* 1. Facility ID */}
                     <td className="py-3.5 px-3.5 font-mono font-bold text-[#004B87] text-xs whitespace-nowrap">
                       {row.facilityCode || row.id}
@@ -552,8 +552,8 @@ export const SubmissionListingTable: React.FC<SubmissionListingTableProps> = ({
                     </td>
 
                     {/* 12. Actions: Eye for all; Edit icon ONLY when Correction Required */}
-                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                      <div className="flex items-center justify-center gap-2">
                         {/* Eye Icon (View) */}
                         <button
                           onClick={() => handleView(row)}

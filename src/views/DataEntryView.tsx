@@ -33,6 +33,8 @@ import {
   Info,
   ChevronLeft,
   ChevronRight,
+  MessageSquare,
+  XCircle,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
 import { formatVersion } from '../types/mrv';
@@ -69,6 +71,7 @@ export const DataEntryView: React.FC = () => {
 
   const [isSavedNotice, setIsSavedNotice] = useState(false);
   const [noticeMessage, setNoticeMessage] = useState('Data Saved Successfully!');
+  const [reviewerComments, setReviewerComments] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Multi-Facility Monitoring Plan Records Registry
@@ -615,8 +618,61 @@ export const DataEntryView: React.FC = () => {
   const handleViewFacilityPlan = (facId: string) => {
     setSelectedFacilityId(facId);
     setActiveFacilityId(facId);
+    const plan = facilityPlans[facId];
+    setReviewerComments(plan?.reviewerComments || '');
     setFormActiveTab('facility-description');
     setViewMode('view');
+  };
+
+  // EAD Determination Handlers for Monitoring Plan
+  const handleViewRevert = () => {
+    updateCurrentPlan((p) => ({
+      ...p,
+      status: 'Correction Required',
+      eadCorrectionDate: '07-Oct-2026',
+      reviewerComments: reviewerComments,
+      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    }));
+    setMonitoringPlanStatus('Correction Required');
+    setNoticeMessage('Monitoring Plan Reverted to Facility Operator for Correction');
+    setIsSavedNotice(true);
+    setTimeout(() => {
+      setIsSavedNotice(false);
+      setViewMode('table');
+    }, 1500);
+  };
+
+  const handleViewReject = () => {
+    updateCurrentPlan((p) => ({
+      ...p,
+      status: 'Rejected',
+      reviewerComments: reviewerComments,
+      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    }));
+    setMonitoringPlanStatus('Rejected');
+    setNoticeMessage('Monitoring Plan Rejected');
+    setIsSavedNotice(true);
+    setTimeout(() => {
+      setIsSavedNotice(false);
+      setViewMode('table');
+    }, 1500);
+  };
+
+  const handleViewApprove = () => {
+    updateCurrentPlan((p) => ({
+      ...p,
+      status: 'Approved',
+      eadCorrectionDate: null,
+      reviewerComments: reviewerComments,
+      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    }));
+    setMonitoringPlanStatus('Approved');
+    setNoticeMessage('Monitoring Plan Approved by EAD!');
+    setIsSavedNotice(true);
+    setTimeout(() => {
+      setIsSavedNotice(false);
+      setViewMode('table');
+    }, 1500);
   };
 
   // Handle Create Monitoring Plan for Approved Facility in 'To Be Submitted' State
@@ -877,18 +933,18 @@ export const DataEntryView: React.FC = () => {
         <div className="flex flex-col flex-1 min-h-0 justify-between overflow-hidden">
           <div className="flex-1 min-h-0 overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-xs">
             <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="h-[38px] bg-[#6692B7]/30 text-slate-800 font-bold text-xs border-b border-[#6692B7]/20 sticky top-0 z-10 shadow-xs">
-                  <th className="h-[38px] px-2.5 w-10 text-center align-middle">#</th>
-                  <th className="h-[38px] px-2.5 w-44 max-w-[180px] align-middle">Facility Name</th>
-                  <th className="h-[38px] px-2.5 whitespace-nowrap align-middle">Facility ID</th>
-                  <th className="h-[38px] px-2.5 whitespace-nowrap text-center align-middle">Applicable Year</th>
-                  <th className="h-[38px] px-2.5 whitespace-nowrap align-middle">Primary Monitoring Approach</th>
-                  <th className="h-[38px] px-2.5 whitespace-nowrap align-middle">Submitted Date</th>
-                  <th className="h-[38px] px-2.5 whitespace-nowrap align-middle">Updated Date</th>
-                  <th className="h-[38px] px-2.5 w-28 whitespace-nowrap text-left align-middle">Status</th>
-                  <th className="h-[38px] px-2.5 w-36 whitespace-nowrap align-middle">Correction Deadline</th>
-                  <th className="h-[38px] px-3 w-16 text-right whitespace-nowrap align-middle">Actions</th>
+              <thead className="sticky top-0 z-20 bg-[#D6E3EF] shadow-xs">
+                <tr className="h-[38px] bg-[#D6E3EF] text-slate-800 font-bold text-xs border-b border-[#5B88B0]/30">
+                  <th className="h-[38px] px-2.5 w-10 text-center align-middle bg-[#D6E3EF]">#</th>
+                  <th className="h-[38px] px-2.5 w-44 max-w-[180px] align-middle bg-[#D6E3EF]">Facility Name</th>
+                  <th className="h-[38px] px-2.5 whitespace-nowrap align-middle bg-[#D6E3EF]">Facility ID</th>
+                  <th className="h-[38px] px-2.5 whitespace-nowrap text-center align-middle bg-[#D6E3EF]">Applicable Year</th>
+                  <th className="h-[38px] px-2.5 whitespace-nowrap align-middle bg-[#D6E3EF]">Primary Monitoring Approach</th>
+                  <th className="h-[38px] px-2.5 whitespace-nowrap align-middle bg-[#D6E3EF]">Submitted Date</th>
+                  <th className="h-[38px] px-2.5 whitespace-nowrap align-middle bg-[#D6E3EF]">Updated Date</th>
+                  <th className="h-[38px] px-2.5 w-28 whitespace-nowrap text-left align-middle bg-[#D6E3EF]">Status</th>
+                  <th className="h-[38px] px-2.5 w-36 whitespace-nowrap align-middle bg-[#D6E3EF]">Correction Deadline</th>
+                  <th className="h-[38px] px-3 w-20 text-center whitespace-nowrap align-middle bg-[#D6E3EF]">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
@@ -906,7 +962,7 @@ export const DataEntryView: React.FC = () => {
                     return (
                       <tr
                         key={facId}
-                        className="h-[60px] hover:bg-slate-50/80 transition-colors group cursor-default"
+                        className={`h-[60px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}
                       >
                         <td className="h-[60px] px-2.5 text-center font-mono font-bold text-slate-400 align-middle">
                           {rowNumber}
@@ -997,18 +1053,18 @@ export const DataEntryView: React.FC = () => {
                         </td>
 
                         {/* Actions: "Create Monitoring Plan" button for 'To Be Submitted', or Eye View & Edit Icons */}
-                        <td className="h-[60px] px-3 text-right whitespace-nowrap align-middle">
+                        <td className="h-[60px] px-3 text-center whitespace-nowrap align-middle">
                           {plan.status === 'To Be Submitted' ? (
                             <button
                               onClick={() => handleCreatePlanForFacility(facId)}
-                              className="px-2.5 py-1 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-lg text-[11px] font-bold flex items-center gap-1 shadow-xs hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer whitespace-nowrap ml-auto active:scale-95"
+                              className="px-2.5 py-1 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-lg text-[11px] font-bold flex items-center gap-1 shadow-xs hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer whitespace-nowrap mx-auto active:scale-95"
                               title="Create Plan for this facility"
                             >
                               <Plus className="w-3.5 h-3.5" />
                               <span>Create Plan</span>
                             </button>
                           ) : (
-                            <div className="flex items-center justify-end gap-1">
+                            <div className="flex items-center justify-center gap-1.5">
                               <button
                                 onClick={() => handleViewFacilityPlan(facId)}
                                 title="View Monitoring Plan Details"
@@ -1016,13 +1072,15 @@ export const DataEntryView: React.FC = () => {
                               >
                                 <Eye className="w-4 h-4" />
                               </button>
-                              <button
-                                onClick={() => handleEditFacilityPlan(facId)}
-                                title="Edit Monitoring Plan"
-                                className="p-1 rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </button>
+                              {plan.status !== 'Under EAD Review' && (
+                                <button
+                                  onClick={() => handleEditFacilityPlan(facId)}
+                                  title="Edit Monitoring Plan"
+                                  className="p-1 rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </button>
+                              )}
                             </div>
                           )}
                         </td>
@@ -1053,8 +1111,9 @@ export const DataEntryView: React.FC = () => {
                   }}
                   className="bg-white border border-slate-200 rounded-lg px-2 py-0.5 text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
                 >
-                  <option value={7}>7</option>
-                  <option value={10}>10</option>
+                  <option value={8}>8</option>
+                  <option value={12}>12</option>
+                  <option value={16}>16</option>
                   <option value={20}>20</option>
                 </select>
               </div>
@@ -1154,13 +1213,15 @@ export const DataEntryView: React.FC = () => {
               <span className="text-slate-500">Calendar Year:</span>
               <span className="font-bold text-slate-900">{currentPlan.reportingYear || '2026'}</span>
             </div>
-            <button
-              onClick={() => setViewMode('form')}
-              className="px-4 py-1.5 bg-[#004B87] text-white rounded-xl text-xs font-bold hover:bg-[#003a6b] flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-            >
-              <Edit className="w-3.5 h-3.5" />
-              <span>Edit Plan</span>
-            </button>
+            {currentPlan.status !== 'Under EAD Review' && (
+              <button
+                onClick={() => setViewMode('form')}
+                className="px-4 py-1.5 bg-[#004B87] text-white rounded-xl text-xs font-bold hover:bg-[#003a6b] flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              >
+                <Edit className="w-3.5 h-3.5" />
+                <span>Edit Plan</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -1237,7 +1298,7 @@ export const DataEntryView: React.FC = () => {
           </div>
 
           {/* Scrollable Content */}
-          <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-1 pt-2 pb-0.5 text-xs no-scrollbar">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-2.5 pt-2 pb-0.5 text-xs custom-scrollbar">
 
           {/* Tab 1: Facility Description */}
           {formActiveTab === 'facility-description' && (
@@ -1433,7 +1494,7 @@ export const DataEntryView: React.FC = () => {
 
           {/* Tab 5: Source Stream */}
           {formActiveTab === 'source-stream' && (
-            <div className="space-y-2 pt-1">
+            <div className="space-y-4 pt-1">
               <div className="overflow-x-auto rounded-xl border border-slate-200 table-sticky-columns">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -1468,29 +1529,131 @@ export const DataEntryView: React.FC = () => {
                   </tbody>
                 </table>
               </div>
+
+              {/* Supporting Documents */}
+              <div className="space-y-2 pt-1">
+                <span className="text-xs font-bold text-[#336D9F]">Supporting Documents</span>
+                <div className="flex flex-wrap gap-2.5">
+                  {(currentPlan.attachedFiles && currentPlan.attachedFiles.length > 0 ? currentPlan.attachedFiles : [{ name: 'Uncertainty Guidance.PDF', size: '3MB', status: 'Completed' }]).map((f: any, i: number) => (
+                    <span key={i} className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-800 shadow-xs">
+                      <FileText className="w-4 h-4 text-rose-600" />
+                      <span className="font-bold">{f.name}</span>
+                      <span className="text-slate-400 text-[10px]">{f.size} • <span className="text-emerald-600 font-bold">{f.status || 'Completed'}</span></span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Remarks / Description */}
+              <div className="space-y-1.5 pt-1 text-xs">
+                <label className="block text-xs font-bold text-[#336D9F]">Remarks / Description</label>
+                <p className="font-medium text-navy-900 bg-white p-3.5 rounded-xl border border-slate-200 leading-relaxed">
+                  {currentPlan.remarks || 'Standard monitoring plan submitted in accordance with statutory guidelines.'}
+                </p>
+              </div>
             </div>
           )}
+        </div>
 
-          {/* Supporting Documents */}
-          <div className="space-y-2 pt-1">
-            <span className="text-xs font-bold text-[#336D9F]">Supporting Documents</span>
-            <div className="flex flex-wrap gap-2.5">
-              {(currentPlan.attachedFiles && currentPlan.attachedFiles.length > 0 ? currentPlan.attachedFiles : [{ name: 'Uncertainty Guidance.PDF', size: '3MB', status: 'Completed' }]).map((f: any, i: number) => (
-                <span key={i} className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-800 shadow-xs">
-                  <FileText className="w-4 h-4 text-rose-600" />
-                  <span className="font-bold">{f.name}</span>
-                  <span className="text-slate-400 text-[10px]">{f.size} • <span className="text-emerald-600 font-bold">{f.status || 'Completed'}</span></span>
-                </span>
-              ))}
+        {/* Sticky Bottom Actions Bar for View Mode (Common across all tabs) */}
+        <div className="flex-shrink-0 pt-2.5 mt-1 border-t border-slate-100 bg-white space-y-2.5">
+          {/* Reviewer Comments Box (Common across all tabs) */}
+          <div className="text-xs">
+            <div className="flex items-center gap-1.5 mb-1">
+              <MessageSquare className="w-3.5 h-3.5 text-[#336D9F]" />
+              <label className="font-bold text-[#336D9F] text-xs">Reviewer Comments</label>
             </div>
+            <textarea
+              rows={2}
+              value={reviewerComments}
+              onChange={(e) => setReviewerComments(e.target.value)}
+              placeholder="Enter reviewer comments, feedback, compliance notes, or correction instructions for this monitoring plan..."
+              className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-[8px] text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] focus:bg-white transition-all font-medium resize-none shadow-2xs"
+            />
           </div>
 
-          {/* Remarks / Description */}
-          <div className="space-y-1.5 pt-1 text-xs">
-            <label className="block text-xs font-bold text-[#336D9F]">Remarks / Description</label>
-            <p className="font-medium text-navy-900 bg-white p-3.5 rounded-xl border border-slate-200 leading-relaxed">
-              {currentPlan.remarks || 'Standard monitoring plan submitted in accordance with statutory guidelines.'}
-            </p>
+          {/* Bottom Actions Row */}
+          <div className="flex items-center justify-end">
+            {formActiveTab === 'facility-description' && (
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('emissions-estimated')}
+                className="px-5 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold text-xs rounded-[8px] shadow-sm hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {formActiveTab === 'emissions-estimated' && (
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('emission-sources')}
+                className="px-5 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold text-xs rounded-[8px] shadow-sm hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {formActiveTab === 'emission-sources' && (
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('methane-emission')}
+                className="px-5 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold text-xs rounded-[8px] shadow-sm hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {formActiveTab === 'methane-emission' && (
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('source-stream')}
+                className="px-5 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold text-xs rounded-[8px] shadow-sm hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {formActiveTab === 'source-stream' && (
+              <div className="flex items-center justify-end gap-3">
+                {/* Revert Button */}
+                <button
+                  type="button"
+                  onClick={handleViewRevert}
+                  className="px-5 py-2 bg-[#FFF8E7] hover:bg-[#FEF0CD] border border-[#FCD34D] text-[#975A16] font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  title="Revert monitoring plan back to operator for correction"
+                >
+                  <RotateCcw className="w-4 h-4 text-[#975A16]" />
+                  <span>Revert</span>
+                </button>
+
+                {/* Reject Button */}
+                <button
+                  type="button"
+                  onClick={handleViewReject}
+                  className="px-5 py-2 bg-[#FFF0F3] hover:bg-[#FFE2E6] border border-[#FDA4AF] text-[#9F1239] font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  title="Reject monitoring plan"
+                >
+                  <XCircle className="w-4 h-4 text-[#9F1239]" />
+                  <span>Reject</span>
+                </button>
+
+                {/* Approve Button */}
+                <button
+                  type="button"
+                  onClick={handleViewApprove}
+                  className="px-6 py-2 bg-[#00875A] hover:bg-[#00754E] border border-[#00875A] text-white font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  title="Approve monitoring plan"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-white" />
+                  <span>Approve</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -1656,7 +1819,7 @@ export const DataEntryView: React.FC = () => {
         </div>
 
         {/* Scrollable Form Content */}
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-1 pt-2 pb-0.5 text-xs no-scrollbar">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-2.5 pt-2 pb-0.5 text-xs custom-scrollbar">
 
           {/* Tab 1: Facility Description */}
           {formActiveTab === 'facility-description' && (
@@ -2900,63 +3063,183 @@ export const DataEntryView: React.FC = () => {
         </button>
 
         {isFacilityOperator && (
-          <button
-            onClick={() => {
-              handleSave();
-              updateCurrentPlan((p) => ({
-                ...p,
-                status: 'Submitted',
-                submittedDate: '21-Sep-2026',
-              }));
-              setMonitoringPlanStatus('Submitted');
-              setNoticeMessage('Monitoring Plan Submitted to EAD!');
-              setIsSavedNotice(true);
-              setTimeout(() => setIsSavedNotice(false), 3000);
-            }}
-            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer"
-          >
-            <span>{currentPlan.status === 'Correction Required' ? 'Resubmit Monitoring Plan' : 'Submit Monitoring Plan'}</span>
-            <Send className="w-3.5 h-3.5 fill-current" />
-          </button>
+          <>
+            {formActiveTab === 'facility-description' && (
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('emissions-estimated')}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {formActiveTab === 'emissions-estimated' && (
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('emission-sources')}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {formActiveTab === 'emission-sources' && (
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('methane-emission')}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {formActiveTab === 'methane-emission' && (
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('source-stream')}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {formActiveTab === 'source-stream' && (
+              <button
+                type="button"
+                onClick={() => {
+                  handleSave();
+                  updateCurrentPlan((p) => ({
+                    ...p,
+                    status: 'Submitted',
+                    submittedDate: '21-Sep-2026',
+                  }));
+                  setMonitoringPlanStatus('Submitted');
+                  setNoticeMessage('Monitoring Plan Submitted to EAD!');
+                  setIsSavedNotice(true);
+                  setTimeout(() => setIsSavedNotice(false), 3000);
+                }}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <span>{currentPlan.status === 'Correction Required' ? 'Resubmit Monitoring Plan' : 'Submit Monitoring Plan'}</span>
+                <Send className="w-3.5 h-3.5 fill-current" />
+              </button>
+            )}
+          </>
         )}
 
         {isEadReviewerOrAdmin && (
           <>
-            <button
-              onClick={() => {
-                updateCurrentPlan((p) => ({
-                  ...p,
-                  status: 'Correction Required',
-                  eadCorrectionDate: '21-Sep-2026',
-                }));
-                setMonitoringPlanStatus('Correction Required');
-                setNoticeMessage('Monitoring Plan Returned for Correction.');
-                setIsSavedNotice(true);
-                setTimeout(() => setIsSavedNotice(false), 3000);
-              }}
-              className="px-4 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-xs font-bold text-amber-800 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-            >
-              <RotateCcw className="w-3.5 h-3.5 text-amber-700" />
-              <span>Return for Correction</span>
-            </button>
+            {formActiveTab === 'facility-description' && (
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('emissions-estimated')}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
 
-            <button
-              onClick={() => {
-                updateCurrentPlan((p) => ({
-                  ...p,
-                  status: 'Approved',
-                  eadCorrectionDate: null,
-                }));
-                setMonitoringPlanStatus('Approved');
-                setNoticeMessage('Monitoring Plan Approved by EAD!');
-                setIsSavedNotice(true);
-                setTimeout(() => setIsSavedNotice(false), 3000);
-              }}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-emerald-600/25 hover:shadow-lg transition-all cursor-pointer"
-            >
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>EAD Approve Plan</span>
-            </button>
+            {formActiveTab === 'emissions-estimated' && (
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('emission-sources')}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {formActiveTab === 'emission-sources' && (
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('methane-emission')}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {formActiveTab === 'methane-emission' && (
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('source-stream')}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {formActiveTab === 'source-stream' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateCurrentPlan((p) => ({
+                      ...p,
+                      status: 'Correction Required',
+                      eadCorrectionDate: '07-Oct-2026',
+                      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+                    }));
+                    setMonitoringPlanStatus('Correction Required');
+                    setNoticeMessage('Monitoring Plan Returned for Correction.');
+                    setIsSavedNotice(true);
+                    setTimeout(() => setIsSavedNotice(false), 3000);
+                  }}
+                  className="px-5 py-2 bg-[#FFF8E7] hover:bg-[#FEF0CD] border border-[#FCD34D] text-[#975A16] font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                >
+                  <RotateCcw className="w-4 h-4 text-[#975A16]" />
+                  <span>Return for Correction</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateCurrentPlan((p) => ({
+                      ...p,
+                      status: 'Rejected',
+                      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+                    }));
+                    setMonitoringPlanStatus('Rejected');
+                    setNoticeMessage('Monitoring Plan Rejected.');
+                    setIsSavedNotice(true);
+                    setTimeout(() => setIsSavedNotice(false), 3000);
+                  }}
+                  className="px-5 py-2 bg-[#FFF0F3] hover:bg-[#FFE2E6] border border-[#FDA4AF] text-[#9F1239] font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                >
+                  <XCircle className="w-4 h-4 text-[#9F1239]" />
+                  <span>Reject</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateCurrentPlan((p) => ({
+                      ...p,
+                      status: 'Approved',
+                      eadCorrectionDate: null,
+                      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+                    }));
+                    setMonitoringPlanStatus('Approved');
+                    setNoticeMessage('Monitoring Plan Approved by EAD!');
+                    setIsSavedNotice(true);
+                    setTimeout(() => setIsSavedNotice(false), 3000);
+                  }}
+                  className="px-6 py-2 bg-[#00875A] hover:bg-[#00754E] border border-[#00875A] text-white font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-white" />
+                  <span>EAD Approve Plan</span>
+                </button>
+              </>
+            )}
           </>
         )}
       </div>

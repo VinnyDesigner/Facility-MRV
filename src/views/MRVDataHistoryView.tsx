@@ -571,123 +571,123 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
             <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto rounded-xl border border-slate-200/90 bg-white">
               <table className="w-full text-left text-xs border-collapse min-w-[1100px]">
                 <thead>
-                  <tr className="h-[38px] bg-[#6692B7]/30 text-slate-800 font-bold text-xs border-b border-[#6692B7]/20 sticky top-0 z-10 shadow-xs">
+                  <tr className="h-[38px] bg-[#D6E3EF] text-slate-800 font-bold text-xs border-b border-[#5B88B0]/30 sticky top-0 z-10 shadow-xs">
                     {/* 1. Facility ID */}
                     <th
                       onClick={() => handleSort('facilityId')}
-                      className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap align-middle"
+                      className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap align-middle bg-[#D6E3EF]"
                     >
-                    <div className="flex items-center gap-1">
-                      <span>Facility ID</span>
-                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                    </div>
-                  </th>
+                      <div className="flex items-center gap-1">
+                        <span>Facility ID</span>
+                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                      </div>
+                    </th>
 
-                  {/* 3. Facility */}
-                  <th
-                    onClick={() => handleSort('facilityName')}
-                    className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors min-w-[150px] align-middle"
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Facility</span>
-                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                    </div>
-                  </th>
+                    {/* 3. Facility */}
+                    <th
+                      onClick={() => handleSort('facilityName')}
+                      className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors min-w-[150px] align-middle bg-[#D6E3EF]"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span>Facility</span>
+                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                      </div>
+                    </th>
 
-                  {/* 4. Reporting Entity */}
-                  <th
-                    onClick={() => handleSort('operatorName')}
-                    className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors min-w-[150px] align-middle"
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Reporting Entity</span>
-                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                    </div>
-                  </th>
+                    {/* 4. Reporting Entity */}
+                    <th
+                      onClick={() => handleSort('operatorName')}
+                      className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors min-w-[150px] align-middle bg-[#D6E3EF]"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span>Reporting Entity</span>
+                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                      </div>
+                    </th>
 
-                  {/* 5. Sector */}
-                  <th
-                    onClick={() => handleSort('sector')}
-                    className="h-[38px] px-3 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap align-middle"
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Sector</span>
-                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                    </div>
-                  </th>
+                    {/* 5. Sector */}
+                    <th
+                      onClick={() => handleSort('sector')}
+                      className="h-[38px] px-3 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap align-middle bg-[#D6E3EF]"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span>Sector</span>
+                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                      </div>
+                    </th>
 
-                  {/* 6. Tier Level */}
-                  <th
-                    onClick={() => handleSort('tierLevel')}
-                    className="h-[38px] px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap align-middle"
-                  >
-                    <div className="flex items-center justify-center gap-1">
-                      <span>Tier Level</span>
-                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                    </div>
-                  </th>
+                    {/* 6. Tier Level */}
+                    <th
+                      onClick={() => handleSort('tierLevel')}
+                      className="h-[38px] px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap align-middle bg-[#D6E3EF]"
+                    >
+                      <div className="flex items-center justify-center gap-1">
+                        <span>Tier Level</span>
+                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                      </div>
+                    </th>
 
-                  {/* 7. Reporting Year */}
-                  <th
-                    onClick={() => handleSort('reportingYear')}
-                    className="h-[38px] px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap align-middle"
-                  >
-                    <div className="flex items-center justify-center gap-1">
-                      <span>Reporting Year</span>
-                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                    </div>
-                  </th>
+                    {/* 7. Reporting Year */}
+                    <th
+                      onClick={() => handleSort('reportingYear')}
+                      className="h-[38px] px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap align-middle bg-[#D6E3EF]"
+                    >
+                      <div className="flex items-center justify-center gap-1">
+                        <span>Reporting Year</span>
+                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                      </div>
+                    </th>
 
-                  {/* 8. Version */}
-                  <th
-                    onClick={() => handleSort('version')}
-                    className="h-[38px] px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap align-middle"
-                  >
-                    <div className="flex items-center justify-center gap-1">
-                      <span>Version</span>
-                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                    </div>
-                  </th>
+                    {/* 8. Version */}
+                    <th
+                      onClick={() => handleSort('version')}
+                      className="h-[38px] px-3 cursor-pointer hover:bg-slate-200/60 transition-colors text-center whitespace-nowrap align-middle bg-[#D6E3EF]"
+                    >
+                      <div className="flex items-center justify-center gap-1">
+                        <span>Version</span>
+                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                      </div>
+                    </th>
 
-                  {/* 9. Last Updated */}
-                  <th
-                    onClick={() => handleSort('lastUpdated')}
-                    className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap align-middle"
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Last Updated</span>
-                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                    </div>
-                  </th>
+                    {/* 9. Last Updated */}
+                    <th
+                      onClick={() => handleSort('lastUpdated')}
+                      className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap align-middle bg-[#D6E3EF]"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span>Last Updated</span>
+                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                      </div>
+                    </th>
 
-                  {/* 10. Review Status */}
-                  <th
-                    onClick={() => handleSort('currentStatus')}
-                    className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap align-middle"
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Review Status</span>
-                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                    </div>
-                  </th>
+                    {/* 10. Review Status */}
+                    <th
+                      onClick={() => handleSort('currentStatus')}
+                      className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap align-middle bg-[#D6E3EF]"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span>Review Status</span>
+                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                      </div>
+                    </th>
 
-                  {/* 11. Correction Deadline */}
-                  <th
-                    onClick={() => handleSort('correctionDeadline')}
-                    className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap align-middle"
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Correction Deadline</span>
-                      <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                    </div>
-                  </th>
+                    {/* 11. Correction Deadline */}
+                    <th
+                      onClick={() => handleSort('correctionDeadline')}
+                      className="h-[38px] px-3.5 cursor-pointer hover:bg-slate-200/60 transition-colors whitespace-nowrap align-middle bg-[#D6E3EF]"
+                    >
+                      <div className="flex items-center gap-1">
+                        <span>Correction Deadline</span>
+                        <ArrowUpDown className="w-3 h-3 text-slate-400" />
+                      </div>
+                    </th>
 
-                  {/* 12. Actions */}
-                  <th className="h-[38px] px-4 text-right whitespace-nowrap align-middle">
-                    <span className="sr-only">Actions</span>
-                  </th>
-                </tr>
-              </thead>
+                    {/* 12. Actions */}
+                    <th className="h-[38px] px-4 text-center whitespace-nowrap align-middle bg-[#D6E3EF]">
+                      <span>Actions</span>
+                    </th>
+                  </tr>
+                </thead>
 
               <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
                 {filteredFacilities.length === 0 ? (
@@ -697,11 +697,11 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                     </td>
                   </tr>
                 ) : (
-                  filteredFacilities.map((row) => {
+                  filteredFacilities.map((row, idx) => {
                     const isCorrection = row.currentStatus === 'Correction Required';
 
                     return (
-                      <tr key={row.facility.id} className="h-[60px] hover:bg-slate-50/80 transition-colors group">
+                      <tr key={row.facility.id} className={`h-[60px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}>
                         {/* 1. Facility ID */}
                         <td className="h-[60px] px-3.5 font-mono font-bold text-[#004B87] text-xs whitespace-nowrap align-middle">
                           {row.facilityId}
@@ -763,8 +763,8 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                         </td>
 
                         {/* 12. Actions: Eye for all; Edit icon ONLY when Correction Required */}
-                        <td className="h-[60px] px-4 text-right whitespace-nowrap align-middle">
-                          <div className="flex items-center justify-end gap-2">
+                        <td className="h-[60px] px-4 text-center whitespace-nowrap align-middle">
+                          <div className="flex items-center justify-center gap-2">
                             {/* Eye Icon (View) */}
                             <button
                               onClick={() => handleSelectFacility(row.facility)}
@@ -917,14 +917,14 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto rounded-xl border border-slate-200/90 bg-white">
             <table className="w-full text-left text-xs border-collapse min-w-[950px]">
               <thead>
-                <tr className="h-[38px] bg-[#6692B7]/30 text-slate-800 font-bold text-xs border-b border-[#6692B7]/20 sticky top-0 z-10 shadow-xs">
-                  <th className="h-[38px] px-3.5 whitespace-nowrap align-middle">Version</th>
-                  <th className="h-[38px] px-3.5 whitespace-nowrap align-middle">Submission Date</th>
-                  <th className="h-[38px] px-3.5 min-w-[150px] align-middle">Submitted By</th>
-                  <th className="h-[38px] px-3.5 whitespace-nowrap align-middle">Status</th>
-                  <th className="h-[38px] px-3.5 min-w-[280px] align-middle">Review / Correction Status</th>
-                  <th className="h-[38px] px-3.5 whitespace-nowrap align-middle">Last Updated</th>
-                  <th className="h-[38px] px-4 text-right whitespace-nowrap align-middle">Action</th>
+                <tr className="h-[38px] bg-[#D6E3EF] text-slate-800 font-bold text-xs border-b border-[#5B88B0]/30 sticky top-0 z-10 shadow-xs">
+                  <th className="h-[38px] px-3.5 whitespace-nowrap align-middle bg-[#D6E3EF]">Version</th>
+                  <th className="h-[38px] px-3.5 whitespace-nowrap align-middle bg-[#D6E3EF]">Submission Date</th>
+                  <th className="h-[38px] px-3.5 min-w-[150px] align-middle bg-[#D6E3EF]">Submitted By</th>
+                  <th className="h-[38px] px-3.5 whitespace-nowrap align-middle bg-[#D6E3EF]">Status</th>
+                  <th className="h-[38px] px-3.5 min-w-[280px] align-middle bg-[#D6E3EF]">Review / Correction Status</th>
+                  <th className="h-[38px] px-3.5 whitespace-nowrap align-middle bg-[#D6E3EF]">Last Updated</th>
+                  <th className="h-[38px] px-4 text-center whitespace-nowrap align-middle bg-[#D6E3EF]">Action</th>
                 </tr>
               </thead>
 
@@ -936,8 +936,8 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                   </td>
                 </tr>
               ) : (
-                filteredVersionRecords.map((row) => (
-                  <tr key={row.id} className="h-[60px] hover:bg-slate-50/80 transition-colors group">
+                filteredVersionRecords.map((row, idx) => (
+                  <tr key={row.id} className={`h-[60px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}>
                     {/* 1. Version */}
                     <td className="h-[60px] px-3.5 whitespace-nowrap align-middle">
                       <div className="flex items-center gap-2">
@@ -996,14 +996,16 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                     </td>
 
                     {/* 7. Action -> View Icon Only (Drills down to Level 3: Complete Submitted Data) */}
-                    <td className="h-[60px] px-4 text-right whitespace-nowrap align-middle">
-                      <button
-                        onClick={() => handleViewVersionDetail(row)}
-                        title={`Open complete entered details for Version ${row.version}`}
-                        className="p-1 rounded-md text-slate-500 hover:text-[#004B87] hover:bg-slate-100 transition-colors cursor-pointer inline-flex items-center justify-center"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                    <td className="h-[60px] px-4 text-center whitespace-nowrap align-middle">
+                      <div className="flex items-center justify-center">
+                        <button
+                          onClick={() => handleViewVersionDetail(row)}
+                          title={`Open complete entered details for Version ${row.version}`}
+                          className="p-1 rounded-md text-slate-500 hover:text-[#004B87] hover:bg-slate-100 transition-colors cursor-pointer inline-flex items-center justify-center"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
