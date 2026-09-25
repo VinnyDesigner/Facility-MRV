@@ -27,6 +27,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
+import { FieldTooltip } from '../components/ui/FieldTooltip';
 
 interface SubmissionRecord {
   id: number;
@@ -302,32 +303,44 @@ export const DataReviewView: React.FC = () => {
         {/* Right: Quick Search & Export */}
         <div className="flex items-center gap-2.5">
           {/* Search Box */}
-          <div className="relative w-44 sm:w-56">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search..."
-              className="w-full pl-8 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-xs"
-            />
-            <Calendar className="w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          </div>
+          <FieldTooltip
+            content="Search submission records by ID, facility name, or reporting entity."
+            example="FAC-001 or Mountain Group"
+            className="w-44 sm:w-56"
+          >
+            <div className="relative w-full">
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search..."
+                className="w-full pl-8 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-xs"
+              />
+              <Calendar className="w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            </div>
+          </FieldTooltip>
 
           {/* Status Filter Dropdown */}
-          <div className="relative">
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="pl-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
-            >
-              <option value="All">Status</option>
-              <option value="Submitted">Submitted</option>
-              <option value="Approved">Approved</option>
-              <option value="Correction Requested">Correction Requested</option>
-              <option value="Rejected">Rejected</option>
-            </select>
-          </div>
+          <FieldTooltip
+            content="Filter submissions by workflow review status."
+            example="Submitted, Approved, or Correction Requested"
+            className="w-auto"
+          >
+            <div className="relative">
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="pl-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
+              >
+                <option value="All">Status</option>
+                <option value="Submitted">Submitted</option>
+                <option value="Approved">Approved</option>
+                <option value="Correction Requested">Correction Requested</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+            </div>
+          </FieldTooltip>
 
           {/* Export Button */}
           <button
@@ -449,20 +462,20 @@ export const DataReviewView: React.FC = () => {
                     <th className="py-3.5 px-3 text-center bg-[#D6E3EF]">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                <tbody className="divide-y divide-slate-100 font-normal text-slate-700">
                   {filteredSubmissions.map((row, idx) => (
                     <tr
                       key={row.id}
                       onClick={() => setSelectedSubmissionId(row.submissionId)}
                       className={`${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors cursor-pointer group`}
                     >
-                      <td className="py-3.5 px-3 font-mono font-bold text-[#004B87]">{`FAC-2026-00${row.id}`}</td>
-                      <td className="py-3.5 px-3 font-semibold text-slate-800">{row.facility}</td>
-                      <td className="py-3.5 px-3 text-slate-600">{row.reportingEntity}</td>
-                      <td className="py-3.5 px-3 text-slate-600">{row.sector}</td>
-                      <td className="py-3.5 px-3 font-bold text-slate-700">{row.tierLevel}</td>
-                      <td className="py-3.5 px-3 text-slate-600">{row.reportingYear}</td>
-                      <td className="py-3.5 px-3 font-mono font-bold text-slate-600 text-center">{row.version}</td>
+                      <td className="py-3.5 px-3 font-mono font-normal text-[#004B87]">{`FAC-2026-00${row.id}`}</td>
+                      <td className="py-3.5 px-3 font-normal text-slate-800">{row.facility}</td>
+                      <td className="py-3.5 px-3 text-slate-600 font-normal">{row.reportingEntity}</td>
+                      <td className="py-3.5 px-3 text-slate-600 font-normal">{row.sector}</td>
+                      <td className="py-3.5 px-3 font-normal text-slate-700">{row.tierLevel}</td>
+                      <td className="py-3.5 px-3 text-slate-600 font-normal">{row.reportingYear}</td>
+                      <td className="py-3.5 px-3 font-mono font-normal text-slate-600 text-center">{row.version}</td>
                       <td className="py-3.5 px-3 text-slate-600">
                         <div className="flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5 text-slate-400" />
@@ -851,46 +864,46 @@ export const DataReviewView: React.FC = () => {
                             <th className="py-2.5 px-3">Expected Reduction (tCO₂e/Year)</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                        <tbody className="divide-y divide-slate-100 font-normal text-slate-700">
                           <tr>
-                            <td className="py-2.5 px-3 font-semibold text-slate-800">Energy Efficiency Improvement</td>
-                            <td className="py-2.5 px-3 text-slate-600">Upgrade to high-efficiency motors and equipment</td>
+                            <td className="py-2.5 px-3 font-normal text-slate-800">Energy Efficiency Improvement</td>
+                            <td className="py-2.5 px-3 text-slate-600 font-normal">Upgrade to high-efficiency motors and equipment</td>
                             <td className="py-2.5 px-3">
-                              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-normal text-[11px]">
                                 In Progress
                               </span>
                             </td>
-                            <td className="py-2.5 px-3 font-semibold">12,500</td>
+                            <td className="py-2.5 px-3 font-normal">12,500</td>
                           </tr>
                           <tr>
-                            <td className="py-2.5 px-3 font-semibold text-slate-800">Alternative Fuel Usage</td>
-                            <td className="py-2.5 px-3 text-slate-600">Use of alternative fuels in cement kiln</td>
+                            <td className="py-2.5 px-3 font-normal text-slate-800">Alternative Fuel Usage</td>
+                            <td className="py-2.5 px-3 text-slate-600 font-normal">Use of alternative fuels in cement kiln</td>
                             <td className="py-2.5 px-3">
-                              <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 font-normal text-[11px]">
                                 Planned
                               </span>
                             </td>
-                            <td className="py-2.5 px-3 font-semibold">8,000</td>
+                            <td className="py-2.5 px-3 font-normal">8,000</td>
                           </tr>
                           <tr>
-                            <td className="py-2.5 px-3 font-semibold text-slate-800">Waste Heat Recovery</td>
-                            <td className="py-2.5 px-3 text-slate-600">Install waste heat recovery system</td>
+                            <td className="py-2.5 px-3 font-normal text-slate-800">Waste Heat Recovery</td>
+                            <td className="py-2.5 px-3 text-slate-600 font-normal">Install waste heat recovery system</td>
                             <td className="py-2.5 px-3">
-                              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-normal text-[11px]">
                                 Completed
                               </span>
                             </td>
-                            <td className="py-2.5 px-3 font-semibold">5,200</td>
+                            <td className="py-2.5 px-3 font-normal">15,000</td>
                           </tr>
                           <tr>
-                            <td className="py-2.5 px-3 font-semibold text-slate-800">Process Optimization</td>
-                            <td className="py-2.5 px-3 text-slate-600">Optimize production process to reduce emissions</td>
+                            <td className="py-2.5 px-3 font-normal text-slate-800">Process Optimization</td>
+                            <td className="py-2.5 px-3 text-slate-600 font-normal">Optimize production process to reduce emissions</td>
                             <td className="py-2.5 px-3">
-                              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-normal text-[11px]">
                                 In Progress
                               </span>
                             </td>
-                            <td className="py-2.5 px-3 font-semibold">3,800</td>
+                            <td className="py-2.5 px-3 font-normal">3,800</td>
                           </tr>
                         </tbody>
                       </table>
@@ -945,10 +958,10 @@ export const DataReviewView: React.FC = () => {
                             <th className="py-2 px-3 text-right">Actions</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                        <tbody className="divide-y divide-slate-100 font-normal text-slate-700">
                           <tr>
-                            <td className="py-2.5 px-3 font-mono font-semibold text-slate-800">Monitoring_Plan_Workbook.xlsx</td>
-                            <td className="py-2.5 px-3 text-slate-600">Monitoring Plan</td>
+                            <td className="py-2.5 px-3 font-mono font-normal text-slate-800">Monitoring_Plan_Workbook.xlsx</td>
+                            <td className="py-2.5 px-3 text-slate-600 font-normal">Monitoring Plan</td>
                             <td className="py-2.5 px-3 text-right">
                               <div className="flex items-center justify-end gap-2 text-slate-500">
                                 <button className="hover:text-[#004B87]"><Eye className="w-3.5 h-3.5" /></button>
@@ -957,8 +970,8 @@ export const DataReviewView: React.FC = () => {
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-2.5 px-3 font-mono font-semibold text-slate-800">Emission_Factor_Calculation.pdf</td>
-                            <td className="py-2.5 px-3 text-slate-600">Methodology</td>
+                            <td className="py-2.5 px-3 font-mono font-normal text-slate-800">Emission_Factor_Calculation.pdf</td>
+                            <td className="py-2.5 px-3 text-slate-600 font-normal">Methodology</td>
                             <td className="py-2.5 px-3 text-right">
                               <div className="flex items-center justify-end gap-2 text-slate-500">
                                 <button className="hover:text-[#004B87]"><Eye className="w-3.5 h-3.5" /></button>
@@ -967,8 +980,8 @@ export const DataReviewView: React.FC = () => {
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-2.5 px-3 font-mono font-semibold text-slate-800">QA_QC_Procedure.pdf</td>
-                            <td className="py-2.5 px-3 text-slate-600">QA/QC</td>
+                            <td className="py-2.5 px-3 font-mono font-normal text-slate-800">QA_QC_Procedure.pdf</td>
+                            <td className="py-2.5 px-3 text-slate-600 font-normal">QA/QC</td>
                             <td className="py-2.5 px-3 text-right">
                               <div className="flex items-center justify-end gap-2 text-slate-500">
                                 <button className="hover:text-[#004B87]"><Eye className="w-3.5 h-3.5" /></button>
@@ -1061,13 +1074,13 @@ export const DataReviewView: React.FC = () => {
                             <th className="py-2.5 px-3">Status</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                        <tbody className="divide-y divide-slate-100 font-normal text-slate-700">
                           <tr>
-                            <td className="py-3 px-3 font-mono font-bold text-[#004B87]">V3 (Current)</td>
+                            <td className="py-3 px-3 font-mono font-normal text-[#004B87]">V3 (Current)</td>
                             <td className="py-3 px-3">Ahmed Ali</td>
                             <td className="py-3 px-3">29-Jul-2026</td>
                             <td className="py-3 px-3">
-                              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-normal text-[11px]">
                                 Approved
                               </span>
                             </td>
@@ -1076,17 +1089,17 @@ export const DataReviewView: React.FC = () => {
                             <td className="py-3 px-3 text-slate-600">All review observations have been addressed successfully.</td>
                             <td className="py-3 px-3 text-slate-400">-</td>
                             <td className="py-3 px-3">
-                              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-normal text-[11px]">
                                 Approved
                               </span>
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-3 px-3 font-mono font-bold text-slate-700">V2</td>
+                            <td className="py-3 px-3 font-mono font-normal text-slate-700">V2</td>
                             <td className="py-3 px-3">Ahmed Ali</td>
                             <td className="py-3 px-3">22-Jul-2026</td>
                             <td className="py-3 px-3">
-                              <span className="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800 font-normal text-[11px]">
                                 Request Correction
                               </span>
                             </td>
@@ -1095,17 +1108,17 @@ export const DataReviewView: React.FC = () => {
                             <td className="py-3 px-3 text-slate-600">QA/QC procedure requires additional clarification and uncertainty assessment.</td>
                             <td className="py-3 px-3 text-slate-600">QA/QC documentation updated and resubmitted.</td>
                             <td className="py-3 px-3">
-                              <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 font-normal text-[11px]">
                                 Resolved
                               </span>
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-3 px-3 font-mono font-bold text-slate-700">V1</td>
+                            <td className="py-3 px-3 font-mono font-normal text-slate-700">V1</td>
                             <td className="py-3 px-3">Ahmed Ali</td>
                             <td className="py-3 px-3">15-Jul-2026</td>
                             <td className="py-3 px-3">
-                              <span className="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800 font-normal text-[11px]">
                                 Request Correction
                               </span>
                             </td>
@@ -1114,7 +1127,7 @@ export const DataReviewView: React.FC = () => {
                             <td className="py-3 px-3 text-slate-600">Emission factor calculation sheet and supporting documents are missing.</td>
                             <td className="py-3 px-3 text-slate-600">Uploaded the required calculation sheet and supporting documents.</td>
                             <td className="py-3 px-3">
-                              <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 font-normal text-[11px]">
                                 Resolved
                               </span>
                             </td>
@@ -1129,28 +1142,41 @@ export const DataReviewView: React.FC = () => {
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <h3 className="font-bold text-slate-900 text-sm">Facility Information Comparison</h3>
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-slate-500 font-medium text-xs">From</span>
-                          <select
-                            value={compareFrom}
-                            onChange={(e) => setCompareFrom(e.target.value)}
-                            className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700"
-                          >
-                            <option value="V1">V1 (15-Jul-2026)</option>
-                            <option value="V2">V2 (22-Jul-2026)</option>
-                          </select>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-slate-500 font-medium text-xs">To</span>
-                          <select
-                            value={compareTo}
-                            onChange={(e) => setCompareTo(e.target.value)}
-                            className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700"
-                          >
-                            <option value="V3">V3 (29-Jul-2026)</option>
-                            <option value="V2">V2 (22-Jul-2026)</option>
-                          </select>
-                        </div>
+                        <FieldTooltip
+                          content="Select baseline submission version for audit comparison."
+                          example="V1 (15-Jul-2026)"
+                          className="w-auto"
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-slate-500 font-medium text-xs">From</span>
+                            <select
+                              value={compareFrom}
+                              onChange={(e) => setCompareFrom(e.target.value)}
+                              className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700"
+                            >
+                              <option value="V1">V1 (15-Jul-2026)</option>
+                              <option value="V2">V2 (22-Jul-2026)</option>
+                            </select>
+                          </div>
+                        </FieldTooltip>
+
+                        <FieldTooltip
+                          content="Select target submission version to compare against baseline."
+                          example="V3 (29-Jul-2026)"
+                          className="w-auto"
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-slate-500 font-medium text-xs">To</span>
+                            <select
+                              value={compareTo}
+                              onChange={(e) => setCompareTo(e.target.value)}
+                              className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700"
+                            >
+                              <option value="V3">V3 (29-Jul-2026)</option>
+                              <option value="V2">V2 (22-Jul-2026)</option>
+                            </select>
+                          </div>
+                        </FieldTooltip>
                       </div>
                     </div>
 
@@ -1165,80 +1191,80 @@ export const DataReviewView: React.FC = () => {
                             <th className="py-2.5 px-3 text-center">Change</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                        <tbody className="divide-y divide-slate-100 font-normal text-slate-700">
                           <tr>
-                            <td className="py-2.5 px-3 font-semibold text-slate-800">Monitoring Plan</td>
-                            <td className="py-2.5 px-3 text-slate-600">Monitoring Method</td>
-                            <td className="py-2.5 px-3 text-slate-500">IPCC Guidelines Tier 1</td>
-                            <td className="py-2.5 px-3 text-slate-900 font-semibold">IPCC Guidelines Tier 2</td>
+                            <td className="py-2.5 px-3 font-normal text-slate-800">Monitoring Plan</td>
+                            <td className="py-2.5 px-3 text-slate-600 font-normal">Monitoring Method</td>
+                            <td className="py-2.5 px-3 text-slate-500 font-normal">IPCC Guidelines Tier 1</td>
+                            <td className="py-2.5 px-3 text-slate-900 font-normal">IPCC Guidelines Tier 2</td>
                             <td className="py-2.5 px-3 text-center">
-                              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-normal text-[11px]">
                                 Modified
                               </span>
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-2.5 px-3 font-semibold text-slate-800">Monitoring Plan</td>
-                            <td className="py-2.5 px-3 text-slate-600">Data Source</td>
-                            <td className="py-2.5 px-3 text-slate-500">Fuel Consumption Records</td>
-                            <td className="py-2.5 px-3 text-slate-900 font-semibold">Fuel Consumption Records (Verified)</td>
+                            <td className="py-2.5 px-3 font-normal text-slate-800">Monitoring Plan</td>
+                            <td className="py-2.5 px-3 text-slate-600 font-normal">Data Source</td>
+                            <td className="py-2.5 px-3 text-slate-500 font-normal">Fuel Consumption Records</td>
+                            <td className="py-2.5 px-3 text-slate-900 font-normal">Fuel Consumption Records (Verified)</td>
                             <td className="py-2.5 px-3 text-center">
-                              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-normal text-[11px]">
                                 Modified
                               </span>
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-2.5 px-3 font-semibold text-slate-800">Verification & QA</td>
-                            <td className="py-2.5 px-3 text-slate-600">QA/QC Procedure</td>
-                            <td className="py-2.5 px-3 text-slate-500">Data Accuracy Check</td>
-                            <td className="py-2.5 px-3 text-slate-900 font-semibold">Data Accuracy Check + Uncertainty Assessment</td>
+                            <td className="py-2.5 px-3 font-normal text-slate-800">Verification & QA</td>
+                            <td className="py-2.5 px-3 text-slate-600 font-normal">QA/QC Procedure</td>
+                            <td className="py-2.5 px-3 text-slate-500 font-normal">Data Accuracy Check</td>
+                            <td className="py-2.5 px-3 text-slate-900 font-normal">Data Accuracy Check + Uncertainty Assessment</td>
                             <td className="py-2.5 px-3 text-center">
-                              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-normal text-[11px]">
                                 Modified
                               </span>
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-2.5 px-3 font-semibold text-slate-800">Verification & QA</td>
-                            <td className="py-2.5 px-3 text-slate-600">Internal Review</td>
-                            <td className="py-2.5 px-3 text-slate-500">Pending</td>
-                            <td className="py-2.5 px-3 text-emerald-700 font-semibold">Completed</td>
+                            <td className="py-2.5 px-3 font-normal text-slate-800">Verification & QA</td>
+                            <td className="py-2.5 px-3 text-slate-600 font-normal">Internal Review</td>
+                            <td className="py-2.5 px-3 text-slate-500 font-normal">Pending</td>
+                            <td className="py-2.5 px-3 text-emerald-700 font-normal">Completed</td>
                             <td className="py-2.5 px-3 text-center">
-                              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-normal text-[11px]">
                                 Modified
                               </span>
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-2.5 px-3 font-semibold text-slate-800">Mitigation Measures</td>
-                            <td className="py-2.5 px-3 text-slate-600">Energy Efficiency Improvement</td>
-                            <td className="py-2.5 px-3 text-slate-500">11,500 tCO₂e/Year</td>
-                            <td className="py-2.5 px-3 text-slate-900 font-semibold">12,500 tCO₂e/Year</td>
+                            <td className="py-2.5 px-3 font-normal text-slate-800">Mitigation Measures</td>
+                            <td className="py-2.5 px-3 text-slate-600 font-normal">Energy Efficiency Improvement</td>
+                            <td className="py-2.5 px-3 text-slate-500 font-normal">11,500 tCO₂e/Year</td>
+                            <td className="py-2.5 px-3 text-slate-900 font-normal">12,500 tCO₂e/Year</td>
                             <td className="py-2.5 px-3 text-center">
-                              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-normal text-[11px]">
                                 Modified
                               </span>
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-2.5 px-3 font-semibold text-slate-800">Supporting Documents</td>
-                            <td className="py-2.5 px-3 text-slate-600">Emission_Factor_Calculation.pdf</td>
-                            <td className="py-2.5 px-3 text-slate-400">Not Uploaded</td>
-                            <td className="py-2.5 px-3 text-[#004B87] font-semibold">Uploaded</td>
+                            <td className="py-2.5 px-3 font-normal text-slate-800">Supporting Documents</td>
+                            <td className="py-2.5 px-3 text-slate-600 font-normal">Emission_Factor_Calculation.pdf</td>
+                            <td className="py-2.5 px-3 text-slate-400 font-normal">Not Uploaded</td>
+                            <td className="py-2.5 px-3 text-[#004B87] font-normal">Uploaded</td>
                             <td className="py-2.5 px-3 text-center">
-                              <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 font-normal text-[11px]">
                                 Added
                               </span>
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-2.5 px-3 font-semibold text-slate-800">Supporting Documents</td>
-                            <td className="py-2.5 px-3 text-slate-600">Calibration_Certificate.pdf</td>
-                            <td className="py-2.5 px-3 text-slate-400">Not Uploaded</td>
-                            <td className="py-2.5 px-3 text-[#004B87] font-semibold">Uploaded</td>
+                            <td className="py-2.5 px-3 font-normal text-slate-800">Supporting Documents</td>
+                            <td className="py-2.5 px-3 text-slate-600 font-normal">Calibration_Certificate.pdf</td>
+                            <td className="py-2.5 px-3 text-slate-400 font-normal">Not Uploaded</td>
+                            <td className="py-2.5 px-3 text-[#004B87] font-normal">Uploaded</td>
                             <td className="py-2.5 px-3 text-center">
-                              <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 font-semibold text-[11px]">
+                              <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 font-normal text-[11px]">
                                 Added
                               </span>
                             </td>

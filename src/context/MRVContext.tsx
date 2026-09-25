@@ -17,6 +17,12 @@ import {
   VerificationStatus,
   ReadOnlyRecordTarget,
 } from '../types/mrv';
+import {
+  INITIAL_FACILITY_REGISTRATIONS,
+  INITIAL_FACILITY_REGISTRATION_HISTORY,
+  FacilityRegistrationVersionSnapshot,
+} from '../data/facilityRegistrationsData';
+import { INITIAL_FACILITY_EMISSIONS } from '../data/facilityEmissionsData';
 
 interface MRVContextType {
   currentUser: User;
@@ -67,6 +73,25 @@ interface MRVContextType {
   openReadOnlyViewer: (target: ReadOnlyRecordTarget) => void;
   closeReadOnlyViewer: () => void;
   getOverallWorkflowProgress: () => { percent: number; stage: string; stageIndex: number };
+  deleteFacility: (id: string) => void;
+  facilityMonitoringPlanStatuses: Record<string, 'Create Plan' | 'Draft' | 'Submitted' | 'Approved' | 'Rejected' | 'Correction Required'>;
+  setFacilityMonitoringPlanStatus: (facilityId: string, status: 'Create Plan' | 'Draft' | 'Submitted' | 'Approved' | 'Rejected' | 'Correction Required') => void;
+  facilityPlans: Record<string, any>;
+  setFacilityPlans: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+  updateFacilityPlan: (facilityId: string, updaterOrData: any) => void;
+  // Persistent Facility Registrations & Operator State Across Tabs
+  operatorFacilityIds: string[];
+  setOperatorFacilityIds: React.Dispatch<React.SetStateAction<string[]>>;
+  hasCreatedFirstFacility: boolean;
+  setHasCreatedFirstFacility: React.Dispatch<React.SetStateAction<boolean>>;
+  facilityRegistrations: Record<string, any>;
+  setFacilityRegistrations: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+  facilityRegistrationHistory: Record<string, FacilityRegistrationVersionSnapshot[]>;
+  setFacilityRegistrationHistory: React.Dispatch<React.SetStateAction<Record<string, FacilityRegistrationVersionSnapshot[]>>>;
+  facilityEmissions: Record<string, any>;
+  setFacilityEmissions: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+  operatorEmissionIds: string[];
+  setOperatorEmissionIds: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const INITIAL_FACILITIES: Facility[] = [
@@ -136,7 +161,7 @@ const INITIAL_FACILITIES: Facility[] = [
       email: 'hamad.kaabi@emiratessteel.ae',
       phone: '+971 50 887 2341',
     },
-    status: 'Active',
+    status: 'Approved',
     lastRenewalDate: '2025-11-20',
     complianceScore: 94,
   },
@@ -171,7 +196,7 @@ const INITIAL_FACILITIES: Facility[] = [
       email: 'sultan.zaabi@borouge.com',
       phone: '+971 50 661 9022',
     },
-    status: 'Active',
+    status: 'Approved',
     lastRenewalDate: '2026-01-05',
     complianceScore: 78,
   },
@@ -206,7 +231,7 @@ const INITIAL_FACILITIES: Facility[] = [
       email: 'rashid.kindi@taqa.ae',
       phone: '+971 50 334 1199',
     },
-    status: 'Active',
+    status: 'Approved',
     lastRenewalDate: '2025-12-18',
     complianceScore: 88,
   },
@@ -276,11 +301,289 @@ const INITIAL_FACILITIES: Facility[] = [
       email: 'salim.nuaimi@gulfchem.ae',
       phone: '+971 50 339 8811',
     },
-    status: 'Rejected',
+    status: 'Approved',
     lastRenewalDate: '2026-02-18',
     complianceScore: 45,
+  },
+  {
+    id: 'fac-7',
+    name: 'Gulf Green Fuels & Biofuels LLC',
+    facilityCode: '',
+    sector: 'Energy',
+    emirate: 'Abu Dhabi',
+    coordinates: { lat: 24.4121, lng: 54.4988 },
+    address: 'ICAD III, Musaffah Industrial Area, Abu Dhabi, UAE',
+    operatorName: 'Gulf Green Fuels PJSC',
+    tradeLicense: 'CN-1099234-AD',
+    permitNumber: '',
+    permitType: 'Class B Environmental Permit',
+    permitIssueDate: '',
+    permitExpiryDate: '',
+    tier: 'Tier 2',
+    primaryActivity: 'Biofuel Refining & Renewable Diesel Synthesis',
+    secondaryActivities: 'Storage & Distribution',
+    products: 'Renewable Diesel, Sustainable Aviation Fuel',
+    productionCapacity: '150,000 MT / Year',
+    actualProduction: '—',
+    contactPerson: {
+      name: 'Saeed Al-Ketbi',
+      position: 'Sustainability Lead',
+      email: 'saeed.ketbi@gulfgreen.ae',
+      phone: '+971 2 611 3400',
+    },
+    environmentalManager: {
+      name: 'Noura Al-Zaabi',
+      email: 'noura.zaabi@gulfgreen.ae',
+      phone: '+971 50 229 4411',
+    },
+    status: 'Draft',
+    lastRenewalDate: '—',
+    complianceScore: 70,
   }
 ];
+
+export const INITIAL_FACILITY_MONITORING_PLANS: Record<string, any> = {
+  'fac-1': {
+    facilityName: 'Al Noor Industrial Facility',
+    facilityId: 'FAC-EAD-2026-0891',
+    planRef: 'MP-2026-0891',
+    reportingYear: '2026',
+    planVersion: 'V1',
+    status: 'To Be Submitted',
+    primaryApproach: 'Calculation-based (Tier 3)',
+    submittedDate: '—',
+    updatedDate: '—',
+    eadCorrectionDate: '2026-06-17',
+    description: 'Cogeneration Power & High-Pressure Steam Generation plant producing electricity and industrial steam for regional facilities.',
+    businessSector: 'Energy',
+    primaryActivity: 'Combustion of fuels in stationary equipment',
+    operationalStatus: 'Operational',
+    productionStreams: [
+      { id: 'P01', category: 'Primary Products', technology: 'Standard Process Unit', energyRelated: 'Yes', processEmissions: 'No', capacity: '100,000', capacityUnit: 't/year', actualQuantity: '85,000', actualQuantityUnit: 't/year' },
+    ],
+    emissionsEstimation: {
+      estimatedAnnualEmissions: '50,000',
+      justification: 'Calculated using fuel consumption records and standard IPCC emissions factors.',
+    },
+    emissionSources: [
+      { id: 'S01', name: 'Main Boiler / Combustion Unit', associatedProduct: 'P01', gasTypes: 'CO₂, CH₄, N₂O', totalEmissions: '50,000', energyRelated: 'Yes', processEmissions: 'No', methodology: 'Calculation-based' },
+    ],
+    methaneData: {
+      hasMethaneEmissions: true,
+      annualVolume: '',
+      annualVolumeUnit: 't CH₄/year',
+      estimatedCo2e: '',
+      estimatedCo2eUnit: 't CO₂e/year',
+      sourceOfEstimations: '',
+      keySourcesAtInstallation: '',
+      procedureToDetermine: '',
+    },
+    methaneProcedures: [
+      { id: '1', title: '', description: '', personInCharge: '', email: '', phone: '' },
+    ],
+    sourceStreams: [
+      { id: 'FC1', description: 'Natural Gas Feed', associatedSource: 'S01', classification: 'Fuel Combusted', activityLevel: '25,000,000', activityUnit: 'Nm³', fuelType: 'Natural gas', combustionDevice: 'Industrial Boiler', deviceCapacity: '35.0', metricUnit: 'MW' },
+    ],
+    calcOtherInputs: [
+      { id: 'F01', type: 'Natural Gas (Pipeline)', activityLevel: '84,100,000', units: 'Nm³', ncv: '38.5', emissionFactor: '56.1', oxidationFactor: '100%', conversionFactor: '1.0', source: 'Laboratory Gas Chromatography (ISO 6974)' },
+    ],
+    measEquipment: [
+      { name: 'Ultrasonic Gas Flow Meter - FM01', type: 'Flow Meter', manufacturer: 'Daniel / Emerson', parameter: 'Volume Flow (Nm³)', accuracyClass: '±0.5%' },
+      { name: 'Online Gas Chromatograph - GC01', type: 'Gas Analyzer', manufacturer: 'ABB NGC8206', parameter: 'Composition & NCV', accuracyClass: '±0.2%' },
+    ],
+    mitigationMeasures: [
+      { description: 'Turbine Inlet Air Cooling System Upgrade', category: 'Energy Efficiency', scope: '1', ghg: 'CO₂', startYear: '2025', status: 'Implemented', preMeasure: '148,000', reportingReduction: '5,200', expectedReduction: '5,500', standard: 'ISO 50001', verification: 'Third-Party Verified' },
+    ],
+    remarks: 'Monitoring methodology adheres strictly to EAD MRV Guidelines Chapter 4 for Thermal Power Installations.',
+    attachedFiles: [{ name: 'Al_Noor_Calibration_Certificates_2026.pdf', size: '4.2MB', status: 'Completed' }],
+  },
+  'fac-2': {
+    facilityName: 'Emirates Steel Arkan Complex',
+    facilityId: 'FAC-EAD-2026-0104',
+    planRef: 'MP-2026-0104',
+    reportingYear: '2026',
+    planVersion: 'V1',
+    status: 'Submitted',
+    primaryApproach: 'Measurement-based (CEMS)',
+    submittedDate: '15 Jan 2026',
+    updatedDate: '20 Jan 2026',
+    eadCorrectionDate: null,
+    description: 'Integrated direct reduced iron (DRI) and electric arc furnace (EAF) steel production complex.',
+    businessSector: 'Industrial Processes',
+    primaryActivity: 'Production of iron or steel',
+    operationalStatus: 'Operational',
+    productionStreams: [
+      { id: 'P01', category: 'Primary Products', technology: 'Direct Reduction Plant (DRI)', energyRelated: 'Yes', processEmissions: 'Yes', capacity: '1,200,000', capacityUnit: 't/year', actualQuantity: '1,050,000', actualQuantityUnit: 't/year' },
+      { id: 'P02', category: 'Primary Products', technology: 'Electric Arc Furnace (EAF)', energyRelated: 'Yes', processEmissions: 'Yes', capacity: '1,400,000', capacityUnit: 't/year', actualQuantity: '1,180,000', actualQuantityUnit: 't/year' },
+    ],
+    emissionsEstimation: {
+      estimatedAnnualEmissions: '1,680,000',
+      justification: 'Carbon mass balance model combined with direct stack CEMS monitoring on reformer exhaust.',
+    },
+    emissionSources: [
+      { id: 'S01', name: 'DRI Reformer Furnace Stack', associatedProduct: 'P01', gasTypes: 'CO₂, CH₄', totalEmissions: '1,120,000', energyRelated: 'Yes', processEmissions: 'Yes', methodology: 'Measurement-based' },
+      { id: 'S02', name: 'EAF Off-Gas Extraction', associatedProduct: 'P02', gasTypes: 'CO₂', totalEmissions: '560,000', energyRelated: 'Yes', processEmissions: 'Yes', methodology: 'Calculation-based' },
+    ],
+    methaneData: {
+      hasMethaneEmissions: true,
+      annualVolume: '320',
+      annualVolumeUnit: 't CH₄/year',
+      estimatedCo2e: '8,960',
+      estimatedCo2eUnit: 't CO₂e/year',
+      sourceOfEstimations: 'Reformer tail gas analyzer and fugitive LDAR leak detection.',
+      keySourcesAtInstallation: 'Process gas compressors and seal purging circuits.',
+      procedureToDetermine: 'Continuous off-gas chromatography with monthly Method 21 screening.',
+    },
+    methaneProcedures: [
+      { id: '1', title: 'DRI Gas Loop Inspection', description: 'Bi-weekly leak detection on high pressure reducing gas lines', personInCharge: 'Dr. Fatima Al-Hosani', email: 'fatima.hosani@emiratessteel.ae', phone: '+971 2 550 1100' },
+    ],
+    sourceStreams: [
+      { id: 'FC1', description: 'Reforming Natural Gas', associatedSource: 'S01', classification: 'Fuel Combusted', activityLevel: '420,000,000', activityUnit: 'Nm³', fuelType: 'Natural gas', combustionDevice: 'Midrex Reformer Furnace', deviceCapacity: '350.0', metricUnit: 'MW' },
+    ],
+    calcOtherInputs: [
+      { id: 'F01', type: 'Natural Gas Feedstock', activityLevel: '420,000,000', units: 'Nm³', ncv: '38.2', emissionFactor: '56.1', oxidationFactor: '99.5%', conversionFactor: '1.0', source: 'ADNOC Fiscal Metering' },
+    ],
+    measEquipment: [
+      { name: 'CEMS Stack Analyzer ST-01', type: 'CEMS', manufacturer: 'Sick AG / GM32', parameter: 'CO₂, O₂, Flow', accuracyClass: 'Class 1' },
+    ],
+    mitigationMeasures: [
+      { description: 'CCUS Integration with Al Reyadah Carbon Capture Facility', category: 'Carbon Removal', scope: '1', ghg: 'CO₂', startYear: '2023', status: 'Implemented', preMeasure: '2,200,000', reportingReduction: '800,000', expectedReduction: '800,000', standard: 'ISO 14064-2', verification: 'Third-Party Verified' },
+    ],
+    remarks: 'Includes integrated CCUS transfer point compliance protocols.',
+    attachedFiles: [{ name: 'DRI_CEMS_QAL1_Report.pdf', size: '6.1MB', status: 'Completed' }],
+  },
+  'fac-3': {
+    facilityName: 'Borouge Petrochemicals Complex',
+    facilityId: 'FAC-EAD-2026-0422',
+    planRef: 'MP-2026-0422',
+    reportingYear: '2026',
+    planVersion: 'V1',
+    status: 'Submitted',
+    primaryApproach: 'Calculation & Flaring Model',
+    submittedDate: '02 Mar 2026',
+    updatedDate: '11 Mar 2026',
+    eadCorrectionDate: null,
+    description: 'Polyolefin production facility including ethane cracking and polymerization units.',
+    businessSector: 'Industrial Processes',
+    primaryActivity: 'Combustion of fuels & cracking',
+    operationalStatus: 'Operational',
+    productionStreams: [
+      { id: 'P01', category: 'Primary Products', technology: 'Ethane Steam Cracker', energyRelated: 'Yes', processEmissions: 'Yes', capacity: '1,500,000', capacityUnit: 't/year', actualQuantity: '1,380,000', actualQuantityUnit: 't/year' },
+    ],
+    emissionsEstimation: {
+      estimatedAnnualEmissions: '950,000',
+      justification: 'Calculated using cracking furnace fuel gas mass flow meters and flare gas continuous ultrasonic monitors.',
+    },
+    emissionSources: [
+      { id: 'S01', name: 'Ethane Cracking Furnaces F-101 to F-108', associatedProduct: 'P01', gasTypes: 'CO₂, CH₄, N₂O', totalEmissions: '820,000', energyRelated: 'Yes', processEmissions: 'No', methodology: 'Calculation-based' },
+      { id: 'S02', name: 'Elevated Process Flare Stack', associatedProduct: 'P01', gasTypes: 'CO₂, CH₄', totalEmissions: '130,000', energyRelated: 'No', processEmissions: 'Yes', methodology: 'Measurement-based' },
+    ],
+    methaneData: {
+      hasMethaneEmissions: true,
+      annualVolume: '280',
+      annualVolumeUnit: 't CH₄/year',
+      estimatedCo2e: '7,840',
+      estimatedCo2eUnit: 't CO₂e/year',
+      sourceOfEstimations: 'Continuous flare ultrasonic metering and site-wide LDAR campaign.',
+      keySourcesAtInstallation: 'Polymer degasser vents and polymer recovery compressors.',
+      procedureToDetermine: 'Monthly OGI scanning with toxic vapor analyzer (TVA-2020) validation.',
+    },
+    methaneProcedures: [
+      { id: '1', title: 'Ethane Cracker Flare Header Audit', description: 'Weekly seal purging inspection on elevated flare stack', personInCharge: 'Khalid Al-Marzooqi', email: 'khalid.marzooqi@borouge.com', phone: '+971 50 445 6789' },
+    ],
+    sourceStreams: [
+      { id: 'FC1', description: 'Fuel Gas (Methane/Hydrogen Blend)', associatedSource: 'S01', classification: 'Fuel Combusted', activityLevel: '280,000,000', activityUnit: 'Nm³', fuelType: 'Natural gas', combustionDevice: 'Cracking Furnace Burners', deviceCapacity: '480.0', metricUnit: 'MW' },
+    ],
+    calcOtherInputs: [
+      { id: 'F01', type: 'Off-Gas Fuel Blend', activityLevel: '280,000,000', units: 'Nm³', ncv: '36.8', emissionFactor: '54.2', oxidationFactor: '99.8%', conversionFactor: '1.0', source: 'Online Gas Chromatograph' },
+    ],
+    measEquipment: [
+      { name: 'Flare Ultrasonic Flow Meter FM-FLARE', type: 'Flow Meter', manufacturer: 'Fluenta FGM 160', parameter: 'Flare Gas Flow & Velocity', accuracyClass: '±2.0%' },
+    ],
+    mitigationMeasures: [
+      { description: 'Flare Gas Recovery System (FGRS) Compressor Addition', category: 'Emission Avoidance', scope: '1', ghg: 'CH₄, CO₂', startYear: '2025', status: 'Planned', preMeasure: '160,000', reportingReduction: '45,000', expectedReduction: '50,000', standard: 'API 521', verification: 'Planned Third-Party' },
+    ],
+    remarks: 'Statutory monitoring plan submitted under Class A compliance protocols.',
+    attachedFiles: [{ name: 'FGRS_Engineering_Design_Study.pdf', size: '5.4MB', status: 'Completed' }],
+  },
+  'fac-4': {
+    facilityName: 'Al Taweelah Power & Desalination',
+    facilityId: 'FAC-EAD-2026-0033',
+    planRef: 'MP-2026-0033',
+    reportingYear: '2026',
+    planVersion: 'V1',
+    status: 'Draft',
+    primaryApproach: 'Combined Cycle Gas Telemetry',
+    submittedDate: '—',
+    updatedDate: '10 Feb 2026',
+    eadCorrectionDate: null,
+    description: 'Thermal power generation and seawater thermal desalination facility.',
+    businessSector: 'Energy',
+    primaryActivity: 'Combustion of fuels & Desalination',
+    operationalStatus: 'Operational',
+    productionStreams: [
+      { id: 'P01', category: 'Primary Products', technology: 'Combined Cycle Gas Turbines (CCGT)', energyRelated: 'Yes', processEmissions: 'No', capacity: '2,000,000', capacityUnit: 'MWh/year', actualQuantity: '1,890,000', actualQuantityUnit: 'MWh/year' },
+    ],
+    emissionsEstimation: {
+      estimatedAnnualEmissions: '4,820,000',
+      justification: 'Fiscal pipeline natural gas meters and continuous gas analyzer calibration.',
+    },
+    emissionSources: [
+      { id: 'S01', name: 'Turbine Block 1 Exhaust Stacks', associatedProduct: 'P01', gasTypes: 'CO₂, N₂O', totalEmissions: '2,410,000', energyRelated: 'Yes', processEmissions: 'No', methodology: 'Calculation-based' },
+      { id: 'S02', name: 'Turbine Block 2 Exhaust Stacks', associatedProduct: 'P01', gasTypes: 'CO₂, N₂O', totalEmissions: '2,410,000', energyRelated: 'Yes', processEmissions: 'No', methodology: 'Calculation-based' },
+    ],
+    methaneData: {
+      hasMethaneEmissions: false,
+      annualVolume: '',
+      annualVolumeUnit: 't CH₄/year',
+      estimatedCo2e: '',
+      estimatedCo2eUnit: 't CO₂e/year',
+      sourceOfEstimations: '',
+      keySourcesAtInstallation: '',
+      procedureToDetermine: '',
+    },
+    methaneProcedures: [],
+    sourceStreams: [
+      { id: 'FC1', description: 'Pipeline Natural Gas (TAQA Grid)', associatedSource: 'S01', classification: 'Fuel Combusted', activityLevel: '1,200,000,000', activityUnit: 'Nm³', fuelType: 'Natural gas', combustionDevice: 'MHI CCGT Turbines', deviceCapacity: '1100.0', metricUnit: 'MW' },
+    ],
+    calcOtherInputs: [
+      { id: 'F01', type: 'Natural Gas Pipeline', activityLevel: '1,200,000,000', units: 'Nm³', ncv: '38.4', emissionFactor: '56.1', oxidationFactor: '100%', conversionFactor: '1.0', source: 'ADNOC Gas Telemetry' },
+    ],
+    measEquipment: [
+      { name: 'Ultrasonic Fiscal Meter FM-01', type: 'Flow Meter', manufacturer: 'KROHNE Altometer', parameter: 'Natural Gas Flow', accuracyClass: '±0.3%' },
+    ],
+    mitigationMeasures: [],
+    remarks: 'Draft monitoring plan compiled for annual compliance verification.',
+    attachedFiles: [{ name: 'Taweelah_Gas_Metering_Verification.pdf', size: '3.9MB', status: 'Completed' }],
+  },
+  'fac-5': {
+    facilityName: 'Tadweer Waste-to-Energy Facility',
+    facilityId: 'FAC-EAD-2026-0775',
+    planRef: 'MP-2026-0775',
+    reportingYear: '2026',
+    planVersion: 'V1',
+    status: 'Draft',
+    primaryApproach: 'Waste Incineration Tier 2',
+    submittedDate: '—',
+    updatedDate: '—',
+    eadCorrectionDate: '2026-06-17',
+    description: 'Municipal solid waste incineration facility with waste heat energy recovery.',
+    businessSector: 'Waste',
+    primaryActivity: 'Solid waste thermal treatment',
+    operationalStatus: 'Operational',
+    productionStreams: [],
+    emissionsEstimation: { estimatedAnnualEmissions: '', justification: '' },
+    emissionSources: [],
+    methaneData: { hasMethaneEmissions: false, annualVolume: '', annualVolumeUnit: 't CH₄/year', estimatedCo2e: '', estimatedCo2eUnit: 't CO₂e/year', sourceOfEstimations: '', keySourcesAtInstallation: '', procedureToDetermine: '' },
+    methaneProcedures: [],
+    sourceStreams: [],
+    calcOtherInputs: [],
+    measEquipment: [],
+    mitigationMeasures: [],
+    remarks: '',
+    attachedFiles: [],
+  },
+};
 
 const INITIAL_VERIFIERS: AccreditedVerifier[] = [
   {
@@ -778,8 +1081,45 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [submissions, setSubmissions] = useState<Submission[]>(INITIAL_SUBMISSIONS);
   const [verifiers] = useState<AccreditedVerifier[]>(INITIAL_VERIFIERS);
   const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
-  const [activeView, setActiveView] = useState<string>('dashboard');
+  const [activeView, setActiveView] = useState<string>('registration');
   const [selectedSubmissionForReview, setSelectedSubmissionForReview] = useState<Submission | null>(null);
+
+  // Per-Facility Monitoring Plan Statuses
+  const [facilityMonitoringPlanStatuses, setFacilityMonitoringPlanStatuses] = useState<Record<string, 'Create Plan' | 'Draft' | 'Submitted' | 'Approved' | 'Rejected' | 'Correction Required'>>({
+    'fac-1': 'Create Plan',
+    'fac-2': 'Submitted',
+    'fac-3': 'Submitted',
+    'fac-4': 'Draft',
+    'fac-5': 'Create Plan',
+    'fac-6': 'Create Plan',
+    'fac-7': 'Create Plan',
+  });
+
+  const setFacilityMonitoringPlanStatus = (facilityId: string, status: 'Create Plan' | 'Draft' | 'Submitted' | 'Approved' | 'Rejected' | 'Correction Required') => {
+    setFacilityMonitoringPlanStatuses((prev) => ({
+      ...prev,
+      [facilityId]: status,
+    }));
+  };
+
+  // Per-Facility Monitoring Plans Data Registry
+  const [facilityPlans, setFacilityPlans] = useState<Record<string, any>>(INITIAL_FACILITY_MONITORING_PLANS);
+
+  const updateFacilityPlan = (facilityId: string, updaterOrData: any) => {
+    setFacilityPlans((prev) => {
+      const current = prev[facilityId] || INITIAL_FACILITY_MONITORING_PLANS[facilityId] || {};
+      const updated = typeof updaterOrData === 'function' ? updaterOrData(current) : { ...current, ...updaterOrData };
+      return { ...prev, [facilityId]: updated };
+    });
+  };
+
+  // Persistent Facility Registrations & Operator State Across Tabs
+  const [operatorFacilityIds, setOperatorFacilityIds] = useState<string[]>([]);
+  const [operatorEmissionIds, setOperatorEmissionIds] = useState<string[]>([]);
+  const [hasCreatedFirstFacility, setHasCreatedFirstFacility] = useState<boolean>(false);
+  const [facilityRegistrations, setFacilityRegistrations] = useState<Record<string, any>>(INITIAL_FACILITY_REGISTRATIONS);
+  const [facilityRegistrationHistory, setFacilityRegistrationHistory] = useState<Record<string, FacilityRegistrationVersionSnapshot[]>>(INITIAL_FACILITY_REGISTRATION_HISTORY);
+  const [facilityEmissions, setFacilityEmissions] = useState<Record<string, any>>(INITIAL_FACILITY_EMISSIONS);
 
   // Workflow State (Demo Mock Data State: Demonstrating full end-to-end workflow)
   const [workflowState, setWorkflowState] = useState<WorkflowState>({
@@ -963,11 +1303,11 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const activeFacility = facilities.find((f) => f.id === activeFacilityId) || facilities[0];
 
   const currentUser: User = {
-    id: currentRole === 'FACILITY_OPERATOR' ? 'user-ahmed' : currentRole === 'EAD_REVIEWER' ? 'user-mariam' : 'user-arthur',
-    name: currentRole === 'FACILITY_OPERATOR' ? 'Ahmed Al-Zaabi' : currentRole === 'EAD_REVIEWER' ? 'Dr. Mariam Al-Qubaisi' : 'Dr. Arthur Pendelton',
-    email: currentRole === 'FACILITY_OPERATOR' ? 'ahmed.zaabi@alnoor-energy.ae' : currentRole === 'EAD_REVIEWER' ? 'mariam.qubaisi@ead.gov.ae' : 'arthur.p@bureauveritas.com',
+    id: currentRole === 'FACILITY_OPERATOR' ? 'user-abdul' : currentRole === 'EAD_REVIEWER' ? 'user-admin' : 'user-verifier',
+    name: currentRole === 'FACILITY_OPERATOR' ? 'Abdul' : currentRole === 'EAD_REVIEWER' ? 'Admin' : 'Dr. Arthur Pendelton',
+    email: currentRole === 'FACILITY_OPERATOR' ? 'abdul@alnoor-energy.ae' : currentRole === 'EAD_REVIEWER' ? 'admin@ead.gov.ae' : 'arthur.p@bureauveritas.com',
     role: currentRole,
-    roleTitle: currentRole === 'FACILITY_OPERATOR' ? 'Facility Operator' : currentRole === 'EAD_REVIEWER' ? 'EAD Lead Regulatory Reviewer' : 'Accredited Third-Party Verifier',
+    roleTitle: currentRole === 'FACILITY_OPERATOR' ? 'Data Provider' : currentRole === 'EAD_REVIEWER' ? 'Admin' : 'Accredited Third-Party Verifier',
     facilityId: currentRole === 'FACILITY_OPERATOR' ? activeFacility.id : undefined,
     facilityName: currentRole === 'FACILITY_OPERATOR' ? activeFacility.name : undefined,
     organization: currentRole === 'FACILITY_OPERATOR' ? activeFacility.operatorName : currentRole === 'EAD_REVIEWER' ? 'Environment Agency – Abu Dhabi (EAD)' : 'Bureau Veritas Middle East',
@@ -985,12 +1325,16 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setFacilities((prev) => {
       const exists = prev.some((f) => f.id === targetId);
       if (exists) {
-        return prev.map((f) => (f.id === targetId ? { ...f, ...data } : f));
+        return prev.map((f) => {
+          if (f.id !== targetId) return f;
+          const mergedName = (data.name !== undefined && data.name.trim() !== '') ? data.name : f.name;
+          return { ...f, ...data, name: mergedName };
+        });
       } else {
         const newFac: Facility = {
           id: targetId,
-          name: data.name || 'New Facility',
-          facilityCode: data.facilityCode || `FAC-EAD-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+          name: (data.name && data.name.trim() !== '') ? data.name : (data.status === 'Draft' ? 'Draft Facility' : 'Registered Facility'),
+          facilityCode: data.facilityCode || (data.status === 'Draft' ? '' : `FAC-EAD-2026-${Math.floor(1000 + Math.random() * 9000)}`),
           sector: data.sector || 'Energy',
           emirate: data.emirate || 'Abu Dhabi',
           coordinates: data.coordinates || { lat: 24.4539, lng: 54.3773 },
@@ -1009,7 +1353,7 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           actualProduction: data.actualProduction || '',
           contactPerson: data.contactPerson || { name: '', position: '', email: '', phone: '' },
           environmentalManager: data.environmentalManager || { name: '', email: '', phone: '' },
-          status: data.status || 'Registered',
+          status: data.status || 'Draft',
           lastRenewalDate: data.lastRenewalDate || new Date().toISOString().slice(0, 10),
           complianceScore: data.complianceScore || 85,
         };
@@ -1017,6 +1361,26 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     });
   };
+
+  const deleteFacility = (id: string) => {
+    setFacilities((prev) => prev.filter((f) => f.id !== id));
+    setSubmissions((prev) => prev.filter((s) => s.facilityId !== id));
+    setFacilityMonitoringPlanStatuses((prev) => {
+      const copy = { ...prev };
+      delete copy[id];
+      return copy;
+    });
+    if (activeFacilityId === id) {
+      setFacilities((prev) => {
+        const remaining = prev.filter((f) => f.id !== id);
+        if (remaining.length > 0) {
+          setActiveFacilityId(remaining[0].id);
+        }
+        return remaining;
+      });
+    }
+  };
+
 
   const updateMonitoringPlan = (data: Partial<MonitoringPlan>) => {
     setMonitoringPlan((prev) => ({ ...prev, ...data }));
@@ -1269,6 +1633,22 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setDocuments(INITIAL_DOCUMENTS);
     setSubmissions(INITIAL_SUBMISSIONS);
     setNotifications(INITIAL_NOTIFICATIONS);
+    setOperatorFacilityIds([]);
+    setOperatorEmissionIds([]);
+    setHasCreatedFirstFacility(false);
+    setFacilityRegistrations(INITIAL_FACILITY_REGISTRATIONS);
+    setFacilityRegistrationHistory(INITIAL_FACILITY_REGISTRATION_HISTORY);
+    setFacilityEmissions(INITIAL_FACILITY_EMISSIONS);
+    setFacilityMonitoringPlanStatuses({
+      'fac-1': 'Create Plan',
+      'fac-2': 'Submitted',
+      'fac-3': 'Submitted',
+      'fac-4': 'Draft',
+      'fac-5': 'Create Plan',
+      'fac-6': 'Create Plan',
+      'fac-7': 'Create Plan',
+    });
+    setFacilityPlans(INITIAL_FACILITY_MONITORING_PLANS);
     setWorkflowState({
       registrationStatus: 'Approved',
       monitoringPlanStatus: 'Approved',
@@ -1277,6 +1657,7 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       registrationApprovalDate: '15-Jan-2026',
       monitoringPlanDeadline: '15-Apr-2026',
     });
+    setActiveView(currentRole === 'EAD_REVIEWER' ? 'ead-dashboard' : 'registration');
   };
 
   return (
@@ -1328,6 +1709,24 @@ export const MRVProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         openReadOnlyViewer,
         closeReadOnlyViewer,
         getOverallWorkflowProgress,
+        deleteFacility,
+        facilityMonitoringPlanStatuses,
+        setFacilityMonitoringPlanStatus,
+        facilityPlans,
+        setFacilityPlans,
+        updateFacilityPlan,
+        operatorFacilityIds,
+        setOperatorFacilityIds,
+        operatorEmissionIds,
+        setOperatorEmissionIds,
+        hasCreatedFirstFacility,
+        setHasCreatedFirstFacility,
+        facilityRegistrations,
+        setFacilityRegistrations,
+        facilityRegistrationHistory,
+        setFacilityRegistrationHistory,
+        facilityEmissions,
+        setFacilityEmissions,
       }}
     >
       {children}

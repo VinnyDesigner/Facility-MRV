@@ -362,7 +362,7 @@ export const MRVReportsView: React.FC = () => {
       <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
         {/* Navigation Sub-Tabs (Sticky Bar inside Card Header) */}
         <div className="flex-shrink-0 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-2.5">
-          <div className="inline-flex items-center gap-1 p-1 bg-[#EAEFF4] border border-[#D5E0EA] rounded-[6px] shadow-2xs">
+          <div className="inline-flex items-center gap-1 p-1 bg-white border border-slate-200 rounded-[6px] shadow-2xs">
             {[
               { id: 'emission-summary', label: 'Emission Summary Report', icon: BarChart3 },
               { id: 'submission-status', label: 'Submission Status', icon: Layers },
@@ -531,23 +531,23 @@ export const MRVReportsView: React.FC = () => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                <tbody className="divide-y divide-slate-100 font-normal text-slate-700">
                   {sortedSourceCategory.map((row, idx) => (
                     <tr key={row.id} className={`${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors`}>
-                      <td className="py-3.5 px-4 text-slate-500">{row.id}</td>
-                      <td className="py-3.5 px-4 font-semibold text-slate-800">{row.category}</td>
-                      <td className="py-3.5 px-4 text-slate-600">{row.method}</td>
-                      <td className="py-3.5 px-4 text-slate-600">{row.source}</td>
-                      <td className="py-3.5 px-4 font-semibold text-slate-800">
+                      <td className="py-3.5 px-4 text-slate-500 font-normal">{row.id}</td>
+                      <td className="py-3.5 px-4 font-normal text-slate-800">{row.category}</td>
+                      <td className="py-3.5 px-4 text-slate-600 font-normal">{row.method}</td>
+                      <td className="py-3.5 px-4 text-slate-600 font-normal">{row.source}</td>
+                      <td className="py-3.5 px-4 font-normal text-slate-800">
                         {row.emissions.toLocaleString()}
                       </td>
                       <td className="py-3.5 px-4">
                         {row.isPositive ? (
-                          <span className="font-semibold text-emerald-600 flex items-center gap-1">
+                          <span className="font-normal text-emerald-600 flex items-center gap-1">
                             <span>▲</span> +{row.change}%
                           </span>
                         ) : (
-                          <span className="font-semibold text-slate-600 flex items-center gap-1">
+                          <span className="font-normal text-slate-600 flex items-center gap-1">
                             <span>▼</span> {row.change}%
                           </span>
                         )}
@@ -713,14 +713,14 @@ export const MRVReportsView: React.FC = () => {
                     <th className="h-[38px] px-4 text-center align-middle bg-[#D6E3EF]">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                <tbody className="divide-y divide-slate-100 font-normal text-slate-700">
                   {reportsList.map((row, idx) => (
                     <tr key={idx} className={`h-[60px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors`}>
-                      <td className="h-[60px] px-3.5 font-extrabold text-[#004B87] text-sm align-middle">{row.year}</td>
-                      <td className="h-[60px] px-3.5 font-mono font-bold text-slate-800 align-middle">{row.id}</td>
-                      <td className="h-[60px] px-3.5 font-mono font-bold text-slate-600 align-middle">{row.version}</td>
-                      <td className="h-[60px] px-3.5 font-bold text-navy-900 align-middle">{row.emissions}</td>
-                      <td className="h-[60px] px-3.5 text-slate-500 align-middle">{row.submittedDate}</td>
+                      <td className="h-[60px] px-3.5 font-normal text-[#004B87] text-sm align-middle">{row.year}</td>
+                      <td className="h-[60px] px-3.5 font-mono font-normal text-slate-800 align-middle">{row.id}</td>
+                      <td className="h-[60px] px-3.5 font-mono font-normal text-slate-600 align-middle">{row.version}</td>
+                      <td className="h-[60px] px-3.5 font-normal text-navy-900 align-middle">{row.emissions}</td>
+                      <td className="h-[60px] px-3.5 text-slate-500 font-normal align-middle">{row.submittedDate}</td>
                       <td className="h-[60px] px-3.5 align-middle">
                         <Badge variant={row.statusVariant} size="sm">
                           {row.status}

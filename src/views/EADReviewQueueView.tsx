@@ -116,10 +116,10 @@ export const EADReviewQueueView: React.FC = () => {
                 <th className="h-[38px] px-4 font-bold text-center align-middle bg-[#D6E3EF]">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+            <tbody className="divide-y divide-slate-100 font-normal text-slate-700">
               {filteredSubmissions.map((sub, idx) => (
                 <tr key={sub.id} className={`h-[60px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}>
-                  <td className="h-[60px] px-4 font-bold text-navy-900 align-middle">
+                  <td className="h-[60px] px-4 font-normal text-navy-900 align-middle">
                     <div className="flex items-center gap-2">
                       <Building2 className="w-4 h-4 text-[#004B87] shrink-0" />
                       <div>
@@ -131,22 +131,22 @@ export const EADReviewQueueView: React.FC = () => {
                     </div>
                   </td>
                   <td className="h-[60px] px-4 align-middle">
-                    <span className="font-semibold text-slate-800">{sub.sector}</span>
+                    <span className="font-normal text-slate-800">{sub.sector}</span>
                     <span className="text-[10px] text-slate-500 block">{sub.tier}</span>
                   </td>
-                  <td className="h-[60px] px-4 font-semibold text-slate-900 align-middle">
+                  <td className="h-[60px] px-4 font-normal text-slate-900 align-middle">
                     <div>{sub.reportingYear}</div>
                     <span className="px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 text-[10px] font-mono border border-slate-200">
                       v{sub.version}.0
                     </span>
                   </td>
-                  <td className="h-[60px] px-4 font-bold text-[#004B87] font-mono align-middle">
+                  <td className="h-[60px] px-4 font-normal text-[#004B87] font-mono align-middle">
                     {sub.totalEmissions.toLocaleString()} tCO₂e
                   </td>
-                  <td className="h-[60px] px-4 text-slate-500 align-middle">{sub.submittedDate}</td>
+                  <td className="h-[60px] px-4 text-slate-500 font-normal align-middle">{sub.submittedDate}</td>
                   <td className="h-[60px] px-4 align-middle">
                     <span
-                      className={`inline-flex items-center gap-1 font-bold ${
+                      className={`inline-flex items-center gap-1 font-normal ${
                         sub.daysPending > 4 ? 'text-rose-600' : 'text-slate-800'
                       }`}
                     >

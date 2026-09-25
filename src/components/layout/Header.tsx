@@ -27,6 +27,7 @@ export const Header: React.FC<HeaderProps> = ({
   const {
     currentRole,
     setCurrentRole,
+    currentUser,
     notifications,
     markNotificationRead,
     markAllNotificationsRead,
@@ -55,7 +56,7 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   return (
-    <header className="sticky top-0 z-20 bg-gradient-to-r from-[#4A6E9E] via-[#3B5B88] to-[#2E4D77] text-white border-b border-white/15 transition-all shrink-0 shadow-sm h-11 max-h-11 min-h-[44px]">
+    <header className="sticky top-0 z-[100] bg-gradient-to-r from-[#4A6E9E] via-[#3B5B88] to-[#2E4D77] text-white border-b border-white/15 transition-all shrink-0 shadow-sm h-11 max-h-11 min-h-[44px]">
       <div className="h-full px-3 sm:px-4 flex items-center justify-between gap-3 max-w-full font-sans">
         {/* Left Section: Sidebar Toggle Button */}
         <div className="flex items-center gap-2.5 shrink-0">
@@ -73,7 +74,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Right Section: Notifications & Profile */}
         <div className="flex items-center gap-3.5 sm:gap-4 shrink-0 ml-auto h-full">
           {/* Notifications Bell Button with Badge */}
-          <div className="relative flex items-center" ref={notifRef}>
+          <div className="relative flex items-center z-[110]" ref={notifRef}>
             <button
               onClick={() => setIsNotifOpen(!isNotifOpen)}
               className="relative p-1 text-white hover:text-white/80 hover:bg-white/10 rounded-full transition-all cursor-pointer flex items-center justify-center shrink-0"
@@ -86,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {isNotifOpen && (
-              <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white text-navy-900 rounded-2xl shadow-2xl border border-slate-200 p-3 z-50 animate-slide-up">
+              <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white text-navy-900 rounded-2xl shadow-2xl border border-slate-200 p-3 z-[120] animate-slide-up">
                 <div className="flex items-center justify-between px-2 py-1.5 border-b border-slate-100">
                   <span className="text-xs font-bold text-navy-900">Regulatory Notifications</span>
                   <button
@@ -131,32 +132,40 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* User Profile Avatar & Name with Dropdown */}
-          <div className="relative flex items-center" ref={userMenuRef}>
+          <div className="relative flex items-center z-[110]" ref={userMenuRef}>
             <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="flex items-center gap-2 py-1 px-1.5 rounded-lg hover:bg-white/10 transition-all cursor-pointer text-left shrink-0"
+              className="flex items-center gap-2 py-0.5 px-1.5 rounded-lg hover:bg-white/10 transition-all cursor-pointer text-left shrink-0"
               title="User Profile Menu"
             >
               <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
+                src={currentUser?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"}
                 alt="User Profile"
                 className="w-8 h-8 min-w-[32px] min-h-[32px] max-w-[32px] max-h-[32px] rounded-full object-cover border border-white/30 shrink-0 block"
               />
-              <span className="text-sm font-semibold text-white tracking-tight">Ahmed Mohammed</span>
-              <ChevronDown className={`w-3.5 h-3.5 text-white/80 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+              <div className="flex flex-col text-left leading-tight">
+                <span className="text-xs sm:text-sm font-bold text-white tracking-tight leading-none">
+                  {currentUser?.name || 'Abdul'}
+                </span>
+                <span className="text-[10px] sm:text-[11px] text-slate-200/90 font-normal leading-tight mt-0.5">
+                  {currentUser?.roleTitle || 'Data Provider'}
+                </span>
+              </div>
+              <ChevronDown className={`w-3.5 h-3.5 text-white/80 transition-transform ml-0.5 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isUserMenuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-64 bg-white text-navy-900 rounded-2xl shadow-2xl border border-slate-200 p-2.5 z-50 animate-slide-up text-xs font-sans">
+              <div className="absolute right-0 top-full mt-2 w-64 bg-white text-navy-900 rounded-2xl shadow-2xl border border-slate-200 p-2.5 z-[120] animate-slide-up text-xs font-sans">
                 <div className="p-3 border-b border-slate-100">
-                  <p className="font-bold text-slate-900 text-sm">Ahmed Mohammed</p>
-                  <p className="text-[11px] text-slate-500">ahmed.mohammed@alnoor-energy.ae</p>
+                  <p className="font-bold text-slate-900 text-sm">{currentUser?.name || 'Abdul'}</p>
+                  <p className="text-[11px] text-slate-500">{currentUser?.email || 'abdul@alnoor-energy.ae'}</p>
                 </div>
 
                 <div className="py-2 space-y-1">
                   <button
                     onClick={() => {
                       setCurrentRole('FACILITY_OPERATOR');
+                      setActiveView('registration');
                       setIsUserMenuOpen(false);
                     }}
                     className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors cursor-pointer ${
@@ -166,12 +175,13 @@ export const Header: React.FC<HeaderProps> = ({
                     }`}
                   >
                     <UserCheck className="w-4 h-4 text-primary-600 shrink-0" />
-                    <span>Facility Operator View</span>
+                    <span>Data Provider</span>
                   </button>
 
                   <button
                     onClick={() => {
                       setCurrentRole('EAD_REVIEWER');
+                      setActiveView('ead-dashboard');
                       setIsUserMenuOpen(false);
                     }}
                     className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors cursor-pointer ${
@@ -181,7 +191,7 @@ export const Header: React.FC<HeaderProps> = ({
                     }`}
                   >
                     <ShieldCheck className="w-4 h-4 text-primary-600 shrink-0" />
-                    <span>EAD Regulator View</span>
+                    <span>Admin</span>
                   </button>
                 </div>
 

@@ -485,7 +485,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                 placeholder="Search by Facility ID, Facility Name, Sector..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-8 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all font-medium"
+                className="w-full pl-9 pr-8 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all font-medium"
               />
               {searchQuery && (
                 <button
@@ -703,27 +703,27 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                     return (
                       <tr key={row.facility.id} className={`h-[60px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}>
                         {/* 1. Facility ID */}
-                        <td className="h-[60px] px-3.5 font-mono font-bold text-[#004B87] text-xs whitespace-nowrap align-middle">
+                        <td className="h-[60px] px-3.5 font-mono font-normal text-[#004B87] text-xs whitespace-nowrap align-middle">
                           {row.facilityId}
                         </td>
 
                         {/* 3. Facility */}
-                        <td className="h-[60px] px-3.5 font-semibold text-slate-800 min-w-[150px] align-middle">
+                        <td className="h-[60px] px-3.5 font-normal text-slate-800 min-w-[150px] align-middle">
                           <span>{row.facilityName}</span>
                         </td>
 
                         {/* 4. Reporting Entity */}
-                        <td className="h-[60px] px-3.5 text-slate-600 min-w-[150px] align-middle">
+                        <td className="h-[60px] px-3.5 text-slate-600 font-normal min-w-[150px] align-middle">
                           {row.operatorName}
                         </td>
 
                         {/* 5. Sector */}
-                        <td className="h-[60px] px-3 text-slate-600 whitespace-nowrap align-middle">
+                        <td className="h-[60px] px-3 text-slate-600 font-normal whitespace-nowrap align-middle">
                           {row.sector}
                         </td>
 
                         {/* 6. Tier Level */}
-                        <td className="h-[60px] px-3 text-center font-bold text-slate-700 whitespace-nowrap align-middle">
+                        <td className="h-[60px] px-3 text-center font-normal text-slate-700 whitespace-nowrap align-middle">
                           {row.tierLevel}
                         </td>
 
@@ -883,7 +883,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
               placeholder="Search history by version, submitter, review remarks..."
               value={versionSearchQuery}
               onChange={(e) => setVersionSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-8 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all font-medium"
+              className="w-full pl-9 pr-8 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all font-medium"
             />
             {versionSearchQuery && (
               <button
@@ -941,15 +941,15 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                     {/* 1. Version */}
                     <td className="h-[60px] px-3.5 whitespace-nowrap align-middle">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-extrabold text-[#004B87] text-sm">
+                        <span className="font-mono font-normal text-[#004B87] text-sm">
                           {row.version}
                         </span>
                         {row.isLatest ? (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-normal bg-emerald-100 text-emerald-800 border border-emerald-300">
                             Active Dossier
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-normal bg-slate-100 text-slate-600 border border-slate-200">
                             Historical
                           </span>
                         )}
@@ -957,7 +957,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                     </td>
 
                     {/* 2. Submission Date */}
-                    <td className="h-[60px] px-3.5 whitespace-nowrap text-slate-800 font-semibold align-middle">
+                    <td className="h-[60px] px-3.5 whitespace-nowrap text-slate-800 font-normal align-middle">
                       <div className="flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span>{row.submissionDate}</span>
@@ -965,7 +965,7 @@ export const MRVDataHistoryView: React.FC<MRVDataHistoryViewProps> = ({
                     </td>
 
                     {/* 3. Submitted By */}
-                    <td className="h-[60px] px-3.5 font-bold text-slate-900 align-middle">
+                    <td className="h-[60px] px-3.5 font-normal text-slate-900 align-middle">
                       <div className="flex items-center gap-1.5">
                         <User className="w-3.5 h-3.5 text-[#004B87] shrink-0" />
                         <span>{row.submittedBy}</span>

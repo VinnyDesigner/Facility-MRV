@@ -27,11 +27,11 @@ import {
   Mail,
   Phone,
   Eye,
-  Info,
   UserCheck,
   Lock,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
+import { FieldTooltip } from '../components/ui/FieldTooltip';
 
 // ============================================================================
 // TYPES
@@ -2105,74 +2105,93 @@ export const AdministrationView: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1">Entity Name *</label>
-                  <input
-                    type="text"
-                    required
-                    disabled={isReadOnly}
-                    value={entityForm.name}
-                    onChange={(e) => setEntityForm((prev) => ({ ...prev, name: e.target.value }))}
-                    placeholder="Enter entity name (e.g. Abu Dhabi Municipality)"
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
-                  />
+                  <FieldTooltip
+                    content="Legal corporate or organizational name of the reporting entity."
+                    example="Abu Dhabi Municipality"
+                  >
+                    <input
+                      type="text"
+                      required
+                      disabled={isReadOnly}
+                      value={entityForm.name}
+                      onChange={(e) => setEntityForm((prev) => ({ ...prev, name: e.target.value }))}
+                      placeholder="Enter entity name (e.g. Abu Dhabi Municipality)"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
+                    />
+                  </FieldTooltip>
                 </div>
 
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1">Address *</label>
-                  <input
-                    type="text"
-                    required
-                    disabled={isReadOnly}
-                    value={entityForm.address}
-                    onChange={(e) => setEntityForm((prev) => ({ ...prev, address: e.target.value }))}
-                    placeholder="Enter registered physical address"
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
-                  />
+                  <FieldTooltip
+                    content="Registered physical and administrative address of the entity headquarters."
+                    example="Al Mamoura Building B, Abu Dhabi, UAE"
+                  >
+                    <input
+                      type="text"
+                      required
+                      disabled={isReadOnly}
+                      value={entityForm.address}
+                      onChange={(e) => setEntityForm((prev) => ({ ...prev, address: e.target.value }))}
+                      placeholder="Enter registered physical address"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
+                    />
+                  </FieldTooltip>
                 </div>
 
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1">Entity Type</label>
-                  <div className="flex items-center gap-2.5 h-[38px]">
-                    <button
-                      type="button"
-                      disabled={isReadOnly}
-                      onClick={() =>
-                        setEntityForm((prev) => ({
-                          ...prev,
-                          type: prev.type === 'Parent' ? 'Single' : 'Parent',
-                          parentEntity: prev.type === 'Parent' ? prev.parentEntity : '—',
-                        }))
-                      }
-                      className={`w-9 h-5 flex items-center rounded-full p-0.5 ${isReadOnly ? 'cursor-default' : 'cursor-pointer'} transition-colors shrink-0 ${
-                        entityForm.type === 'Parent' ? 'bg-[#00875A]' : 'bg-slate-300'
-                      }`}
-                    >
-                      <div
-                        className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                          entityForm.type === 'Parent' ? 'translate-x-4' : 'translate-x-0'
+                  <FieldTooltip
+                    content="Toggle if this entity operates as a parent holding company over subordinate subsidiaries."
+                  >
+                    <div className="flex items-center gap-2.5 h-[38px]">
+                      <button
+                        type="button"
+                        disabled={isReadOnly}
+                        onClick={() =>
+                          setEntityForm((prev) => ({
+                            ...prev,
+                            type: prev.type === 'Parent' ? 'Single' : 'Parent',
+                            parentEntity: prev.type === 'Parent' ? prev.parentEntity : '—',
+                          }))
+                        }
+                        className={`w-9 h-5 flex items-center rounded-full p-0.5 ${isReadOnly ? 'cursor-default' : 'cursor-pointer'} transition-colors shrink-0 ${
+                          entityForm.type === 'Parent' ? 'bg-[#00875A]' : 'bg-slate-300'
                         }`}
-                      />
-                    </button>
-                    <span className="text-xs font-semibold text-slate-700">Is Parent Entity</span>
-                  </div>
+                      >
+                        <div
+                          className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
+                            entityForm.type === 'Parent' ? 'translate-x-4' : 'translate-x-0'
+                          }`}
+                        />
+                      </button>
+                      <span className="text-xs font-semibold text-slate-700">Is Parent Entity</span>
+                    </div>
+                  </FieldTooltip>
                 </div>
 
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1">Parent Entity</label>
-                  <select
-                    disabled={isReadOnly || entityForm.type === 'Parent'}
-                    value={entityForm.parentEntity}
-                    onChange={(e) => setEntityForm((prev) => ({ ...prev, parentEntity: e.target.value }))}
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#336D9F] shadow-xs cursor-pointer text-xs font-medium disabled:opacity-50 disabled:bg-slate-50"
+                  <FieldTooltip
+                    content="Select the overseeing corporate parent entity if applicable."
+                    example="ADNOC or ADQ"
                   >
-                    <option value="—">Select parent (optional)</option>
-                    {entities
-                      .filter((e) => e.type === 'Parent' || e.name === 'ADNOC' || e.name === 'ADQ')
-                      .map((p) => (
-                        <option key={p.id} value={p.name}>
-                          {p.name}
-                        </option>
-                      ))}
-                  </select>
+                    <select
+                      disabled={isReadOnly || entityForm.type === 'Parent'}
+                      value={entityForm.parentEntity}
+                      onChange={(e) => setEntityForm((prev) => ({ ...prev, parentEntity: e.target.value }))}
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#336D9F] shadow-xs cursor-pointer text-xs font-medium disabled:opacity-50 disabled:bg-slate-50"
+                    >
+                      <option value="—">Select parent (optional)</option>
+                      {entities
+                        .filter((e) => e.type === 'Parent' || e.name === 'ADNOC' || e.name === 'ADQ')
+                        .map((p) => (
+                          <option key={p.id} value={p.name}>
+                            {p.name}
+                          </option>
+                        ))}
+                    </select>
+                  </FieldTooltip>
                 </div>
               </div>
             </div>
@@ -2183,54 +2202,75 @@ export const AdministrationView: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1">Name *</label>
-                  <input
-                    type="text"
-                    required
-                    disabled={isReadOnly}
-                    value={entityForm.contactName}
-                    onChange={(e) => setEntityForm((prev) => ({ ...prev, contactName: e.target.value }))}
-                    placeholder="Enter contact person name"
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
-                  />
+                  <FieldTooltip
+                    content="Full name of the designated primary contact person for this entity."
+                    example="Fatima Al Mansoori"
+                  >
+                    <input
+                      type="text"
+                      required
+                      disabled={isReadOnly}
+                      value={entityForm.contactName}
+                      onChange={(e) => setEntityForm((prev) => ({ ...prev, contactName: e.target.value }))}
+                      placeholder="Enter contact person name"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
+                    />
+                  </FieldTooltip>
                 </div>
 
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1">Title / Designation *</label>
-                  <input
-                    type="text"
-                    required
-                    disabled={isReadOnly}
-                    value={entityForm.contactTitle}
-                    onChange={(e) => setEntityForm((prev) => ({ ...prev, contactTitle: e.target.value }))}
-                    placeholder="Enter designation (e.g. Head, Manager)"
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
-                  />
+                  <FieldTooltip
+                    content="Official administrative designation or corporate role of the contact person."
+                    example="Head of Environmental Compliance"
+                  >
+                    <input
+                      type="text"
+                      required
+                      disabled={isReadOnly}
+                      value={entityForm.contactTitle}
+                      onChange={(e) => setEntityForm((prev) => ({ ...prev, contactTitle: e.target.value }))}
+                      placeholder="Enter designation (e.g. Head, Manager)"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
+                    />
+                  </FieldTooltip>
                 </div>
 
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1">Email *</label>
-                  <input
-                    type="email"
-                    required
-                    disabled={isReadOnly}
-                    value={entityForm.contactEmail}
-                    onChange={(e) => setEntityForm((prev) => ({ ...prev, contactEmail: e.target.value }))}
-                    placeholder="e.g. contact@entity.ae"
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
-                  />
+                  <FieldTooltip
+                    content="Official business email address used for statutory MRV communications."
+                    example="fatima.mansoori@admun.gov.ae"
+                    format="name@domain.ae"
+                  >
+                    <input
+                      type="email"
+                      required
+                      disabled={isReadOnly}
+                      value={entityForm.contactEmail}
+                      onChange={(e) => setEntityForm((prev) => ({ ...prev, contactEmail: e.target.value }))}
+                      placeholder="e.g. contact@entity.ae"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
+                    />
+                  </FieldTooltip>
                 </div>
 
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1">Phone Number *</label>
-                  <input
-                    type="text"
-                    required
-                    disabled={isReadOnly}
-                    value={entityForm.contactPhone}
-                    onChange={(e) => setEntityForm((prev) => ({ ...prev, contactPhone: e.target.value }))}
-                    placeholder="e.g. 0546676272"
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
-                  />
+                  <FieldTooltip
+                    content="Direct business telephone or mobile number with UAE country prefix."
+                    example="+971 50 123 4567"
+                  >
+                    <input
+                      type="text"
+                      required
+                      disabled={isReadOnly}
+                      value={entityForm.contactPhone}
+                      onChange={(e) => setEntityForm((prev) => ({ ...prev, contactPhone: e.target.value }))}
+                      placeholder="e.g. 0546676272"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
+                    />
+                  </FieldTooltip>
                 </div>
               </div>
             </div>
@@ -2238,14 +2278,19 @@ export const AdministrationView: React.FC = () => {
             {/* Section 3: Description */}
             <div>
               <label className="block font-bold text-[#336D9F] mb-1.5 text-xs">Description / Operational Scope</label>
-              <textarea
-                rows={3}
-                disabled={isReadOnly}
-                value={entityForm.description}
-                onChange={(e) => setEntityForm((prev) => ({ ...prev, description: e.target.value }))}
-                placeholder="Write entity operational scope, regulatory background or notes..."
-                className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs leading-relaxed text-xs disabled:bg-slate-50 disabled:text-slate-600"
-              />
+              <FieldTooltip
+                content="Comprehensive summary of organizational jurisdiction, sector mandates, or compliance scope."
+                example="Oversees municipal infrastructure, waste management, and regional emission controls in Abu Dhabi."
+              >
+                <textarea
+                  rows={3}
+                  disabled={isReadOnly}
+                  value={entityForm.description}
+                  onChange={(e) => setEntityForm((prev) => ({ ...prev, description: e.target.value }))}
+                  placeholder="Write entity operational scope, regulatory background or notes..."
+                  className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs leading-relaxed text-xs disabled:bg-slate-50 disabled:text-slate-600"
+                />
+              </FieldTooltip>
             </div>
           </div>
         </div>
@@ -2361,27 +2406,37 @@ export const AdministrationView: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="lg:col-span-1 sm:col-span-2">
                   <label className="block text-slate-700 font-semibold mb-1">Role Name *</label>
-                  <input
-                    type="text"
-                    required
-                    disabled={isReadOnly}
-                    value={roleForm.name}
-                    onChange={(e) => setRoleForm((prev) => ({ ...prev, name: e.target.value }))}
-                    placeholder="Enter role name (e.g. Data Provider, EadAdmin)"
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
-                  />
+                  <FieldTooltip
+                    content="Descriptive security role name defining user access persona."
+                    example="Data Provider or EadAdmin"
+                  >
+                    <input
+                      type="text"
+                      required
+                      disabled={isReadOnly}
+                      value={roleForm.name}
+                      onChange={(e) => setRoleForm((prev) => ({ ...prev, name: e.target.value }))}
+                      placeholder="Enter role name (e.g. Data Provider, EadAdmin)"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
+                    />
+                  </FieldTooltip>
                 </div>
                 <div className="lg:col-span-3 sm:col-span-2">
                   <label className="block text-slate-700 font-semibold mb-1">Role Description *</label>
-                  <input
-                    type="text"
-                    required
-                    disabled={isReadOnly}
-                    value={roleForm.description}
-                    onChange={(e) => setRoleForm((prev) => ({ ...prev, description: e.target.value }))}
-                    placeholder="Enter role description (e.g. Can manage tenants and organizations)"
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
-                  />
+                  <FieldTooltip
+                    content="Summary of system permissions, administrative boundaries, and module access assigned to this role."
+                    example="Can manage tenants, approve monitoring plans, and review emission reports."
+                  >
+                    <input
+                      type="text"
+                      required
+                      disabled={isReadOnly}
+                      value={roleForm.description}
+                      onChange={(e) => setRoleForm((prev) => ({ ...prev, description: e.target.value }))}
+                      placeholder="Enter role description (e.g. Can manage tenants and organizations)"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
+                    />
+                  </FieldTooltip>
                 </div>
               </div>
             </div>
@@ -2568,57 +2623,78 @@ export const AdministrationView: React.FC = () => {
               {/* Field 1: First Name */}
               <div>
                 <label className="block text-slate-700 font-semibold mb-1 text-xs">First Name *</label>
-                <input
-                  type="text"
-                  required
-                  disabled={isReadOnly}
-                  value={userForm.firstName}
-                  onChange={(e) => setUserForm((prev) => ({ ...prev, firstName: e.target.value }))}
-                  placeholder="Enter first name"
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
-                />
+                <FieldTooltip
+                  content="User's legal given or first name."
+                  example="Tariq"
+                >
+                  <input
+                    type="text"
+                    required
+                    disabled={isReadOnly}
+                    value={userForm.firstName}
+                    onChange={(e) => setUserForm((prev) => ({ ...prev, firstName: e.target.value }))}
+                    placeholder="Enter first name"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
+                  />
+                </FieldTooltip>
               </div>
 
               {/* Field 2: Last Name */}
               <div>
                 <label className="block text-slate-700 font-semibold mb-1 text-xs">Last Name *</label>
-                <input
-                  type="text"
-                  required
-                  disabled={isReadOnly}
-                  value={userForm.lastName}
-                  onChange={(e) => setUserForm((prev) => ({ ...prev, lastName: e.target.value }))}
-                  placeholder="Enter last name"
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
-                />
+                <FieldTooltip
+                  content="User's family name or surname."
+                  example="Al Mazrouei"
+                >
+                  <input
+                    type="text"
+                    required
+                    disabled={isReadOnly}
+                    value={userForm.lastName}
+                    onChange={(e) => setUserForm((prev) => ({ ...prev, lastName: e.target.value }))}
+                    placeholder="Enter last name"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
+                  />
+                </FieldTooltip>
               </div>
 
               {/* Field 3: Email Address */}
               <div>
                 <label className="block text-slate-700 font-semibold mb-1 text-xs">Email Address *</label>
-                <input
-                  type="email"
-                  required
-                  disabled={isReadOnly}
-                  value={userForm.email}
-                  onChange={(e) => setUserForm((prev) => ({ ...prev, email: e.target.value }))}
-                  placeholder="e.g. abdelrahman.elsherif@agthia.com"
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
-                />
+                <FieldTooltip
+                  content="Primary corporate email address used for login and notifications."
+                  example="tariq.mazrouei@ead.gov.ae"
+                  format="user@domain.ae"
+                >
+                  <input
+                    type="email"
+                    required
+                    disabled={isReadOnly}
+                    value={userForm.email}
+                    onChange={(e) => setUserForm((prev) => ({ ...prev, email: e.target.value }))}
+                    placeholder="e.g. abdelrahman.elsherif@agthia.com"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
+                  />
+                </FieldTooltip>
               </div>
 
               {/* Field 4: Phone Number */}
               <div>
                 <label className="block text-slate-700 font-semibold mb-1 text-xs">Phone Number *</label>
-                <input
-                  type="text"
-                  required
-                  disabled={isReadOnly}
-                  value={userForm.phone}
-                  onChange={(e) => setUserForm((prev) => ({ ...prev, phone: e.target.value }))}
-                  placeholder="admin@fea.gov.ae"
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
-                />
+                <FieldTooltip
+                  content="Contact mobile or business telephone number with country code."
+                  example="+971 50 889 1234"
+                >
+                  <input
+                    type="text"
+                    required
+                    disabled={isReadOnly}
+                    value={userForm.phone}
+                    onChange={(e) => setUserForm((prev) => ({ ...prev, phone: e.target.value }))}
+                    placeholder="admin@fea.gov.ae"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
+                  />
+                </FieldTooltip>
               </div>
             </div>
 
@@ -2627,18 +2703,23 @@ export const AdministrationView: React.FC = () => {
               {/* Field 5: User Role */}
               <div>
                 <label className="block text-slate-700 font-semibold mb-1 text-xs">User Role *</label>
-                <select
-                  disabled={isReadOnly}
-                  value={userForm.roleName}
-                  onChange={(e) => setUserForm((prev) => ({ ...prev, roleName: e.target.value }))}
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#336D9F] shadow-xs cursor-pointer text-xs font-medium disabled:bg-slate-50 disabled:text-slate-600"
+                <FieldTooltip
+                  content="Assign the primary security role and authorization level for this user."
+                  example="Compliance Reviewer, Facility User, or Lead Verifier"
                 >
-                  {roles.map((r) => (
-                    <option key={r.id} value={r.name}>
-                      {r.name}
-                    </option>
-                  ))}
-                </select>
+                  <select
+                    disabled={isReadOnly}
+                    value={userForm.roleName}
+                    onChange={(e) => setUserForm((prev) => ({ ...prev, roleName: e.target.value }))}
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#336D9F] shadow-xs cursor-pointer text-xs font-medium disabled:bg-slate-50 disabled:text-slate-600"
+                  >
+                    {roles.map((r) => (
+                      <option key={r.id} value={r.name}>
+                        {r.name}
+                      </option>
+                    ))}
+                  </select>
+                </FieldTooltip>
               </div>
 
               {/* Field 6: Entity with Multi Entity toggle */}
@@ -2668,32 +2749,42 @@ export const AdministrationView: React.FC = () => {
                     </span>
                   </div>
                 </div>
-                <select
-                  disabled={isReadOnly}
-                  value={userForm.entityName}
-                  onChange={(e) => setUserForm((prev) => ({ ...prev, entityName: e.target.value }))}
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#336D9F] shadow-xs cursor-pointer text-xs font-medium disabled:bg-slate-50 disabled:text-slate-600"
+                <FieldTooltip
+                  content="Corporate or government entity this user is primarily affiliated with."
+                  example="Emirates Steel Arkan or Environment Agency - Abu Dhabi"
                 >
-                  {entities.map((ent) => (
-                    <option key={ent.id} value={ent.name}>
-                      {ent.name}
-                    </option>
-                  ))}
-                </select>
+                  <select
+                    disabled={isReadOnly}
+                    value={userForm.entityName}
+                    onChange={(e) => setUserForm((prev) => ({ ...prev, entityName: e.target.value }))}
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#336D9F] shadow-xs cursor-pointer text-xs font-medium disabled:bg-slate-50 disabled:text-slate-600"
+                  >
+                    {entities.map((ent) => (
+                      <option key={ent.id} value={ent.name}>
+                        {ent.name}
+                      </option>
+                    ))}
+                  </select>
+                </FieldTooltip>
               </div>
 
               {/* Field 7: User Type */}
               <div>
                 <label className="block text-slate-700 font-semibold mb-1 text-xs">User Type</label>
-                <select
-                  disabled={isReadOnly}
-                  value={userForm.userType}
-                  onChange={(e) => setUserForm((prev) => ({ ...prev, userType: e.target.value as any }))}
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#336D9F] shadow-xs cursor-pointer text-xs font-medium disabled:bg-slate-50 disabled:text-slate-600"
+                <FieldTooltip
+                  content="Classify whether this user is an internal authority officer or external facility representative."
+                  example="Internal User vs External User"
                 >
-                  <option value="Internal User">Internal User</option>
-                  <option value="External User">External User</option>
-                </select>
+                  <select
+                    disabled={isReadOnly}
+                    value={userForm.userType}
+                    onChange={(e) => setUserForm((prev) => ({ ...prev, userType: e.target.value as any }))}
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#336D9F] shadow-xs cursor-pointer text-xs font-medium disabled:bg-slate-50 disabled:text-slate-600"
+                  >
+                    <option value="Internal User">Internal User</option>
+                    <option value="External User">External User</option>
+                  </select>
+                </FieldTooltip>
               </div>
 
               {/* Field 8: Empty Space for 4th column */}
@@ -2704,76 +2795,82 @@ export const AdministrationView: React.FC = () => {
             <div className="pt-2">
               <div className="flex flex-wrap items-center gap-8 text-xs text-slate-700 font-medium py-1">
                 {/* Toggle 1: Update Password */}
-                <div className="flex items-center gap-2.5 select-none">
-                  <button
-                    type="button"
-                    disabled={isReadOnly}
-                    onClick={() => setUserForm((prev) => ({ ...prev, updatePassword: !prev.updatePassword }))}
-                    className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors ${
-                      isReadOnly ? 'cursor-default' : 'cursor-pointer hover:opacity-90'
-                    } ${userForm.updatePassword ? 'bg-[#004B87]' : 'bg-slate-300'}`}
-                  >
-                    <div
-                      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                        userForm.updatePassword ? 'translate-x-4' : 'translate-x-0'
-                      }`}
-                    />
-                  </button>
-                  <span
-                    onClick={() => !isReadOnly && setUserForm((prev) => ({ ...prev, updatePassword: !prev.updatePassword }))}
-                    className="cursor-pointer"
-                  >
-                    Update Password?
-                  </span>
-                </div>
+                <FieldTooltip content="Enable to reset and define a new temporary or permanent password for this account.">
+                  <div className="flex items-center gap-2.5 select-none">
+                    <button
+                      type="button"
+                      disabled={isReadOnly}
+                      onClick={() => setUserForm((prev) => ({ ...prev, updatePassword: !prev.updatePassword }))}
+                      className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors ${
+                        isReadOnly ? 'cursor-default' : 'cursor-pointer hover:opacity-90'
+                      } ${userForm.updatePassword ? 'bg-[#004B87]' : 'bg-slate-300'}`}
+                    >
+                      <div
+                        className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
+                          userForm.updatePassword ? 'translate-x-4' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                    <span
+                      onClick={() => !isReadOnly && setUserForm((prev) => ({ ...prev, updatePassword: !prev.updatePassword }))}
+                      className="cursor-pointer"
+                    >
+                      Update Password?
+                    </span>
+                  </div>
+                </FieldTooltip>
 
                 {/* Toggle 2: Enable Multi-Factor Authentication */}
-                <div className="flex items-center gap-2.5 select-none">
-                  <button
-                    type="button"
-                    disabled={isReadOnly}
-                    onClick={() => setUserForm((prev) => ({ ...prev, enableMFA: !prev.enableMFA }))}
-                    className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors ${
-                      isReadOnly ? 'cursor-default' : 'cursor-pointer hover:opacity-90'
-                    } ${userForm.enableMFA ? 'bg-[#004B87]' : 'bg-slate-300'}`}
-                  >
-                    <div
-                      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                        userForm.enableMFA ? 'translate-x-4' : 'translate-x-0'
-                      }`}
-                    />
-                  </button>
-                  <span
-                    onClick={() => !isReadOnly && setUserForm((prev) => ({ ...prev, enableMFA: !prev.enableMFA }))}
-                    className="cursor-pointer"
-                  >
-                    Enable Multi-Factor Authentication
-                  </span>
-                </div>
+                <FieldTooltip content="Require two-factor authentication (TOTP/SMS) for enhanced security on every login.">
+                  <div className="flex items-center gap-2.5 select-none">
+                    <button
+                      type="button"
+                      disabled={isReadOnly}
+                      onClick={() => setUserForm((prev) => ({ ...prev, enableMFA: !prev.enableMFA }))}
+                      className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors ${
+                        isReadOnly ? 'cursor-default' : 'cursor-pointer hover:opacity-90'
+                      } ${userForm.enableMFA ? 'bg-[#004B87]' : 'bg-slate-300'}`}
+                    >
+                      <div
+                        className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
+                          userForm.enableMFA ? 'translate-x-4' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                    <span
+                      onClick={() => !isReadOnly && setUserForm((prev) => ({ ...prev, enableMFA: !prev.enableMFA }))}
+                      className="cursor-pointer"
+                    >
+                      Enable Multi-Factor Authentication
+                    </span>
+                  </div>
+                </FieldTooltip>
 
                 {/* Toggle 3: isActive */}
-                <div className="flex items-center gap-2.5 select-none">
-                  <button
-                    type="button"
-                    disabled={isReadOnly}
-                    onClick={() => setUserForm((prev) => ({ ...prev, isActive: !prev.isActive }))}
-                    className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors ${
-                      isReadOnly ? 'cursor-default' : 'cursor-pointer hover:opacity-90'
-                    } ${userForm.isActive ? 'bg-[#00875A]' : 'bg-slate-300'}`}
-                  >
-                    <div
-                      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                        userForm.isActive ? 'translate-x-4' : 'translate-x-0'
-                      }`}
-                    />
-                  </button>
-                  <span
-                    onClick={() => !isReadOnly && setUserForm((prev) => ({ ...prev, isActive: !prev.isActive }))}
-                    className="cursor-pointer"
-                  >
-                    isActive
-                  </span>
-                </div>
+                <FieldTooltip content="Active status allows the user to access the MRV portal. Deactivate to temporarily lock access.">
+                  <div className="flex items-center gap-2.5 select-none">
+                    <button
+                      type="button"
+                      disabled={isReadOnly}
+                      onClick={() => setUserForm((prev) => ({ ...prev, isActive: !prev.isActive }))}
+                      className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors ${
+                        isReadOnly ? 'cursor-default' : 'cursor-pointer hover:opacity-90'
+                      } ${userForm.isActive ? 'bg-[#00875A]' : 'bg-slate-300'}`}
+                    >
+                      <div
+                        className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
+                          userForm.isActive ? 'translate-x-4' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                    <span
+                      onClick={() => !isReadOnly && setUserForm((prev) => ({ ...prev, isActive: !prev.isActive }))}
+                      className="cursor-pointer"
+                    >
+                      isActive
+                    </span>
+                  </div>
+                </FieldTooltip>
               </div>
 
               {/* Optional Password inputs: 2 fields in a 4-column grid + 2 empty spaces */}
@@ -2781,25 +2878,35 @@ export const AdministrationView: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3 border-t border-slate-100 mt-2">
                   <div>
                     <label className="block text-slate-700 font-semibold mb-1">New Password *</label>
-                    <input
-                      type="password"
-                      disabled={isReadOnly}
-                      value={userForm.password}
-                      onChange={(e) => setUserForm((prev) => ({ ...prev, password: e.target.value }))}
-                      placeholder="Enter new password"
-                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
-                    />
+                    <FieldTooltip
+                      content="Enter new account password (min 8 characters with letters, numbers, and symbols)."
+                      example="••••••••••••"
+                    >
+                      <input
+                        type="password"
+                        disabled={isReadOnly}
+                        value={userForm.password}
+                        onChange={(e) => setUserForm((prev) => ({ ...prev, password: e.target.value }))}
+                        placeholder="Enter new password"
+                        className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
+                      />
+                    </FieldTooltip>
                   </div>
                   <div>
                     <label className="block text-slate-700 font-semibold mb-1">Confirm Password *</label>
-                    <input
-                      type="password"
-                      disabled={isReadOnly}
-                      value={userForm.confirmPassword}
-                      onChange={(e) => setUserForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
-                      placeholder="Confirm new password"
-                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
-                    />
+                    <FieldTooltip
+                      content="Re-type the new password to ensure accuracy."
+                      example="••••••••••••"
+                    >
+                      <input
+                        type="password"
+                        disabled={isReadOnly}
+                        value={userForm.confirmPassword}
+                        onChange={(e) => setUserForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+                        placeholder="Confirm new password"
+                        className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs disabled:bg-slate-50 disabled:text-slate-600"
+                      />
+                    </FieldTooltip>
                   </div>
                   <div className="hidden lg:block" aria-hidden="true" />
                   <div className="hidden lg:block" aria-hidden="true" />
@@ -2902,28 +3009,38 @@ export const AdministrationView: React.FC = () => {
                 <label className="block text-slate-700 font-semibold mb-1 text-xs">
                   Permission Display Name *
                 </label>
-                <input
-                  type="text"
-                  value={permissionForm.displayName}
-                  onChange={(e) =>
-                    setPermissionForm((prev) => ({ ...prev, displayName: e.target.value }))
-                  }
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs"
-                />
+                <FieldTooltip
+                  content="Human-readable title of this system permission displayed in role matrices."
+                  example="View Facility Dossiers"
+                >
+                  <input
+                    type="text"
+                    value={permissionForm.displayName}
+                    onChange={(e) =>
+                      setPermissionForm((prev) => ({ ...prev, displayName: e.target.value }))
+                    }
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs"
+                  />
+                </FieldTooltip>
               </div>
 
               <div>
                 <label className="block text-slate-700 font-semibold mb-1 text-xs">
                   Description *
                 </label>
-                <input
-                  type="text"
-                  value={permissionForm.description}
-                  onChange={(e) =>
-                    setPermissionForm((prev) => ({ ...prev, description: e.target.value }))
-                  }
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs"
-                />
+                <FieldTooltip
+                  content="Detailed definition of actions, API endpoints, or data views unlocked by this permission."
+                  example="Grants access to read statutory submission records and audit trail history."
+                >
+                  <input
+                    type="text"
+                    value={permissionForm.description}
+                    onChange={(e) =>
+                      setPermissionForm((prev) => ({ ...prev, description: e.target.value }))
+                    }
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#336D9F] shadow-xs font-medium text-xs"
+                  />
+                </FieldTooltip>
               </div>
             </div>
           </div>
@@ -2982,41 +3099,52 @@ export const AdministrationView: React.FC = () => {
         {(adminTab === 'entity' || adminTab === 'roles' || adminTab === 'users' || adminTab === 'permissions') && (
           <div className="flex items-center gap-2 shrink-0 flex-nowrap">
             {/* Search Box */}
-            <div className="relative w-36 sm:w-44 xl:w-52">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder={headerInfo.searchPlaceholder}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full h-9 pl-8 pr-7 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all font-medium shadow-xs"
-              />
-              {searchTerm && (
-                <button
-                  type="button"
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
+            <FieldTooltip
+              content={`Search ${adminTab} records by keyword, name, identifier, or contact.`}
+              example={headerInfo.searchPlaceholder}
+              className="w-36 sm:w-44 xl:w-52"
+            >
+              <div className="relative w-full">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder={headerInfo.searchPlaceholder}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full h-9 pl-8 pr-7 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all font-medium shadow-xs"
+                />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </FieldTooltip>
 
             {/* Filter Dropdown */}
             {filterOptions && filterOptions.length > 1 && (
-              <div className="relative">
-                <select
-                  value={filterType}
-                  onChange={(e) => setFilterType(e.target.value)}
-                  className="w-28 sm:w-32 h-9 px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer truncate"
-                >
-                  {filterOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <FieldTooltip
+                content={`Filter ${adminTab} listing by specific category or status.`}
+                className="w-auto"
+              >
+                <div className="relative">
+                  <select
+                    value={filterType}
+                    onChange={(e) => setFilterType(e.target.value)}
+                    className="w-28 sm:w-32 h-9 px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer truncate"
+                  >
+                    {filterOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </FieldTooltip>
             )}
 
             {/* Reset Filters */}
@@ -3108,23 +3236,23 @@ export const AdministrationView: React.FC = () => {
                     <th className="h-[38px] px-3 w-24 text-center whitespace-nowrap align-middle bg-[#D6E3EF]">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                <tbody className="divide-y divide-slate-100 font-normal text-slate-700">
                   {paginatedEntities.length === 0 ? (
                     <tr>
-                      <td colSpan={9} className="h-[60px] py-8 text-center text-slate-400 font-semibold align-middle">
+                      <td colSpan={9} className="h-[60px] py-8 text-center text-slate-400 font-normal align-middle">
                         No entities found matching search criteria.
                       </td>
                     </tr>
                   ) : (
                     paginatedEntities.map((ent, idx) => (
                       <tr key={ent.id} className={`h-[52px] sm:h-[58px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}>
-                        <td className="h-[52px] sm:h-[58px] px-2 text-center font-mono font-bold text-slate-400 align-middle">
+                        <td className="h-[52px] sm:h-[58px] px-2 text-center font-mono font-normal text-slate-400 align-middle">
                           {(currentPage - 1) * itemsPerPage + idx + 1}
                         </td>
-                        <td className="h-[52px] sm:h-[58px] px-2.5 font-bold text-slate-900 align-middle">{ent.name}</td>
+                        <td className="h-[52px] sm:h-[58px] px-2.5 font-normal text-slate-900 align-middle">{ent.name}</td>
                         <td className="h-[52px] sm:h-[58px] px-2.5 align-middle">
                           <span
-                            className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                            className={`px-2 py-0.5 rounded-md text-[10px] font-normal ${
                               ent.type === 'Parent'
                                 ? 'bg-purple-50 text-purple-700 border border-purple-200'
                                 : 'bg-sky-50 text-[#004B87] border border-sky-200'
@@ -3134,7 +3262,7 @@ export const AdministrationView: React.FC = () => {
                           </span>
                         </td>
                         <td className="h-[52px] sm:h-[58px] px-2.5 text-slate-600 align-middle">{ent.parentEntity || '—'}</td>
-                        <td className="h-[52px] sm:h-[58px] px-2.5 text-slate-800 font-semibold align-middle">{ent.contactName}</td>
+                        <td className="h-[52px] sm:h-[58px] px-2.5 text-slate-800 font-normal align-middle">{ent.contactName}</td>
                         <td className="h-[52px] sm:h-[58px] px-2.5 font-mono text-slate-600 truncate max-w-[190px] align-middle">
                           <div className="inline-flex items-center gap-1.5 truncate max-w-full">
                             <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
@@ -3201,20 +3329,20 @@ export const AdministrationView: React.FC = () => {
                     <th className="h-[38px] px-3 w-24 text-center whitespace-nowrap align-middle bg-[#D6E3EF]">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                <tbody className="divide-y divide-slate-100 font-normal text-slate-700">
                   {paginatedRoles.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="h-[60px] py-8 text-center text-slate-400 font-semibold align-middle">
+                      <td colSpan={4} className="h-[60px] py-8 text-center text-slate-400 font-normal align-middle">
                         No role records match the selected filter criteria.
                       </td>
                     </tr>
                   ) : (
                     paginatedRoles.map((role, idx) => (
                       <tr key={role.id} className={`h-[52px] sm:h-[58px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}>
-                        <td className="h-[52px] sm:h-[58px] px-2 text-center font-mono font-bold text-slate-400 align-middle">
+                        <td className="h-[52px] sm:h-[58px] px-2 text-center font-mono font-normal text-slate-400 align-middle">
                           {(currentPage - 1) * itemsPerPage + idx + 1}
                         </td>
-                        <td className="h-[52px] sm:h-[58px] px-2.5 font-bold text-[#004B87] align-middle">
+                        <td className="h-[52px] sm:h-[58px] px-2.5 font-normal text-[#004B87] align-middle">
                           {role.name}
                         </td>
                         <td className="h-[52px] sm:h-[58px] px-2.5 text-slate-600 align-middle">{role.description}</td>
@@ -3275,20 +3403,20 @@ export const AdministrationView: React.FC = () => {
                     <th className="h-[38px] px-3 w-24 text-center whitespace-nowrap align-middle bg-[#D6E3EF]">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                <tbody className="divide-y divide-slate-100 font-normal text-slate-700">
                   {paginatedUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="h-[60px] py-8 text-center text-slate-400 font-semibold align-middle">
+                      <td colSpan={8} className="h-[60px] py-8 text-center text-slate-400 font-normal align-middle">
                         No user records match the selected filter criteria.
                       </td>
                     </tr>
                   ) : (
                     paginatedUsers.map((user, idx) => (
                       <tr key={user.id} className={`h-[52px] sm:h-[58px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}>
-                        <td className="h-[52px] sm:h-[58px] px-2 text-center font-mono font-bold text-slate-400 align-middle">
+                        <td className="h-[52px] sm:h-[58px] px-2 text-center font-mono font-normal text-slate-400 align-middle">
                           {(currentPage - 1) * itemsPerPage + idx + 1}
                         </td>
-                        <td className="h-[52px] sm:h-[58px] px-3 font-semibold text-slate-900 align-middle">
+                        <td className="h-[52px] sm:h-[58px] px-3 font-normal text-slate-900 align-middle">
                           {user.firstName || user.name.split(' ')[0]}
                         </td>
                         <td className="h-[52px] sm:h-[58px] px-3 text-slate-700 align-middle">
@@ -3305,7 +3433,7 @@ export const AdministrationView: React.FC = () => {
                         </td>
                         <td className="h-[52px] sm:h-[58px] px-3 align-middle">
                           <span
-                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap inline-block ${
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-normal whitespace-nowrap inline-block ${
                               user.status === 'Active'
                                 ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
                                 : 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60'
@@ -3383,20 +3511,20 @@ export const AdministrationView: React.FC = () => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                <tbody className="divide-y divide-slate-100 font-normal text-slate-700">
                   {paginatedPermissions.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="h-[60px] py-8 text-center text-slate-400 font-semibold align-middle">
+                      <td colSpan={5} className="h-[60px] py-8 text-center text-slate-400 font-normal align-middle">
                         No permissions found matching search criteria.
                       </td>
                     </tr>
                   ) : (
                     paginatedPermissions.map((p, idx) => (
                       <tr key={p.id} className={`h-[52px] sm:h-[58px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}>
-                        <td className="h-[52px] sm:h-[58px] px-2 text-center font-mono font-bold text-slate-400 align-middle">
+                        <td className="h-[52px] sm:h-[58px] px-2 text-center font-mono font-normal text-slate-400 align-middle">
                           {(currentPage - 1) * itemsPerPage + idx + 1}
                         </td>
-                        <td className="h-[52px] sm:h-[58px] px-3.5 text-slate-800 font-medium align-middle">
+                        <td className="h-[52px] sm:h-[58px] px-3.5 text-slate-800 font-normal align-middle">
                           {p.displayName}
                         </td>
                         <td className="h-[52px] sm:h-[58px] px-3.5 text-slate-600 align-middle">
@@ -3438,62 +3566,84 @@ export const AdministrationView: React.FC = () => {
                 {/* 1. Start Date */}
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1 text-xs">Start Date</label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="dd-mm-yyyy"
-                      value={logStartDate}
-                      onChange={(e) => setLogStartDate(e.target.value)}
-                      className="w-full h-9 pl-3 pr-8 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all font-medium shadow-xs"
-                    />
-                    <Calendar className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  </div>
+                  <FieldTooltip
+                    content="Filter audit events starting from this date."
+                    example="01-01-2026"
+                    format="dd-mm-yyyy"
+                  >
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="dd-mm-yyyy"
+                        value={logStartDate}
+                        onChange={(e) => setLogStartDate(e.target.value)}
+                        className="w-full h-9 pl-3 pr-8 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all font-medium shadow-xs"
+                      />
+                      <Calendar className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                  </FieldTooltip>
                 </div>
 
                 {/* 2. End Date */}
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1 text-xs">End Date</label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="dd-mm-yyyy"
-                      value={logEndDate}
-                      onChange={(e) => setLogEndDate(e.target.value)}
-                      className="w-full h-9 pl-3 pr-8 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all font-medium shadow-xs"
-                    />
-                    <Calendar className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  </div>
+                  <FieldTooltip
+                    content="Filter audit events up to this concluding date."
+                    example="31-12-2026"
+                    format="dd-mm-yyyy"
+                  >
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="dd-mm-yyyy"
+                        value={logEndDate}
+                        onChange={(e) => setLogEndDate(e.target.value)}
+                        className="w-full h-9 pl-3 pr-8 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all font-medium shadow-xs"
+                      />
+                      <Calendar className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                  </FieldTooltip>
                 </div>
 
                 {/* 3. Select User */}
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1 text-xs">Select User</label>
-                  <div className="relative">
-                    <select
-                      value={logSelectedUser}
-                      onChange={(e) => setLogSelectedUser(e.target.value)}
-                      className="w-full h-9 px-3 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer"
-                    >
-                      <option value="All">All</option>
-                      {distinctLogUsers.map((u) => (
-                        <option key={u} value={u}>
-                          {u}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <FieldTooltip
+                    content="Filter audit events triggered by a specific username or system operator."
+                    example="Ahmed Ali or Sara Khan"
+                  >
+                    <div className="relative">
+                      <select
+                        value={logSelectedUser}
+                        onChange={(e) => setLogSelectedUser(e.target.value)}
+                        className="w-full h-9 px-3 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer"
+                      >
+                        <option value="All">All</option>
+                        {distinctLogUsers.map((u) => (
+                          <option key={u} value={u}>
+                            {u}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </FieldTooltip>
                 </div>
 
                 {/* 4. Actions */}
                 <div>
                   <label className="block text-slate-700 font-semibold mb-1 text-xs">Actions</label>
-                  <input
-                    type="text"
-                    placeholder="Action"
-                    value={logActionQuery}
-                    onChange={(e) => setLogActionQuery(e.target.value)}
-                    className="w-full h-9 px-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all font-medium shadow-xs"
-                  />
+                  <FieldTooltip
+                    content="Filter by action description or operational event keyword."
+                    example="Login, Updated Monitoring Plan, Approved Dossier"
+                  >
+                    <input
+                      type="text"
+                      placeholder="Action"
+                      value={logActionQuery}
+                      onChange={(e) => setLogActionQuery(e.target.value)}
+                      className="w-full h-9 px-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all font-medium shadow-xs"
+                    />
+                  </FieldTooltip>
                 </div>
 
                 {/* 5. Reset Button in the same row */}
@@ -3554,10 +3704,10 @@ export const AdministrationView: React.FC = () => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                <tbody className="divide-y divide-slate-100 font-normal text-slate-700">
                   {paginatedLogs.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="h-[60px] py-8 text-center text-slate-400 font-semibold align-middle">
+                      <td colSpan={7} className="h-[60px] py-8 text-center text-slate-400 font-normal align-middle">
                         No action log entries match the selected filter criteria.
                       </td>
                     </tr>
@@ -3567,13 +3717,13 @@ export const AdministrationView: React.FC = () => {
                       const isWarning = log.status?.toLowerCase() === 'warning';
                       return (
                         <tr key={log.id} className={`h-[52px] sm:h-[58px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}>
-                          <td className="h-[52px] sm:h-[58px] px-2 text-center font-mono font-bold text-slate-400 align-middle">
+                          <td className="h-[52px] sm:h-[58px] px-2 text-center font-mono font-normal text-slate-400 align-middle">
                             {(currentPage - 1) * itemsPerPage + idx + 1}
                           </td>
                           <td className="h-[52px] sm:h-[58px] px-3 font-mono text-[11px] text-slate-600 align-middle">
                             {log.timestamp}
                           </td>
-                          <td className="h-[52px] sm:h-[58px] px-3 text-slate-800 font-semibold align-middle">
+                          <td className="h-[52px] sm:h-[58px] px-3 text-slate-800 font-normal align-middle">
                             {log.action}
                           </td>
                           <td className="h-[52px] sm:h-[58px] px-3 text-slate-700 align-middle">
@@ -3587,11 +3737,11 @@ export const AdministrationView: React.FC = () => {
                           </td>
                           <td className="h-[52px] sm:h-[58px] px-3 text-center align-middle">
                             <span
-                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap inline-block ${
+                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-normal whitespace-nowrap inline-block ${
                                 isSuccess
                                   ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
                                   : isWarning
-                                  ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
+                                  ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80'
                                   : 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60'
                               }`}
                             >

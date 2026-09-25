@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { MRVProvider, useMRV } from './context/MRVContext';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
-import { AmbientBackground } from './components/ui/AmbientBackground';
 
 // Views
 import { LoginView } from './views/LoginView';
@@ -35,12 +34,22 @@ import { ReadOnlyRecordViewer } from './components/mrv/ReadOnlyRecordViewer';
 import { AdministrationView } from './views/AdministrationView';
 
 const MainAppContent: React.FC = () => {
-  const { currentRole, activeView, setActiveView } = useMRV();
+  const { currentRole, activeView, setActiveView, resetDemoData } = useMRV();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
+  const handleLoginSuccess = () => {
+    resetDemoData();
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    resetDemoData();
+    setIsAuthenticated(false);
+  };
+
   if (!isAuthenticated) {
-    return <LoginView onLoginSuccess={() => setIsAuthenticated(true)} />;
+    return <LoginView onLoginSuccess={handleLoginSuccess} />;
   }
 
   const renderActiveView = () => {
@@ -51,6 +60,7 @@ const MainAppContent: React.FC = () => {
       case 'registration':
       case 'annual-renewal':
       case 'report-change':
+      case 'ead-facilities':
         return <FacilityRegistrationView />;
       case 'data-entry':
       case 'monitoring-plan':
@@ -90,8 +100,6 @@ const MainAppContent: React.FC = () => {
         return <EADReviewDetailView />;
       case 'ead-analytics':
         return <EADAnalyticsView />;
-      case 'ead-facilities':
-        return <EADFacilitiesView />;
       case 'administration':
       case 'admin':
       case 'admin-entity':
@@ -113,14 +121,11 @@ const MainAppContent: React.FC = () => {
 
   return (
     <div className="relative h-screen w-screen flex bg-[#E5E8ED] text-[#0D0E12] font-sans antialiased overflow-hidden">
-      {/* Dynamic Ambient Mesh Canvas */}
-      <AmbientBackground />
-
       {/* Left Navigation Sidebar */}
       <Sidebar
         isCollapsed={isSidebarCollapsed}
         setIsCollapsed={setIsSidebarCollapsed}
-        onLogout={() => setIsAuthenticated(false)}
+        onLogout={handleLogout}
       />
 
       {/* Right Column Area with Fixed Header & Scrollable Main Views */}
@@ -129,7 +134,7 @@ const MainAppContent: React.FC = () => {
         <Header
           isSidebarCollapsed={isSidebarCollapsed}
           setIsSidebarCollapsed={setIsSidebarCollapsed}
-          onLogout={() => setIsAuthenticated(false)}
+          onLogout={handleLogout}
         />
 
         {/* Main View Container */}

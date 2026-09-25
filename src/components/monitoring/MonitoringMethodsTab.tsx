@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, X, ChevronDown } from 'lucide-react';
+import { FieldTooltip } from '../ui/FieldTooltip';
 
 // Helper to parse numeric emissions from string/number input
 const parseEmissions = (val: string | number | undefined | null): number => {
@@ -109,24 +110,8 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
   onChange,
   isReadOnly = false,
 }) => {
-  // Accordion Expand/Collapse State (Closed by default)
-  const [openSections, setOpenSections] = useState<{
-    calc: boolean;
-    meas: boolean;
-    fallback: boolean;
-  }>({
-    calc: false,
-    meas: false,
-    fallback: false,
-  });
-
-  const toggleSection = (key: 'calc' | 'meas' | 'fallback') => {
-    setOpenSections((prev) => ({
-      calc: key === 'calc' ? !prev.calc : false,
-      meas: key === 'meas' ? !prev.meas : false,
-      fallback: key === 'fallback' ? !prev.fallback : false,
-    }));
-  };
+  // Sub-Tab Navigation for Monitoring Methods: 'calc' | 'meas' | 'fallback'
+  const [activeSubTab, setActiveSubTab] = useState<'calc' | 'meas' | 'fallback'>('calc');
 
   // Section 1: Calculation - Based Monitoring State
   const [calcSourceStreams, setCalcSourceStreams] = useState(
@@ -409,30 +394,39 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
 
 
   return (
-    <div className="space-y-4">
-      {/* ========================================================================= */}
-      {/* Section 1: Calculation - Based Monitoring */}
-      {/* ========================================================================= */}
-      <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs transition-all">
-        <button
-          type="button"
-          onClick={() => toggleSection('calc')}
-          className={`w-full px-3.5 py-2.5 sm:py-3 bg-[#F4F6F8] hover:bg-[#EBF2F8] ${
-            openSections.calc ? 'border-b border-slate-200/80' : 'border-b-0'
-          } flex items-center justify-between transition-colors cursor-pointer text-left select-none group`}
-        >
-          <span className="text-xs font-bold text-[#336D9F] group-hover:text-[#003460]">
-            Calculation - Based Monitoring
-          </span>
-          <ChevronDown
-            className={`w-4 h-4 text-[#336D9F] transition-transform duration-200 ${
-              openSections.calc ? 'rotate-180' : 'rotate-0'
-            }`}
-          />
-        </button>
+    <div className="space-y-3.5">
+      {/* Lined Sub-Tabs Navigation for Monitoring Methods (Sticky) */}
+      <div className="sticky -top-2 z-30 bg-white pt-2.5 pb-2 -mt-2 border-b border-slate-200 shadow-2xs">
+        <div className="flex items-center gap-6 bg-white">
+          {[
+            { id: 'calc', label: 'Calculation - Based Monitoring' },
+            { id: 'meas', label: 'Measurement - Based Monitoring' },
+            { id: 'fallback', label: 'Fallback Approach' },
+          ].map((subTab) => {
+            const isActive = activeSubTab === subTab.id;
+            return (
+              <button
+                key={subTab.id}
+                type="button"
+                onClick={() => setActiveSubTab(subTab.id as any)}
+                className={`pb-2 text-xs transition-all cursor-pointer whitespace-nowrap border-b-2 font-bold flex items-center gap-1.5 outline-none focus:outline-none focus:ring-0 ${
+                  isActive
+                    ? 'border-[#004B87] text-[#004B87]'
+                    : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300 font-semibold'
+                }`}
+              >
+                <span>{subTab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
-        {openSections.calc && (
-          <div className="p-3.5 bg-white space-y-6 text-xs animate-in fade-in duration-150">
+      {/* ========================================================================= */}
+      {/* Sub Tab 1: Calculation - Based Monitoring */}
+      {/* ========================================================================= */}
+      {activeSubTab === 'calc' && (
+        <div className="space-y-6 text-xs animate-in fade-in duration-150 pt-1">
             {/* Subsection 1: Source Stream Identification & Classification */}
             <div>
               <h4 className="text-xs font-bold text-[#336D9F] mb-3">Source Stream Identification & Classification</h4>
@@ -440,11 +434,11 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                      <th className="py-2.5 px-3 min-w-[80px]" title="Source Stream ID">Source Stream ID</th>
-                      <th className="py-2.5 px-3 min-w-[190px]" title="Description of Source Stream">Description of Source Stream</th>
-                      <th className="py-2.5 px-3 min-w-[160px]" title="Estimated Emissions [t CO₂e/year]">Estimated Emissions [t CO₂e/year]</th>
-                      <th className="py-2.5 px-3 min-w-[140px]" title="Possible Category (Auto)">Possible Category (Auto)</th>
-                      <th className="py-2.5 px-3 min-w-[140px]" title="Selected Category">Selected Category</th>
+                      <th className="py-2.5 px-3 min-w-[90px]">Source Stream ID</th>
+                      <th className="py-2.5 px-3 min-w-[200px]">Description of Source Stream</th>
+                      <th className="py-2.5 px-3 min-w-[175px]">Estimated Emissions [t CO₂e/year]</th>
+                      <th className="py-2.5 px-3 min-w-[155px]">Possible Category (Auto)</th>
+                      <th className="py-2.5 px-3 min-w-[150px]">Selected Category</th>
                       {!isReadOnly && <th className="py-2.5 px-3 text-center min-w-[65px]" title="Actions">Actions</th>}
                     </tr>
                   </thead>
@@ -478,73 +472,83 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.id}
-                              placeholder="F01"
-                              title={row.id || 'Source Stream ID'}
-                              onChange={(e) => {
-                                const copy = [...calcSourceStreams];
-                                copy[idx].id = e.target.value;
-                                setCalcSourceStreams(copy);
-                              }}
-                              className="w-full min-w-[65px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-left focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Unique alphanumeric reference code for this fuel or material stream." example="F01">
+                              <input
+                                type="text"
+                                value={row.id}
+                                placeholder="F01"
+                                title={row.id || 'Source Stream ID'}
+                                onChange={(e) => {
+                                  const copy = [...calcSourceStreams];
+                                  copy[idx].id = e.target.value;
+                                  setCalcSourceStreams(copy);
+                                }}
+                                className="w-full min-w-[65px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-left focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.desc}
-                              placeholder="Enter description"
-                              title={row.desc || 'Enter description'}
-                              onChange={(e) => {
-                                const copy = [...calcSourceStreams];
-                                copy[idx].desc = e.target.value;
-                                setCalcSourceStreams(copy);
-                              }}
-                              className="w-full min-w-[170px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Descriptive name or operational designation for the fuel/material stream." example="Raw Kiln Feed / Natural Gas Turbines">
+                              <input
+                                type="text"
+                                value={row.desc}
+                                placeholder="Enter description"
+                                title={row.desc || 'Enter description'}
+                                onChange={(e) => {
+                                  const copy = [...calcSourceStreams];
+                                  copy[idx].desc = e.target.value;
+                                  setCalcSourceStreams(copy);
+                                }}
+                                className="w-full min-w-[170px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.estimatedEmissions}
-                              placeholder="Enter emissions"
-                              title={row.estimatedEmissions ? `${row.estimatedEmissions} t CO₂e/year` : 'Enter emissions'}
-                              onChange={(e) => {
-                                const copy = [...calcSourceStreams];
-                                copy[idx].estimatedEmissions = e.target.value;
-                                setCalcSourceStreams(copy);
-                              }}
-                              className="w-full min-w-[140px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Estimated annual greenhouse gas emissions generated by this source stream." unit="t CO₂e/year" example="105,000">
+                              <input
+                                type="text"
+                                value={row.estimatedEmissions}
+                                placeholder="Enter emissions"
+                                title={row.estimatedEmissions ? `${row.estimatedEmissions} t CO₂e/year` : 'Enter emissions'}
+                                onChange={(e) => {
+                                  const copy = [...calcSourceStreams];
+                                  copy[idx].estimatedEmissions = e.target.value;
+                                  setCalcSourceStreams(copy);
+                                }}
+                                className="w-full min-w-[140px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              readOnly
-                              disabled
-                              value={autoCategory}
-                              title={`Automatically calculated category: ${autoCategory || 'N/A'}`}
-                              className="w-full min-w-[125px] px-2.5 py-1.5 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-700 text-xs font-medium cursor-not-allowed select-none"
-                            />
+                            <FieldTooltip content="Automatically determined stream category (Major, Minor, or De-minimis) based on emission volume and facility share.">
+                              <input
+                                type="text"
+                                readOnly
+                                disabled
+                                value={autoCategory}
+                                title={`Automatically calculated category: ${autoCategory || 'N/A'}`}
+                                className="w-full min-w-[125px] px-2.5 py-1.5 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-700 text-xs font-medium cursor-not-allowed select-none"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <select
-                              value={row.selectedCategory}
-                              title={row.selectedCategory || 'Select category'}
-                              onChange={(e) => {
-                                const copy = [...calcSourceStreams];
-                                copy[idx].selectedCategory = e.target.value;
-                                setCalcSourceStreams(copy);
-                              }}
-                              className="w-full min-w-[125px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
-                            >
-                              <option value="" title="Select category">Select category</option>
-                              <option value="Major" title="Major">Major</option>
-                              <option value="Minor" title="Minor">Minor</option>
-                              <option value="De-minimis" title="De-minimis">De-minimis</option>
-                            </select>
+                            <FieldTooltip content="Official regulatory classification chosen for monitoring rigor compliance." example="Major">
+                              <select
+                                value={row.selectedCategory}
+                                title={row.selectedCategory || 'Select category'}
+                                onChange={(e) => {
+                                  const copy = [...calcSourceStreams];
+                                  copy[idx].selectedCategory = e.target.value;
+                                  setCalcSourceStreams(copy);
+                                }}
+                                className="w-full min-w-[125px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
+                              >
+                                <option value="" title="Select category">Select category</option>
+                                <option value="Major" title="Major">Major</option>
+                                <option value="Minor" title="Minor">Minor</option>
+                                <option value="De-minimis" title="De-minimis">De-minimis</option>
+                              </select>
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3 text-center">
                             {idx === 0 ? (
@@ -582,13 +586,13 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                      <th className="py-2.5 px-3 min-w-[80px]" title="Source Stream ID">Source Stream ID</th>
-                      <th className="py-2.5 px-3 min-w-[120px]" title="Tier Level Used">Tier Level Used</th>
-                      <th className="py-2.5 px-3 min-w-[130px]" title="Category Selected Above">Category Selected Above</th>
-                      <th className="py-2.5 px-3 min-w-[145px]" title="Uncertainty Level Achieved (%)">Uncertainty Level Achieved (%)</th>
-                      <th className="py-2.5 px-3 min-w-[165px]" title="Fuel Stream Type">Fuel Stream Type</th>
-                      <th className="py-2.5 px-3 min-w-[145px]" title="Source Of Accuracy">Source Of Accuracy</th>
-                      <th className="py-2.5 px-3 min-w-[135px]" title="Permitted level of uncertainty">Permitted level of uncertainty</th>
+                      <th className="py-2.5 px-3 min-w-[90px]">Source Stream ID</th>
+                      <th className="py-2.5 px-3 min-w-[130px]">Tier Level Used</th>
+                      <th className="py-2.5 px-3 min-w-[145px]">Category Selected Above</th>
+                      <th className="py-2.5 px-3 min-w-[160px]">Uncertainty Level Achieved (%)</th>
+                      <th className="py-2.5 px-3 min-w-[175px]">Fuel Stream Type</th>
+                      <th className="py-2.5 px-3 min-w-[155px]">Source Of Accuracy</th>
+                      <th className="py-2.5 px-3 min-w-[150px]">Permitted level of uncertainty</th>
                       {!isReadOnly && <th className="py-2.5 px-3 text-center min-w-[65px]" title="Actions">Actions</th>}
                     </tr>
                   </thead>
@@ -647,146 +651,160 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.id}
-                              placeholder="F01"
-                              title={row.id || 'Source Stream ID'}
-                              onChange={(e) => {
-                                const copy = [...calcTierUncertainty];
-                                copy[idx].id = e.target.value;
-                                setCalcTierUncertainty(copy);
-                              }}
-                              className="w-full min-w-[65px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-left focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Matching source stream identifier from the table above." example="F01">
+                              <input
+                                type="text"
+                                value={row.id}
+                                placeholder="F01"
+                                title={row.id || 'Source Stream ID'}
+                                onChange={(e) => {
+                                  const copy = [...calcTierUncertainty];
+                                  copy[idx].id = e.target.value;
+                                  setCalcTierUncertainty(copy);
+                                }}
+                                className="w-full min-w-[65px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-left focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <select
-                              disabled={isDeMinimis}
-                              value={isDeMinimis ? '' : row.tier}
-                              title={isDeMinimis ? 'N/A for De-minimis' : (row.tier || 'Select Tier')}
-                              onChange={(e) => {
-                                const copy = [...calcTierUncertainty];
-                                copy[idx].tier = e.target.value;
-                                setCalcTierUncertainty(copy);
-                              }}
-                              className={`w-full min-w-[110px] px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-[#004B87] ${
-                                isDeMinimis
-                                  ? 'bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed select-none'
-                                  : 'bg-white text-slate-800 border-slate-200 cursor-pointer shadow-xs'
-                              }`}
-                            >
-                              <option value="" title={isDeMinimis ? 'N/A' : 'Select Tier'}>{isDeMinimis ? 'N/A' : 'Select Tier'}</option>
-                              {!isDeMinimis && (
-                                <>
-                                  <option value="Tier 1" title="Tier 1">Tier 1</option>
-                                  <option value="Tier 2" title="Tier 2">Tier 2</option>
-                                  <option value="Tier 3" title="Tier 3">Tier 3</option>
-                                  <option value="Tier 4" title="Tier 4">Tier 4</option>
-                                </>
-                              )}
-                            </select>
+                            <FieldTooltip content="Selected monitoring tier level (Tier 1 to 4) defining accuracy requirements." example="Tier 3">
+                              <select
+                                disabled={isDeMinimis}
+                                value={isDeMinimis ? '' : row.tier}
+                                title={isDeMinimis ? 'N/A for De-minimis' : (row.tier || 'Select Tier')}
+                                onChange={(e) => {
+                                  const copy = [...calcTierUncertainty];
+                                  copy[idx].tier = e.target.value;
+                                  setCalcTierUncertainty(copy);
+                                }}
+                                className={`w-full min-w-[110px] px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-[#004B87] ${
+                                  isDeMinimis
+                                    ? 'bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed select-none'
+                                    : 'bg-white text-slate-800 border-slate-200 cursor-pointer shadow-xs'
+                                }`}
+                              >
+                                <option value="" title={isDeMinimis ? 'N/A' : 'Select Tier'}>{isDeMinimis ? 'N/A' : 'Select Tier'}</option>
+                                {!isDeMinimis && (
+                                  <>
+                                    <option value="Tier 1" title="Tier 1">Tier 1</option>
+                                    <option value="Tier 2" title="Tier 2">Tier 2</option>
+                                    <option value="Tier 3" title="Tier 3">Tier 3</option>
+                                    <option value="Tier 4" title="Tier 4">Tier 4</option>
+                                  </>
+                                )}
+                              </select>
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              readOnly
-                              disabled
-                              value={categorySelectedAbove}
-                              title={`Category selected above: ${categorySelectedAbove}`}
-                              className="w-full min-w-[125px] px-2.5 py-1.5 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-700 text-xs font-semibold cursor-not-allowed select-none"
-                            />
+                            <FieldTooltip content="Stream category inherited from stream classification above.">
+                              <input
+                                type="text"
+                                readOnly
+                                disabled
+                                value={categorySelectedAbove}
+                                title={`Category selected above: ${categorySelectedAbove}`}
+                                className="w-full min-w-[125px] px-2.5 py-1.5 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-700 text-xs font-semibold cursor-not-allowed select-none"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              disabled={isDeMinimis}
-                              value={isDeMinimis ? '' : row.uncertaintyAchieved}
-                              placeholder={isDeMinimis ? 'N/A' : 'Enter uncertainty %'}
-                              onChange={(e) => {
-                                const copy = [...calcTierUncertainty];
-                                copy[idx].uncertaintyAchieved = e.target.value;
-                                setCalcTierUncertainty(copy);
-                              }}
-                              title={
-                                isUncertaintyExceeded
-                                  ? `Uncertainty ${row.uncertaintyAchieved}% exceeds permitted level (${permittedDisplay}) for ${row.tier}`
-                                  : row.uncertaintyAchieved
-                                  ? `Uncertainty achieved: ${row.uncertaintyAchieved}%`
-                                  : 'Enter uncertainty achieved %'
-                              }
-                              className={`w-full min-w-[130px] px-2.5 py-1.5 border rounded-lg text-xs font-mono focus:outline-none ${
-                                isDeMinimis
-                                  ? 'bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed select-none'
-                                  : isUncertaintyExceeded
-                                  ? 'bg-rose-50/60 text-rose-900 border-rose-300 focus:border-rose-500 font-semibold'
-                                  : 'bg-white text-slate-800 border-slate-200 focus:border-[#004B87]'
-                              }`}
-                            />
+                            <FieldTooltip content="Total measurement or analytical uncertainty percentage achieved." unit="%" format="±X.XX%" example="1.60">
+                              <input
+                                type="text"
+                                disabled={isDeMinimis}
+                                value={isDeMinimis ? '' : row.uncertaintyAchieved}
+                                placeholder={isDeMinimis ? 'N/A' : 'Enter uncertainty %'}
+                                onChange={(e) => {
+                                  const copy = [...calcTierUncertainty];
+                                  copy[idx].uncertaintyAchieved = e.target.value;
+                                  setCalcTierUncertainty(copy);
+                                }}
+                                title={
+                                  isUncertaintyExceeded
+                                    ? `Uncertainty ${row.uncertaintyAchieved}% exceeds permitted level (${permittedDisplay}) for ${row.tier}`
+                                    : row.uncertaintyAchieved
+                                    ? `Uncertainty achieved: ${row.uncertaintyAchieved}%`
+                                    : 'Enter uncertainty achieved %'
+                                }
+                                className={`w-full min-w-[130px] px-2.5 py-1.5 border rounded-lg text-xs font-mono focus:outline-none ${
+                                  isDeMinimis
+                                    ? 'bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed select-none'
+                                    : isUncertaintyExceeded
+                                    ? 'bg-rose-50/60 text-rose-900 border-rose-300 focus:border-rose-500 font-semibold'
+                                    : 'bg-white text-slate-800 border-slate-200 focus:border-[#004B87]'
+                                }`}
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <select
-                              disabled={isDeMinimis}
-                              value={isDeMinimis ? '' : row.fuelStreamType}
-                              title={isDeMinimis ? 'N/A' : (row.fuelStreamType || 'Select fuel stream type')}
-                              onChange={(e) => {
-                                const copy = [...calcTierUncertainty];
-                                copy[idx].fuelStreamType = e.target.value;
-                                setCalcTierUncertainty(copy);
-                              }}
-                              className={`w-full min-w-[150px] px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-[#004B87] ${
-                                isDeMinimis
-                                  ? 'bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed select-none'
-                                  : 'bg-white text-slate-800 border-slate-200 cursor-pointer shadow-xs'
-                              }`}
-                            >
-                              <option value="" title={isDeMinimis ? 'N/A' : 'Select fuel stream type'}>{isDeMinimis ? 'N/A' : 'Select fuel stream type'}</option>
-                              {!isDeMinimis && (
-                                <>
-                                  <option value="Commercial Standard Fuels" title="Commercial Standard Fuels">Commercial Standard Fuels</option>
-                                  <option value="Alternative Fuels" title="Alternative Fuels">Alternative Fuels</option>
-                                  <option value="Diesel" title="Diesel">Diesel</option>
-                                  <option value="Natural Gas" title="Natural Gas">Natural Gas</option>
-                                </>
-                              )}
-                            </select>
+                            <FieldTooltip content="Classification of fuel stream (e.g., Commercial Standard Fuels, Alternative Fuels, Diesel, Natural Gas).">
+                              <select
+                                disabled={isDeMinimis}
+                                value={isDeMinimis ? '' : row.fuelStreamType}
+                                title={isDeMinimis ? 'N/A' : (row.fuelStreamType || 'Select fuel stream type')}
+                                onChange={(e) => {
+                                  const copy = [...calcTierUncertainty];
+                                  copy[idx].fuelStreamType = e.target.value;
+                                  setCalcTierUncertainty(copy);
+                                }}
+                                className={`w-full min-w-[150px] px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-[#004B87] ${
+                                  isDeMinimis
+                                    ? 'bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed select-none'
+                                    : 'bg-white text-slate-800 border-slate-200 cursor-pointer shadow-xs'
+                                }`}
+                              >
+                                <option value="" title={isDeMinimis ? 'N/A' : 'Select fuel stream type'}>{isDeMinimis ? 'N/A' : 'Select fuel stream type'}</option>
+                                {!isDeMinimis && (
+                                  <>
+                                    <option value="Commercial Standard Fuels" title="Commercial Standard Fuels">Commercial Standard Fuels</option>
+                                    <option value="Alternative Fuels" title="Alternative Fuels">Alternative Fuels</option>
+                                    <option value="Diesel" title="Diesel">Diesel</option>
+                                    <option value="Natural Gas" title="Natural Gas">Natural Gas</option>
+                                  </>
+                                )}
+                              </select>
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <select
-                              disabled={isDeMinimis}
-                              value={isDeMinimis ? '' : row.sourceAccuracy}
-                              title={isDeMinimis ? 'N/A' : (row.sourceAccuracy || 'Select source')}
-                              onChange={(e) => {
-                                const copy = [...calcTierUncertainty];
-                                copy[idx].sourceAccuracy = e.target.value;
-                                setCalcTierUncertainty(copy);
-                              }}
-                              className={`w-full min-w-[135px] px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-[#004B87] ${
-                                isDeMinimis
-                                  ? 'bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed select-none'
-                                  : 'bg-white text-slate-800 border-slate-200 cursor-pointer shadow-xs'
-                              }`}
-                            >
-                              <option value="" title={isDeMinimis ? 'N/A' : 'Select source'}>{isDeMinimis ? 'N/A' : 'Select source'}</option>
-                              {!isDeMinimis && (
-                                <>
-                                  <option value="Lab Analysis" title="Lab Analysis">Lab Analysis</option>
-                                  <option value="Meter Reading" title="Meter Reading">Meter Reading</option>
-                                  <option value="Supplier Data" title="Supplier Data">Supplier Data</option>
-                                </>
-                              )}
-                            </select>
+                            <FieldTooltip content="Method used to establish measurement data accuracy." example="Lab Analysis / Meter Reading / Supplier Data">
+                              <select
+                                disabled={isDeMinimis}
+                                value={isDeMinimis ? '' : row.sourceAccuracy}
+                                title={isDeMinimis ? 'N/A' : (row.sourceAccuracy || 'Select source')}
+                                onChange={(e) => {
+                                  const copy = [...calcTierUncertainty];
+                                  copy[idx].sourceAccuracy = e.target.value;
+                                  setCalcTierUncertainty(copy);
+                                }}
+                                className={`w-full min-w-[135px] px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-[#004B87] ${
+                                  isDeMinimis
+                                    ? 'bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed select-none'
+                                    : 'bg-white text-slate-800 border-slate-200 cursor-pointer shadow-xs'
+                                }`}
+                              >
+                                <option value="" title={isDeMinimis ? 'N/A' : 'Select source'}>{isDeMinimis ? 'N/A' : 'Select source'}</option>
+                                {!isDeMinimis && (
+                                  <>
+                                    <option value="Lab Analysis" title="Lab Analysis">Lab Analysis</option>
+                                    <option value="Meter Reading" title="Meter Reading">Meter Reading</option>
+                                    <option value="Supplier Data" title="Supplier Data">Supplier Data</option>
+                                  </>
+                                )}
+                              </select>
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              readOnly
-                              disabled
-                              value={permittedDisplay}
-                              placeholder="Auto (from tier)"
-                              title={`Permitted level of uncertainty: ${permittedDisplay}`}
-                              className="w-full min-w-[125px] px-2.5 py-1.5 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-700 text-xs font-mono font-medium cursor-not-allowed select-none"
-                            />
+                            <FieldTooltip content="Regulatory maximum permitted uncertainty for the selected tier level." format="±X.X%">
+                              <input
+                                type="text"
+                                readOnly
+                                disabled
+                                value={permittedDisplay}
+                                placeholder="Auto (from tier)"
+                                title={`Permitted level of uncertainty: ${permittedDisplay}`}
+                                className="w-full min-w-[125px] px-2.5 py-1.5 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-700 text-xs font-mono font-medium cursor-not-allowed select-none"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3 text-center">
                             {idx === 0 ? (
@@ -829,13 +847,15 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                     {calcApproachDesc || 'No calculation approach description provided.'}
                   </div>
                 ) : (
-                  <textarea
-                    rows={3}
-                    value={calcApproachDesc}
-                    placeholder="Please provide a concise description of the calculation approach, including formulae, used to determine your annual CO₂ emissions at your facility"
-                    onChange={(e) => setCalcApproachDesc(e.target.value)}
-                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                  />
+                  <FieldTooltip content="Provide a concise description of the calculation approach, including formulae, used to determine your annual CO₂ emissions." example="AD × NCV × EF × OF">
+                    <textarea
+                      rows={3}
+                      value={calcApproachDesc}
+                      placeholder="Please provide a concise description of the calculation approach, including formulae, used to determine your annual CO₂ emissions at your facility"
+                      onChange={(e) => setCalcApproachDesc(e.target.value)}
+                      className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
+                    />
+                  </FieldTooltip>
                 )}
               </div>
             </div>
@@ -847,11 +867,11 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                      <th className="py-2.5 px-3 min-w-[80px]" title="Source Stream ID">Source Stream ID</th>
-                      <th className="py-2.5 px-3 min-w-[160px]" title="Fuel Type">Fuel Type</th>
-                      <th className="py-2.5 px-3 min-w-[150px]" title="Activity Level – Source Stream">Activity Level – Source Stream</th>
-                      <th className="py-2.5 px-3 min-w-[110px]" title="Unit – Activity Level">Unit – Activity Level</th>
-                      <th className="py-2.5 px-3 min-w-[200px]" title="Source (e.g., maintenance records, fuel logs)">Source (e.g., maintenance records, fuel logs)</th>
+                      <th className="py-2.5 px-3 min-w-[90px]">Source Stream ID</th>
+                      <th className="py-2.5 px-3 min-w-[170px]">Fuel Type</th>
+                      <th className="py-2.5 px-3 min-w-[160px]">Activity Level – Source Stream</th>
+                      <th className="py-2.5 px-3 min-w-[120px]">Unit – Activity Level</th>
+                      <th className="py-2.5 px-3 min-w-[210px]">Source (e.g., maintenance records, fuel logs)</th>
                       {!isReadOnly && <th className="py-2.5 px-3 text-center min-w-[65px]" title="Actions">Actions</th>}
                     </tr>
                   </thead>
@@ -872,86 +892,96 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.id}
-                              placeholder="F01"
-                              title={row.id || 'Source Stream ID'}
-                              onChange={(e) => {
-                                const copy = [...calcDetailedInfo];
-                                copy[idx].id = e.target.value;
-                                setCalcDetailedInfo(copy);
-                              }}
-                              className="w-full min-w-[65px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-left focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Alphanumeric source stream identifier." example="F01">
+                              <input
+                                type="text"
+                                value={row.id}
+                                placeholder="F01"
+                                title={row.id || 'Source Stream ID'}
+                                onChange={(e) => {
+                                  const copy = [...calcDetailedInfo];
+                                  copy[idx].id = e.target.value;
+                                  setCalcDetailedInfo(copy);
+                                }}
+                                className="w-full min-w-[65px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-left focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <select
-                              value={row.fuelType}
-                              title={row.fuelType || 'Select fuel type'}
-                              onChange={(e) => {
-                                const copy = [...calcDetailedInfo];
-                                copy[idx].fuelType = e.target.value;
-                                setCalcDetailedInfo(copy);
-                              }}
-                              className="w-full min-w-[150px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
-                            >
-                              <option value="" title="Select fuel type">Select fuel type</option>
-                              <option value="Natural Gas" title="Natural Gas">Natural Gas</option>
-                              <option value="Alternative Fuels" title="Alternative Fuels">Alternative Fuels</option>
-                              <option value="Diesel" title="Diesel">Diesel</option>
-                              <option value="Commercial Standard Fuels" title="Commercial Standard Fuels">Commercial Standard Fuels</option>
-                              <option value="Coal" title="Coal">Coal</option>
-                              <option value="Heavy Fuel Oil" title="Heavy Fuel Oil">Heavy Fuel Oil</option>
-                              <option value="LPG" title="LPG">LPG</option>
-                            </select>
+                            <FieldTooltip content="Primary or secondary fuel consumed." example="Natural Gas">
+                              <select
+                                value={row.fuelType}
+                                title={row.fuelType || 'Select fuel type'}
+                                onChange={(e) => {
+                                  const copy = [...calcDetailedInfo];
+                                  copy[idx].fuelType = e.target.value;
+                                  setCalcDetailedInfo(copy);
+                                }}
+                                className="w-full min-w-[150px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
+                              >
+                                <option value="" title="Select fuel type">Select fuel type</option>
+                                <option value="Natural Gas" title="Natural Gas">Natural Gas</option>
+                                <option value="Alternative Fuels" title="Alternative Fuels">Alternative Fuels</option>
+                                <option value="Diesel" title="Diesel">Diesel</option>
+                                <option value="Commercial Standard Fuels" title="Commercial Standard Fuels">Commercial Standard Fuels</option>
+                                <option value="Coal" title="Coal">Coal</option>
+                                <option value="Heavy Fuel Oil" title="Heavy Fuel Oil">Heavy Fuel Oil</option>
+                                <option value="LPG" title="LPG">LPG</option>
+                              </select>
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.activityLevel}
-                              placeholder="Enter activity level"
-                              title={row.activityLevel ? `${row.activityLevel} ${row.unit || ''}` : 'Enter activity level'}
-                              onChange={(e) => {
-                                const copy = [...calcDetailedInfo];
-                                copy[idx].activityLevel = e.target.value;
-                                setCalcDetailedInfo(copy);
-                              }}
-                              className="w-full min-w-[130px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Annual fuel or material consumption quantity." example="10,000">
+                              <input
+                                type="text"
+                                value={row.activityLevel}
+                                placeholder="Enter activity level"
+                                title={row.activityLevel ? `${row.activityLevel} ${row.unit || ''}` : 'Enter activity level'}
+                                onChange={(e) => {
+                                  const copy = [...calcDetailedInfo];
+                                  copy[idx].activityLevel = e.target.value;
+                                  setCalcDetailedInfo(copy);
+                                }}
+                                className="w-full min-w-[130px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <select
-                              value={row.unit}
-                              title={row.unit || 'Select unit'}
-                              onChange={(e) => {
-                                const copy = [...calcDetailedInfo];
-                                copy[idx].unit = e.target.value;
-                                setCalcDetailedInfo(copy);
-                              }}
-                              className="w-full min-w-[100px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
-                            >
-                              <option value="" title="Select unit">Select unit</option>
-                              <option value="MWH" title="MWH">MWH</option>
-                              <option value="GJ" title="GJ">GJ</option>
-                              <option value="Nm³" title="Nm³">Nm³</option>
-                              <option value="t" title="t">t</option>
-                              <option value="TJ" title="TJ">TJ</option>
-                            </select>
+                            <FieldTooltip content="Standard physical or energy measurement unit." unit="MWH, GJ, Nm³, t, TJ">
+                              <select
+                                value={row.unit}
+                                title={row.unit || 'Select unit'}
+                                onChange={(e) => {
+                                  const copy = [...calcDetailedInfo];
+                                  copy[idx].unit = e.target.value;
+                                  setCalcDetailedInfo(copy);
+                                }}
+                                className="w-full min-w-[100px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
+                              >
+                                <option value="" title="Select unit">Select unit</option>
+                                <option value="MWH" title="MWH">MWH</option>
+                                <option value="GJ" title="GJ">GJ</option>
+                                <option value="Nm³" title="Nm³">Nm³</option>
+                                <option value="t" title="t">t</option>
+                                <option value="TJ" title="TJ">TJ</option>
+                              </select>
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.source}
-                              placeholder="Enter source (e.g., maintenance records, fuel logs)"
-                              title={row.source || 'Enter source (e.g., maintenance records, fuel logs)'}
-                              onChange={(e) => {
-                                const copy = [...calcDetailedInfo];
-                                copy[idx].source = e.target.value;
-                                setCalcDetailedInfo(copy);
-                              }}
-                              className="w-full min-w-[190px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Verification records or data logs backing the activity amount." example="Fiscal gas meter logs">
+                              <input
+                                type="text"
+                                value={row.source}
+                                placeholder="Enter source (e.g., maintenance records, fuel logs)"
+                                title={row.source || 'Enter source (e.g., maintenance records, fuel logs)'}
+                                onChange={(e) => {
+                                  const copy = [...calcDetailedInfo];
+                                  copy[idx].source = e.target.value;
+                                  setCalcDetailedInfo(copy);
+                                }}
+                                className="w-full min-w-[190px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3 text-center">
                             {idx === 0 ? (
@@ -984,7 +1014,7 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
 
             {/* Non-Fuel Inputs Description Text Box */}
             <div className="space-y-1.5">
-              <label className="block text-slate-600 font-semibold text-xs leading-relaxed" title="If fuel is not an input (i.e., your emissions are non-combustible) please ignore the above table and indicate instead what other inputs / variables are involved in your emissions using the table below">
+              <label className="block text-slate-600 font-semibold text-xs leading-relaxed">
                 If fuel is not an input (i.e., your emissions are non-combustible) please ignore the above table and indicate instead what other inputs / variables are involved in your emissions using the table below
               </label>
               {isReadOnly ? (
@@ -992,14 +1022,16 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                   {nonFuelInputsDesc || 'No non-fuel inputs / variables indicated.'}
                 </div>
               ) : (
-                <textarea
-                  rows={3}
-                  value={nonFuelInputsDesc}
-                  placeholder="Indicate other inputs / variables involved in your emissions if fuel is not an input..."
-                  title={nonFuelInputsDesc || 'Indicate other inputs / variables involved in your emissions if fuel is not an input...'}
-                  onChange={(e) => setNonFuelInputsDesc(e.target.value)}
-                  className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                />
+                <FieldTooltip content="For non-combustible process emissions, indicate raw materials, calcination factors, or chemical variables involved.">
+                  <textarea
+                    rows={3}
+                    value={nonFuelInputsDesc}
+                    placeholder="Indicate other inputs / variables involved in your emissions if fuel is not an input..."
+                    title={nonFuelInputsDesc || 'Indicate other inputs / variables involved in your emissions if fuel is not an input...'}
+                    onChange={(e) => setNonFuelInputsDesc(e.target.value)}
+                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
+                  />
+                </FieldTooltip>
               )}
             </div>
 
@@ -1010,15 +1042,15 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold whitespace-nowrap">
-                      <th className="py-2.5 px-3 min-w-[80px]" title="Source Stream ID">Source Stream ID</th>
-                      <th className="py-2.5 px-3 min-w-[140px]" title="Source Stream Type">Source Stream Type</th>
-                      <th className="py-2.5 px-3 min-w-[110px]" title="Activity Level">Activity Level</th>
-                      <th className="py-2.5 px-3 min-w-[90px]" title="Units">Units</th>
-                      <th className="py-2.5 px-3 min-w-[130px]" title="Net Calorific Value">Net Calorific Value</th>
-                      <th className="py-2.5 px-3 min-w-[150px]" title="Emission Factor (T Co2 / GJ)">Emission Factor (T Co2 / GJ)</th>
-                      <th className="py-2.5 px-3 min-w-[120px]" title="Oxidation Factor">Oxidation Factor</th>
-                      <th className="py-2.5 px-3 min-w-[120px]" title="Conversion Factor">Conversion Factor</th>
-                      <th className="py-2.5 px-3 min-w-[150px]" title="Information Source">Information Source</th>
+                      <th className="py-2.5 px-3 min-w-[90px]">Source Stream ID</th>
+                      <th className="py-2.5 px-3 min-w-[150px]">Source Stream Type</th>
+                      <th className="py-2.5 px-3 min-w-[120px]">Activity Level</th>
+                      <th className="py-2.5 px-3 min-w-[100px]">Units</th>
+                      <th className="py-2.5 px-3 min-w-[145px]">Net Calorific Value</th>
+                      <th className="py-2.5 px-3 min-w-[165px]">Emission Factor (T Co2 / GJ)</th>
+                      <th className="py-2.5 px-3 min-w-[130px]">Oxidation Factor</th>
+                      <th className="py-2.5 px-3 min-w-[130px]">Conversion Factor</th>
+                      <th className="py-2.5 px-3 min-w-[160px]">Information Source</th>
                       {!isReadOnly && <th className="py-2.5 px-3 text-center min-w-[65px]" title="Actions">Actions</th>}
                     </tr>
                   </thead>
@@ -1043,136 +1075,154 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.id}
-                              placeholder="F01"
-                              title={row.id || 'Source Stream ID'}
-                              onChange={(e) => {
-                                const copy = [...calcOtherInputsOutputs];
-                                copy[idx].id = e.target.value;
-                                setCalcOtherInputsOutputs(copy);
-                              }}
-                              className="w-full min-w-[65px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-left focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Source stream identifier." example="F01">
+                              <input
+                                type="text"
+                                value={row.id}
+                                placeholder="F01"
+                                title={row.id || 'Source Stream ID'}
+                                onChange={(e) => {
+                                  const copy = [...calcOtherInputsOutputs];
+                                  copy[idx].id = e.target.value;
+                                  setCalcOtherInputsOutputs(copy);
+                                }}
+                                className="w-full min-w-[65px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-left focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <select
-                              value={row.type}
-                              title={row.type || 'Select type'}
-                              onChange={(e) => {
-                                const copy = [...calcOtherInputsOutputs];
-                                copy[idx].type = e.target.value;
-                                setCalcOtherInputsOutputs(copy);
-                              }}
-                              className="w-full min-w-[130px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="" title="Select type">Select type</option>
-                              <option value="Crude Oil" title="Crude Oil">Crude Oil</option>
-                              <option value="Natural Gas" title="Natural Gas">Natural Gas</option>
-                              <option value="Petcoke" title="Petcoke">Petcoke</option>
-                            </select>
+                            <FieldTooltip content="Type of fuel, raw material, or process input/output." example="Crude Oil">
+                              <select
+                                value={row.type}
+                                title={row.type || 'Select type'}
+                                onChange={(e) => {
+                                  const copy = [...calcOtherInputsOutputs];
+                                  copy[idx].type = e.target.value;
+                                  setCalcOtherInputsOutputs(copy);
+                                }}
+                                className="w-full min-w-[130px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              >
+                                <option value="" title="Select type">Select type</option>
+                                <option value="Crude Oil" title="Crude Oil">Crude Oil</option>
+                                <option value="Natural Gas" title="Natural Gas">Natural Gas</option>
+                                <option value="Petcoke" title="Petcoke">Petcoke</option>
+                              </select>
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.activityLevel}
-                              placeholder="Enter value"
-                              title={row.activityLevel ? `${row.activityLevel} ${row.units || ''}` : 'Enter activity level'}
-                              onChange={(e) => {
-                                const copy = [...calcOtherInputsOutputs];
-                                copy[idx].activityLevel = e.target.value;
-                                setCalcOtherInputsOutputs(copy);
-                              }}
-                              className="w-full min-w-[90px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Quantity of input or output consumed or produced." example="5,000">
+                              <input
+                                type="text"
+                                value={row.activityLevel}
+                                placeholder="Enter value"
+                                title={row.activityLevel ? `${row.activityLevel} ${row.units || ''}` : 'Enter activity level'}
+                                onChange={(e) => {
+                                  const copy = [...calcOtherInputsOutputs];
+                                  copy[idx].activityLevel = e.target.value;
+                                  setCalcOtherInputsOutputs(copy);
+                                }}
+                                className="w-full min-w-[90px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <select
-                              value={row.units}
-                              title={row.units || 'Select unit'}
-                              onChange={(e) => {
-                                const copy = [...calcOtherInputsOutputs];
-                                copy[idx].units = e.target.value;
-                                setCalcOtherInputsOutputs(copy);
-                              }}
-                              className="w-full min-w-[85px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            >
-                              <option value="" title="Select unit">Select unit</option>
-                              <option value="TJ" title="TJ">TJ</option>
-                              <option value="GJ" title="GJ">GJ</option>
-                              <option value="MWh" title="MWh">MWh</option>
-                            </select>
+                            <FieldTooltip content="Measurement unit for throughput." unit="TJ, GJ, MWh, t">
+                              <select
+                                value={row.units}
+                                title={row.units || 'Select unit'}
+                                onChange={(e) => {
+                                  const copy = [...calcOtherInputsOutputs];
+                                  copy[idx].units = e.target.value;
+                                  setCalcOtherInputsOutputs(copy);
+                                }}
+                                className="w-full min-w-[85px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              >
+                                <option value="" title="Select unit">Select unit</option>
+                                <option value="TJ" title="TJ">TJ</option>
+                                <option value="GJ" title="GJ">GJ</option>
+                                <option value="MWh" title="MWh">MWh</option>
+                              </select>
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.ncv}
-                              placeholder="Enter NCV"
-                              title={row.ncv || 'Net Calorific Value'}
-                              onChange={(e) => {
-                                const copy = [...calcOtherInputsOutputs];
-                                copy[idx].ncv = e.target.value;
-                                setCalcOtherInputsOutputs(copy);
-                              }}
-                              className="w-full min-w-[90px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Net energy content per unit of fuel/material." unit="GJ/t or TJ/Gg" example="42.3">
+                              <input
+                                type="text"
+                                value={row.ncv}
+                                placeholder="Enter NCV"
+                                title={row.ncv || 'Net Calorific Value'}
+                                onChange={(e) => {
+                                  const copy = [...calcOtherInputsOutputs];
+                                  copy[idx].ncv = e.target.value;
+                                  setCalcOtherInputsOutputs(copy);
+                                }}
+                                className="w-full min-w-[90px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.emissionFactor}
-                              placeholder="Enter factor"
-                              title={row.emissionFactor || 'Emission Factor (T Co2 / GJ)'}
-                              onChange={(e) => {
-                                const copy = [...calcOtherInputsOutputs];
-                                copy[idx].emissionFactor = e.target.value;
-                                setCalcOtherInputsOutputs(copy);
-                              }}
-                              className="w-full min-w-[90px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Mass of greenhouse gas emitted per unit energy." unit="t CO₂/GJ" example="73.3">
+                              <input
+                                type="text"
+                                value={row.emissionFactor}
+                                placeholder="Enter factor"
+                                title={row.emissionFactor || 'Emission Factor (T Co2 / GJ)'}
+                                onChange={(e) => {
+                                  const copy = [...calcOtherInputsOutputs];
+                                  copy[idx].emissionFactor = e.target.value;
+                                  setCalcOtherInputsOutputs(copy);
+                                }}
+                                className="w-full min-w-[90px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.oxidationFactor}
-                              placeholder="Enter %"
-                              title={row.oxidationFactor || 'Oxidation Factor'}
-                              onChange={(e) => {
-                                const copy = [...calcOtherInputsOutputs];
-                                copy[idx].oxidationFactor = e.target.value;
-                                setCalcOtherInputsOutputs(copy);
-                              }}
-                              className="w-full min-w-[85px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Percentage of carbon oxidized to CO₂ during combustion." unit="%" example="100%">
+                              <input
+                                type="text"
+                                value={row.oxidationFactor}
+                                placeholder="Enter %"
+                                title={row.oxidationFactor || 'Oxidation Factor'}
+                                onChange={(e) => {
+                                  const copy = [...calcOtherInputsOutputs];
+                                  copy[idx].oxidationFactor = e.target.value;
+                                  setCalcOtherInputsOutputs(copy);
+                                }}
+                                className="w-full min-w-[85px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.conversionFactor}
-                              placeholder="Enter factor"
-                              title={row.conversionFactor || 'Conversion Factor'}
-                              onChange={(e) => {
-                                const copy = [...calcOtherInputsOutputs];
-                                copy[idx].conversionFactor = e.target.value;
-                                setCalcOtherInputsOutputs(copy);
-                              }}
-                              className="w-full min-w-[85px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Carbon conversion ratio for non-combustion chemical processes." example="1.0">
+                              <input
+                                type="text"
+                                value={row.conversionFactor}
+                                placeholder="Enter factor"
+                                title={row.conversionFactor || 'Conversion Factor'}
+                                onChange={(e) => {
+                                  const copy = [...calcOtherInputsOutputs];
+                                  copy[idx].conversionFactor = e.target.value;
+                                  setCalcOtherInputsOutputs(copy);
+                                }}
+                                className="w-full min-w-[85px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.source}
-                              placeholder="Enter source"
-                              title={row.source || 'Information Source'}
-                              onChange={(e) => {
-                                const copy = [...calcOtherInputsOutputs];
-                                copy[idx].source = e.target.value;
-                                setCalcOtherInputsOutputs(copy);
-                              }}
-                              className="w-full min-w-[140px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Reference standard or testing laboratory source." example="IPCC 2006 / ISO 17025 Lab">
+                              <input
+                                type="text"
+                                value={row.source}
+                                placeholder="Enter source"
+                                title={row.source || 'Information Source'}
+                                onChange={(e) => {
+                                  const copy = [...calcOtherInputsOutputs];
+                                  copy[idx].source = e.target.value;
+                                  setCalcOtherInputsOutputs(copy);
+                                }}
+                                className="w-full min-w-[140px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3 text-center">
                             {idx === 0 ? (
@@ -1264,144 +1314,164 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.ref}
-                              placeholder="MI01"
-                              title={row.ref || 'Ref'}
-                              onChange={(e) => {
-                                const copy = [...calcMeasurementSystems];
-                                copy[idx].ref = e.target.value;
-                                setCalcMeasurementSystems(copy);
-                              }}
-                              className="w-full min-w-[65px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-left focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Measurement system instrument reference tag." example="MI01">
+                              <input
+                                type="text"
+                                value={row.ref}
+                                placeholder="MI01"
+                                title={row.ref || 'Ref'}
+                                onChange={(e) => {
+                                  const copy = [...calcMeasurementSystems];
+                                  copy[idx].ref = e.target.value;
+                                  setCalcMeasurementSystems(copy);
+                                }}
+                                className="w-full min-w-[65px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-left focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.associatedSource}
-                              placeholder="F01"
-                              title={row.associatedSource || 'Associated Source'}
-                              onChange={(e) => {
-                                const copy = [...calcMeasurementSystems];
-                                copy[idx].associatedSource = e.target.value;
-                                setCalcMeasurementSystems(copy);
-                              }}
-                              className="w-full min-w-[80px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-mono text-xs focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Associated source stream reference code." example="F01">
+                              <input
+                                type="text"
+                                value={row.associatedSource}
+                                placeholder="F01"
+                                title={row.associatedSource || 'Associated Source'}
+                                onChange={(e) => {
+                                  const copy = [...calcMeasurementSystems];
+                                  copy[idx].associatedSource = e.target.value;
+                                  setCalcMeasurementSystems(copy);
+                                }}
+                                className="w-full min-w-[80px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-mono text-xs focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.instrumentType}
-                              placeholder="Enter instrument type"
-                              title={row.instrumentType || 'Type of Measuring Instrument & Description'}
-                              onChange={(e) => {
-                                const copy = [...calcMeasurementSystems];
-                                copy[idx].instrumentType = e.target.value;
-                                setCalcMeasurementSystems(copy);
-                              }}
-                              className="w-full min-w-[190px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Type of measuring instrument & description." example="Ultrasonic Flow Meter">
+                              <input
+                                type="text"
+                                value={row.instrumentType}
+                                placeholder="Enter instrument type"
+                                title={row.instrumentType || 'Type of Measuring Instrument & Description'}
+                                onChange={(e) => {
+                                  const copy = [...calcMeasurementSystems];
+                                  copy[idx].instrumentType = e.target.value;
+                                  setCalcMeasurementSystems(copy);
+                                }}
+                                className="w-full min-w-[190px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.location}
-                              placeholder="Enter location / ID"
-                              title={row.location || 'Location (Internal ID)'}
-                              onChange={(e) => {
-                                const copy = [...calcMeasurementSystems];
-                                copy[idx].location = e.target.value;
-                                setCalcMeasurementSystems(copy);
-                              }}
-                              className="w-full min-w-[120px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Internal physical location or DCS tag." example="Header Station A">
+                              <input
+                                type="text"
+                                value={row.location}
+                                placeholder="Enter location / ID"
+                                title={row.location || 'Location (Internal ID)'}
+                                onChange={(e) => {
+                                  const copy = [...calcMeasurementSystems];
+                                  copy[idx].location = e.target.value;
+                                  setCalcMeasurementSystems(copy);
+                                }}
+                                className="w-full min-w-[120px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-2.5">
-                            <input
-                              type="text"
-                              value={row.unit}
-                              placeholder="Nm³/h"
-                              title={row.unit || 'Unit'}
-                              onChange={(e) => {
-                                const copy = [...calcMeasurementSystems];
-                                copy[idx].unit = e.target.value;
-                                setCalcMeasurementSystems(copy);
-                              }}
-                              className="w-full min-w-[75px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Instrument engineering unit." unit="Nm³/h, kg/h">
+                              <input
+                                type="text"
+                                value={row.unit}
+                                placeholder="Nm³/h"
+                                title={row.unit || 'Unit'}
+                                onChange={(e) => {
+                                  const copy = [...calcMeasurementSystems];
+                                  copy[idx].unit = e.target.value;
+                                  setCalcMeasurementSystems(copy);
+                                }}
+                                className="w-full min-w-[75px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-2.5">
-                            <input
-                              type="text"
-                              value={row.rangeLower}
-                              placeholder="0"
-                              title={row.rangeLower ? `Measurement Lower End: ${row.rangeLower}` : 'Measurement Lower End'}
-                              onChange={(e) => {
-                                const copy = [...calcMeasurementSystems];
-                                copy[idx].rangeLower = e.target.value;
-                                setCalcMeasurementSystems(copy);
-                              }}
-                              className="w-full min-w-[80px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Measurement range lower limit." example="0">
+                              <input
+                                type="text"
+                                value={row.rangeLower}
+                                placeholder="0"
+                                title={row.rangeLower ? `Measurement Lower End: ${row.rangeLower}` : 'Measurement Lower End'}
+                                onChange={(e) => {
+                                  const copy = [...calcMeasurementSystems];
+                                  copy[idx].rangeLower = e.target.value;
+                                  setCalcMeasurementSystems(copy);
+                                }}
+                                className="w-full min-w-[80px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-2.5">
-                            <input
-                              type="text"
-                              value={row.rangeUpper}
-                              placeholder="250"
-                              title={row.rangeUpper ? `Measurement Upper End: ${row.rangeUpper}` : 'Measurement Upper End'}
-                              onChange={(e) => {
-                                const copy = [...calcMeasurementSystems];
-                                copy[idx].rangeUpper = e.target.value;
-                                setCalcMeasurementSystems(copy);
-                              }}
-                              className="w-full min-w-[80px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Measurement range upper limit." example="250">
+                              <input
+                                type="text"
+                                value={row.rangeUpper}
+                                placeholder="250"
+                                title={row.rangeUpper ? `Measurement Upper End: ${row.rangeUpper}` : 'Measurement Upper End'}
+                                onChange={(e) => {
+                                  const copy = [...calcMeasurementSystems];
+                                  copy[idx].rangeUpper = e.target.value;
+                                  setCalcMeasurementSystems(copy);
+                                }}
+                                className="w-full min-w-[80px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.specifiedUncertainty}
-                              placeholder="±%"
-                              title={row.specifiedUncertainty ? `Specified Uncertainty: ${row.specifiedUncertainty}%` : 'Specified Uncertainty (%)'}
-                              onChange={(e) => {
-                                const copy = [...calcMeasurementSystems];
-                                copy[idx].specifiedUncertainty = e.target.value;
-                                setCalcMeasurementSystems(copy);
-                              }}
-                              className="w-full min-w-[90px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Specified instrument calibration uncertainty." unit="%" example="±1.5%">
+                              <input
+                                type="text"
+                                value={row.specifiedUncertainty}
+                                placeholder="±%"
+                                title={row.specifiedUncertainty ? `Specified Uncertainty: ${row.specifiedUncertainty}%` : 'Specified Uncertainty (%)'}
+                                onChange={(e) => {
+                                  const copy = [...calcMeasurementSystems];
+                                  copy[idx].specifiedUncertainty = e.target.value;
+                                  setCalcMeasurementSystems(copy);
+                                }}
+                                className="w-full min-w-[90px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-2.5">
-                            <input
-                              type="text"
-                              value={row.typicalLower}
-                              placeholder="500"
-                              title={row.typicalLower ? `Typical Lower End: ${row.typicalLower}` : 'Typical Lower End'}
-                              onChange={(e) => {
-                                const copy = [...calcMeasurementSystems];
-                                copy[idx].typicalLower = e.target.value;
-                                setCalcMeasurementSystems(copy);
-                              }}
-                              className="w-full min-w-[80px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Typical operating range lower bound." example="500">
+                              <input
+                                type="text"
+                                value={row.typicalLower}
+                                placeholder="500"
+                                title={row.typicalLower ? `Typical Lower End: ${row.typicalLower}` : 'Typical Lower End'}
+                                onChange={(e) => {
+                                  const copy = [...calcMeasurementSystems];
+                                  copy[idx].typicalLower = e.target.value;
+                                  setCalcMeasurementSystems(copy);
+                                }}
+                                className="w-full min-w-[80px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-2.5">
-                            <input
-                              type="text"
-                              value={row.typicalUpper}
-                              placeholder="750"
-                              title={row.typicalUpper ? `Typical Upper End: ${row.typicalUpper}` : 'Typical Upper End'}
-                              onChange={(e) => {
-                                const copy = [...calcMeasurementSystems];
-                                copy[idx].typicalUpper = e.target.value;
-                                setCalcMeasurementSystems(copy);
-                              }}
-                              className="w-full min-w-[80px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Typical operating range upper bound." example="750">
+                              <input
+                                type="text"
+                                value={row.typicalUpper}
+                                placeholder="750"
+                                title={row.typicalUpper ? `Typical Upper End: ${row.typicalUpper}` : 'Typical Upper End'}
+                                onChange={(e) => {
+                                  const copy = [...calcMeasurementSystems];
+                                  copy[idx].typicalUpper = e.target.value;
+                                  setCalcMeasurementSystems(copy);
+                                }}
+                                className="w-full min-w-[80px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3 text-center">
                             {idx === 0 ? (
@@ -1433,31 +1503,12 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
             </div>
           </div>
         )}
-      </div>
 
       {/* ========================================================================= */}
-      {/* Section 2: Measurement - Based Monitoring */}
+      {/* Sub Tab 2: Measurement - Based Monitoring */}
       {/* ========================================================================= */}
-      <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs transition-all">
-        <button
-          type="button"
-          onClick={() => toggleSection('meas')}
-          className={`w-full px-3.5 py-2.5 sm:py-3 bg-[#F4F6F8] hover:bg-[#EBF2F8] ${
-            openSections.meas ? 'border-b border-slate-200/80' : 'border-b-0'
-          } flex items-center justify-between transition-colors cursor-pointer text-left select-none group`}
-        >
-          <span className="text-xs font-bold text-[#336D9F] group-hover:text-[#003460]">
-            Measurement - Based Monitoring
-          </span>
-          <ChevronDown
-            className={`w-4 h-4 text-[#336D9F] transition-transform duration-200 ${
-              openSections.meas ? 'rotate-180' : 'rotate-0'
-            }`}
-          />
-        </button>
-
-        {openSections.meas && (
-          <div className="p-3.5 bg-white space-y-6 text-xs animate-in fade-in duration-150">
+      {activeSubTab === 'meas' && (
+        <div className="space-y-6 text-xs animate-in fade-in duration-150 pt-1">
             {/* Subsection 1: Identify Relevant Measured Emission Source */}
             <div>
               <h4 className="text-xs font-bold text-[#336D9F] mb-3" title="Identify Relevant Measured Emission Source">Identify Relevant Measured Emission Source</h4>
@@ -1494,49 +1545,55 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.id}
-                              placeholder="S01"
-                              title={row.id || 'Emission Source ID'}
-                              onChange={(e) => {
-                                const copy = [...measEmissionSources];
-                                copy[idx].id = e.target.value;
-                                setMeasEmissionSources(copy);
-                              }}
-                              className="w-full min-w-[80px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-left focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Unique alphanumeric identifier for the emission source." example="S01">
+                              <input
+                                type="text"
+                                value={row.id}
+                                placeholder="S01"
+                                title={row.id || 'Emission Source ID'}
+                                onChange={(e) => {
+                                  const copy = [...measEmissionSources];
+                                  copy[idx].id = e.target.value;
+                                  setMeasEmissionSources(copy);
+                                }}
+                                className="w-full min-w-[80px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-left focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.totalEmissions}
-                              placeholder="Enter emissions"
-                              title={row.totalEmissions ? `${row.totalEmissions} t CO₂e/year` : 'Enter emissions'}
-                              onChange={(e) => {
-                                const copy = [...measEmissionSources];
-                                copy[idx].totalEmissions = e.target.value;
-                                setMeasEmissionSources(copy);
-                              }}
-                              className="w-full min-w-[150px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Estimated annual greenhouse gas emissions." unit="t CO₂e/year" example="45,000">
+                              <input
+                                type="text"
+                                value={row.totalEmissions}
+                                placeholder="Enter emissions"
+                                title={row.totalEmissions ? `${row.totalEmissions} t CO₂e/year` : 'Enter emissions'}
+                                onChange={(e) => {
+                                  const copy = [...measEmissionSources];
+                                  copy[idx].totalEmissions = e.target.value;
+                                  setMeasEmissionSources(copy);
+                                }}
+                                className="w-full min-w-[150px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs font-mono focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <select
-                              value={row.category}
-                              title={row.category || 'Select category'}
-                              onChange={(e) => {
-                                const copy = [...measEmissionSources];
-                                copy[idx].category = e.target.value;
-                                setMeasEmissionSources(copy);
-                              }}
-                              className="w-full min-w-[135px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
-                            >
-                              <option value="" title="Select category">Select category</option>
-                              <option value="Major" title="Major">Major</option>
-                              <option value="Minor" title="Minor">Minor</option>
-                              <option value="De-minimis" title="De-minimis">De-minimis</option>
-                            </select>
+                            <FieldTooltip content="Emission source category (Major, Minor, or De-minimis).">
+                              <select
+                                value={row.category}
+                                title={row.category || 'Select category'}
+                                onChange={(e) => {
+                                  const copy = [...measEmissionSources];
+                                  copy[idx].category = e.target.value;
+                                  setMeasEmissionSources(copy);
+                                }}
+                                className="w-full min-w-[135px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
+                              >
+                                <option value="" title="Select category">Select category</option>
+                                <option value="Major" title="Major">Major</option>
+                                <option value="Minor" title="Minor">Minor</option>
+                                <option value="De-minimis" title="De-minimis">De-minimis</option>
+                              </select>
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3 text-center">
                             {idx === 0 ? (
@@ -1639,138 +1696,152 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.id}
-                              placeholder="S01"
-                              title={row.id || 'Emission Source ID'}
-                              onChange={(e) => {
-                                const copy = [...measUncertainty];
-                                copy[idx].id = e.target.value;
-                                setMeasUncertainty(copy);
-                              }}
-                              className="w-full min-w-[70px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-left focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Emission source identifier." example="S01">
+                              <input
+                                type="text"
+                                value={row.id}
+                                placeholder="S01"
+                                title={row.id || 'Emission Source ID'}
+                                onChange={(e) => {
+                                  const copy = [...measUncertainty];
+                                  copy[idx].id = e.target.value;
+                                  setMeasUncertainty(copy);
+                                }}
+                                className="w-full min-w-[70px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-left focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <select
-                              disabled={isDeMinimis}
-                              value={isDeMinimis ? '' : row.tier}
-                              title={isDeMinimis ? 'N/A' : (row.tier || 'Select Tier')}
-                              onChange={(e) => {
-                                const copy = [...measUncertainty];
-                                copy[idx].tier = e.target.value;
-                                setMeasUncertainty(copy);
-                              }}
-                              className={`w-full min-w-[95px] px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-[#004B87] ${
-                                isDeMinimis
-                                  ? 'bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed select-none'
-                                  : 'bg-white text-slate-800 border-slate-200 cursor-pointer shadow-xs'
-                              }`}
-                            >
-                              <option value="" title={isDeMinimis ? 'N/A' : 'Select Tier'}>{isDeMinimis ? 'N/A' : 'Select Tier'}</option>
-                              {!isDeMinimis && (
-                                <>
-                                  <option value="Tier 1" title="Tier 1">Tier 1</option>
-                                  <option value="Tier 2" title="Tier 2">Tier 2</option>
-                                  <option value="Tier 3" title="Tier 3">Tier 3</option>
-                                  <option value="Tier 4" title="Tier 4">Tier 4</option>
-                                </>
-                              )}
-                            </select>
+                            <FieldTooltip content="Measurement tier level applied." example="Tier 3">
+                              <select
+                                disabled={isDeMinimis}
+                                value={isDeMinimis ? '' : row.tier}
+                                title={isDeMinimis ? 'N/A' : (row.tier || 'Select Tier')}
+                                onChange={(e) => {
+                                  const copy = [...measUncertainty];
+                                  copy[idx].tier = e.target.value;
+                                  setMeasUncertainty(copy);
+                                }}
+                                className={`w-full min-w-[95px] px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-[#004B87] ${
+                                  isDeMinimis
+                                    ? 'bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed select-none'
+                                    : 'bg-white text-slate-800 border-slate-200 cursor-pointer shadow-xs'
+                                }`}
+                              >
+                                <option value="" title={isDeMinimis ? 'N/A' : 'Select Tier'}>{isDeMinimis ? 'N/A' : 'Select Tier'}</option>
+                                {!isDeMinimis && (
+                                  <>
+                                    <option value="Tier 1" title="Tier 1">Tier 1</option>
+                                    <option value="Tier 2" title="Tier 2">Tier 2</option>
+                                    <option value="Tier 3" title="Tier 3">Tier 3</option>
+                                    <option value="Tier 4" title="Tier 4">Tier 4</option>
+                                  </>
+                                )}
+                              </select>
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              readOnly
-                              disabled
-                              value={categorySelectedAbove}
-                              title={`Auto-populated from Identify Relevant Measured Emission Source: ${categorySelectedAbove}`}
-                              className="w-full min-w-[120px] px-2.5 py-1.5 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-700 text-xs font-semibold cursor-not-allowed select-none"
-                            />
+                            <FieldTooltip content="Source category inherited from emission sources above.">
+                              <input
+                                type="text"
+                                readOnly
+                                disabled
+                                value={categorySelectedAbove}
+                                title={`Auto-populated from Identify Relevant Measured Emission Source: ${categorySelectedAbove}`}
+                                className="w-full min-w-[120px] px-2.5 py-1.5 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-700 text-xs font-semibold cursor-not-allowed select-none"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              disabled={isDeMinimis}
-                              value={isDeMinimis ? '' : row.uncertaintyAchieved}
-                              placeholder={isDeMinimis ? 'N/A' : 'Enter uncertainty %'}
-                              onChange={(e) => {
-                                const copy = [...measUncertainty];
-                                copy[idx].uncertaintyAchieved = e.target.value;
-                                setMeasUncertainty(copy);
-                              }}
-                              title={
-                                isUncertaintyExceeded
-                                  ? `Uncertainty ${row.uncertaintyAchieved}% exceeds permitted level (${permittedDisplay}) for ${row.tier}`
-                                  : row.uncertaintyAchieved
-                                  ? `Uncertainty achieved: ${row.uncertaintyAchieved}%`
-                                  : 'Enter uncertainty %'
-                              }
-                              className={`w-full min-w-[130px] px-2.5 py-1.5 border rounded-lg text-xs font-mono focus:outline-none ${
-                                isDeMinimis
-                                  ? 'bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed select-none'
-                                  : isUncertaintyExceeded
-                                  ? 'bg-rose-50/60 text-rose-900 border-rose-300 focus:border-rose-500 font-semibold'
-                                  : 'bg-white text-slate-800 border-slate-200 focus:border-[#004B87]'
-                              }`}
-                            />
+                            <FieldTooltip content="Uncertainty level achieved in measurement." unit="%" example="2.5%">
+                              <input
+                                type="text"
+                                disabled={isDeMinimis}
+                                value={isDeMinimis ? '' : row.uncertaintyAchieved}
+                                placeholder={isDeMinimis ? 'N/A' : 'Enter uncertainty %'}
+                                onChange={(e) => {
+                                  const copy = [...measUncertainty];
+                                  copy[idx].uncertaintyAchieved = e.target.value;
+                                  setMeasUncertainty(copy);
+                                }}
+                                title={
+                                  isUncertaintyExceeded
+                                    ? `Uncertainty ${row.uncertaintyAchieved}% exceeds permitted level (${permittedDisplay}) for ${row.tier}`
+                                    : row.uncertaintyAchieved
+                                    ? `Uncertainty achieved: ${row.uncertaintyAchieved}%`
+                                    : 'Enter uncertainty %'
+                                }
+                                className={`w-full min-w-[130px] px-2.5 py-1.5 border rounded-lg text-xs font-mono focus:outline-none ${
+                                  isDeMinimis
+                                    ? 'bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed select-none'
+                                    : isUncertaintyExceeded
+                                    ? 'bg-rose-50/60 text-rose-900 border-rose-300 focus:border-rose-500 font-semibold'
+                                    : 'bg-white text-slate-800 border-slate-200 focus:border-[#004B87]'
+                                }`}
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              disabled={isDeMinimis}
-                              value={isDeMinimis ? '' : row.streamType}
-                              placeholder={isDeMinimis ? 'N/A' : 'Enter stream type'}
-                              title={isDeMinimis ? 'N/A' : (row.streamType || 'Enter stream type')}
-                              onChange={(e) => {
-                                const copy = [...measUncertainty];
-                                copy[idx].streamType = e.target.value;
-                                setMeasUncertainty(copy);
-                              }}
-                              className={`w-full min-w-[140px] px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-[#004B87] ${
-                                isDeMinimis
-                                  ? 'bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed select-none'
-                                  : 'bg-white text-slate-800 border-slate-200'
-                              }`}
-                            />
+                            <FieldTooltip content="Emission stream type or flue gas channel." example="Flue Gas Stack 1">
+                              <input
+                                type="text"
+                                disabled={isDeMinimis}
+                                value={isDeMinimis ? '' : row.streamType}
+                                placeholder={isDeMinimis ? 'N/A' : 'Enter stream type'}
+                                title={isDeMinimis ? 'N/A' : (row.streamType || 'Enter stream type')}
+                                onChange={(e) => {
+                                  const copy = [...measUncertainty];
+                                  copy[idx].streamType = e.target.value;
+                                  setMeasUncertainty(copy);
+                                }}
+                                className={`w-full min-w-[140px] px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-[#004B87] ${
+                                  isDeMinimis
+                                    ? 'bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed select-none'
+                                    : 'bg-white text-slate-800 border-slate-200'
+                                }`}
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <select
-                              disabled={isDeMinimis}
-                              value={isDeMinimis ? '' : row.sourceAccuracy}
-                              title={isDeMinimis ? 'N/A' : (row.sourceAccuracy || 'Select source')}
-                              onChange={(e) => {
-                                const copy = [...measUncertainty];
-                                copy[idx].sourceAccuracy = e.target.value;
-                                setMeasUncertainty(copy);
-                              }}
-                              className={`w-full min-w-[125px] px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-[#004B87] ${
-                                isDeMinimis
-                                  ? 'bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed select-none'
-                                  : 'bg-white text-slate-800 border-slate-200 cursor-pointer shadow-xs'
-                              }`}
-                            >
-                              <option value="" title={isDeMinimis ? 'N/A' : 'Select source'}>{isDeMinimis ? 'N/A' : 'Select source'}</option>
-                              {!isDeMinimis && (
-                                <>
-                                  <option value="Lab Analysis" title="Lab Analysis">Lab Analysis</option>
-                                  <option value="Meter Reading" title="Meter Reading">Meter Reading</option>
-                                  <option value="Supplier Data" title="Supplier Data">Supplier Data</option>
-                                </>
-                              )}
-                            </select>
+                            <FieldTooltip content="Method used to establish accuracy." example="Lab Analysis / Meter Reading">
+                              <select
+                                disabled={isDeMinimis}
+                                value={isDeMinimis ? '' : row.sourceAccuracy}
+                                title={isDeMinimis ? 'N/A' : (row.sourceAccuracy || 'Select source')}
+                                onChange={(e) => {
+                                  const copy = [...measUncertainty];
+                                  copy[idx].sourceAccuracy = e.target.value;
+                                  setMeasUncertainty(copy);
+                                }}
+                                className={`w-full min-w-[125px] px-2.5 py-1.5 border rounded-lg text-xs focus:outline-none focus:border-[#004B87] ${
+                                  isDeMinimis
+                                    ? 'bg-slate-100/70 text-slate-400 border-slate-200 cursor-not-allowed select-none'
+                                    : 'bg-white text-slate-800 border-slate-200 cursor-pointer shadow-xs'
+                                }`}
+                              >
+                                <option value="" title={isDeMinimis ? 'N/A' : 'Select source'}>{isDeMinimis ? 'N/A' : 'Select source'}</option>
+                                {!isDeMinimis && (
+                                  <>
+                                    <option value="Lab Analysis" title="Lab Analysis">Lab Analysis</option>
+                                    <option value="Meter Reading" title="Meter Reading">Meter Reading</option>
+                                    <option value="Supplier Data" title="Supplier Data">Supplier Data</option>
+                                  </>
+                                )}
+                              </select>
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              readOnly
-                              disabled
-                              value={permittedDisplay}
-                              placeholder="Auto (from tier)"
-                              title={`Permitted level of uncertainty automatically calculated from selected Tier: ${permittedDisplay}`}
-                              className="w-full min-w-[120px] px-2.5 py-1.5 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-700 text-xs font-mono font-medium cursor-not-allowed select-none"
-                            />
+                            <FieldTooltip content="Permitted uncertainty level defined by tier standard.">
+                              <input
+                                type="text"
+                                readOnly
+                                disabled
+                                value={permittedDisplay}
+                                placeholder="Auto (from tier)"
+                                title={`Permitted level of uncertainty automatically calculated from selected Tier: ${permittedDisplay}`}
+                                className="w-full min-w-[120px] px-2.5 py-1.5 bg-slate-100/70 border border-slate-200 rounded-lg text-slate-700 text-xs font-mono font-medium cursor-not-allowed select-none"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3 text-center">
                             {idx === 0 ? (
@@ -1811,14 +1882,16 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                     {measApproachDesc || 'No measurement approach description provided.'}
                   </div>
                 ) : (
-                  <textarea
-                    rows={2}
-                    value={measApproachDesc}
-                    title={measApproachDesc || 'Enter measurement approach description'}
-                    placeholder="Enter measurement approach description"
-                    onChange={(e) => setMeasApproachDesc(e.target.value)}
-                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                  />
+                  <FieldTooltip content="Detailed description of continuous or periodic measurement approach, calibration standards, and data acquisition.">
+                    <textarea
+                      rows={2}
+                      value={measApproachDesc}
+                      title={measApproachDesc || 'Enter measurement approach description'}
+                      placeholder="Enter measurement approach description"
+                      onChange={(e) => setMeasApproachDesc(e.target.value)}
+                      className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
+                    />
+                  </FieldTooltip>
                 )}
               </div>
             </div>
@@ -1855,77 +1928,87 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.id}
-                              placeholder="M01"
-                              title={row.id || 'Measurement Point ID'}
-                              onChange={(e) => {
-                                const copy = [...measPoints];
-                                copy[idx].id = e.target.value;
-                                setMeasPoints(copy);
-                              }}
-                              className="w-full min-w-[70px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-left focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Measurement point identifier." example="M01">
+                              <input
+                                type="text"
+                                value={row.id}
+                                placeholder="M01"
+                                title={row.id || 'Measurement Point ID'}
+                                onChange={(e) => {
+                                  const copy = [...measPoints];
+                                  copy[idx].id = e.target.value;
+                                  setMeasPoints(copy);
+                                }}
+                                className="w-full min-w-[70px] px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-mono text-xs text-left focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <select
-                              value={row.associatedSource}
-                              title={row.associatedSource || 'Select source'}
-                              onChange={(e) => {
-                                const copy = [...measPoints];
-                                copy[idx].associatedSource = e.target.value;
-                                setMeasPoints(copy);
-                              }}
-                              className="w-full min-w-[110px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
-                            >
-                              <option value="" title="Select source">Select source</option>
-                              <option value="S01" title="S01">S01</option>
-                              <option value="S02" title="S02">S02</option>
-                              <option value="S03" title="S03">S03</option>
-                            </select>
+                            <FieldTooltip content="Associated emission source ID." example="S01">
+                              <select
+                                value={row.associatedSource}
+                                title={row.associatedSource || 'Select source'}
+                                onChange={(e) => {
+                                  const copy = [...measPoints];
+                                  copy[idx].associatedSource = e.target.value;
+                                  setMeasPoints(copy);
+                                }}
+                                className="w-full min-w-[110px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
+                              >
+                                <option value="" title="Select source">Select source</option>
+                                <option value="S01" title="S01">S01</option>
+                                <option value="S02" title="S02">S02</option>
+                                <option value="S03" title="S03">S03</option>
+                              </select>
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.procedures}
-                              placeholder="Enter procedures"
-                              title={row.procedures || 'Procedures Used For Measurement Point'}
-                              onChange={(e) => {
-                                const copy = [...measPoints];
-                                copy[idx].procedures = e.target.value;
-                                setMeasPoints(copy);
-                              }}
-                              className="w-full min-w-[220px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Procedures used for measurement point (calculations, data aggregation, validation)." example="CEMS EN 14181 QAL1/QAL2/QAL3">
+                              <input
+                                type="text"
+                                value={row.procedures}
+                                placeholder="Enter procedures"
+                                title={row.procedures || 'Procedures Used For Measurement Point'}
+                                onChange={(e) => {
+                                  const copy = [...measPoints];
+                                  copy[idx].procedures = e.target.value;
+                                  setMeasPoints(copy);
+                                }}
+                                className="w-full min-w-[220px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.relevantProcedures}
-                              placeholder="Enter relevant procedure"
-                              title={row.relevantProcedures || 'Relevant Procedures Followed'}
-                              onChange={(e) => {
-                                const copy = [...measPoints];
-                                copy[idx].relevantProcedures = e.target.value;
-                                setMeasPoints(copy);
-                              }}
-                              className="w-full min-w-[180px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Relevant standard operating procedures followed." example="SOP-ENV-204">
+                              <input
+                                type="text"
+                                value={row.relevantProcedures}
+                                placeholder="Enter relevant procedure"
+                                title={row.relevantProcedures || 'Relevant Procedures Followed'}
+                                onChange={(e) => {
+                                  const copy = [...measPoints];
+                                  copy[idx].relevantProcedures = e.target.value;
+                                  setMeasPoints(copy);
+                                }}
+                                className="w-full min-w-[180px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3">
-                            <input
-                              type="text"
-                              value={row.relevantSource}
-                              placeholder="Enter relevant standard / source"
-                              title={row.relevantSource || 'Relevant Source'}
-                              onChange={(e) => {
-                                const copy = [...measPoints];
-                                copy[idx].relevantSource = e.target.value;
-                                setMeasPoints(copy);
-                              }}
-                              className="w-full min-w-[150px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                            />
+                            <FieldTooltip content="Relevant standard or document source." example="ISO 14064 / EAD Manual">
+                              <input
+                                type="text"
+                                value={row.relevantSource}
+                                placeholder="Enter relevant standard / source"
+                                title={row.relevantSource || 'Relevant Source'}
+                                onChange={(e) => {
+                                  const copy = [...measPoints];
+                                  copy[idx].relevantSource = e.target.value;
+                                  setMeasPoints(copy);
+                                }}
+                                className="w-full min-w-[150px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                              />
+                            </FieldTooltip>
                           </td>
                           <td className="py-2 px-3 text-center">
                             {idx === 0 ? (
@@ -1964,50 +2047,34 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                   {measComments || 'No comments provided.'}
                 </div>
               ) : (
-                <textarea
-                  rows={4}
-                  value={measComments}
-                  title={measComments || 'Please provide any relevant comments below...'}
-                  placeholder="Please provide any relevant comments below. Explanations may in particular be required for e.g. the biomass estimation method, further QA/QC measures, etc. Include here for any deviation from e.g. uncertainty requirements"
-                  onChange={(e) => setMeasComments(e.target.value)}
-                  className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder:text-slate-400 placeholder:text-xs text-xs focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
-                />
+                <FieldTooltip content="Relevant comments, biomass estimation method, QA/QC deviations, or uncertainty explanations.">
+                  <textarea
+                    rows={4}
+                    value={measComments}
+                    title={measComments || 'Please provide any relevant comments below...'}
+                    placeholder="Please provide any relevant comments below. Explanations may in particular be required for e.g. the biomass estimation method, further QA/QC measures, etc. Include here for any deviation from e.g. uncertainty requirements"
+                    onChange={(e) => setMeasComments(e.target.value)}
+                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder:text-slate-400 placeholder:text-xs text-xs focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
+                  />
+                </FieldTooltip>
               )}
             </div>
           </div>
         )}
-      </div>
 
       {/* ========================================================================= */}
-      {/* Section 3: Fallback Approach */}
+      {/* Sub Tab 3: Fallback Approach */}
       {/* ========================================================================= */}
-      <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs transition-all">
-        <button
-          type="button"
-          onClick={() => toggleSection('fallback')}
-          className={`w-full px-3.5 py-2.5 sm:py-3 bg-[#F4F6F8] hover:bg-[#EBF2F8] ${
-            openSections.fallback ? 'border-b border-slate-200/80' : 'border-b-0'
-          } flex items-center justify-between transition-colors cursor-pointer text-left select-none group`}
-        >
-          <span className="text-xs font-bold text-[#336D9F] group-hover:text-[#003460]">
-            Fallback Approach
-          </span>
-          <ChevronDown
-            className={`w-4 h-4 text-[#336D9F] transition-transform duration-200 ${
-              openSections.fallback ? 'rotate-180' : 'rotate-0'
-            }`}
-          />
-        </button>
-
-        {openSections.fallback && (
-          <div className="p-3.5 bg-white space-y-4 text-xs animate-in fade-in duration-150">
-            <div>
-              <label className="block text-slate-600 font-semibold mb-1" title="Monitoring Methodology Description">Monitoring Methodology Description</label>
-              {isReadOnly ? (
-                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs leading-relaxed min-h-[50px]">
-                  {fallbackData.methodologyDesc || 'No fallback methodology description provided.'}
-                </div>
-              ) : (
+      {activeSubTab === 'fallback' && (
+        <div className="space-y-4 text-xs animate-in fade-in duration-150 pt-1">
+          <div>
+            <label className="block text-slate-600 font-semibold mb-1" title="Monitoring Methodology Description">Monitoring Methodology Description</label>
+            {isReadOnly ? (
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs leading-relaxed min-h-[50px]">
+                {fallbackData.methodologyDesc || 'No fallback methodology description provided.'}
+              </div>
+            ) : (
+              <FieldTooltip content="Fallback monitoring methodology protocol description." example="Mass balance estimation from supplier invoices">
                 <textarea
                   rows={2}
                   value={fallbackData.methodologyDesc}
@@ -2016,16 +2083,18 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                   onChange={(e) => setFallbackData({ ...fallbackData, methodologyDesc: e.target.value })}
                   className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
                 />
-              )}
-            </div>
+              </FieldTooltip>
+            )}
+          </div>
 
-            <div>
-              <label className="block text-slate-600 font-semibold mb-1" title="Justification Details">Justification Details</label>
-              {isReadOnly ? (
-                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs leading-relaxed min-h-[50px]">
-                  {fallbackData.justification || 'No justification details provided.'}
-                </div>
-              ) : (
+          <div>
+            <label className="block text-slate-600 font-semibold mb-1" title="Justification Details">Justification Details</label>
+            {isReadOnly ? (
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs leading-relaxed min-h-[50px]">
+                {fallbackData.justification || 'No justification details provided.'}
+              </div>
+            ) : (
+              <FieldTooltip content="Technical or economic justification for applying the fallback approach." example="Primary CEMS analyzer offline for maintenance">
                 <textarea
                   rows={2}
                   value={fallbackData.justification}
@@ -2034,11 +2103,11 @@ export const MonitoringMethodsTab: React.FC<MonitoringMethodsTabProps> = ({
                   onChange={(e) => setFallbackData({ ...fallbackData, justification: e.target.value })}
                   className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed"
                 />
-              )}
-            </div>
+              </FieldTooltip>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

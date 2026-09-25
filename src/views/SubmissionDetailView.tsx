@@ -759,12 +759,12 @@ export const SubmissionDetailView: React.FC = () => {
                           <th className="py-2.5 px-3">Measuring Device & Calibration Reference</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 font-medium">
+                      <tbody className="divide-y divide-slate-100 font-normal">
                         {facilityStreams.map((stream) => (
                           <tr key={stream.id} className="hover:bg-slate-50/60">
-                            <td className="py-2.5 px-3 font-mono font-bold text-[#004B87]">{stream.id}</td>
-                            <td className="py-2.5 px-3 font-bold text-slate-900">{stream.name}</td>
-                            <td className="py-2.5 px-3 font-bold text-slate-800">{stream.throughput}</td>
+                            <td className="py-2.5 px-3 font-mono font-normal text-[#004B87]">{stream.id}</td>
+                            <td className="py-2.5 px-3 font-normal text-slate-900">{stream.name}</td>
+                            <td className="py-2.5 px-3 font-normal text-slate-800">{stream.throughput}</td>
                             <td className="py-2.5 px-3 text-slate-600">{stream.unit}</td>
                             <td className="py-2.5 px-3 text-slate-700">{stream.device}</td>
                           </tr>
@@ -818,18 +818,18 @@ export const SubmissionDetailView: React.FC = () => {
                           <th className="py-2.5 px-3">MRV Methodology</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 font-medium">
+                      <tbody className="divide-y divide-slate-100 font-normal">
                         {monitoringPlan.mitigationMeasures.map((mit) => (
                           <tr key={mit.id} className="hover:bg-slate-50/60">
-                            <td className="py-2.5 px-3 font-bold text-slate-900">{mit.name}</td>
+                            <td className="py-2.5 px-3 font-normal text-slate-900">{mit.name}</td>
                             <td className="py-2.5 px-3">
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-normal ${
                                 mit.status === 'Operational' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'
                               }`}>
                                 {mit.status} ({mit.implementationYear})
                               </span>
                             </td>
-                            <td className="py-2.5 px-3 font-bold text-emerald-700">{mit.expectedReduction.toLocaleString()} tCO₂e/yr</td>
+                            <td className="py-2.5 px-3 font-normal text-emerald-700">{mit.expectedReduction.toLocaleString()} tCO₂e/yr</td>
                             <td className="py-2.5 px-3 text-slate-600">{mit.methodology}</td>
                           </tr>
                         ))}
@@ -928,27 +928,27 @@ export const SubmissionDetailView: React.FC = () => {
                           <th className="py-2.5 px-3 text-right">Calculated tCO₂e</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 font-medium">
+                      <tbody className="divide-y divide-slate-100 font-normal">
                         <tr>
-                          <td className="py-2.5 px-3 font-bold text-slate-900">Stationary Fuel Combustion</td>
-                          <td className="py-2.5 px-3 font-mono text-slate-800">Primary Fuel Stream</td>
-                          <td className="py-2.5 px-3 text-slate-700">{versionSnapshot.ncv}</td>
-                          <td className="py-2.5 px-3 text-slate-700">{versionSnapshot.ef} (Tier 2)</td>
-                          <td className="py-2.5 px-3 text-right font-bold text-[#004B87]">{versionSnapshot.combustionEmissions.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 font-normal text-slate-900">Stationary Fuel Combustion</td>
+                          <td className="py-2.5 px-3 font-mono text-slate-800 font-normal">Primary Fuel Stream</td>
+                          <td className="py-2.5 px-3 text-slate-700 font-normal">{versionSnapshot.ncv}</td>
+                          <td className="py-2.5 px-3 text-slate-700 font-normal">{versionSnapshot.ef} (Tier 2)</td>
+                          <td className="py-2.5 px-3 text-right font-normal text-[#004B87]">{versionSnapshot.combustionEmissions.toLocaleString()}</td>
                         </tr>
                         <tr>
-                          <td className="py-2.5 px-3 font-bold text-slate-900">Process & Calcination Operations</td>
-                          <td className="py-2.5 px-3 font-mono text-slate-800">Feedstock Consumption</td>
-                          <td className="py-2.5 px-3 text-slate-400">N/A (Process)</td>
-                          <td className="py-2.5 px-3 text-slate-700">IPCC Sector Model</td>
-                          <td className="py-2.5 px-3 text-right font-bold text-[#004B87]">{versionSnapshot.processEmissions.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 font-normal text-slate-900">Process & Calcination Operations</td>
+                          <td className="py-2.5 px-3 font-mono text-slate-800 font-normal">Feedstock Consumption</td>
+                          <td className="py-2.5 px-3 text-slate-400 font-normal">N/A (Process)</td>
+                          <td className="py-2.5 px-3 text-slate-700 font-normal">IPCC Sector Model</td>
+                          <td className="py-2.5 px-3 text-right font-normal text-[#004B87]">{versionSnapshot.processEmissions.toLocaleString()}</td>
                         </tr>
                         <tr>
-                          <td className="py-2.5 px-3 font-bold text-slate-900">Fugitive & Flaring Streams</td>
-                          <td className="py-2.5 px-3 font-mono text-slate-800">Continuous Metering</td>
-                          <td className="py-2.5 px-3 text-slate-700">{selectedVersion === 1 ? '37.50 MJ/Nm³' : '37.80 MJ/Nm³'}</td>
-                          <td className="py-2.5 px-3 text-slate-700">Tier 1 Factor</td>
-                          <td className="py-2.5 px-3 text-right font-bold text-[#004B87]">{versionSnapshot.fugitiveEmissions.toLocaleString()}</td>
+                          <td className="py-2.5 px-3 font-normal text-slate-900">Fugitive & Flaring Streams</td>
+                          <td className="py-2.5 px-3 font-mono text-slate-800 font-normal">Continuous Metering</td>
+                          <td className="py-2.5 px-3 text-slate-700 font-normal">{selectedVersion === 1 ? '37.50 MJ/Nm³' : '37.80 MJ/Nm³'}</td>
+                          <td className="py-2.5 px-3 text-slate-700 font-normal">Tier 1 Factor</td>
+                          <td className="py-2.5 px-3 text-right font-normal text-[#004B87]">{versionSnapshot.fugitiveEmissions.toLocaleString()}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -1110,7 +1110,7 @@ export const SubmissionDetailView: React.FC = () => {
                             </td>
                             <td className="py-2.5 px-3 text-slate-800">{v.submittedBy}</td>
                             <td className="py-2.5 px-3 text-slate-600">{v.submittedDate}</td>
-                            <td className="py-2.5 px-3 font-bold text-slate-700">{v.reviewDecision}</td>
+                            <td className="py-2.5 px-3 font-normal text-slate-700">{v.reviewDecision}</td>
                             <td className="py-2.5 px-3 text-slate-600 max-w-xs truncate">{v.comments}</td>
                           </tr>
                         ))}
@@ -1126,7 +1126,7 @@ export const SubmissionDetailView: React.FC = () => {
                   <span className="text-xs font-bold text-[#004B87]">
                     Supporting Documents for {currentSub.id}
                   </span>
-                  <span className="text-xs text-slate-500 font-medium">{submissionDocuments.length} Documents</span>
+                  <span className="text-xs text-slate-500 font-normal">{submissionDocuments.length} Documents</span>
                 </div>
 
                 <div className="p-4 sm:p-5 pt-3 sm:pt-3.5 bg-white text-xs">
@@ -1142,21 +1142,21 @@ export const SubmissionDetailView: React.FC = () => {
                           <th className="py-2.5 px-3 text-right">Action</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 font-medium">
+                      <tbody className="divide-y divide-slate-100 font-normal">
                         {submissionDocuments.map((doc, idx) => (
                           <tr key={idx} className="hover:bg-slate-50/60">
-                            <td className="py-2.5 px-3 font-bold text-slate-800 flex items-center gap-2">
+                            <td className="py-2.5 px-3 font-normal text-slate-800 flex items-center gap-2">
                               <FileText className="w-4 h-4 text-[#004B87] shrink-0" />
                               <span>{doc.name}</span>
                             </td>
-                            <td className="py-2.5 px-3 text-slate-600">{doc.type}</td>
-                            <td className="py-2.5 px-3 text-slate-700">{doc.uploadedBy}</td>
-                            <td className="py-2.5 px-3 text-slate-500">{doc.date}</td>
-                            <td className="py-2.5 px-3 text-slate-600">{doc.size}</td>
+                            <td className="py-2.5 px-3 text-slate-600 font-normal">{doc.type}</td>
+                            <td className="py-2.5 px-3 text-slate-700 font-normal">{doc.uploadedBy}</td>
+                            <td className="py-2.5 px-3 text-slate-500 font-normal">{doc.date}</td>
+                            <td className="py-2.5 px-3 text-slate-600 font-normal">{doc.size}</td>
                             <td className="py-2.5 px-3 text-right">
                               <button
                                 onClick={() => alert(`Downloading ${doc.name}`)}
-                                className="text-[#004B87] hover:underline font-bold text-xs inline-flex items-center gap-1 cursor-pointer"
+                                className="text-[#004B87] hover:underline font-normal text-xs inline-flex items-center gap-1 cursor-pointer"
                               >
                                 <Download className="w-3.5 h-3.5" />
                                 <span>Download</span>

@@ -19,6 +19,7 @@ import { useMRV } from '../context/MRVContext';
 import { GlassCard } from '../components/ui/GlassCard';
 import { Badge } from '../components/ui/Badge';
 import { MitigationMeasure, ProductionStream, TierLevel } from '../types/mrv';
+import { FieldTooltip } from '../components/ui/FieldTooltip';
 
 export const MonitoringPlanView: React.FC = () => {
   const { monitoringPlan, updateMonitoringPlan, reportingYear, activeFacility, setActiveView } =
@@ -172,50 +173,62 @@ export const MonitoringPlanView: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-navy-900 mb-1.5">Facility Name</label>
-                <input
-                  type="text"
-                  value={activeFacility.name}
-                  disabled
-                  className="w-full glass-input bg-slate-100 cursor-not-allowed"
-                />
+                <label className="block text-xs font-bold text-navy-900 mb-1.5">
+                  Facility Name
+                </label>
+                <FieldTooltip content="Official designated industrial installation name registered under MRV." example="Al Noor Industrial Facility">
+                  <input
+                    type="text"
+                    value={activeFacility.name}
+                    disabled
+                    className="w-full glass-input bg-slate-100 cursor-not-allowed"
+                  />
+                </FieldTooltip>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-navy-900 mb-1.5">
                   Plant / Operating Unit Designation *
                 </label>
-                <input
-                  type="text"
-                  value={formData.plantName}
-                  onChange={(e) => handleFieldChange('root', 'plantName', e.target.value)}
-                  className="w-full glass-input"
-                />
+                <FieldTooltip content="Specific operating unit, furnace line, or plant division covered under this monitoring plan." example="Unit #2 Gas Turbine & Steam Generator">
+                  <input
+                    type="text"
+                    value={formData.plantName}
+                    onChange={(e) => handleFieldChange('root', 'plantName', e.target.value)}
+                    className="w-full glass-input"
+                  />
+                </FieldTooltip>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-navy-900 mb-1.5">Calendar Reporting Year</label>
-                <input
-                  type="number"
-                  value={formData.reportingYear}
-                  disabled
-                  className="w-full glass-input bg-slate-100 font-bold text-primary-800 cursor-not-allowed"
-                />
+                <label className="block text-xs font-bold text-navy-900 mb-1.5">
+                  Calendar Reporting Year
+                </label>
+                <FieldTooltip content="The statutory annual MRV reporting period under compliance." example="2026">
+                  <input
+                    type="number"
+                    value={formData.reportingYear}
+                    disabled
+                    className="w-full glass-input bg-slate-100 font-bold text-primary-800 cursor-not-allowed"
+                  />
+                </FieldTooltip>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-navy-900 mb-1.5">
                   Assigned Monitoring Tier Level *
                 </label>
-                <select
-                  value={formData.tier}
-                  onChange={(e) => handleFieldChange('root', 'tier', e.target.value as TierLevel)}
-                  className="w-full glass-input font-bold text-primary-800"
-                >
-                  <option value="Tier 1">Tier 1 — Standard Default Factors</option>
-                  <option value="Tier 2">Tier 2 — Country/Fuel Specific Laboratory Analyzed Factors</option>
-                  <option value="Tier 3">Tier 3 — Continuous Direct Mass Balance / CEMS</option>
-                </select>
+                <FieldTooltip content="EAD methodological accuracy tier: Tier 1 (standard default factors), Tier 2 (country/lab factors), Tier 3 (direct mass balance / CEMS continuous measurement).">
+                  <select
+                    value={formData.tier}
+                    onChange={(e) => handleFieldChange('root', 'tier', e.target.value as TierLevel)}
+                    className="w-full glass-input font-bold text-primary-800"
+                  >
+                    <option value="Tier 1">Tier 1 — Standard Default Factors</option>
+                    <option value="Tier 2">Tier 2 — Country/Fuel Specific Laboratory Analyzed Factors</option>
+                    <option value="Tier 3">Tier 3 — Continuous Direct Mass Balance / CEMS</option>
+                  </select>
+                </FieldTooltip>
               </div>
             </div>
           </div>
@@ -235,29 +248,35 @@ export const MonitoringPlanView: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-navy-900 mb-1.5">Business Sector</label>
-                <input
-                  type="text"
-                  value={formData.businessSector}
-                  onChange={(e) => handleFieldChange('root', 'businessSector', e.target.value)}
-                  className="w-full glass-input"
-                />
+                <label className="block text-xs font-bold text-navy-900 mb-1.5">
+                  Business Sector
+                </label>
+                <FieldTooltip content="Designated statutory MRV economic reporting sector under Abu Dhabi regulations." example="Energy">
+                  <input
+                    type="text"
+                    value={formData.businessSector}
+                    onChange={(e) => handleFieldChange('root', 'businessSector', e.target.value)}
+                    className="w-full glass-input"
+                  />
+                </FieldTooltip>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-navy-900 mb-1.5">
                   Current Operational Status *
                 </label>
-                <select
-                  value={formData.operationalStatus}
-                  onChange={(e) => handleFieldChange('root', 'operationalStatus', e.target.value)}
-                  className="w-full glass-input font-semibold"
-                >
-                  <option value="Normal Operation">Normal Commercial Operation</option>
-                  <option value="Maintenance">Scheduled Turnaround / Major Maintenance</option>
-                  <option value="Expanded">Expanded Production Line Commissioning</option>
-                  <option value="Commissioning">New Plant Initial Commissioning</option>
-                </select>
+                <FieldTooltip content="Current operational and commercial phase of the plant or installation." example="Normal Commercial Operation">
+                  <select
+                    value={formData.operationalStatus}
+                    onChange={(e) => handleFieldChange('root', 'operationalStatus', e.target.value)}
+                    className="w-full glass-input font-semibold"
+                  >
+                    <option value="Normal Operation">Normal Commercial Operation</option>
+                    <option value="Maintenance">Scheduled Turnaround / Major Maintenance</option>
+                    <option value="Expanded">Expanded Production Line Commissioning</option>
+                    <option value="Commissioning">New Plant Initial Commissioning</option>
+                  </select>
+                </FieldTooltip>
               </div>
             </div>
           </div>
@@ -292,59 +311,71 @@ export const MonitoringPlanView: React.FC = () => {
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1 w-full">
                     <div>
-                      <span className="text-[10px] font-bold text-mrv-muted uppercase">Stream Name</span>
-                      <input
-                        type="text"
-                        value={stream.name}
-                        placeholder="Enter stream name"
-                        onChange={(e) => {
-                          const updated = [...formData.productionStreams];
-                          updated[idx].name = e.target.value;
-                          setFormData((prev) => ({ ...prev, productionStreams: updated }));
-                        }}
-                        className="w-full glass-input text-xs font-semibold mt-1"
-                      />
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold text-mrv-muted uppercase">Annual Throughput & Unit</span>
-                      <div className="flex items-center gap-1.5 mt-1">
+                      <span className="text-[10px] font-bold text-mrv-muted uppercase block mb-1">
+                        Stream Name
+                      </span>
+                      <FieldTooltip content="Designation of the raw material, fuel line, or output stream." example="Natural Gas Fuel Supply Line A">
                         <input
                           type="text"
-                          value={stream.annualThroughput}
-                          placeholder="Enter throughput"
+                          value={stream.name}
+                          placeholder="Enter stream name"
                           onChange={(e) => {
                             const updated = [...formData.productionStreams];
-                            updated[idx].annualThroughput = e.target.value;
+                            updated[idx].name = e.target.value;
                             setFormData((prev) => ({ ...prev, productionStreams: updated }));
                           }}
-                          className="w-1/2 glass-input text-xs font-mono font-bold"
+                          className="w-full glass-input text-xs font-semibold"
                         />
-                        <input
-                          type="text"
-                          value={stream.unit}
-                          placeholder="Enter unit"
-                          onChange={(e) => {
-                            const updated = [...formData.productionStreams];
-                            updated[idx].unit = e.target.value;
-                            setFormData((prev) => ({ ...prev, productionStreams: updated }));
-                          }}
-                          className="w-1/2 glass-input text-xs"
-                        />
-                      </div>
+                      </FieldTooltip>
                     </div>
                     <div>
-                      <span className="text-[10px] font-bold text-mrv-muted uppercase">Measuring Device & Tag</span>
-                      <input
-                        type="text"
-                        value={stream.measuringDevice}
-                        placeholder="Enter measuring device & tag"
-                        onChange={(e) => {
-                          const updated = [...formData.productionStreams];
-                          updated[idx].measuringDevice = e.target.value;
-                          setFormData((prev) => ({ ...prev, productionStreams: updated }));
-                        }}
-                        className="w-full glass-input text-xs mt-1"
-                      />
+                      <span className="text-[10px] font-bold text-mrv-muted uppercase block mb-1">
+                        Annual Throughput & Unit
+                      </span>
+                      <FieldTooltip content="Expected yearly production or fuel throughput volume with engineering unit." unit="Tons, Nm³, MWh, TJ" example="1,450,000">
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="text"
+                            value={stream.annualThroughput}
+                            placeholder="Enter throughput"
+                            onChange={(e) => {
+                              const updated = [...formData.productionStreams];
+                              updated[idx].annualThroughput = e.target.value;
+                              setFormData((prev) => ({ ...prev, productionStreams: updated }));
+                            }}
+                            className="w-1/2 glass-input text-xs font-mono font-bold"
+                          />
+                          <input
+                            type="text"
+                            value={stream.unit}
+                            placeholder="Enter unit"
+                            onChange={(e) => {
+                              const updated = [...formData.productionStreams];
+                              updated[idx].unit = e.target.value;
+                              setFormData((prev) => ({ ...prev, productionStreams: updated }));
+                            }}
+                            className="w-1/2 glass-input text-xs"
+                          />
+                        </div>
+                      </FieldTooltip>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold text-mrv-muted uppercase block mb-1">
+                        Measuring Device & Tag
+                      </span>
+                      <FieldTooltip content="Calibrated fiscal flowmeter, weighbridge, or DCS instrument tag." format="TAG-XXXX-YYYY" example="FIT-1044A Ultrasonic Gas Meter">
+                        <input
+                          type="text"
+                          value={stream.measuringDevice}
+                          placeholder="Enter measuring device & tag"
+                          onChange={(e) => {
+                            const updated = [...formData.productionStreams];
+                            updated[idx].measuringDevice = e.target.value;
+                            setFormData((prev) => ({ ...prev, productionStreams: updated }));
+                          }}
+                          className="w-full glass-input text-xs"
+                        />
+                      </FieldTooltip>
                     </div>
                   </div>
 
@@ -374,62 +405,68 @@ export const MonitoringPlanView: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div
-                onClick={() => handleFieldChange('root', 'monitoringApproach', 'Calculation-based')}
-                className={`p-5 rounded-2xl border cursor-pointer transition-all ${
-                  formData.monitoringApproach === 'Calculation-based'
-                    ? 'bg-primary-50 border-primary-600 shadow-md shadow-primary-500/10 ring-2 ring-primary-500/20'
-                    : 'bg-white/80 border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-bold text-sm text-navy-900">Calculation-based</span>
-                  {formData.monitoringApproach === 'Calculation-based' && (
-                    <CheckCircle2 className="w-5 h-5 text-primary-600" />
-                  )}
+              <FieldTooltip content="Emissions calculated from fuel consumption (Activity Data) × Emission Factors × Net Calorific Values.">
+                <div
+                  onClick={() => handleFieldChange('root', 'monitoringApproach', 'Calculation-based')}
+                  className={`p-5 rounded-2xl border cursor-pointer transition-all ${
+                    formData.monitoringApproach === 'Calculation-based'
+                      ? 'bg-primary-50 border-primary-600 shadow-md shadow-primary-500/10 ring-2 ring-primary-500/20'
+                      : 'bg-white/80 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-bold text-sm text-navy-900">Calculation-based</span>
+                    {formData.monitoringApproach === 'Calculation-based' && (
+                      <CheckCircle2 className="w-5 h-5 text-primary-600" />
+                    )}
+                  </div>
+                  <p className="text-xs text-mrv-muted leading-relaxed">
+                    Emissions calculated from fuel consumption (Activity Data) × Emission Factors × Net Calorific Values.
+                  </p>
                 </div>
-                <p className="text-xs text-mrv-muted leading-relaxed">
-                  Emissions calculated from fuel consumption (Activity Data) × Emission Factors × Net Calorific Values.
-                </p>
-              </div>
+              </FieldTooltip>
 
-              <div
-                onClick={() => handleFieldChange('root', 'monitoringApproach', 'Measurement-based')}
-                className={`p-5 rounded-2xl border cursor-pointer transition-all ${
-                  formData.monitoringApproach === 'Measurement-based'
-                    ? 'bg-primary-50 border-primary-600 shadow-md shadow-primary-500/10 ring-2 ring-primary-500/20'
-                    : 'bg-white/80 border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-bold text-sm text-navy-900">Measurement-based (CEMS)</span>
-                  {formData.monitoringApproach === 'Measurement-based' && (
-                    <CheckCircle2 className="w-5 h-5 text-primary-600" />
-                  )}
+              <FieldTooltip content="Continuous Emissions Monitoring System (CEMS) stack flow rate and continuous flue gas concentration analysis.">
+                <div
+                  onClick={() => handleFieldChange('root', 'monitoringApproach', 'Measurement-based')}
+                  className={`p-5 rounded-2xl border cursor-pointer transition-all ${
+                    formData.monitoringApproach === 'Measurement-based'
+                      ? 'bg-primary-50 border-primary-600 shadow-md shadow-primary-500/10 ring-2 ring-primary-500/20'
+                      : 'bg-white/80 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-bold text-sm text-navy-900">Measurement-based (CEMS)</span>
+                    {formData.monitoringApproach === 'Measurement-based' && (
+                      <CheckCircle2 className="w-5 h-5 text-primary-600" />
+                    )}
+                  </div>
+                  <p className="text-xs text-mrv-muted leading-relaxed">
+                    Continuous Emissions Monitoring System (CEMS) stack flow rate and continuous flue gas concentration analysis.
+                  </p>
                 </div>
-                <p className="text-xs text-mrv-muted leading-relaxed">
-                  Continuous Emissions Monitoring System (CEMS) stack flow rate and continuous flue gas concentration analysis.
-                </p>
-              </div>
+              </FieldTooltip>
 
-              <div
-                onClick={() => handleFieldChange('root', 'monitoringApproach', 'Fallback')}
-                className={`p-5 rounded-2xl border cursor-pointer transition-all ${
-                  formData.monitoringApproach === 'Fallback'
-                    ? 'bg-primary-50 border-primary-600 shadow-md shadow-primary-500/10 ring-2 ring-primary-500/20'
-                    : 'bg-white/80 border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-bold text-sm text-navy-900">Fallback Approach</span>
-                  {formData.monitoringApproach === 'Fallback' && (
-                    <CheckCircle2 className="w-5 h-5 text-primary-600" />
-                  )}
+              <FieldTooltip content="Conservative estimation protocol utilized temporarily during catastrophic meter failure or outage.">
+                <div
+                  onClick={() => handleFieldChange('root', 'monitoringApproach', 'Fallback')}
+                  className={`p-5 rounded-2xl border cursor-pointer transition-all ${
+                    formData.monitoringApproach === 'Fallback'
+                      ? 'bg-primary-50 border-primary-600 shadow-md shadow-primary-500/10 ring-2 ring-primary-500/20'
+                      : 'bg-white/80 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-bold text-sm text-navy-900">Fallback Approach</span>
+                    {formData.monitoringApproach === 'Fallback' && (
+                      <CheckCircle2 className="w-5 h-5 text-primary-600" />
+                    )}
+                  </div>
+                  <p className="text-xs text-mrv-muted leading-relaxed">
+                    Conservative estimation protocol utilized temporarily during catastrophic meter failure or outage.
+                  </p>
                 </div>
-                <p className="text-xs text-mrv-muted leading-relaxed">
-                  Conservative estimation protocol utilized temporarily during catastrophic meter failure or outage.
-                </p>
-              </div>
+              </FieldTooltip>
             </div>
           </div>
         )}
@@ -451,64 +488,74 @@ export const MonitoringPlanView: React.FC = () => {
                 <label className="block text-xs font-bold text-navy-900 mb-1.5">
                   Calculation Standards & Methodology Applied *
                 </label>
-                <input
-                  type="text"
-                  value={formData.ghgMeasurement.methods}
-                  onChange={(e) => handleFieldChange('ghgMeasurement', 'methods', e.target.value)}
-                  className="w-full glass-input"
-                />
+                <FieldTooltip content="Statutory accounting guidelines and technical calculation protocols applied." example="IPCC 2006 Guidelines / EAD Technical MRV Manual">
+                  <input
+                    type="text"
+                    value={formData.ghgMeasurement.methods}
+                    onChange={(e) => handleFieldChange('ghgMeasurement', 'methods', e.target.value)}
+                    className="w-full glass-input"
+                  />
+                </FieldTooltip>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-navy-900 mb-1.5">
                   Applied Environmental Standards *
                 </label>
-                <input
-                  type="text"
-                  value={formData.ghgMeasurement.standards}
-                  onChange={(e) => handleFieldChange('ghgMeasurement', 'standards', e.target.value)}
-                  className="w-full glass-input"
-                />
+                <FieldTooltip content="Recognized ISO / CEN environmental management and measurement standards." example="ISO 14064-1:2018 / EN 14181">
+                  <input
+                    type="text"
+                    value={formData.ghgMeasurement.standards}
+                    onChange={(e) => handleFieldChange('ghgMeasurement', 'standards', e.target.value)}
+                    className="w-full glass-input"
+                  />
+                </FieldTooltip>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-navy-900 mb-1.5">
                   Data Sources & Invoicing *
                 </label>
-                <input
-                  type="text"
-                  value={formData.ghgMeasurement.dataSources}
-                  onChange={(e) => handleFieldChange('ghgMeasurement', 'dataSources', e.target.value)}
-                  className="w-full glass-input"
-                />
+                <FieldTooltip content="Primary operational and financial records utilized as activity data evidence." example="Commercial Fiscal Custody Invoices & DCS Telemetry">
+                  <input
+                    type="text"
+                    value={formData.ghgMeasurement.dataSources}
+                    onChange={(e) => handleFieldChange('ghgMeasurement', 'dataSources', e.target.value)}
+                    className="w-full glass-input"
+                  />
+                </FieldTooltip>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-navy-900 mb-1.5">
                   Measurement Equipment & Analyzers *
                 </label>
-                <input
-                  type="text"
-                  value={formData.ghgMeasurement.measurementEquipment}
-                  onChange={(e) =>
-                    handleFieldChange('ghgMeasurement', 'measurementEquipment', e.target.value)
-                  }
-                  className="w-full glass-input"
-                />
+                <FieldTooltip content="Hardware specifications for meters, gas chromatographs, and analyzers." example="Gas Chromatograph ABB NGC8206 & NDIR Stack Analyzer">
+                  <input
+                    type="text"
+                    value={formData.ghgMeasurement.measurementEquipment}
+                    onChange={(e) =>
+                      handleFieldChange('ghgMeasurement', 'measurementEquipment', e.target.value)
+                    }
+                    className="w-full glass-input"
+                  />
+                </FieldTooltip>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-navy-900 mb-1.5">
                   Calibration Frequency (ISO 17025) *
                 </label>
-                <input
-                  type="text"
-                  value={formData.ghgMeasurement.calibrationFrequency}
-                  onChange={(e) =>
-                    handleFieldChange('ghgMeasurement', 'calibrationFrequency', e.target.value)
-                  }
-                  className="w-full glass-input"
-                />
+                <FieldTooltip content="Mandatory recalibration interval performed by an accredited calibration laboratory." example="Annual / Semi-annual (ISO 17025 accredited)">
+                  <input
+                    type="text"
+                    value={formData.ghgMeasurement.calibrationFrequency}
+                    onChange={(e) =>
+                      handleFieldChange('ghgMeasurement', 'calibrationFrequency', e.target.value)
+                    }
+                    className="w-full glass-input"
+                  />
+                </FieldTooltip>
               </div>
             </div>
           </div>
@@ -531,38 +578,44 @@ export const MonitoringPlanView: React.FC = () => {
                 <label className="block text-xs font-bold text-navy-900 mb-1.5">
                   Quality Assurance Procedures *
                 </label>
-                <textarea
-                  rows={2}
-                  value={formData.qaQc.qualityAssurance}
-                  onChange={(e) => handleFieldChange('qaQc', 'qualityAssurance', e.target.value)}
-                  className="w-full glass-input resize-none"
-                />
+                <FieldTooltip content="Internal QA/QC procedures ensuring sensor reliability, data verification, and error handling." example="Daily zero/span drift checks and automated telemetry alarms.">
+                  <textarea
+                    rows={2}
+                    value={formData.qaQc.qualityAssurance}
+                    onChange={(e) => handleFieldChange('qaQc', 'qualityAssurance', e.target.value)}
+                    className="w-full glass-input resize-none"
+                  />
+                </FieldTooltip>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-navy-900 mb-1.5">
                   Internal Cross-Review Process *
                 </label>
-                <input
-                  type="text"
-                  value={formData.qaQc.internalReview}
-                  onChange={(e) => handleFieldChange('qaQc', 'internalReview', e.target.value)}
-                  className="w-full glass-input"
-                />
+                <FieldTooltip content="Four-eye internal cross-check workflow between operations and environmental team before submission." example="Quarterly reconciliation with financial ERP and operations logbooks.">
+                  <input
+                    type="text"
+                    value={formData.qaQc.internalReview}
+                    onChange={(e) => handleFieldChange('qaQc', 'internalReview', e.target.value)}
+                    className="w-full glass-input"
+                  />
+                </FieldTooltip>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-navy-900 mb-1.5">
                   Mandatory Record Retention Duration (Years) *
                 </label>
-                <input
-                  type="number"
-                  value={formData.qaQc.recordStorageYears}
-                  onChange={(e) =>
-                    handleFieldChange('qaQc', 'recordStorageYears', Number(e.target.value))
-                  }
-                  className="w-full glass-input font-bold"
-                />
+                <FieldTooltip content="Minimum statutory archival period for all raw sensor readings, invoices, and lab reports." unit="Years" example="10">
+                  <input
+                    type="number"
+                    value={formData.qaQc.recordStorageYears}
+                    onChange={(e) =>
+                      handleFieldChange('qaQc', 'recordStorageYears', Number(e.target.value))
+                    }
+                    className="w-full glass-input font-bold"
+                  />
+                </FieldTooltip>
               </div>
             </div>
           </div>
@@ -619,50 +672,62 @@ export const MonitoringPlanView: React.FC = () => {
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 flex-1 w-full text-xs">
                     <div className="sm:col-span-2">
-                      <span className="text-[10px] font-bold text-mrv-muted uppercase">Project Title</span>
-                      <input
-                        type="text"
-                        value={mit.name}
-                        placeholder="Enter project / initiative title"
-                        onChange={(e) => {
-                          const updated = [...formData.mitigationMeasures];
-                          updated[idx].name = e.target.value;
-                          setFormData((prev) => ({ ...prev, mitigationMeasures: updated }));
-                        }}
-                        className="w-full glass-input text-xs font-semibold mt-1"
-                      />
+                      <span className="text-[10px] font-bold text-mrv-muted uppercase block mb-1">
+                        Project Title
+                      </span>
+                      <FieldTooltip content="Official title of the emissions abatement, energy efficiency, or decarbonization project." example="Waste Heat Steam Turbine Optimization">
+                        <input
+                          type="text"
+                          value={mit.name}
+                          placeholder="Enter project / initiative title"
+                          onChange={(e) => {
+                            const updated = [...formData.mitigationMeasures];
+                            updated[idx].name = e.target.value;
+                            setFormData((prev) => ({ ...prev, mitigationMeasures: updated }));
+                          }}
+                          className="w-full glass-input text-xs font-semibold"
+                        />
+                      </FieldTooltip>
                     </div>
                     <div>
-                      <span className="text-[10px] font-bold text-mrv-muted uppercase">Expected tCO₂e Reduction</span>
-                      <input
-                        type="number"
-                        value={mit.expectedReduction}
-                        placeholder="Enter emissions reduction"
-                        onChange={(e) => {
-                          const updated = [...formData.mitigationMeasures];
-                          updated[idx].expectedReduction = Number(e.target.value);
-                          setFormData((prev) => ({ ...prev, mitigationMeasures: updated }));
-                        }}
-                        className="w-full glass-input text-xs font-bold text-teal-700 mt-1"
-                      />
+                      <span className="text-[10px] font-bold text-mrv-muted uppercase block mb-1">
+                        Expected tCO₂e Reduction
+                      </span>
+                      <FieldTooltip content="Anticipated annual greenhouse gas abatement in metric tons CO₂ equivalent." unit="tCO₂e/year" example="18,500">
+                        <input
+                          type="number"
+                          value={mit.expectedReduction}
+                          placeholder="Enter emissions reduction"
+                          onChange={(e) => {
+                            const updated = [...formData.mitigationMeasures];
+                            updated[idx].expectedReduction = Number(e.target.value);
+                            setFormData((prev) => ({ ...prev, mitigationMeasures: updated }));
+                          }}
+                          className="w-full glass-input text-xs font-bold text-teal-700"
+                        />
+                      </FieldTooltip>
                     </div>
                     <div>
-                      <span className="text-[10px] font-bold text-mrv-muted uppercase">Status</span>
-                      <select
-                        value={mit.status}
-                        onChange={(e) => {
-                          const updated = [...formData.mitigationMeasures];
-                          updated[idx].status = e.target.value as any;
-                          setFormData((prev) => ({ ...prev, mitigationMeasures: updated }));
-                        }}
-                        className="w-full glass-input text-xs font-bold mt-1"
-                      >
-                        <option value="">Select status</option>
-                        <option value="Planned">Planned</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Operational">Operational</option>
-                        <option value="Completed">Completed</option>
-                      </select>
+                      <span className="text-[10px] font-bold text-mrv-muted uppercase block mb-1">
+                        Status
+                      </span>
+                      <FieldTooltip content="Current operational implementation stage of the project." example="Operational">
+                        <select
+                          value={mit.status}
+                          onChange={(e) => {
+                            const updated = [...formData.mitigationMeasures];
+                            updated[idx].status = e.target.value as any;
+                            setFormData((prev) => ({ ...prev, mitigationMeasures: updated }));
+                          }}
+                          className="w-full glass-input text-xs font-bold"
+                        >
+                          <option value="">Select status</option>
+                          <option value="Planned">Planned</option>
+                          <option value="In Progress">In Progress</option>
+                          <option value="Operational">Operational</option>
+                          <option value="Completed">Completed</option>
+                        </select>
+                      </FieldTooltip>
                     </div>
                   </div>
 
@@ -704,31 +769,43 @@ export const MonitoringPlanView: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 border-t border-primary-100">
                 <div>
-                  <label className="block text-xs font-bold text-navy-900 mb-1">Lead Preparer Name</label>
-                  <input
-                    type="text"
-                    value={formData.preparerName}
-                    onChange={(e) => handleFieldChange('root', 'preparerName', e.target.value)}
-                    className="w-full glass-input"
-                  />
+                  <label className="block text-xs font-bold text-navy-900 mb-1">
+                    Lead Preparer Name
+                  </label>
+                  <FieldTooltip content="Full name of authorized environmental lead compiling the monitoring plan." example="Ahmed Al-Zaabi">
+                    <input
+                      type="text"
+                      value={formData.preparerName}
+                      onChange={(e) => handleFieldChange('root', 'preparerName', e.target.value)}
+                      className="w-full glass-input"
+                    />
+                  </FieldTooltip>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-navy-900 mb-1">Preparer Job Title</label>
-                  <input
-                    type="text"
-                    value={formData.preparerTitle}
-                    onChange={(e) => handleFieldChange('root', 'preparerTitle', e.target.value)}
-                    className="w-full glass-input"
-                  />
+                  <label className="block text-xs font-bold text-navy-900 mb-1">
+                    Preparer Job Title
+                  </label>
+                  <FieldTooltip content="Official corporate position of the lead plan preparer." example="Senior Compliance & MRV Lead">
+                    <input
+                      type="text"
+                      value={formData.preparerTitle}
+                      onChange={(e) => handleFieldChange('root', 'preparerTitle', e.target.value)}
+                      className="w-full glass-input"
+                    />
+                  </FieldTooltip>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-navy-900 mb-1">Declaration Date</label>
-                  <input
-                    type="date"
-                    value={formData.declarationDate}
-                    onChange={(e) => handleFieldChange('root', 'declarationDate', e.target.value)}
-                    className="w-full glass-input font-semibold text-primary-800"
-                  />
+                  <label className="block text-xs font-bold text-navy-900 mb-1">
+                    Declaration Date
+                  </label>
+                  <FieldTooltip content="Date on which the monitoring plan declaration is signed and submitted." format="YYYY-MM-DD">
+                    <input
+                      type="date"
+                      value={formData.declarationDate}
+                      onChange={(e) => handleFieldChange('root', 'declarationDate', e.target.value)}
+                      className="w-full glass-input font-semibold text-primary-800"
+                    />
+                  </FieldTooltip>
                 </div>
               </div>
             </div>

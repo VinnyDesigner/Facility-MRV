@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
 import { formatVersion } from '../types/mrv';
+import { FieldTooltip } from '../components/ui/FieldTooltip';
 
 export const VerificationModuleView: React.FC = () => {
   const {
@@ -318,24 +319,26 @@ export const VerificationModuleView: React.FC = () => {
           <div className="flex items-center gap-2 shrink-0 flex-nowrap">
             {/* Search Box */}
             <div className="relative w-36 sm:w-44 xl:w-48">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search by facility, verifier..."
-                value={tableSearchTerm}
-                onChange={(e) => {
-                  setTableSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full pl-8 pr-7 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all font-medium shadow-xs"
-              />
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 z-10 pointer-events-none" />
+              <FieldTooltip content="Search verification records by facility name, ID, or accredited verification body.">
+                <input
+                  type="text"
+                  placeholder="Search by facility, verifier..."
+                  value={tableSearchTerm}
+                  onChange={(e) => {
+                    setTableSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full pl-8 pr-7 py-1.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all font-medium shadow-xs"
+                />
+              </FieldTooltip>
               {tableSearchTerm && (
                 <button
                   onClick={() => {
                     setTableSearchTerm('');
                     setCurrentPage(1);
                   }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer z-10"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -344,40 +347,44 @@ export const VerificationModuleView: React.FC = () => {
 
             {/* Status Filter */}
             <div className="relative">
-              <select
-                value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all cursor-pointer"
-              >
-                <option value="ALL">All Statuses</option>
-                <option value="Pending Assignment">Pending Assignment</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Statement Submitted">Statement Submitted</option>
-                <option value="Reverted">Reverted (Correction Required)</option>
-                <option value="Correction Required">Correction Required</option>
-                <option value="Verified & Approved">Verified & Approved</option>
-                <option value="Rejected">Rejected</option>
-              </select>
+              <FieldTooltip content="Filter verification records by audit and statement status.">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all cursor-pointer"
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="Pending Assignment">Pending Assignment</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Statement Submitted">Statement Submitted</option>
+                  <option value="Reverted">Reverted (Correction Required)</option>
+                  <option value="Correction Required">Correction Required</option>
+                  <option value="Verified & Approved">Verified & Approved</option>
+                  <option value="Rejected">Rejected</option>
+                </select>
+              </FieldTooltip>
             </div>
 
             {/* Year Filter */}
             <div className="relative">
-              <select
-                value={yearFilter}
-                onChange={(e) => {
-                  setYearFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all cursor-pointer"
-              >
-                <option value="ALL">All Years</option>
-                <option value="2026">2026</option>
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-              </select>
+              <FieldTooltip content="Filter verification records by statutory reporting year.">
+                <select
+                  value={yearFilter}
+                  onChange={(e) => {
+                    setYearFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#004B87]/20 focus:border-[#004B87] transition-all cursor-pointer"
+                >
+                  <option value="ALL">All Years</option>
+                  <option value="2026">2026</option>
+                  <option value="2025">2025</option>
+                  <option value="2024">2024</option>
+                </select>
+              </FieldTooltip>
             </div>
 
             {/* Reset */}
@@ -447,38 +454,38 @@ export const VerificationModuleView: React.FC = () => {
                             <td className="h-[60px] px-3 text-center font-mono text-slate-400 font-medium align-middle">
                               {actualIdx}
                             </td>
-                            <td className="h-[60px] px-3 font-semibold text-slate-900 leading-snug align-middle">
+                            <td className="h-[60px] px-3 font-normal text-slate-900 leading-snug align-middle">
                               <span>{rec.facilityName}</span>
                             </td>
-                            <td className="h-[60px] px-3 font-mono text-slate-600 text-[11px] align-middle">
+                            <td className="h-[60px] px-3 font-mono text-slate-600 font-normal text-[11px] align-middle">
                               {rec.facilityId}
                             </td>
-                            <td className="h-[60px] px-3 font-medium text-slate-700 align-middle">
+                            <td className="h-[60px] px-3 font-normal text-slate-700 align-middle">
                               {rec.reportingYear}
                             </td>
                             <td className="h-[60px] px-3 text-center whitespace-nowrap align-middle">
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono font-normal bg-slate-100 text-slate-700 border border-slate-200">
                                 {rec.version}
                               </span>
                             </td>
-                            <td className="h-[60px] px-3 font-mono font-bold text-[#004B87] align-middle">
+                            <td className="h-[60px] px-3 font-mono font-normal text-[#004B87] align-middle">
                               {rec.totalEmissions}
                             </td>
-                            <td className="h-[60px] px-3 text-slate-600 font-medium align-middle">
+                            <td className="h-[60px] px-3 text-slate-600 font-normal align-middle">
                               {rec.submittedDate}
                             </td>
                             <td className="h-[60px] px-3 text-left whitespace-nowrap align-middle">
                               <span
-                                className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap inline-block ${
+                                className={`px-2.5 py-0.5 rounded-full text-[11px] font-normal whitespace-nowrap inline-block ${
                                   rec.verificationStatus === 'Verified & Approved'
-                                    ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60 font-bold'
+                                    ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60 font-normal'
                                     : rec.verificationStatus === 'In Progress'
-                                    ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60 font-bold'
+                                    ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60 font-normal'
                                     : rec.verificationStatus === 'Correction Required' || rec.verificationStatus === 'Reverted'
-                                    ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
+                                    ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-normal'
                                     : rec.verificationStatus === 'Rejected'
-                                    ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 font-bold'
-                                    : 'bg-slate-100 text-slate-700 border border-slate-200 font-bold'
+                                    ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 font-normal'
+                                    : 'bg-slate-100 text-slate-700 border border-slate-200 font-normal'
                                 }`}
                               >
                                 {rec.verificationStatus}
@@ -697,16 +704,16 @@ export const VerificationModuleView: React.FC = () => {
                   {currentRecord.cars && currentRecord.cars.length > 0 ? (
                     currentRecord.cars.map((car: any, idx: number) => (
                       <tr key={idx}>
-                        <td className="py-2 px-2 font-mono font-bold text-[#004B87]">{car.id}</td>
-                        <td className="py-2 px-2 text-slate-800">{car.description}</td>
+                        <td className="py-2 px-2 font-mono font-normal text-[#004B87]">{car.id}</td>
+                        <td className="py-2 px-2 text-slate-800 font-normal">{car.description}</td>
                         <td className="py-2 px-2">
-                          <span className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
+                          <span className={`px-2 py-0.5 rounded text-[11px] font-normal ${
                             car.status === 'Closed' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
                           }`}>
                             {car.status}
                           </span>
                         </td>
-                        <td className="py-2 px-2 text-slate-600">{car.verifiedDate}</td>
+                        <td className="py-2 px-2 text-slate-600 font-normal">{car.verifiedDate}</td>
                       </tr>
                     ))
                   ) : (
@@ -815,20 +822,22 @@ export const VerificationModuleView: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <div>
             <label className="block text-[11px] font-semibold text-slate-600 mb-1">Target Facility</label>
-            <select
-              value={selectedFacilityId}
-              onChange={(e) => {
-                setSelectedFacilityId(e.target.value);
-                setActiveFacilityId(e.target.value);
-              }}
-              className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 font-medium focus:outline-none focus:border-[#004B87] cursor-pointer"
-            >
-              {Object.entries(facilityVerifications).map(([id, v]) => (
-                <option key={id} value={id}>
-                  {v.facilityName}
-                </option>
-              ))}
-            </select>
+            <FieldTooltip content="Target industrial facility audited under this verification engagement.">
+              <select
+                value={selectedFacilityId}
+                onChange={(e) => {
+                  setSelectedFacilityId(e.target.value);
+                  setActiveFacilityId(e.target.value);
+                }}
+                className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 font-medium focus:outline-none focus:border-[#004B87] cursor-pointer"
+              >
+                {Object.entries(facilityVerifications).map(([id, v]) => (
+                  <option key={id} value={id}>
+                    {v.facilityName}
+                  </option>
+                ))}
+              </select>
+            </FieldTooltip>
           </div>
           <div>
             <label className="block text-[11px] font-semibold text-slate-600 mb-1">Reporting Year</label>
@@ -876,82 +885,94 @@ export const VerificationModuleView: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <div>
                 <label className="block text-slate-600 font-semibold mb-1">Verification Body Name</label>
-                <input
-                  type="text"
-                  value={currentRecord.verifierBody}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    updateCurrentRecord((r) => ({ ...r, verifierBody: val }));
-                  }}
-                  className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-[#004B87]"
-                />
+                <FieldTooltip content="Name of the accredited third-party verification body." example="Bureau Veritas Middle East">
+                  <input
+                    type="text"
+                    value={currentRecord.verifierBody}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      updateCurrentRecord((r) => ({ ...r, verifierBody: val }));
+                    }}
+                    className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-[#004B87]"
+                  />
+                </FieldTooltip>
               </div>
               <div>
                 <label className="block text-slate-600 font-semibold mb-1">Lead Verifier Name</label>
-                <input
-                  type="text"
-                  value={currentRecord.leadVerifier}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    updateCurrentRecord((r) => ({ ...r, leadVerifier: val }));
-                  }}
-                  className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-[#004B87]"
-                />
+                <FieldTooltip content="Name and title of the accredited lead greenhouse gas auditor." example="Dr. Arthur Pendelton">
+                  <input
+                    type="text"
+                    value={currentRecord.leadVerifier}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      updateCurrentRecord((r) => ({ ...r, leadVerifier: val }));
+                    }}
+                    className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-[#004B87]"
+                  />
+                </FieldTooltip>
               </div>
               <div>
                 <label className="block text-slate-600 font-semibold mb-1">ENAS Accreditation ID</label>
-                <input
-                  type="text"
-                  value={currentRecord.accreditationId}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    updateCurrentRecord((r) => ({ ...r, accreditationId: val }));
-                  }}
-                  className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-mono focus:outline-none focus:border-[#004B87]"
-                />
+                <FieldTooltip content="Emirates National Accreditation System (ENAS) license identifier." example="ENAS-CB-042">
+                  <input
+                    type="text"
+                    value={currentRecord.accreditationId}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      updateCurrentRecord((r) => ({ ...r, accreditationId: val }));
+                    }}
+                    className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-mono focus:outline-none focus:border-[#004B87]"
+                  />
+                </FieldTooltip>
               </div>
               <div>
                 <label className="block text-slate-600 font-semibold mb-1">Verifier Opinion</label>
-                <select
-                  value={currentRecord.opinion}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    updateCurrentRecord((r) => ({ ...r, opinion: val }));
-                  }}
-                  className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-bold focus:outline-none focus:border-[#004B87] cursor-pointer"
-                >
-                  <option value="Unqualified (Positive)">Unqualified (Positive / Unmodified)</option>
-                  <option value="Qualified">Qualified (Material with exceptions)</option>
-                  <option value="Adverse">Adverse (Non-compliant)</option>
-                  <option value="Disclaimer of Opinion">Disclaimer of Opinion</option>
-                </select>
+                <FieldTooltip content="Formal verification statement opinion (Unqualified, Qualified, Adverse, or Disclaimer).">
+                  <select
+                    value={currentRecord.opinion}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      updateCurrentRecord((r) => ({ ...r, opinion: val }));
+                    }}
+                    className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 font-bold focus:outline-none focus:border-[#004B87] cursor-pointer"
+                  >
+                    <option value="Unqualified (Positive)">Unqualified (Positive / Unmodified)</option>
+                    <option value="Qualified">Qualified (Material with exceptions)</option>
+                    <option value="Adverse">Adverse (Non-compliant)</option>
+                    <option value="Disclaimer of Opinion">Disclaimer of Opinion</option>
+                  </select>
+                </FieldTooltip>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
               <div>
                 <label className="block text-slate-600 font-semibold mb-1">Verification Start Date</label>
-                <input
-                  type="date"
-                  value={currentRecord.startDate}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    updateCurrentRecord((r) => ({ ...r, startDate: val }));
-                  }}
-                  className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800"
-                />
+                <FieldTooltip content="Start date of the on-site verification audit and evidence inspection.">
+                  <input
+                    type="date"
+                    value={currentRecord.startDate}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      updateCurrentRecord((r) => ({ ...r, startDate: val }));
+                    }}
+                    className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800"
+                  />
+                </FieldTooltip>
               </div>
               <div>
                 <label className="block text-slate-600 font-semibold mb-1">Verification End Date</label>
-                <input
-                  type="date"
-                  value={currentRecord.endDate}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    updateCurrentRecord((r) => ({ ...r, endDate: val }));
-                  }}
-                  className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800"
-                />
+                <FieldTooltip content="Concluding date of the verification audit and statement sign-off.">
+                  <input
+                    type="date"
+                    value={currentRecord.endDate}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      updateCurrentRecord((r) => ({ ...r, endDate: val }));
+                    }}
+                    className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800"
+                  />
+                </FieldTooltip>
               </div>
             </div>
           </div>
@@ -961,15 +982,17 @@ export const VerificationModuleView: React.FC = () => {
             <div className="font-bold text-[#004B87]">2. Materiality Assessment & Findings</div>
             <div>
               <label className="block text-slate-600 font-semibold mb-1">Materiality Finding Details</label>
-              <textarea
-                rows={3}
-                value={currentRecord.materialityFinding}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  updateCurrentRecord((r) => ({ ...r, materialityFinding: val }));
-                }}
-                className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-[#004B87]"
-              />
+              <FieldTooltip content="Summary of material discrepancies, misstatements, or conformity evaluated against statutory materiality threshold.">
+                <textarea
+                  rows={3}
+                  value={currentRecord.materialityFinding}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    updateCurrentRecord((r) => ({ ...r, materialityFinding: val }));
+                  }}
+                  className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-[#004B87]"
+                />
+              </FieldTooltip>
             </div>
           </div>
 

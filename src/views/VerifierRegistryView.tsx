@@ -17,6 +17,7 @@ import { GlassCard } from '../components/ui/GlassCard';
 import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
 import { AccreditedVerifier } from '../types/mrv';
+import { FieldTooltip } from '../components/ui/FieldTooltip';
 
 export const VerifierRegistryView: React.FC = () => {
   const { verifiers, activeFacility, currentRole } = useMRV();
@@ -68,30 +69,43 @@ export const VerifierRegistryView: React.FC = () => {
         {/* Search & Filter Bar */}
       <GlassCard className="p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="relative flex-1 w-full">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-mrv-muted" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search verifiers by name, accreditation #, or organization..."
-            className="w-full pl-10 pr-4 py-2 glass-input text-xs"
-          />
+          <FieldTooltip
+            content="Search accredited verification bodies and lead auditors by name, license number, or agency."
+            example="DNV Business Assurance or ACC-2026-001"
+          >
+            <div className="relative w-full">
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-mrv-muted" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search verifiers by name, accreditation #, or organization..."
+                className="w-full pl-10 pr-4 py-2 glass-input text-xs"
+              />
+            </div>
+          </FieldTooltip>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Filter className="w-4 h-4 text-mrv-muted" />
-          <select
-            value={sectorFilter}
-            onChange={(e) => setSectorFilter(e.target.value)}
-            className="glass-input py-2 text-xs font-semibold cursor-pointer w-full sm:w-auto"
-          >
-            <option value="ALL">All Sectors</option>
-            <option value="Energy">Energy Sector</option>
-            <option value="IPPU">IPPU Sector</option>
-            <option value="Waste">Waste Sector</option>
-            <option value="Transport">Transport Sector</option>
-          </select>
-        </div>
+        <FieldTooltip
+          content="Filter accredited verification entities by certified industrial sector scope."
+          example="Energy, IPPU, or Waste"
+          className="w-full sm:w-auto"
+        >
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Filter className="w-4 h-4 text-mrv-muted" />
+            <select
+              value={sectorFilter}
+              onChange={(e) => setSectorFilter(e.target.value)}
+              className="glass-input py-2 text-xs font-semibold cursor-pointer w-full sm:w-auto"
+            >
+              <option value="ALL">All Sectors</option>
+              <option value="Energy">Energy Sector</option>
+              <option value="IPPU">IPPU Sector</option>
+              <option value="Waste">Waste Sector</option>
+              <option value="Transport">Transport Sector</option>
+            </select>
+          </div>
+        </FieldTooltip>
       </GlassCard>
 
       {/* Verifier Cards Grid */}

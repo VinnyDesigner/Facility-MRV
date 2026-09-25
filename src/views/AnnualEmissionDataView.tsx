@@ -36,6 +36,9 @@ import {
 import { useMRV } from '../context/MRVContext';
 import { formatVersion } from '../types/mrv';
 import { MonitoringMethodsTab } from '../components/monitoring/MonitoringMethodsTab';
+import { FieldTooltip } from '../components/ui/FieldTooltip';
+import { SortTriangles } from '../components/ui/SortTriangles';
+import emptyFolderIcon from '../assets/empty-folder-icon.png';
 
 export const AnnualEmissionDataView: React.FC = () => {
   const {
@@ -49,6 +52,14 @@ export const AnnualEmissionDataView: React.FC = () => {
     currentRole,
     facilities,
     setActiveFacilityId,
+    facilityEmissions,
+    setFacilityEmissions,
+    operatorEmissionIds,
+    setOperatorEmissionIds,
+    operatorFacilityIds,
+    facilityPlans,
+    facilityMonitoringPlanStatuses,
+    facilityRegistrations,
   } = useMRV();
 
   const isFacilityOperator = currentRole === 'FACILITY_OPERATOR';
@@ -68,340 +79,9 @@ export const AnnualEmissionDataView: React.FC = () => {
     'monitoring-methods' | 'mitigation-measures' | 'qa-qc' | 'review-submit'
   >('monitoring-methods');
 
-  const [reviewerComments, setReviewerComments] = useState('');
   const [isSavedNotice, setIsSavedNotice] = useState(false);
   const [noticeMessage, setNoticeMessage] = useState('Data Saved Successfully!');
   const [formReportingYear, setFormReportingYear] = useState('2026');
-
-  // Multi-Facility Annual Emissions Records Registry (Single Source of Truth)
-  const [facilityEmissions, setFacilityEmissions] = useState<Record<string, any>>(() => ({
-    'fac-0': {
-      facilityName: 'Green Mountain Cement Factory',
-      facilityId: 'FAC-EAD-2026-0012',
-      operatorName: 'Green Mountain Holdings LLC',
-      reportingYear: '2026',
-      version: 'V1',
-      status: 'Draft',
-      totalEmissions: '124,450',
-      scope1Stationary: '45,000',
-      scope1Process: '79,450',
-      scope1Fugitive: '0',
-      totalScope1: '124,450',
-      submittedDate: '15-Jan-2026',
-      updatedDate: '20-Jan-2026',
-      eadCorrectionDate: null,
-      businessSector: 'Manufacturing',
-      primaryActivity: 'Manufacturing of cement / clinker',
-      operationalStatus: 'Operational',
-      monitoringPlanRef: 'MP-2026-0012 (Approved: 15-Jan-2026)',
-      monitoringMethods: {
-        calcSourceStreams: [{ id: 'F01', desc: 'Raw Kiln Feed', estimatedEmissions: '79,450', selectedCategory: 'Major' }],
-        calcTierUncertainty: [{ id: 'F01', tier: 'Tier 3', uncertaintyAchieved: '1.80', fuelStreamType: 'Commercial Standard Fuels', sourceAccuracy: 'Lab Analysis' }],
-        calcApproachDesc: 'Estimated based on calcination factors and clinker output logs',
-        calcDetailedInfo: [{ id: 'F01', fuelType: 'Alternative Fuels', activityLevel: '24,000', unit: 't', source: 'Production logs' }],
-        nonFuelInputsDesc: '',
-        calcOtherInputsOutputs: [],
-        calcMeasurementSystems: [],
-        measEmissionSources: [{ id: 'S01', totalEmissions: '45,000', category: 'Major' }],
-        measUncertainty: [{ id: 'S01', tier: 'Tier 2', uncertaintyAchieved: '3.10', streamType: 'CO₂ Emission Sources', sourceAccuracy: 'Meter Reading' }],
-        measApproachDesc: 'Continuous emission monitoring at stack',
-        measPoints: [],
-        measComments: '',
-        fallbackData: { methodologyDesc: '', justification: '' },
-      },
-      mitigationMeasures: [],
-      mitigationAdditionalInfo: '',
-      qaVerificationDesc: 'Standard plant internal QA/QC protocols applied.',
-      qaFurtherDetails: '',
-      qaDataGaps: [],
-      qaManagementResp: [],
-      qaProcedures: [],
-      qaDiagramFiles: [],
-      internalReviewProcedures: [],
-      internalReviewFiles: [],
-      declarationChecks: { check1: false, check2: false, check3: false },
-      declarationForm: { name: 'Rashid Al Blooshi', designation: 'Operations Manager', date: '15-Jan-2026' },
-    },
-    'fac-1': {
-      facilityName: 'Al Noor Industrial Facility',
-      facilityId: 'FAC-EAD-2026-0891',
-      operatorName: 'Al Noor Energy & Power Operations LLC',
-      reportingYear: '2026',
-      version: 'V1',
-      status: 'Approved',
-      totalEmissions: '142,800',
-      scope1Stationary: '142,800',
-      scope1Process: '0',
-      scope1Fugitive: '4,060',
-      totalScope1: '146,860',
-      submittedDate: '14-Mar-2026',
-      updatedDate: '18-Mar-2026',
-      eadCorrectionDate: null,
-      businessSector: 'Energy',
-      primaryActivity: 'Combustion of fuels',
-      operationalStatus: 'Operational',
-      monitoringPlanRef: 'MP-2026-0891 (Approved: 18-Feb-2026)',
-      monitoringMethods: {
-        calcSourceStreams: [
-          { id: 'F01', desc: 'Natural Gas Combined Cycle Turbines', estimatedEmissions: '105,000', selectedCategory: 'Major' },
-          { id: 'F02', desc: 'Auxiliary Steam Boiler', estimatedEmissions: '1,200', selectedCategory: 'Minor' },
-          { id: 'F03', desc: 'Emergency Diesel Generator', estimatedEmissions: '850', selectedCategory: 'De-minimis' },
-        ],
-        calcTierUncertainty: [
-          { id: 'F01', tier: 'Tier 3', uncertaintyAchieved: '1.60', fuelStreamType: 'Commercial Standard Fuels', sourceAccuracy: 'Lab Analysis' },
-          { id: 'F02', tier: 'Tier 2', uncertaintyAchieved: '3.20', fuelStreamType: 'Alternative Fuels', sourceAccuracy: 'Meter Reading' },
-          { id: 'F03', tier: '', uncertaintyAchieved: '', fuelStreamType: '', sourceAccuracy: '' },
-        ],
-        calcApproachDesc: 'Estimated based on fuel metering, Gas Chromatography analysis, and IPCC Guidelines.',
-        calcDetailedInfo: [
-          { id: 'F01', fuelType: 'Natural Gas', activityLevel: '10,000', unit: 'MWH', source: 'In-house technical telemetry' },
-          { id: 'F02', fuelType: 'Alternative Fuels', activityLevel: '10,000', unit: 'MWH', source: 'In-house fuel logs' },
-        ],
-        nonFuelInputsDesc: '',
-        calcOtherInputsOutputs: [
-          { id: 'F01', type: 'Crude Oil', activityLevel: '0', units: 'TJ', ncv: '42.3', emissionFactor: '73.3', oxidationFactor: '100%', conversionFactor: '-', source: 'IPCC' },
-          { id: 'F02', type: 'Crude Oil', activityLevel: '0', units: 'TJ', ncv: '23.5', emissionFactor: '64.3', oxidationFactor: '75%', conversionFactor: '-', source: 'IPCC' },
-        ],
-        calcMeasurementSystems: [
-          { ref: 'MI01', associatedSource: 'F01', instrumentType: 'Rotary meter', location: 'Turbine Fuel Feed Line', unit: 'Nm³/h', rangeLower: '0', rangeUpper: '250', specifiedUncertainty: '3', typicalLower: '500', typicalUpper: '750' },
-          { ref: 'MI02', associatedSource: 'F02', instrumentType: 'Weigh bridge', location: 'Gate 4 Scale', unit: 'Kg', rangeLower: '3,000', rangeUpper: '40,000', specifiedUncertainty: '0.6', typicalLower: '7,500', typicalUpper: '40,000' },
-        ],
-        measEmissionSources: [
-          { id: 'S01', totalEmissions: '100,000', category: 'Major' },
-          { id: 'S02', totalEmissions: '45,000', category: 'Minor' },
-          { id: 'S03', totalEmissions: '800', category: 'De-minimis' },
-        ],
-        measUncertainty: [
-          { id: 'S01', tier: 'Tier 3', uncertaintyAchieved: '1.60', streamType: 'CO₂ Emission Sources', sourceAccuracy: 'Lab Analysis' },
-          { id: 'S02', tier: 'Tier 2', uncertaintyAchieved: '3.20', streamType: 'CO₂ Emission Sources', sourceAccuracy: 'Meter Reading' },
-          { id: 'S03', tier: '', uncertaintyAchieved: '', streamType: 'CO₂ Emission Sources', sourceAccuracy: '' },
-        ],
-        measApproachDesc: 'Continuous emission monitoring system (CEMS) per EAD Technical Guidance.',
-        measPoints: [
-          { id: 'M1', associatedSource: 'S01', procedures: 'Stack Sampling & Analysis', relevantProcedures: 'CEMS Operation Procedure EMP-01', relevantSource: 'CEMS Manual Rev. 4' },
-          { id: 'M2', associatedSource: 'S02', procedures: 'Routine Calibration Check', relevantProcedures: 'CEMS Operation Procedure EMP-01', relevantSource: 'ISO 14181:2014' },
-          { id: 'M3', associatedSource: 'S03', procedures: 'Data Logging Protocol', relevantProcedures: 'CEMS Operation Procedure EMP-01', relevantSource: 'ISO 14181:2014' },
-        ],
-        measComments: '',
-        fallbackData: { methodologyDesc: 'IPCC Tier 1 default fallback method applied if CEMS exceeds 120 hours downtime.', justification: 'Regulatory compliance backup contingency.' },
-      },
-      mitigationMeasures: [
-        {
-          description: 'Waste Heat Recovery System',
-          category: 'Emission Reduction',
-          scope: '1',
-          ghg: 'CO₂',
-          startYear: '2024',
-          status: 'Implemented',
-          preMeasureRef: '4,200 (2022 avg)',
-          reportingYearReduction: '3,850',
-          expectedAnnualReduction: '4,000',
-          methodology: 'Engineering energy balance against baseline',
-          verification: 'Third-party verified',
-        },
-        {
-          description: 'Clinker Factor Reduction using Calcined Clay',
-          category: 'Emission Reduction',
-          scope: '1',
-          ghg: 'CO₂',
-          startYear: '2025',
-          status: 'Planned',
-          preMeasureRef: '12,500 (2023 avg)',
-          reportingYearReduction: '1,200',
-          expectedAnnualReduction: '5,500',
-          methodology: 'Mass balance clinker replacement model',
-          verification: 'Internally verified',
-        },
-      ],
-      mitigationAdditionalInfo: '',
-      qaVerificationDesc: 'Al Noor Industrial Facility produces electricity and high-pressure steam. The facility operates combined cycle natural gas turbines with online telemetry and quarterly third-party calibration audits.',
-      qaFurtherDetails: '',
-      qaDataGaps: [
-        { sourceStream: 'S05 - Flare Vent', fromDate: '01-Jan-2024', untilDate: '15-Jan-2024', description: 'CEMS downtime', estimatedEmissions: '12.40', sourceOfEstimate: 'Similar period avg' },
-        { sourceStream: 'S08 - Boiler 3', fromDate: '10-Feb-2024', untilDate: '12-Feb-2024', description: 'Data logger issue', estimatedEmissions: '5.70', sourceOfEstimate: 'Fuel Consumption estimate' },
-        { sourceStream: 'S12 - Compressor', fromDate: '03-Mar-2024', untilDate: '05-Mar-2024', description: 'Maintenance activity', estimatedEmissions: '1.15', sourceOfEstimate: 'Equipment capacity method' },
-      ],
-      qaManagementResp: [
-        { jobTitle: 'GHG Manager', responsibilities: 'Supervise MRV operations, review activity registers' },
-        { jobTitle: 'Environmental Engineer', responsibilities: 'Log CEMS telemetry, track fuel meter calibrations' },
-        { jobTitle: 'Quality Assurance Officer', responsibilities: 'Conduct quarterly internal data checks and audits' },
-      ],
-      qaProcedures: [
-        { procedureTitle: 'ETS QA/QC of MI', reference: 'EAD_QA_QC_01', briefDescription: 'Quality control procedures for measurement', responsibleDept: 'Measurement & Control', recordStorage: 'QA/QC Records' },
-        { procedureTitle: 'Instrument Calibration', reference: 'QA_CAL_02', briefDescription: 'Routine calibration protocol for online meters', responsibleDept: 'Operations', recordStorage: 'Calibration Records' },
-      ],
-      qaDiagramFiles: [{ id: 'qa-diag-1', name: 'QA_QC_DataFlow_Diagram_Rev3.pdf', size: '1.6 MB', uploadDate: '12-Jan-2024' }],
-      internalReviewProcedures: [
-        { procedureTitle: 'ETS Data Validation', reference: 'EAD_VAL_01', briefDescription: 'Independent cross-check of data logs', responsibleDept: 'Measurement & Control', recordStorage: 'Validation Records' },
-        { procedureTitle: 'Annual Internal Review', reference: 'INT_REV_02', briefDescription: 'Annual compliance review and internal audit', responsibleDept: 'Compliance', recordStorage: 'Internal Audit Folder' },
-      ],
-      internalReviewFiles: [{ id: 'ir-diag-1', name: 'Internal_Review_Workflow_2026.pdf', size: '1.4 MB', uploadDate: '15-Feb-2024' }],
-      declarationChecks: { check1: true, check2: true, check3: true },
-      declarationForm: { name: 'Ahmed Al-Zaabi', designation: 'Facility Operator', date: '21 Sept 2026' },
-    },
-    'fac-2': {
-      facilityName: 'Emirates Steel Arkan - Industrial City',
-      facilityId: 'FAC-EAD-2026-0412',
-      operatorName: 'Emirates Steel Arkan PJSC',
-      reportingYear: '2026',
-      version: 'V1',
-      status: 'Reverted',
-      totalEmissions: '1,680,000',
-      scope1Stationary: '1,120,000',
-      scope1Process: '560,000',
-      scope1Fugitive: '8,960',
-      totalScope1: '1,688,960',
-      submittedDate: '15-Mar-2026',
-      updatedDate: '15-Mar-2026',
-      eadCorrectionDate: null,
-      businessSector: 'Industrial Processes',
-      primaryActivity: 'Production of iron or steel',
-      operationalStatus: 'Operational',
-      monitoringPlanRef: 'MP-2026-0412 (Approved: 10-Feb-2026)',
-      mitigationMeasures: [],
-      qaDataGaps: [],
-      qaManagementResp: [],
-      qaProcedures: [],
-      internalReviewProcedures: [],
-      declarationChecks: { check1: true, check2: true, check3: true },
-      declarationForm: { name: 'Saeed Al Mansoori', designation: 'Plant Director', date: '15-Mar-2026' },
-    },
-    'fac-3': {
-      facilityName: 'Green Mountain Cement Factory',
-      facilityId: 'FAC-000451',
-      operatorName: 'Green Mountain Holdings LLC',
-      reportingYear: '2026',
-      version: 'V3',
-      status: 'Correction Required',
-      totalEmissions: '624,000',
-      scope1Stationary: '244,000',
-      scope1Process: '380,000',
-      scope1Fugitive: '0',
-      totalScope1: '624,000',
-      submittedDate: '01-Mar-2026',
-      updatedDate: '16-Mar-2026',
-      eadCorrectionDate: '2026-06-10',
-      businessSector: 'Industrial Processes',
-      primaryActivity: 'Production of cement clinker',
-      operationalStatus: 'Operational',
-      monitoringPlanRef: 'MP-2026-000451 (Approved: 05-Jan-2026)',
-      mitigationMeasures: [],
-      qaDataGaps: [],
-      qaManagementResp: [],
-      qaProcedures: [],
-      internalReviewProcedures: [],
-      declarationChecks: { check1: false, check2: false, check3: false },
-      declarationForm: { name: 'Hamad Al Dhaheri', designation: 'Technical Manager', date: '01-Mar-2026' },
-    },
-    'fac-4': {
-      facilityName: 'Borouge Petrochemicals Complex',
-      facilityId: 'FAC-EAD-2026-0599',
-      operatorName: 'Abu Dhabi Polymers Company (Borouge)',
-      reportingYear: '2026',
-      version: 'V1',
-      status: 'Draft',
-      totalEmissions: '950,000',
-      scope1Stationary: '820,000',
-      scope1Process: '130,000',
-      scope1Fugitive: '7,840',
-      totalScope1: '957,840',
-      submittedDate: '—',
-      updatedDate: '20-Mar-2026',
-      eadCorrectionDate: null,
-      businessSector: 'Industrial Processes',
-      primaryActivity: 'Combustion of fuels',
-      operationalStatus: 'Operational',
-      monitoringPlanRef: 'MP-2026-0599 (Approved: 12-Feb-2026)',
-      mitigationMeasures: [],
-      qaDataGaps: [],
-      qaManagementResp: [],
-      qaProcedures: [],
-      internalReviewProcedures: [],
-      declarationChecks: { check1: false, check2: false, check3: false },
-      declarationForm: { name: 'Fatima Al Suwaidi', designation: 'EHS Lead', date: '20-Mar-2026' },
-    },
-    'fac-5': {
-      facilityName: 'Al Taweelah Power & Desalination',
-      facilityId: 'FAC-EAD-2026-0033',
-      operatorName: 'Taweelah Power Company PJSC',
-      reportingYear: '2026',
-      version: 'V1',
-      status: 'Submitted',
-      totalEmissions: '4,820,000',
-      scope1Stationary: '4,820,000',
-      scope1Process: '0',
-      scope1Fugitive: '0',
-      totalScope1: '4,820,000',
-      submittedDate: '05-Mar-2026',
-      updatedDate: '08-Mar-2026',
-      eadCorrectionDate: null,
-      businessSector: 'Energy',
-      primaryActivity: 'Combustion of fuels & Desalination',
-      operationalStatus: 'Operational',
-      monitoringPlanRef: 'MP-2026-0033 (Approved: 08-Jan-2026)',
-      mitigationMeasures: [],
-      qaDataGaps: [],
-      qaManagementResp: [],
-      qaProcedures: [],
-      internalReviewProcedures: [],
-      declarationChecks: { check1: true, check2: true, check3: true },
-      declarationForm: { name: 'Ali Al Kaabi', designation: 'Chief Engineer', date: '05-Mar-2026' },
-    },
-    'fac-6': {
-      facilityName: 'Tadweer Waste-to-Energy Facility',
-      facilityId: 'FAC-EAD-2026-0775',
-      operatorName: 'Abu Dhabi Waste Management PJSC (Tadweer)',
-      reportingYear: '2026',
-      version: 'V2',
-      status: 'Approved',
-      totalEmissions: '310,400',
-      scope1Stationary: '310,400',
-      scope1Process: '0',
-      scope1Fugitive: '0',
-      totalScope1: '310,400',
-      submittedDate: '22-Jan-2026',
-      updatedDate: '28-Jan-2026',
-      eadCorrectionDate: null,
-      businessSector: 'Waste',
-      primaryActivity: 'Solid waste thermal treatment',
-      operationalStatus: 'Operational',
-      monitoringPlanRef: 'MP-2026-0775 (Approved: 28-Jan-2026)',
-      mitigationMeasures: [],
-      qaDataGaps: [],
-      qaManagementResp: [],
-      qaProcedures: [],
-      internalReviewProcedures: [],
-      declarationChecks: { check1: true, check2: true, check3: true },
-      declarationForm: { name: 'Khalfan Al Mazrouei', designation: 'Sustainability Officer', date: '22-Jan-2026' },
-    },
-    'fac-7': {
-      facilityName: 'Gulf Chemical Solutions LLC',
-      facilityId: 'FAC-EAD-2026-0619',
-      operatorName: 'Gulf Chemical Solutions LLC',
-      reportingYear: '2026',
-      version: 'V1',
-      status: 'Rejected',
-      totalEmissions: '68,200',
-      scope1Stationary: '68,200',
-      scope1Process: '0',
-      scope1Fugitive: '0',
-      totalScope1: '68,200',
-      submittedDate: '18-Feb-2026',
-      updatedDate: '24-Feb-2026',
-      eadCorrectionDate: null,
-      businessSector: 'Chemicals',
-      primaryActivity: 'Organic Solvent Refining & Distillation',
-      operationalStatus: 'Operational',
-      monitoringPlanRef: 'MP-2026-0619 (Rejected)',
-      mitigationMeasures: [],
-      qaDataGaps: [],
-      qaManagementResp: [],
-      qaProcedures: [],
-      internalReviewProcedures: [],
-      declarationChecks: { check1: false, check2: false, check3: false },
-      declarationForm: { name: 'Nasser Al-Hajri', designation: 'Quality & Regulatory Director', date: '18-Feb-2026' },
-    },
-  }));
 
   const currentRecord = facilityEmissions[selectedFacilityId] || facilityEmissions['fac-1'];
 
@@ -428,41 +108,102 @@ export const AnnualEmissionDataView: React.FC = () => {
 
   // Filtered Facilities for Overview Table
   const filteredTableList = useMemo(() => {
-    return Object.entries(facilityEmissions).filter(([facId, rec]) => {
-      const matchesSearch =
-        (rec.facilityName || '').toLowerCase().includes(tableSearchTerm.toLowerCase()) ||
-        (rec.facilityId || '').toLowerCase().includes(tableSearchTerm.toLowerCase()) ||
-        (rec.operatorName || '').toLowerCase().includes(tableSearchTerm.toLowerCase()) ||
-        (rec.businessSector || '').toLowerCase().includes(tableSearchTerm.toLowerCase()) ||
-        (rec.primaryActivity || '').toLowerCase().includes(tableSearchTerm.toLowerCase());
+    return Object.entries(facilityEmissions)
+      .filter(([facId]) => {
+        if (isFacilityOperator) {
+          return operatorEmissionIds.includes(facId);
+        }
+        return true;
+      })
+      .filter(([facId, rec]) => {
+        const matchesSearch =
+          (rec.facilityName || '').toLowerCase().includes(tableSearchTerm.toLowerCase()) ||
+          (rec.facilityId || '').toLowerCase().includes(tableSearchTerm.toLowerCase()) ||
+          (rec.operatorName || '').toLowerCase().includes(tableSearchTerm.toLowerCase()) ||
+          (rec.businessSector || '').toLowerCase().includes(tableSearchTerm.toLowerCase()) ||
+          (rec.primaryActivity || '').toLowerCase().includes(tableSearchTerm.toLowerCase());
 
-      const matchesStatus =
-        statusFilter === 'ALL' ||
-        (statusFilter === 'Verified' && (rec.status === 'Verified' || rec.status === 'EAD Approved')) ||
-        (statusFilter === 'Submitted' && (rec.status === 'Submitted' || rec.status.includes('Submitted'))) ||
-        (statusFilter === 'Reverted' && (rec.status === 'Correction Required' || rec.status === 'Reverted' || rec.status.includes('Correction') || rec.status.includes('Reverted'))) ||
-        (statusFilter === 'Correction Required' && (rec.status === 'Correction Required' || rec.status === 'Reverted' || rec.status.includes('Correction') || rec.status.includes('Reverted'))) ||
-        (statusFilter === 'Rejected' && (rec.status === 'Rejected' || rec.status.includes('Reject'))) ||
-        (rec.status || '').toLowerCase() === statusFilter.toLowerCase();
+        const matchesStatus =
+          statusFilter === 'ALL' ||
+          (statusFilter === 'Approved' && (rec.status === 'Approved' || rec.status === 'Verified' || rec.status === 'EAD Approved')) ||
+          (statusFilter === 'Submitted' && (rec.status === 'Submitted' || rec.status?.includes('Submitted'))) ||
+          (statusFilter === 'Draft' && (rec.status === 'Draft' || rec.status?.includes('Draft'))) ||
+          (rec.status || '').toLowerCase() === statusFilter.toLowerCase();
 
-      const matchesYear =
-        yearFilter === 'ALL' ||
-        rec.reportingYear === yearFilter;
+        const matchesYear =
+          yearFilter === 'ALL' ||
+          rec.reportingYear === yearFilter;
 
-      return matchesSearch && matchesStatus && matchesYear;
-    });
-  }, [facilityEmissions, tableSearchTerm, statusFilter, yearFilter]);
+        return matchesSearch && matchesStatus && matchesYear;
+      });
+  }, [facilityEmissions, tableSearchTerm, statusFilter, yearFilter, isFacilityOperator, operatorEmissionIds, operatorFacilityIds]);
 
-  // Overview Table Pagination
+  // Overview Table Sorting & Pagination
+  type EmissionSortField = 'index' | 'name' | 'id' | 'year' | 'emissions' | 'submittedDate' | 'status';
+  type SortDirection = 'asc' | 'desc';
+
+  const [sortField, setSortField] = useState<EmissionSortField>('index');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+
+  const handleSort = (field: EmissionSortField) => {
+    if (sortField === field) {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(7);
 
-  const totalPages = Math.ceil(filteredTableList.length / itemsPerPage) || 1;
+  const sortedTableList = useMemo(() => {
+    if (sortField === 'index') {
+      return sortDirection === 'asc' ? filteredTableList : [...filteredTableList].reverse();
+    }
+    return [...filteredTableList].sort(([, a], [, b]) => {
+      const nameA = (a.facilityName || '').toLowerCase();
+      const nameB = (b.facilityName || '').toLowerCase();
+
+      const idA = (a.facilityId || '').toLowerCase();
+      const idB = (b.facilityId || '').toLowerCase();
+
+      const yearA = parseInt(a.reportingYear || '0', 10);
+      const yearB = parseInt(b.reportingYear || '0', 10);
+
+      const parseNum = (val: string | number | undefined | null) => {
+        if (!val) return 0;
+        const cleaned = String(val).replace(/,/g, '').trim();
+        const n = parseFloat(cleaned);
+        return isNaN(n) ? 0 : n;
+      };
+      const emissA = parseNum(a.totalScope1);
+      const emissB = parseNum(b.totalScope1);
+
+      const dateA = a.submittedDate && a.submittedDate !== '—' ? new Date(a.submittedDate).getTime() : 0;
+      const dateB = b.submittedDate && b.submittedDate !== '—' ? new Date(b.submittedDate).getTime() : 0;
+
+      const statusA = (a.status || '').toLowerCase();
+      const statusB = (b.status || '').toLowerCase();
+
+      let cmp = 0;
+      if (sortField === 'name') cmp = nameA.localeCompare(nameB);
+      else if (sortField === 'id') cmp = idA.localeCompare(idB);
+      else if (sortField === 'year') cmp = yearA - yearB;
+      else if (sortField === 'emissions') cmp = emissA - emissB;
+      else if (sortField === 'submittedDate') cmp = dateA - dateB;
+      else if (sortField === 'status') cmp = statusA.localeCompare(statusB);
+
+      return sortDirection === 'asc' ? cmp : -cmp;
+    });
+  }, [filteredTableList, sortField, sortDirection]);
+
+  const totalPages = Math.ceil(sortedTableList.length / itemsPerPage) || 1;
 
   const paginatedEmissions = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredTableList.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredTableList, currentPage, itemsPerPage]);
+    return sortedTableList.slice(startIndex, startIndex + itemsPerPage);
+  }, [sortedTableList, currentPage, itemsPerPage]);
 
   // Production Streams
   const productionStreams = [
@@ -527,7 +268,25 @@ export const AnnualEmissionDataView: React.FC = () => {
   const [internalReviewProcedures, setInternalReviewProcedures] = useState<any[]>([defaultInternalReviewProcedureRow]);
   const [internalReviewFiles, setInternalReviewFiles] = useState<{ id: string; name: string; size: string; uploadDate: string }[]>([]);
   const internalReviewInputRef = useRef<HTMLInputElement>(null);
+  const [supportingDocsFiles, setSupportingDocsFiles] = useState<{ id: string; name: string; size: string; uploadDate: string }[]>([
+    { id: 'doc-1', name: 'Third-Party-Verification-Statement-2026.pdf', size: '2.4 MB', uploadDate: '21 Sept 2026' },
+    { id: 'doc-2', name: 'CEMS-Calibration-Logs-2026.pdf', size: '1.8 MB', uploadDate: '21 Sept 2026' },
+  ]);
+  const supportingDocsInputRef = useRef<HTMLInputElement>(null);
   const [previewModalFile, setPreviewModalFile] = useState<{ name: string } | null>(null);
+
+  const handleSupportingDocsUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const nowStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const newItems = Array.from(files).map((f) => ({
+      id: `doc-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+      name: f.name,
+      size: `${(f.size / (1024 * 1024)).toFixed(2)} MB`,
+      uploadDate: nowStr,
+    }));
+    setSupportingDocsFiles((prev) => [...prev, ...newItems]);
+  };
 
   const [declarationChecks, setDeclarationChecks] = useState({
     check1: false,
@@ -609,6 +368,15 @@ export const AnnualEmissionDataView: React.FC = () => {
         : [{ ...defaultInternalReviewProcedureRow }]
     );
     setInternalReviewFiles(rec.internalReviewFiles || []);
+    setSupportingDocsFiles(
+      rec.supportingDocsFiles ||
+        (rec.isNew
+          ? []
+          : [
+              { id: 'doc-1', name: 'Third-Party-Verification-Statement-2026.pdf', size: '2.4 MB', uploadDate: '21 Sept 2026' },
+              { id: 'doc-2', name: 'CEMS-Calibration-Logs-2026.pdf', size: '1.8 MB', uploadDate: '21 Sept 2026' },
+            ])
+    );
     setDeclarationChecks(rec.declarationChecks || { check1: false, check2: false, check3: false });
     setDeclarationForm(rec.declarationForm || { name: '', designation: '', date: '21 Sept 2026' });
     setFormReportingYear(rec.reportingYear || '2026');
@@ -624,16 +392,26 @@ export const AnnualEmissionDataView: React.FC = () => {
     });
   };
 
-  // Flow 1: Create New Annual Emission Data Record (Initialized Blank with Placeholders)
+  // Flow 1: Create New Annual Emission Data Record (Initialized with Unique Key)
   const handleEnterEmissionData = () => {
-    const newIndex = Object.keys(facilityEmissions).length + 1;
-    const newId = `fac-${newIndex}`;
-    const formattedCode = String(newIndex).padStart(4, '0');
+    const newEmissionId = `emiss-${Date.now()}`;
+    const operatorFacilities = isFacilityOperator
+      ? (operatorFacilityIds.length > 0 ? facilities.filter((f) => operatorFacilityIds.includes(f.id)) : facilities)
+      : facilities;
+
+    const targetFacility =
+      operatorFacilities.find((f) => f.id === activeFacility?.id) ||
+      operatorFacilities[0] ||
+      facilities[0];
+
+    const reg = (targetFacility && facilityRegistrations[targetFacility.id]) || {};
+    const numCode = Math.floor(1000 + Math.random() * 9000).toString();
+    const facilityCode = reg.facilityId || targetFacility?.facilityCode || `FAC-EAD-2026-${numCode}`;
 
     const blankRecord = {
-      facilityName: '',
-      facilityId: activeFacility?.id && activeFacility.id.startsWith('FAC-') ? activeFacility.id : `FAC-EAD-2026-${formattedCode}`,
-      operatorName: activeFacility?.operatorName || 'Authorized Operator',
+      facilityName: reg.facilityName || targetFacility?.name || 'Registered Facility',
+      facilityId: facilityCode,
+      operatorName: reg.operatorName || targetFacility?.operatorName || 'Authorized Operator',
       reportingYear: '2026',
       version: 'V1',
       status: 'Draft',
@@ -645,10 +423,10 @@ export const AnnualEmissionDataView: React.FC = () => {
       submittedDate: null,
       updatedDate: null,
       eadCorrectionDate: null,
-      businessSector: activeFacility?.sector || 'Energy',
-      primaryActivity: activeFacility?.primaryActivity || '',
+      businessSector: reg.reportingSector || targetFacility?.sector || 'Energy',
+      primaryActivity: reg.primaryActivity || targetFacility?.primaryActivity || '',
       operationalStatus: 'Operational',
-      monitoringPlanRef: `MP-2026-${formattedCode} (Approved)`,
+      monitoringPlanRef: `MP-2026-${numCode} (Approved)`,
       isNew: true,
       monitoringMethods: {
         calcSourceStreams: [{ id: 'F01', desc: '', estimatedEmissions: '', selectedCategory: '' }],
@@ -675,16 +453,17 @@ export const AnnualEmissionDataView: React.FC = () => {
       qaDiagramFiles: [],
       internalReviewProcedures: [{ ...defaultInternalReviewProcedureRow }],
       internalReviewFiles: [],
+      supportingDocsFiles: [],
       declarationChecks: { check1: false, check2: false, check3: false },
-      declarationForm: { name: '', designation: '', date: '21 Sept 2026' },
+      declarationForm: { name: '', designation: '', date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) },
     };
 
     setFacilityEmissions((prev) => ({
       ...prev,
-      [newId]: blankRecord,
+      [newEmissionId]: blankRecord,
     }));
-    setSelectedFacilityId(newId);
-    setActiveFacilityId(newId);
+    setSelectedFacilityId(newEmissionId);
+    setOperatorEmissionIds((prev) => (prev.includes(newEmissionId) ? prev : [...prev, newEmissionId]));
     loadRecordData(blankRecord);
     setActiveTab('monitoring-methods');
     setViewMode('form');
@@ -722,10 +501,11 @@ export const AnnualEmissionDataView: React.FC = () => {
   );
 
   const handleSave = () => {
+    const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     setFacilityEmissions((prev) => ({
       ...prev,
       [selectedFacilityId]: {
-        ...prev[selectedFacilityId],
+        ...(prev[selectedFacilityId] || currentRecord),
         mitigationMeasures,
         mitigationAdditionalInfo,
         qaVerificationDesc,
@@ -736,28 +516,31 @@ export const AnnualEmissionDataView: React.FC = () => {
         qaDiagramFiles,
         internalReviewProcedures,
         internalReviewFiles,
+        supportingDocsFiles,
         declarationChecks,
         declarationForm,
-        updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+        status: 'Draft',
+        updatedDate: todayStr,
       },
     }));
+    setOperatorEmissionIds((prev) => (prev.includes(selectedFacilityId) ? prev : [...prev, selectedFacilityId]));
+    setAnnualEmissionStatus?.('Draft');
     setIsSavedNotice(true);
-    setNoticeMessage('Annual Emission Data Saved!');
+    setNoticeMessage('Annual Emission Data Saved as Draft!');
     setTimeout(() => setIsSavedNotice(false), 3000);
+    setViewMode('table');
   };
 
   const handleSubmit = () => {
     if (!isDeclarationComplete) return;
-    setIsSavedNotice(true);
-    setNoticeMessage('Annual Emission Data Submitted Successfully!');
-    setTimeout(() => setIsSavedNotice(false), 3500);
-
+    const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     setFacilityEmissions((prev) => ({
       ...prev,
       [selectedFacilityId]: {
-        ...prev[selectedFacilityId],
-        status: 'Submitted (Pending Verification)',
-        submittedDate: '21-Sep-2026',
+        ...(prev[selectedFacilityId] || currentRecord),
+        status: 'Submitted',
+        submittedDate: todayStr,
+        updatedDate: todayStr,
         mitigationMeasures,
         mitigationAdditionalInfo,
         qaVerificationDesc,
@@ -768,57 +551,84 @@ export const AnnualEmissionDataView: React.FC = () => {
         qaDiagramFiles,
         internalReviewProcedures,
         internalReviewFiles,
+        supportingDocsFiles,
         declarationChecks,
         declarationForm,
       },
     }));
-    setAnnualEmissionStatus('Submitted');
-    setVerificationStatus('Verification In Progress');
+    setOperatorEmissionIds((prev) => (prev.includes(selectedFacilityId) ? prev : [...prev, selectedFacilityId]));
+    setAnnualEmissionStatus?.('Submitted');
+    setVerificationStatus?.('Verification In Progress');
+    setIsSavedNotice(true);
     setNoticeMessage('Annual Emission Data Submitted for Third-Party Verification!');
-    setIsSavedNotice(true);
     setTimeout(() => setIsSavedNotice(false), 3500);
+    setViewMode('table');
   };
 
-  const handleApprove = () => {
-    updateCurrentRecord((r) => ({
-      ...r,
-      status: 'Approved',
-      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-    }));
-    setAnnualEmissionStatus?.('Approved');
-    setIsSavedNotice(true);
-    setNoticeMessage('Annual Emission Data Approved!');
-    setTimeout(() => setIsSavedNotice(false), 3500);
-  };
-
-  const handleReject = () => {
-    updateCurrentRecord((r) => ({
-      ...r,
-      status: 'Rejected',
-      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-    }));
-    setAnnualEmissionStatus?.('Rejected');
-    setIsSavedNotice(true);
-    setNoticeMessage('Annual Emission Data Rejected.');
-    setTimeout(() => setIsSavedNotice(false), 3500);
-  };
-
-  const handleRevert = () => {
-    updateCurrentRecord((r) => ({
-      ...r,
-      status: 'Reverted',
-      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-    }));
-    setAnnualEmissionStatus?.('Reverted');
-    setIsSavedNotice(true);
-    setNoticeMessage('Annual Emission Data Reverted for Correction.');
-    setTimeout(() => setIsSavedNotice(false), 3500);
+  const handleDeleteEmissionData = (facId: string, facilityName: string) => {
+    if (window.confirm(`Are you sure you want to delete draft emission data for "${facilityName}"?`)) {
+      setFacilityEmissions((prev) => {
+        const copy = { ...prev };
+        delete copy[facId];
+        return copy;
+      });
+      setOperatorEmissionIds((prev) => prev.filter((id) => id !== facId));
+      setIsSavedNotice(true);
+      setNoticeMessage('Draft Emission Data Deleted');
+      setTimeout(() => setIsSavedNotice(false), 3000);
+    }
   };
 
   // =========================================================================
   // 1. OVERVIEW TABLE VIEW (viewMode === 'table')
   // =========================================================================
   if (viewMode === 'table') {
+    // Clean Empty State for Data Provider with no annual emission record
+    if (isFacilityOperator && operatorEmissionIds.length === 0 && !tableSearchTerm && statusFilter === 'ALL' && yearFilter === 'ALL') {
+      return (
+        <div className="h-full flex flex-col font-sans py-1">
+          {/* Header */}
+          <div className="flex-shrink-0 pb-[18px] pt-0.5 flex items-center justify-between gap-3">
+            <div>
+              <h1 className="text-[18px] font-bold font-display text-[#336D9F] tracking-tight whitespace-nowrap">
+                Annual Emission Data
+              </h1>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Facility GHG Emissions Data — Annual activity data, calculated Scope 1 emissions, and third-party verification workflow
+              </p>
+            </div>
+          </div>
+
+          {/* White Color Frame till half */}
+          <div className="w-full bg-white rounded-xl border border-slate-200/90 shadow-xs flex flex-col items-center justify-center py-12 px-6">
+            <div className="flex flex-col items-center text-center max-w-md">
+              <img
+                src={emptyFolderIcon}
+                alt="No Annual Emission Data"
+                className="w-[84px] h-[74px] object-contain mb-3.5 select-none"
+                draggable={false}
+              />
+
+              <h2 className="text-[15px] font-bold text-[#336D9F] tracking-tight">
+                No Annual Emission Data
+              </h2>
+              <p className="text-[11.5px] text-slate-500 font-normal mt-1 max-w-sm">
+                You don’t have any annual emission data submitted yet. Please enter your annual emission data to continue.
+              </p>
+
+              <button
+                onClick={handleEnterEmissionData}
+                className="mt-4 h-9 px-4 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-[8px] text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Enter Annual Emission Data</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="h-full flex flex-col overflow-hidden font-sans py-1">
         {/* Top Header Row with Title, Search, Filter & Enter Data Button (Strictly Single Row) */}
@@ -828,31 +638,35 @@ export const AnnualEmissionDataView: React.FC = () => {
               Annual Emission Data
             </h1>
             <p className="text-xs text-slate-500 font-medium mt-0.5 truncate max-w-lg xl:max-w-xl">
-              Facility GHG Emissions Data — Annual activity data, calculated Scope 1 emissions, and third-party verification workflow
+              {isEadReviewerOrAdmin
+                ? 'Regulated Facilities GHG Emissions & Statutory Reporting Oversight'
+                : 'Facility GHG Emissions Data — Annual activity data, calculated Scope 1 emissions, and third-party verification workflow'}
             </p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0 flex-nowrap">
             {/* Search Box */}
             <div className="relative w-36 sm:w-44 xl:w-48">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search by facility, ID, operator..."
-                value={tableSearchTerm}
-                onChange={(e) => {
-                  setTableSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full h-9 pl-8 pr-7 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all font-medium shadow-xs"
-              />
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 z-10 pointer-events-none" />
+              <FieldTooltip content="Filter records by facility name, facility ID, or operator name.">
+                <input
+                  type="text"
+                  placeholder="Search by facility, ID, operator..."
+                  value={tableSearchTerm}
+                  onChange={(e) => {
+                    setTableSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full h-9 pl-8 pr-7 py-1.5 bg-white border border-slate-300 rounded-[8px] text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all font-medium shadow-xs"
+                />
+              </FieldTooltip>
               {tableSearchTerm && (
                 <button
                   onClick={() => {
                     setTableSearchTerm('');
                     setCurrentPage(1);
                   }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer z-10"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -861,39 +675,40 @@ export const AnnualEmissionDataView: React.FC = () => {
 
             {/* Status Filter */}
             <div className="relative">
-              <select
-                value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-28 sm:w-36 h-9 px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer truncate"
-              >
-                <option value="ALL">All Statuses</option>
-                <option value="Approved">Approved</option>
-                <option value="Rejected">Rejected</option>
-                <option value="Reverted">Reverted</option>
-                <option value="Submitted">Submitted</option>
-                <option value="Draft">Draft</option>
-                <option value="Correction Required">Correction Required</option>
-              </select>
+              <FieldTooltip content="Filter submissions by workflow approval status.">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-28 sm:w-36 h-9 px-2.5 py-1.5 bg-white border border-slate-300 rounded-[8px] text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer truncate"
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="Approved">Approved</option>
+                  <option value="Submitted">Submitted</option>
+                  <option value="Draft">Draft</option>
+                </select>
+              </FieldTooltip>
             </div>
 
             {/* Year Filter */}
             <div className="relative">
-              <select
-                value={yearFilter}
-                onChange={(e) => {
-                  setYearFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-24 sm:w-26 h-9 px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer truncate"
-              >
-                <option value="ALL">All Years</option>
-                <option value="2026">2026</option>
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-              </select>
+              <FieldTooltip content="Filter annual emission reports by reporting compliance year.">
+                <select
+                  value={yearFilter}
+                  onChange={(e) => {
+                    setYearFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-24 sm:w-26 h-9 px-2.5 py-1.5 bg-white border border-slate-300 rounded-[8px] text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer truncate"
+                >
+                  <option value="ALL">All Years</option>
+                  <option value="2026">2026</option>
+                  <option value="2025">2025</option>
+                  <option value="2024">2024</option>
+                </select>
+              </FieldTooltip>
             </div>
 
             {/* Reset */}
@@ -905,7 +720,7 @@ export const AnnualEmissionDataView: React.FC = () => {
                   setYearFilter('ALL');
                   setCurrentPage(1);
                 }}
-                className="h-9 px-2.5 text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 font-semibold transition-colors flex items-center gap-1 cursor-pointer text-xs"
+                className="h-9 px-2.5 text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 rounded-[8px] border border-slate-200 font-semibold transition-colors flex items-center gap-1 cursor-pointer text-xs"
                 title="Reset all filters"
               >
                 <RotateCcw className="w-3 h-3" />
@@ -913,14 +728,16 @@ export const AnnualEmissionDataView: React.FC = () => {
               </button>
             )}
 
-            {/* Enter Emission Data Button */}
-            <button
-              onClick={handleEnterEmissionData}
-              className="h-9 px-4 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Enter Emission Data</span>
-            </button>
+            {/* Enter Emission Data Button (Only for Data Provider) */}
+            {isFacilityOperator && (
+              <button
+                onClick={handleEnterEmissionData}
+                className="h-9 px-4 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-[8px] text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Enter Emission Data</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -928,22 +745,85 @@ export const AnnualEmissionDataView: React.FC = () => {
         <div className="flex flex-col flex-1 min-h-0 justify-between overflow-hidden">
           <div className="flex-1 min-h-0 overflow-hidden rounded-xl border border-slate-200/90 bg-white shadow-xs">
             <table className="w-full text-left text-xs border-collapse">
-              <thead className="sticky top-0 z-20 bg-[#D6E3EF] shadow-xs">
+              <thead className="sticky top-0 z-20 bg-[#D6E3EF] shadow-xs select-none">
                 <tr className="h-[38px] bg-[#D6E3EF] text-slate-800 font-bold text-xs border-b border-[#5B88B0]/30">
-                  <th className="h-[38px] px-3 w-10 text-center align-middle bg-[#D6E3EF]">#</th>
-                  <th className="h-[38px] px-3 w-[26%] align-middle bg-[#D6E3EF]">Facility Name</th>
-                  <th className="h-[38px] px-3 w-[16%] whitespace-nowrap align-middle bg-[#D6E3EF]">Facility ID</th>
-                  <th className="h-[38px] px-3 w-[12%] whitespace-nowrap text-center align-middle bg-[#D6E3EF]">Reporting Year</th>
-                  <th className="h-[38px] px-3 w-[20%] whitespace-nowrap text-center align-middle bg-[#D6E3EF]">Total Scope 1 (tCO₂e)</th>
-                  <th className="h-[38px] px-3 w-14 whitespace-nowrap align-middle bg-[#D6E3EF]">Submitted Date</th>
-                  <th className="h-[38px] px-2.5 w-28 whitespace-nowrap text-left align-middle bg-[#D6E3EF]">Status</th>
-                  <th className="h-[38px] px-3 w-20 text-center whitespace-nowrap align-middle bg-[#D6E3EF]">Actions</th>
+                  <th
+                    onClick={() => handleSort('index')}
+                    className="h-[38px] px-3 w-[5%] text-center align-middle bg-[#D6E3EF] hover:bg-[#C8D9E8] transition-colors cursor-pointer group"
+                    title="Sort by Number"
+                  >
+                    <div className="flex items-center justify-center">
+                      <span>#</span>
+                      <SortTriangles active={sortField === 'index'} direction={sortDirection} />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('name')}
+                    className="h-[38px] px-3 w-[18%] align-middle bg-[#D6E3EF] hover:bg-[#C8D9E8] transition-colors cursor-pointer group"
+                    title="Sort by Facility Name"
+                  >
+                    <div className="flex items-center">
+                      <span>Facility Name</span>
+                      <SortTriangles active={sortField === 'name'} direction={sortDirection} />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('id')}
+                    className="h-[38px] px-3 w-[16%] whitespace-nowrap align-middle bg-[#D6E3EF] hover:bg-[#C8D9E8] transition-colors cursor-pointer group"
+                    title="Sort by Facility ID"
+                  >
+                    <div className="flex items-center">
+                      <span>Facility ID</span>
+                      <SortTriangles active={sortField === 'id'} direction={sortDirection} />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('year')}
+                    className="h-[38px] px-3 w-[12%] whitespace-nowrap text-center align-middle bg-[#D6E3EF] hover:bg-[#C8D9E8] transition-colors cursor-pointer group"
+                    title="Sort by Reporting Year"
+                  >
+                    <div className="flex items-center justify-center">
+                      <span>Reporting Year</span>
+                      <SortTriangles active={sortField === 'year'} direction={sortDirection} />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('emissions')}
+                    className="h-[38px] px-3 w-[18%] whitespace-nowrap text-center align-middle bg-[#D6E3EF] hover:bg-[#C8D9E8] transition-colors cursor-pointer group"
+                    title="Sort by Total Scope 1 Emissions"
+                  >
+                    <div className="flex items-center justify-center">
+                      <span>Total Scope 1 (tCO₂e)</span>
+                      <SortTriangles active={sortField === 'emissions'} direction={sortDirection} />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('submittedDate')}
+                    className="h-[38px] px-3 w-[14%] whitespace-nowrap align-middle bg-[#D6E3EF] hover:bg-[#C8D9E8] transition-colors cursor-pointer group"
+                    title="Sort by Submitted Date"
+                  >
+                    <div className="flex items-center">
+                      <span>Submitted Date</span>
+                      <SortTriangles active={sortField === 'submittedDate'} direction={sortDirection} />
+                    </div>
+                  </th>
+                  <th
+                    onClick={() => handleSort('status')}
+                    className="h-[38px] px-2.5 w-[11%] whitespace-nowrap text-left align-middle bg-[#D6E3EF] hover:bg-[#C8D9E8] transition-colors cursor-pointer group"
+                    title="Sort by Status"
+                  >
+                    <div className="flex items-center">
+                      <span>Status</span>
+                      <SortTriangles active={sortField === 'status'} direction={sortDirection} />
+                    </div>
+                  </th>
+                  <th className="h-[38px] px-3 w-[6%] text-center whitespace-nowrap align-middle bg-[#D6E3EF]">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+              <tbody className="divide-y divide-slate-100 font-normal text-slate-700">
                 {paginatedEmissions.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="h-[60px] py-8 text-center text-slate-400 font-semibold align-middle">
+                    <td colSpan={8} className="h-[60px] py-8 text-center text-slate-400 font-normal align-middle">
                       No annual emission records match the selected filter criteria.
                     </td>
                   </tr>
@@ -956,27 +836,27 @@ export const AnnualEmissionDataView: React.FC = () => {
                         key={facId}
                         className={`h-[60px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}
                       >
-                        <td className="h-[60px] px-3 text-center font-mono font-bold text-slate-400 align-middle">
+                        <td className="h-[60px] px-3 text-center font-mono font-normal text-slate-400 align-middle">
                           {rowNumber}
                         </td>
 
                         {/* Facility Name */}
-                        <td className="h-[60px] px-3 font-semibold text-slate-800 leading-snug align-middle">
+                        <td className="h-[60px] px-3 font-normal text-slate-800 leading-snug align-middle">
                           <span>{rec.facilityName}</span>
                         </td>
 
                         {/* Facility ID */}
-                        <td className="h-[60px] px-3 font-mono text-[#004B87] font-semibold whitespace-nowrap align-middle">
-                          {rec.facilityId || '—'}
+                        <td className="h-[60px] px-3 font-mono text-[#004B87] font-bold whitespace-nowrap align-middle">
+                          {rec.facilityId ? <span className="font-bold tracking-tight">{rec.facilityId}</span> : <span className="text-slate-400 font-normal">—</span>}
                         </td>
 
                         {/* Reporting Year */}
-                        <td className="h-[60px] px-3 text-center font-semibold text-slate-700 whitespace-nowrap align-middle">
+                        <td className="h-[60px] px-3 text-center font-normal text-slate-700 whitespace-nowrap align-middle">
                           {rec.reportingYear || '2026'}
                         </td>
 
                         {/* Total Scope 1 (tCO₂e) */}
-                        <td className="h-[60px] px-3 font-mono font-bold text-[#004B87] text-center whitespace-nowrap align-middle">
+                        <td className="h-[60px] px-3 font-mono font-normal text-[#004B87] text-center whitespace-nowrap align-middle">
                           {rec.totalScope1 ? `${rec.totalScope1}` : '—'}
                         </td>
 
@@ -995,42 +875,69 @@ export const AnnualEmissionDataView: React.FC = () => {
                         {/* Status */}
                         <td className="h-[60px] px-2.5 text-left whitespace-nowrap align-middle">
                           <span
-                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap inline-block ${
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-normal whitespace-nowrap inline-block ${
                               rec.status === 'Approved' || rec.status === 'Verified' || rec.status === 'EAD Approved'
                                 ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
                                 : rec.status === 'Submitted' || rec.status?.includes('Submitted')
                                 ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
-                                : rec.status === 'Correction Required'
-                                ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80'
-                                : rec.status === 'Reverted'
-                                ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80'
-                                : rec.status === 'Rejected'
-                                ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60'
                                 : 'bg-slate-100 text-slate-700 border border-slate-200'
                             }`}
                           >
-                            {rec.status}
+                            {rec.status === 'Approved' || rec.status === 'Verified' || rec.status === 'EAD Approved'
+                              ? 'Approved'
+                              : rec.status === 'Submitted' || rec.status?.includes('Submitted')
+                              ? 'Submitted'
+                              : 'Draft'}
                           </span>
                         </td>
 
-                        {/* Actions: Eye View & Edit Icon Buttons */}
+                        {/* Actions: View / Edit / Delete for Operator vs View / Review for Admin */}
                         <td className="h-[60px] px-3 text-center whitespace-nowrap align-middle">
-                          <div className="flex items-center justify-center gap-1.5">
-                            <button
-                              onClick={() => handleViewEmissionData(facId)}
-                              title="View Annual Emission Details"
-                              className="p-1 rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleEditEmissionData(facId)}
-                              title="Edit Annual Emission Data"
-                              className="p-1 rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                          </div>
+                          {isFacilityOperator ? (
+                            <div className="flex items-center justify-center gap-1.5 w-[76px] mx-auto">
+                              {/* Slot 1: View */}
+                              <button
+                                onClick={() => handleViewEmissionData(facId)}
+                                title="View Annual Emission Details"
+                                className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+
+                              {/* Slot 2: Edit */}
+                              <button
+                                onClick={() => handleEditEmissionData(facId)}
+                                title="Edit Annual Emission Data"
+                                className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+
+                              {/* Slot 3: Delete (Only for Draft status, empty slot otherwise) */}
+                              {rec.status === 'Draft' || !rec.status ? (
+                                <button
+                                  onClick={() => handleDeleteEmissionData(facId, rec.facilityName || 'Draft Emission Record')}
+                                  title="Delete Draft Emission Data"
+                                  className="w-6 h-6 flex items-center justify-center rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer shrink-0"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              ) : (
+                                <div className="w-6 h-6 shrink-0" aria-hidden="true" />
+                              )}
+                            </div>
+                          ) : (
+                            /* Admin Actions: Inspection & Review */
+                            <div className="flex items-center justify-center mx-auto">
+                              <button
+                                onClick={() => handleViewEmissionData(facId)}
+                                title="Review & Audit Emission Dossier"
+                                className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500 hover:text-[#004B87] hover:bg-[#E9F1F8] transition-colors cursor-pointer shrink-0"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     );
@@ -1113,9 +1020,10 @@ export const AnnualEmissionDataView: React.FC = () => {
   if (viewMode === 'view') {
     return (
       <div className="h-full flex flex-col overflow-hidden font-sans py-0.5">
-        {/* Top Action Header */}
-        <div className="flex-shrink-0 flex items-center justify-between gap-3 pb-[18px] pt-0.5">
-          <div>
+        {/* Top Header Bar with Title, Status Chip, Facility Name, and Reporting Year Below Title */}
+        <div className="flex-shrink-0 flex flex-col gap-2 pb-3.5 pt-0.5">
+          {/* Row 1: Back Arrow, Title, Status Chip, Read-Only Badge, Save Notice & Edit Data Button */}
+          <div className="flex items-center justify-between gap-3 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => setViewMode('table')}
@@ -1124,8 +1032,8 @@ export const AnnualEmissionDataView: React.FC = () => {
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
-              <h1 className="text-[18px] font-bold font-display text-[#336D9F] tracking-tight">
-                {currentRecord.facilityName || 'Facility'} — Annual Emission Data (Read-Only)
+              <h1 className="text-[18px] font-bold font-display text-[#336D9F] tracking-tight whitespace-nowrap">
+                Annual Emission Data
               </h1>
               <span
                 className={`px-3 py-0.5 rounded-full text-xs font-bold tracking-wide transition-all shrink-0 ${
@@ -1133,36 +1041,70 @@ export const AnnualEmissionDataView: React.FC = () => {
                     ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
                     : currentRecord.status === 'Submitted' || currentRecord.status?.includes('Submitted')
                     ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
-                    : currentRecord.status === 'Correction Required' || currentRecord.status === 'Reverted'
-                    ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
-                    : currentRecord.status === 'Rejected'
-                    ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 font-bold'
                     : 'bg-slate-100 text-slate-700 border border-slate-200'
                 }`}
               >
-                {currentRecord.status || 'Draft'}
+                {currentRecord.status === 'Approved' || currentRecord.status === 'Verified' || currentRecord.status === 'EAD Approved'
+                  ? 'Approved'
+                  : currentRecord.status === 'Submitted' || currentRecord.status?.includes('Submitted')
+                  ? 'Submitted'
+                  : 'Draft'}
               </span>
             </div>
-            <p className="text-xs text-slate-500 font-medium mt-0.5 ml-7">
-              {currentRecord.facilityName || 'Unnamed Facility'} ({currentRecord.facilityId || '—'}) • Reporting Year: {currentRecord.reportingYear || '2026'} • Version: {formatVersion(currentRecord.version)}
-            </p>
+
+            <div className="flex items-center gap-2.5">
+              {isSavedNotice && (
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs font-bold animate-fade-in shrink-0">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{noticeMessage}</span>
+                </div>
+              )}
+
+              {isFacilityOperator && (
+                <button
+                  onClick={() => setViewMode('form')}
+                  className="px-4 py-1.5 bg-[#004B87] text-white rounded-xl text-xs font-bold hover:bg-[#003a6b] flex items-center gap-1.5 shadow-sm transition-all cursor-pointer shrink-0"
+                >
+                  <Edit className="w-3.5 h-3.5" />
+                  <span>Edit Data</span>
+                </button>
+              )}
+            </div>
           </div>
 
-          {isSavedNotice && (
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs font-bold animate-fade-in shrink-0">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>{noticeMessage}</span>
+          {/* Row 2: Facility Name & Calendar Year below title (Consistent with Create/Edit Form) */}
+          <div className="flex items-center gap-4 flex-wrap pt-0.5">
+            {/* Facility Name Field (Read-Only) */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Facility Name</label>
+              <div className="relative">
+                <FieldTooltip content="Name of the reporting industrial facility.">
+                  <input
+                    type="text"
+                    readOnly
+                    disabled
+                    value={currentRecord.facilityName || ''}
+                    className="w-64 sm:w-80 h-9 px-3.5 bg-[#F1F5F9] border border-slate-200/90 rounded-xl text-xs text-slate-800 font-bold shadow-2xs cursor-not-allowed select-none"
+                  />
+                </FieldTooltip>
+              </div>
             </div>
-          )}
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setViewMode('form')}
-              className="px-4 py-1.5 bg-[#004B87] text-white rounded-xl text-xs font-bold hover:bg-[#003a6b] flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-            >
-              <Edit className="w-3.5 h-3.5" />
-              <span>Edit Data</span>
-            </button>
+            {/* Calendar Year Field (Read-Only) */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Calendar Year</label>
+              <div className="relative">
+                <FieldTooltip content="Designated statutory MRV reporting compliance calendar year.">
+                  <input
+                    type="text"
+                    readOnly
+                    disabled
+                    value={currentRecord.reportingYear || '2026'}
+                    className="w-36 h-9 px-3.5 bg-[#F1F5F9] border border-slate-200/90 rounded-xl text-xs text-slate-800 font-bold shadow-2xs cursor-not-allowed select-none"
+                  />
+                </FieldTooltip>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1170,12 +1112,12 @@ export const AnnualEmissionDataView: React.FC = () => {
         <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
           {/* Sticky Tabs Navigation Bar (Fixed at top, outside scroll area) */}
           <div className="flex-shrink-0 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-2.5">
-            <div className="inline-flex items-center gap-1 p-1 bg-[#EAEFF4] border border-[#D5E0EA] rounded-[6px] shadow-2xs">
+            <div className="inline-flex items-center gap-1 p-1 bg-white border border-slate-200 rounded-[6px] shadow-2xs">
               {[
                 { id: 'monitoring-methods', label: 'Monitoring Methods', icon: Activity },
                 { id: 'mitigation-measures', label: 'Mitigation Measures', icon: BarChart3 },
                 { id: 'qa-qc', label: 'Data Management & QA/QC', icon: ShieldCheck },
-                { id: 'review-submit', label: 'Review & Submit', icon: CheckCircle2 },
+                { id: 'review-submit', label: 'Support Documents & Submit', icon: CheckCircle2 },
               ].map((tab) => {
                 const IconComponent = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -1246,25 +1188,25 @@ export const AnnualEmissionDataView: React.FC = () => {
                           <tbody className="divide-y divide-slate-100 bg-white">
                             {!currentRecord.mitigationMeasures || currentRecord.mitigationMeasures.length === 0 || !currentRecord.mitigationMeasures.some((m: any) => m.description || m.reportingYearReduction) ? (
                               <tr>
-                                <td colSpan={11} className="py-6 text-center text-slate-400 font-medium">
+                                <td colSpan={11} className="py-6 text-center text-slate-400 font-normal">
                                   No greenhouse gas mitigation measures recorded for this facility.
                                 </td>
                               </tr>
                             ) : (
                               currentRecord.mitigationMeasures.map((m: any, idx: number) => (
                                 <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                  <td className="py-2 px-3 font-semibold text-slate-900">{m.description || '—'}</td>
+                                  <td className="py-2 px-3 font-normal text-slate-900">{m.description || '—'}</td>
                                   <td className="py-2 px-3 text-slate-800">{m.category || '—'}</td>
                                   <td className="py-2 px-3 text-slate-800">{m.scope || '—'}</td>
                                   <td className="py-2 px-3 text-slate-800">{m.ghg || '—'}</td>
                                   <td className="py-2 px-3 text-slate-800">{m.startYear || '—'}</td>
                                   <td className="py-2 px-3">
-                                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-normal bg-emerald-50 text-emerald-700 border border-emerald-200">
                                       {m.status || 'Planned'}
                                     </span>
                                   </td>
                                   <td className="py-2 px-3 text-slate-800">{m.preMeasureRef || '—'}</td>
-                                  <td className="py-2 px-3 font-mono font-bold text-[#004B87]">{m.reportingYearReduction ? `${m.reportingYearReduction} tCO₂e/yr` : '—'}</td>
+                                  <td className="py-2 px-3 font-mono font-normal text-[#004B87]">{m.reportingYearReduction ? `${m.reportingYearReduction} tCO₂e/yr` : '—'}</td>
                                   <td className="py-2 px-3 font-mono text-slate-800">{m.expectedAnnualReduction ? `${m.expectedAnnualReduction} tCO₂e/yr` : '—'}</td>
                                   <td className="py-2 px-3 text-slate-700">{m.methodology || '—'}</td>
                                   <td className="py-2 px-3 text-slate-700">{m.verification || '—'}</td>
@@ -1322,18 +1264,18 @@ export const AnnualEmissionDataView: React.FC = () => {
                           <tbody className="divide-y divide-slate-100 bg-white">
                             {!currentRecord.qaDataGaps || currentRecord.qaDataGaps.length === 0 || !currentRecord.qaDataGaps.some((g: any) => g.sourceStream || g.description) ? (
                               <tr>
-                                <td colSpan={6} className="py-5 text-center text-slate-400 font-medium">
+                                <td colSpan={6} className="py-5 text-center text-slate-400 font-normal">
                                   No data gaps reported for this reporting period.
                                 </td>
                               </tr>
                             ) : (
                               currentRecord.qaDataGaps.map((gap: any, idx: number) => (
                                 <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                  <td className="py-2.5 px-3 font-semibold text-slate-900">{gap.sourceStream || '—'}</td>
+                                  <td className="py-2.5 px-3 font-normal text-slate-900">{gap.sourceStream || '—'}</td>
                                   <td className="py-2.5 px-3 text-slate-700">{gap.fromDate || '—'}</td>
                                   <td className="py-2.5 px-3 text-slate-700">{gap.untilDate || '—'}</td>
                                   <td className="py-2.5 px-3 text-slate-800">{gap.description || '—'}</td>
-                                  <td className="py-2.5 px-3 font-mono font-bold text-[#004B87]">{gap.estimatedEmissions ? `${gap.estimatedEmissions} tCO₂e` : '—'}</td>
+                                  <td className="py-2.5 px-3 font-mono font-normal text-[#004B87]">{gap.estimatedEmissions ? `${gap.estimatedEmissions} tCO₂e` : '—'}</td>
                                   <td className="py-2.5 px-3 text-slate-700">{gap.sourceOfEstimate || '—'}</td>
                                 </tr>
                               ))
@@ -1361,14 +1303,14 @@ export const AnnualEmissionDataView: React.FC = () => {
                           <tbody className="divide-y divide-slate-100 bg-white">
                             {!currentRecord.qaManagementResp || currentRecord.qaManagementResp.length === 0 || !currentRecord.qaManagementResp.some((r: any) => r.jobTitle || r.responsibilities) ? (
                               <tr>
-                                <td colSpan={2} className="py-5 text-center text-slate-400 font-medium">
+                                <td colSpan={2} className="py-5 text-center text-slate-400 font-normal">
                                   No management responsibilities defined.
                                 </td>
                               </tr>
                             ) : (
                               currentRecord.qaManagementResp.map((resp: any, idx: number) => (
                                 <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                  <td className="py-2.5 px-3 font-semibold text-slate-900">{resp.jobTitle || '—'}</td>
+                                  <td className="py-2.5 px-3 font-normal text-slate-900">{resp.jobTitle || '—'}</td>
                                   <td className="py-2.5 px-3 text-slate-800">{resp.responsibilities || '—'}</td>
                                 </tr>
                               ))
@@ -1399,15 +1341,15 @@ export const AnnualEmissionDataView: React.FC = () => {
                           <tbody className="divide-y divide-slate-100 bg-white">
                             {!currentRecord.qaProcedures || currentRecord.qaProcedures.length === 0 || !currentRecord.qaProcedures.some((p: any) => p.procedureTitle || p.reference) ? (
                               <tr>
-                                <td colSpan={5} className="py-5 text-center text-slate-400 font-medium">
+                                <td colSpan={5} className="py-5 text-center text-slate-400 font-normal">
                                   No QA procedures configured.
                                 </td>
                               </tr>
                             ) : (
                               currentRecord.qaProcedures.map((proc: any, idx: number) => (
                                 <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                  <td className="py-2.5 px-3 font-semibold text-slate-900">{proc.procedureTitle || '—'}</td>
-                                  <td className="py-2.5 px-3 font-mono text-[#004B87] font-semibold">{proc.reference || '—'}</td>
+                                  <td className="py-2.5 px-3 font-normal text-slate-900">{proc.procedureTitle || '—'}</td>
+                                  <td className="py-2.5 px-3 font-mono text-[#004B87] font-normal">{proc.reference || '—'}</td>
                                   <td className="py-2.5 px-3 text-slate-800">{proc.briefDescription || '—'}</td>
                                   <td className="py-2.5 px-3 text-slate-700">{proc.responsibleDept || '—'}</td>
                                   <td className="py-2.5 px-3 text-slate-700">{proc.recordStorage || '—'}</td>
@@ -1430,14 +1372,14 @@ export const AnnualEmissionDataView: React.FC = () => {
                                     <FileText className="w-4 h-4" />
                                   </div>
                                   <div className="truncate">
-                                    <p className="text-xs font-semibold text-slate-800 truncate">{f.name}</p>
+                                    <p className="text-xs font-normal text-slate-800 truncate">{f.name}</p>
                                     <p className="text-[10px] text-slate-500">{f.size} • {f.uploadDate}</p>
                                   </div>
                                 </div>
                                 <button
                                   type="button"
                                   onClick={() => setPreviewModalFile({ name: f.name })}
-                                  className="px-2.5 py-1 text-slate-600 hover:text-[#004B87] hover:bg-white rounded-md text-xs font-medium flex items-center gap-1 border border-slate-200 cursor-pointer"
+                                  className="px-2.5 py-1 text-slate-600 hover:text-[#004B87] hover:bg-white rounded-md text-xs font-normal flex items-center gap-1 border border-slate-200 cursor-pointer"
                                 >
                                   <Eye className="w-3 h-3" />
                                   Preview
@@ -1470,15 +1412,15 @@ export const AnnualEmissionDataView: React.FC = () => {
                           <tbody className="divide-y divide-slate-100 bg-white">
                             {!currentRecord.internalReviewProcedures || currentRecord.internalReviewProcedures.length === 0 || !currentRecord.internalReviewProcedures.some((p: any) => p.procedureTitle || p.reference) ? (
                               <tr>
-                                <td colSpan={5} className="py-5 text-center text-slate-400 font-medium">
+                                <td colSpan={5} className="py-5 text-center text-slate-400 font-normal">
                                   No internal review procedures configured.
                                 </td>
                               </tr>
                             ) : (
                               currentRecord.internalReviewProcedures.map((proc: any, idx: number) => (
                                 <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                  <td className="py-2.5 px-3 font-semibold text-slate-900">{proc.procedureTitle || '—'}</td>
-                                  <td className="py-2.5 px-3 font-mono text-[#004B87] font-semibold">{proc.reference || '—'}</td>
+                                  <td className="py-2.5 px-3 font-normal text-slate-900">{proc.procedureTitle || '—'}</td>
+                                  <td className="py-2.5 px-3 font-mono text-[#004B87] font-normal">{proc.reference || '—'}</td>
                                   <td className="py-2.5 px-3 text-slate-800">{proc.briefDescription || '—'}</td>
                                   <td className="py-2.5 px-3 text-slate-700">{proc.responsibleDept || '—'}</td>
                                   <td className="py-2.5 px-3 text-slate-700">{proc.recordStorage || '—'}</td>
@@ -1531,75 +1473,47 @@ export const AnnualEmissionDataView: React.FC = () => {
                 </div>
               )}
 
-              {/* TAB 4: REVIEW & SUBMIT (READ-ONLY) */}
+              {/* TAB 4: SUPPORT DOCUMENTS & SUBMIT (READ-ONLY) */}
               {activeTab === 'review-submit' && (
-                <div className="space-y-[18px]">
-                  {/* Section 1: Submission Summary */}
-                  <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-                    <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#336D9F]">Submission Summary</span>
-                    </div>
-                    <div className="p-3.5 sm:p-4 bg-white">
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-4 gap-x-6">
-                        <div>
-                          <span className="block text-[11px] text-slate-400 font-medium">Facility / Plant Name</span>
-                          <span className="font-semibold text-slate-800 text-xs">{currentRecord.facilityName || '—'}</span>
-                        </div>
-                        <div>
-                          <span className="block text-[11px] text-slate-400 font-medium">Facility ID</span>
-                          <span className="font-semibold text-slate-800 text-xs font-mono">{currentRecord.facilityId || '—'}</span>
-                        </div>
-                        <div>
-                          <span className="block text-[11px] text-slate-400 font-medium">Reporting Year</span>
-                          <span className="font-semibold text-slate-800 text-xs">{currentRecord.reportingYear || '2026'}</span>
-                        </div>
-                        <div>
-                          <span className="block text-[11px] text-slate-400 font-medium">Total Annual Emissions</span>
-                          <span className="font-semibold text-slate-800 text-xs font-mono">{currentRecord.totalScope1 && currentRecord.totalScope1 !== '0' ? `${currentRecord.totalScope1} tCO₂e` : '—'}</span>
-                        </div>
-
-                        <div>
-                          <span className="block text-[11px] text-slate-400 font-medium">Verification Status</span>
-                          <span className="font-semibold text-slate-800 text-xs">
-                            {currentRecord.status === 'Approved' || currentRecord.status === 'Verified' || currentRecord.status === 'EAD Approved'
-                              ? 'Approved & Verified'
-                              : currentRecord.status === 'Submitted'
-                              ? 'Submitted (Under Review)'
-                              : currentRecord.status === 'Correction Required'
-                              ? 'Correction Required'
-                              : currentRecord.status === 'Reverted'
-                              ? 'Reverted for Correction'
-                              : currentRecord.status === 'Rejected'
-                              ? 'Rejected'
-                              : 'Draft / Unsubmitted'}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="block text-[11px] text-slate-400 font-medium">Version</span>
-                          <span className="font-semibold text-slate-800 text-xs">{formatVersion(currentRecord.version)}</span>
-                        </div>
-                        <div>
-                          <span className="block text-[11px] text-slate-400 font-medium">Prepared By</span>
-                          <span className="font-semibold text-slate-800 text-xs">{currentRecord.declarationForm?.name || '—'}</span>
-                        </div>
-                        <div>
-                          <span className="block text-[11px] text-slate-400 font-medium">Designation</span>
-                          <span className="font-semibold text-slate-800 text-xs">{currentRecord.declarationForm?.designation || '—'}</span>
-                        </div>
-
-                        <div>
-                          <span className="block text-[11px] text-slate-400 font-medium">Submission Date</span>
-                          <span className="font-semibold text-slate-800 text-xs">{currentRecord.submittedDate || '—'}</span>
-                        </div>
-                        <div>
-                          <span className="block text-[11px] text-slate-400 font-medium">Current Status</span>
-                          <span className="font-semibold text-slate-800 text-xs">{currentRecord.status || 'Draft'}</span>
-                        </div>
-                        <div>
-                          <span className="block text-[11px] text-slate-400 font-medium">Last Saved On</span>
-                          <span className="font-semibold text-slate-800 text-xs">{currentRecord.updatedDate || '—'}</span>
-                        </div>
-                      </div>
+                <div className="space-y-4 pt-1">
+                  {/* Supporting Documents (Facility Registration Style) */}
+                  <div>
+                    <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">
+                      Supporting Documents
+                    </h4>
+                    <div className="flex-1 min-w-0 flex items-center gap-2.5 overflow-x-auto py-1 no-scrollbar">
+                      {supportingDocsFiles && supportingDocsFiles.length > 0 ? (
+                        supportingDocsFiles.map((file: any, idx: number) => (
+                          <div
+                            key={file.id || idx}
+                            className="border border-slate-200 bg-white rounded-lg py-1.5 px-3 flex items-center gap-2.5 shadow-2xs shrink-0 max-w-[240px]"
+                          >
+                            <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0">
+                              <FileText className="w-3.5 h-3.5 text-rose-600" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="text-xs font-bold text-slate-800 truncate" title={file.name}>
+                                {file.name}
+                              </div>
+                              <div className="text-[10px] text-slate-400 flex items-center gap-1.5 font-medium">
+                                <span>{file.size}</span>
+                                <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                                <span className="text-emerald-600 font-bold">{file.status || 'Verified'}</span>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setPreviewModalFile(file)}
+                              className="p-1 text-slate-400 hover:text-[#004B87] hover:bg-sky-50 rounded-md transition-colors cursor-pointer shrink-0"
+                              title="Preview file"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <span className="text-xs text-slate-400 italic">No files attached</span>
+                      )}
                     </div>
                   </div>
 
@@ -1657,97 +1571,62 @@ export const AnnualEmissionDataView: React.FC = () => {
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Sticky Bottom Actions Bar for View Mode (Common across all tabs) */}
-            <div className="flex-shrink-0 pt-2.5 mt-1 border-t border-slate-100 bg-white space-y-2.5">
-              {/* Reviewer Comments Box (Common across all tabs) */}
-              <div className="text-xs">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <MessageSquare className="w-3.5 h-3.5 text-[#336D9F]" />
-                  <label className="font-bold text-[#336D9F] text-xs">Reviewer Comments</label>
-                </div>
-                <textarea
-                  rows={2}
-                  value={reviewerComments}
-                  onChange={(e) => setReviewerComments(e.target.value)}
-                  placeholder="Enter reviewer comments, feedback, compliance notes, or correction instructions for this annual emission data..."
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-[8px] text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] focus:bg-white transition-all font-medium resize-none shadow-2xs"
-                />
-              </div>
+          {/* Bottom Action Buttons for View Mode (Outside White Frame) */}
+          <div className="flex-shrink-0 pt-2.5 pb-1 flex items-center justify-end gap-2.5">
+            <button
+              type="button"
+              onClick={() => setViewMode('table')}
+              className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-xs font-semibold text-slate-700 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+            >
+              <span>Cancel</span>
+              <X className="w-3.5 h-3.5" />
+            </button>
 
-              {/* Bottom Actions Row */}
-              <div className="flex items-center justify-end">
-                {activeTab === 'monitoring-methods' && (
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('mitigation-measures')}
-                    className="px-5 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold text-xs rounded-[8px] shadow-sm hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                  >
-                    <span>Next</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                )}
+            {activeTab === 'monitoring-methods' && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('mitigation-measures')}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
 
-                {activeTab === 'mitigation-measures' && (
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('qa-qc')}
-                    className="px-5 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold text-xs rounded-[8px] shadow-sm hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                  >
-                    <span>Next</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                )}
+            {activeTab === 'mitigation-measures' && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('qa-qc')}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
 
-                {activeTab === 'qa-qc' && (
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('review-submit')}
-                    className="px-5 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold text-xs rounded-[8px] shadow-sm hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                  >
-                    <span>Next</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                )}
+            {activeTab === 'qa-qc' && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('review-submit')}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
 
-                {activeTab === 'review-submit' && (
-                  <div className="flex items-center justify-end gap-3">
-                    {/* Revert Button */}
-                    <button
-                      type="button"
-                      onClick={handleRevert}
-                      className="px-5 py-2 bg-[#FFF8E7] hover:bg-[#FEF0CD] border border-[#FCD34D] text-[#975A16] font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                      title="Revert submission for corrections"
-                    >
-                      <RotateCcw className="w-4 h-4 text-[#975A16]" />
-                      <span>Revert</span>
-                    </button>
-
-                    {/* Reject Button */}
-                    <button
-                      type="button"
-                      onClick={handleReject}
-                      className="px-5 py-2 bg-[#FFF0F3] hover:bg-[#FFE2E6] border border-[#FDA4AF] text-[#9F1239] font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                      title="Reject annual emission data"
-                    >
-                      <XCircle className="w-4 h-4 text-[#9F1239]" />
-                      <span>Reject</span>
-                    </button>
-
-                    {/* Approve Button */}
-                    <button
-                      type="button"
-                      onClick={handleApprove}
-                      className="px-6 py-2 bg-[#00875A] hover:bg-[#00754E] border border-[#00875A] text-white font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                      title="Approve annual emission data"
-                    >
-                      <CheckCircle2 className="w-4 h-4 text-white" />
-                      <span>Approve</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+            {activeTab === 'review-submit' && (
+              <button
+                type="button"
+                onClick={() => setViewMode('table')}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to Overview Table</span>
+              </button>
+            )}
           </div>
         </div>
       );
@@ -1758,41 +1637,36 @@ export const AnnualEmissionDataView: React.FC = () => {
   // =========================================================================
   return (
     <div className="h-full flex flex-col overflow-hidden font-sans py-0.5">
-      {/* Top Header Bar with Title, Status Chip, Facility Name, and Reporting Year */}
-      <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-3 pb-[18px] pt-0.5">
-        {/* Left: Back Arrow, Title, Status Chip, Subtext, and Save Notice */}
-        <div className="flex items-center gap-3 min-w-0">
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <button
-                onClick={() => setViewMode('table')}
-                className="p-1 -ml-1 text-[#336D9F] hover:text-[#004B87] hover:bg-[#E9F1F8] rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 border border-slate-200/70 shadow-2xs"
-                title="Back to Overview"
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </button>
-              <h1 className="text-[18px] font-bold font-display text-[#336D9F] tracking-tight whitespace-nowrap">
-                Annual Emission Data — Data Entry
-              </h1>
-              <span
-                className={`px-3 py-0.5 rounded-full text-xs font-bold tracking-wide transition-all shrink-0 ${
-                  currentRecord.status === 'Approved' || currentRecord.status === 'Verified' || currentRecord.status === 'EAD Approved'
-                    ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
-                    : currentRecord.status === 'Submitted' || currentRecord.status?.includes('Submitted')
-                    ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
-                    : currentRecord.status === 'Correction Required' || currentRecord.status === 'Reverted'
-                    ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
-                    : currentRecord.status === 'Rejected'
-                    ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 font-bold'
-                    : 'bg-slate-100 text-slate-700 border border-slate-200'
-                }`}
-              >
-                {currentRecord.status || 'Draft'}
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 font-medium mt-0.5 ml-7">
-              Record annual greenhouse gas emissions data, mitigation measures, and QA/QC validation protocols
-            </p>
+      {/* Top Header Bar with Title, Status Chip, Facility Name, and Reporting Year Below Title */}
+      <div className="flex-shrink-0 flex flex-col gap-2 pb-3.5 pt-0.5">
+        {/* Row 1: Back Arrow, Title, Status Chip, and Save Notice */}
+        <div className="flex items-center justify-between gap-3 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => setViewMode('table')}
+              className="p-1 -ml-1 text-[#336D9F] hover:text-[#004B87] hover:bg-[#E9F1F8] rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 border border-slate-200/70 shadow-2xs"
+              title="Back to Overview"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+            <h1 className="text-[18px] font-bold font-display text-[#336D9F] tracking-tight whitespace-nowrap">
+              Annual Emission Data
+            </h1>
+            <span
+              className={`px-3 py-0.5 rounded-full text-xs font-bold tracking-wide transition-all shrink-0 ${
+                currentRecord.status === 'Approved' || currentRecord.status === 'Verified' || currentRecord.status === 'EAD Approved'
+                  ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
+                  : currentRecord.status === 'Submitted' || currentRecord.status?.includes('Submitted')
+                  ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
+                  : 'bg-slate-100 text-slate-700 border border-slate-200'
+              }`}
+            >
+              {currentRecord.status === 'Approved' || currentRecord.status === 'Verified' || currentRecord.status === 'EAD Approved'
+                ? 'Approved'
+                : currentRecord.status === 'Submitted' || currentRecord.status?.includes('Submitted')
+                ? 'Submitted'
+                : 'Draft'}
+            </span>
           </div>
 
           {isSavedNotice && (
@@ -1803,52 +1677,47 @@ export const AnnualEmissionDataView: React.FC = () => {
           )}
         </div>
 
-        {/* Right: Facility Dropdown Selection & Reporting Year Dropdown */}
-        <div className="flex items-center gap-3 shrink-0 flex-wrap">
-          {/* Facility Selection */}
-          <div className="flex items-center gap-2">
-            <label className="text-xs font-semibold text-slate-600 whitespace-nowrap">Facility:</label>
+        {/* Row 2: Facility Name & Calendar Year below title (Image Style) */}
+        <div className="flex items-center gap-4 flex-wrap pt-0.5">
+          {/* Facility Name Input Field */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Facility Name</label>
             <div className="relative">
-              <select
-                value={selectedFacilityId}
-                onChange={(e) => {
-                  const facId = e.target.value;
-                  setSelectedFacilityId(facId);
-                  setActiveFacilityId(facId);
-                  const rec = facilityEmissions[facId];
-                  if (rec) {
-                    loadRecordData(rec);
-                  }
-                }}
-                className="w-56 sm:w-64 px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 font-semibold focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer appearance-none pr-8 truncate"
-              >
-                {Object.entries(facilityEmissions).map(([id, rec]) => (
-                  <option key={id} value={id}>
-                    {rec.facilityName ? `${rec.facilityName}` : `New Facility (${id})`}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <FieldTooltip content="Name of the reporting industrial facility.">
+                <input
+                  type="text"
+                  value={currentRecord.facilityName || ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    updateCurrentRecord((r) => ({ ...r, facilityName: val }));
+                  }}
+                  placeholder="Enter facility name"
+                  className="w-64 sm:w-80 h-9 px-3.5 bg-white border border-slate-200/90 rounded-xl text-xs text-slate-800 font-bold focus:outline-none focus:border-[#004B87] shadow-2xs"
+                />
+              </FieldTooltip>
             </div>
           </div>
 
-          {/* Reporting Year */}
-          <div className="flex items-center gap-2">
-            <label className="text-xs font-semibold text-slate-600 whitespace-nowrap">Reporting Year:</label>
+          {/* Calendar Year Select with Chevron Dropdown */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Calendar Year</label>
             <div className="relative">
-              <select
-                value={formReportingYear}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setFormReportingYear(val);
-                  updateCurrentRecord((r) => ({ ...r, reportingYear: val }));
-                }}
-                className="w-24 px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 font-semibold focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer appearance-none pr-7"
-              >
-                <option value="2026">2026</option>
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-              </select>
+              <FieldTooltip content="Designated statutory MRV reporting compliance calendar year.">
+                <select
+                  value={formReportingYear}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setFormReportingYear(val);
+                    updateCurrentRecord((r) => ({ ...r, reportingYear: val }));
+                  }}
+                  className="w-36 h-9 px-3.5 bg-white border border-slate-200/90 rounded-xl text-xs text-slate-800 font-bold focus:outline-none focus:border-[#004B87] shadow-2xs appearance-none pr-8 cursor-pointer"
+                >
+                  <option value="2026">2026</option>
+                  <option value="2025">2025</option>
+                  <option value="2024">2024</option>
+                  <option value="2023">2023</option>
+                </select>
+              </FieldTooltip>
               <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
@@ -1859,12 +1728,12 @@ export const AnnualEmissionDataView: React.FC = () => {
       <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
         {/* Sticky Tabs Navigation Bar (Fixed at top, outside scroll area) */}
         <div className="flex-shrink-0 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-2.5">
-          <div className="inline-flex items-center gap-1 p-1 bg-[#EAEFF4] border border-[#D5E0EA] rounded-[6px] shadow-2xs">
+          <div className="inline-flex items-center gap-1 p-1 bg-white border border-slate-200 rounded-[6px] shadow-2xs">
             {[
               { id: 'monitoring-methods', label: 'Monitoring Methods', icon: Activity },
               { id: 'mitigation-measures', label: 'Mitigation Measures', icon: BarChart3 },
               { id: 'qa-qc', label: 'Data Management & QA/QC', icon: ShieldCheck },
-              { id: 'review-submit', label: 'Review & Submit', icon: CheckCircle2 },
+              { id: 'review-submit', label: 'Support Documents & Submit', icon: CheckCircle2 },
             ].map((tab) => {
               const IconComponent = tab.icon;
               const isActive = activeTab === tab.id;
@@ -1956,232 +1825,254 @@ export const AnnualEmissionDataView: React.FC = () => {
                               <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                                 {/* Description of measure */}
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={m.description}
-                                    placeholder="e.g. Waste Heat Recovery System"
-                                    title={m.description || 'Description of measure'}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setMitigationMeasures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].description = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full min-w-[190px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Description of emissions mitigation or energy conservation measure." example="Waste Heat Recovery System">
+                                    <input
+                                      type="text"
+                                      value={m.description}
+                                      placeholder="e.g. Waste Heat Recovery System"
+                                      title={m.description || 'Description of measure'}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setMitigationMeasures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].description = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full min-w-[190px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
 
                                 {/* Category */}
                                 <td className="py-2 px-3">
-                                  <select
-                                    value={m.category || 'Emission Reduction'}
-                                    title={m.category || 'Select category'}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setMitigationMeasures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].category = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full min-w-[140px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
-                                  >
-                                    <option value="Emission Reduction">Emission Reduction</option>
-                                    <option value="Energy Efficiency">Energy Efficiency</option>
-                                    <option value="Fuel Switching">Fuel Switching</option>
-                                    <option value="Carbon Capture (CCUS)">Carbon Capture (CCUS)</option>
-                                    <option value="Process Optimization">Process Optimization</option>
-                                    <option value="Alternative Raw Materials">Alternative Raw Materials</option>
-                                    <option value="Other">Other</option>
-                                  </select>
+                                  <FieldTooltip content="Category of mitigation action (e.g., Energy Efficiency, Fuel Switching).">
+                                    <select
+                                      value={m.category || 'Emission Reduction'}
+                                      title={m.category || 'Select category'}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setMitigationMeasures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].category = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full min-w-[140px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
+                                    >
+                                      <option value="Emission Reduction">Emission Reduction</option>
+                                      <option value="Energy Efficiency">Energy Efficiency</option>
+                                      <option value="Fuel Switching">Fuel Switching</option>
+                                      <option value="Carbon Capture (CCUS)">Carbon Capture (CCUS)</option>
+                                      <option value="Process Optimization">Process Optimization</option>
+                                      <option value="Alternative Raw Materials">Alternative Raw Materials</option>
+                                      <option value="Other">Other</option>
+                                    </select>
+                                  </FieldTooltip>
                                 </td>
 
                                 {/* Scope (1 / 2 / 3) */}
                                 <td className="py-2 px-3">
-                                  <select
-                                    value={m.scope || '1'}
-                                    title={m.scope || 'Scope'}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setMitigationMeasures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].scope = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full min-w-[80px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
-                                  >
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                  </select>
+                                  <FieldTooltip content="GHG accounting scope classification (Scope 1, 2, or 3).">
+                                    <select
+                                      value={m.scope || '1'}
+                                      title={m.scope || 'Scope'}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setMitigationMeasures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].scope = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full min-w-[80px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
+                                    >
+                                      <option value="1">1</option>
+                                      <option value="2">2</option>
+                                      <option value="3">3</option>
+                                    </select>
+                                  </FieldTooltip>
                                 </td>
 
                                 {/* GHG */}
                                 <td className="py-2 px-3">
-                                  <select
-                                    value={m.ghg || 'CO₂'}
-                                    title={m.ghg || 'GHG'}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setMitigationMeasures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].ghg = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full min-w-[85px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
-                                  >
-                                    <option value="CO₂">CO₂</option>
-                                    <option value="CH₄">CH₄</option>
-                                    <option value="N₂O">N₂O</option>
-                                    <option value="HFCs">HFCs</option>
-                                    <option value="PFCs">PFCs</option>
-                                    <option value="SF₆">SF₆</option>
-                                    <option value="NF₃">NF₃</option>
-                                    <option value="All GHGs">All GHGs</option>
-                                  </select>
+                                  <FieldTooltip content="Primary greenhouse gas targeted for reduction (CO₂, CH₄, N₂O, etc.).">
+                                    <select
+                                      value={m.ghg || 'CO₂'}
+                                      title={m.ghg || 'GHG'}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setMitigationMeasures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].ghg = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full min-w-[85px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
+                                    >
+                                      <option value="CO₂">CO₂</option>
+                                      <option value="CH₄">CH₄</option>
+                                      <option value="N₂O">N₂O</option>
+                                      <option value="HFCs">HFCs</option>
+                                      <option value="PFCs">PFCs</option>
+                                      <option value="SF₆">SF₆</option>
+                                      <option value="NF₃">NF₃</option>
+                                      <option value="All GHGs">All GHGs</option>
+                                    </select>
+                                  </FieldTooltip>
                                 </td>
 
                                 {/* Start year */}
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={m.startYear || ''}
-                                    placeholder="2026"
-                                    title={m.startYear || 'Start year'}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setMitigationMeasures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].startYear = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full min-w-[90px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Calendar year when implementation of the measure commenced." example="2026">
+                                    <input
+                                      type="text"
+                                      value={m.startYear || ''}
+                                      placeholder="2026"
+                                      title={m.startYear || 'Start year'}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setMitigationMeasures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].startYear = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full min-w-[90px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
 
                                 {/* Status */}
                                 <td className="py-2 px-3">
-                                  <select
-                                    value={m.status || 'Planned'}
-                                    title={m.status || 'Select status'}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setMitigationMeasures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].status = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full min-w-[125px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
-                                  >
-                                    <option value="Implemented">Implemented</option>
-                                    <option value="Planned">Planned</option>
-                                    <option value="Under Study">Under Study</option>
-                                    <option value="Decommissioned">Decommissioned</option>
-                                  </select>
+                                  <FieldTooltip content="Operational or planning stage of the mitigation project.">
+                                    <select
+                                      value={m.status || 'Planned'}
+                                      title={m.status || 'Select status'}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setMitigationMeasures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].status = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full min-w-[125px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
+                                    >
+                                      <option value="Implemented">Implemented</option>
+                                      <option value="Planned">Planned</option>
+                                      <option value="Under Study">Under Study</option>
+                                      <option value="Decommissioned">Decommissioned</option>
+                                    </select>
+                                  </FieldTooltip>
                                 </td>
 
                                 {/* Pre-measure reference */}
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={m.preMeasureRef || ''}
-                                    placeholder="e.g. 4,200 (2022 avg)"
-                                    title={m.preMeasureRef || 'Pre-measure reference [tCO₂e/yr]'}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setMitigationMeasures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].preMeasureRef = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full min-w-[170px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Baseline reference emissions rate before implementation." unit="tCO₂e/yr" example="4,200">
+                                    <input
+                                      type="text"
+                                      value={m.preMeasureRef || ''}
+                                      placeholder="e.g. 4,200 (2022 avg)"
+                                      title={m.preMeasureRef || 'Pre-measure reference [tCO₂e/yr]'}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setMitigationMeasures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].preMeasureRef = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full min-w-[170px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
 
                                 {/* Reporting year reduction */}
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={m.reportingYearReduction || ''}
-                                    placeholder="e.g. 3,850"
-                                    title={m.reportingYearReduction ? `${m.reportingYearReduction} tCO₂e/yr` : 'Reporting year reduction [tCO₂e/yr]'}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setMitigationMeasures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].reportingYearReduction = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full min-w-[150px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Measured or estimated GHG reduction achieved in reporting year." unit="tCO₂e/yr" example="3,850">
+                                    <input
+                                      type="text"
+                                      value={m.reportingYearReduction || ''}
+                                      placeholder="e.g. 3,850"
+                                      title={m.reportingYearReduction ? `${m.reportingYearReduction} tCO₂e/yr` : 'Reporting year reduction [tCO₂e/yr]'}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setMitigationMeasures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].reportingYearReduction = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full min-w-[150px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left font-mono focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
 
                                 {/* Expected annual reduction */}
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={m.expectedAnnualReduction || ''}
-                                    placeholder="e.g. 4,000"
-                                    title={m.expectedAnnualReduction ? `${m.expectedAnnualReduction} tCO₂e/yr` : 'Expected annual reduction [tCO₂e/yr]'}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setMitigationMeasures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].expectedAnnualReduction = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full min-w-[150px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Total anticipated ongoing annual GHG abatement." unit="tCO₂e/yr" example="4,000">
+                                    <input
+                                      type="text"
+                                      value={m.expectedAnnualReduction || ''}
+                                      placeholder="e.g. 4,000"
+                                      title={m.expectedAnnualReduction ? `${m.expectedAnnualReduction} tCO₂e/yr` : 'Expected annual reduction [tCO₂e/yr]'}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setMitigationMeasures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].expectedAnnualReduction = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full min-w-[150px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left font-mono focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
 
                                 {/* Methodology / standard */}
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={m.methodology || ''}
-                                    placeholder="e.g. Engineering energy balance (ISO 50001)"
-                                    title={m.methodology || 'Methodology / standard'}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setMitigationMeasures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].methodology = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full min-w-[190px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Standard protocol or engineering calculation used to quantify reduction." example="ISO 50001 Energy Balance">
+                                    <input
+                                      type="text"
+                                      value={m.methodology || ''}
+                                      placeholder="e.g. Engineering energy balance (ISO 50001)"
+                                      title={m.methodology || 'Methodology / standard'}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setMitigationMeasures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].methodology = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full min-w-[190px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
 
                                 {/* Verification */}
                                 <td className="py-2 px-3">
-                                  <select
-                                    value={m.verification || 'Third-party verified'}
-                                    title={m.verification || 'Verification'}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setMitigationMeasures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].verification = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full min-w-[150px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
-                                  >
-                                    <option value="Third-party verified">Third-party verified</option>
-                                    <option value="Internally verified">Internally verified</option>
-                                    <option value="Self-declaration">Self-declaration</option>
-                                    <option value="Pending">Pending</option>
-                                  </select>
+                                  <FieldTooltip content="Verification status of the mitigation savings claim.">
+                                    <select
+                                      value={m.verification || 'Third-party verified'}
+                                      title={m.verification || 'Verification'}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setMitigationMeasures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].verification = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full min-w-[150px] px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] cursor-pointer shadow-xs"
+                                    >
+                                      <option value="Third-party verified">Third-party verified</option>
+                                      <option value="Internally verified">Internally verified</option>
+                                      <option value="Self-declaration">Self-declaration</option>
+                                      <option value="Pending">Pending</option>
+                                    </select>
+                                  </FieldTooltip>
                                 </td>
 
                                 {/* Actions */}
@@ -2219,13 +2110,15 @@ export const AnnualEmissionDataView: React.FC = () => {
                   <p className="text-xs font-bold text-[#336D9F]">
                     Please provide any other information that you think may be relevant. If there is nothing, please add N/A below.
                   </p>
-                  <textarea
-                    rows={3}
-                    value={mitigationAdditionalInfo}
-                    placeholder="Please provide any other relevant mitigation details, or enter N/A..."
-                    onChange={(e) => setMitigationAdditionalInfo(e.target.value)}
-                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#004B87] shadow-xs leading-relaxed"
-                  />
+                  <FieldTooltip content="Provide any other relevant mitigation details, technology descriptions, or N/A.">
+                    <textarea
+                      rows={3}
+                      value={mitigationAdditionalInfo}
+                      placeholder="Please provide any other relevant mitigation details, or enter N/A..."
+                      onChange={(e) => setMitigationAdditionalInfo(e.target.value)}
+                      className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#004B87] shadow-xs leading-relaxed"
+                    />
+                  </FieldTooltip>
                 </div>
               </div>
             )}
@@ -2243,13 +2136,15 @@ export const AnnualEmissionDataView: React.FC = () => {
                   <p className="text-xs text-slate-500 font-medium">
                     Provide a detailed description of the internal QA/QC methodology applied for all source streams and sources
                   </p>
-                  <textarea
-                    rows={4}
-                    value={qaVerificationDesc}
-                    placeholder="Provide a detailed description of the internal QA/QC methodology applied for all source streams and sources..."
-                    onChange={(e) => setQaVerificationDesc(e.target.value)}
-                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#004B87] shadow-xs leading-relaxed"
-                  />
+                  <FieldTooltip content="Detailed description of the internal QA/QC methodology applied for all source streams and sources.">
+                    <textarea
+                      rows={4}
+                      value={qaVerificationDesc}
+                      placeholder="Provide a detailed description of the internal QA/QC methodology applied for all source streams and sources..."
+                      onChange={(e) => setQaVerificationDesc(e.target.value)}
+                      className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#004B87] shadow-xs leading-relaxed"
+                    />
+                  </FieldTooltip>
                 </div>
 
                 {/* Section 2: Data Gaps */}
@@ -2283,100 +2178,112 @@ export const AnnualEmissionDataView: React.FC = () => {
                             qaDataGaps.map((gap, idx) => (
                               <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={gap.sourceStream || ''}
-                                    placeholder="e.g. S05 - Flare Vent"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setQaDataGaps((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].sourceStream = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Source stream ID or emission point experiencing the data gap." example="S05 - Flare Vent">
+                                    <input
+                                      type="text"
+                                      value={gap.sourceStream || ''}
+                                      placeholder="e.g. S05 - Flare Vent"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setQaDataGaps((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].sourceStream = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={gap.fromDate || ''}
-                                    placeholder="01-Jan-2026"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setQaDataGaps((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].fromDate = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Start date of data gap outage period." format="DD-MMM-YYYY" example="01-Jan-2026">
+                                    <input
+                                      type="text"
+                                      value={gap.fromDate || ''}
+                                      placeholder="01-Jan-2026"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setQaDataGaps((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].fromDate = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={gap.untilDate || ''}
-                                    placeholder="15-Jan-2026"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setQaDataGaps((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].untilDate = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="End date of data gap outage period." format="DD-MMM-YYYY" example="15-Jan-2026">
+                                    <input
+                                      type="text"
+                                      value={gap.untilDate || ''}
+                                      placeholder="15-Jan-2026"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setQaDataGaps((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].untilDate = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={gap.description || ''}
-                                    placeholder="e.g. CEMS downtime"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setQaDataGaps((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].description = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Explanation of root cause and estimation method applied." example="CEMS downtime">
+                                    <input
+                                      type="text"
+                                      value={gap.description || ''}
+                                      placeholder="e.g. CEMS downtime"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setQaDataGaps((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].description = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={gap.estimatedEmissions || ''}
-                                    placeholder="12.40"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setQaDataGaps((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].estimatedEmissions = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Conservative estimated GHG emissions during data gap." unit="t CO₂e" example="12.40">
+                                    <input
+                                      type="text"
+                                      value={gap.estimatedEmissions || ''}
+                                      placeholder="12.40"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setQaDataGaps((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].estimatedEmissions = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left font-mono focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={gap.sourceOfEstimate || ''}
-                                    placeholder="e.g. Similar period avg"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setQaDataGaps((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].sourceOfEstimate = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Surrogate data source or historical benchmark applied." example="Similar period avg">
+                                    <input
+                                      type="text"
+                                      value={gap.sourceOfEstimate || ''}
+                                      placeholder="e.g. Similar period avg"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setQaDataGaps((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].sourceOfEstimate = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3 text-center">
                                   {idx === 0 ? (
@@ -2435,36 +2342,40 @@ export const AnnualEmissionDataView: React.FC = () => {
                             qaManagementResp.map((resp, idx) => (
                               <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={resp.jobTitle || ''}
-                                    placeholder="e.g. GHG Manager"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setQaManagementResp((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].jobTitle = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Organizational job title or designated role." example="GHG Manager">
+                                    <input
+                                      type="text"
+                                      value={resp.jobTitle || ''}
+                                      placeholder="e.g. GHG Manager"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setQaManagementResp((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].jobTitle = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={resp.responsibilities || ''}
-                                    placeholder="e.g. Supervise MRV operations, review activity registers"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setQaManagementResp((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].responsibilities = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Specific MRV compliance and data governance responsibilities." example="Supervise MRV operations, review activity registers">
+                                    <input
+                                      type="text"
+                                      value={resp.responsibilities || ''}
+                                      placeholder="e.g. Supervise MRV operations, review activity registers"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setQaManagementResp((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].responsibilities = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3 text-center">
                                   {idx === 0 ? (
@@ -2526,84 +2437,94 @@ export const AnnualEmissionDataView: React.FC = () => {
                             qaProcedures.map((proc, idx) => (
                               <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={proc.procedureTitle || ''}
-                                    placeholder="e.g. ETS QA/QC of MI"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setQaProcedures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].procedureTitle = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Formal title of written quality assurance procedure." example="ETS QA/QC of MI">
+                                    <input
+                                      type="text"
+                                      value={proc.procedureTitle || ''}
+                                      placeholder="e.g. ETS QA/QC of MI"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setQaProcedures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].procedureTitle = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={proc.reference || ''}
-                                    placeholder="e.g. EAD_QA_QC_01"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setQaProcedures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].reference = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Document control reference code." format="EAD_QA_QC_XX" example="EAD_QA_QC_01">
+                                    <input
+                                      type="text"
+                                      value={proc.reference || ''}
+                                      placeholder="e.g. EAD_QA_QC_01"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setQaProcedures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].reference = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left font-mono focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={proc.briefDescription || ''}
-                                    placeholder="e.g. Quality control procedures for measure"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setQaProcedures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].briefDescription = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Summary of quality assurance controls and calibration checks.">
+                                    <input
+                                      type="text"
+                                      value={proc.briefDescription || ''}
+                                      placeholder="e.g. Quality control procedures for measure"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setQaProcedures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].briefDescription = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={proc.responsibleDept || ''}
-                                    placeholder="e.g. Measurement & Control"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setQaProcedures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].responsibleDept = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Internal operating department executing the procedure." example="Measurement & Control">
+                                    <input
+                                      type="text"
+                                      value={proc.responsibleDept || ''}
+                                      placeholder="e.g. Measurement & Control"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setQaProcedures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].responsibleDept = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={proc.recordStorage || ''}
-                                    placeholder="e.g. QA/QC Records"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setQaProcedures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].recordStorage = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Physical or digital storage location of QA logs and calibration certificates." example="QA/QC Records Archive">
+                                    <input
+                                      type="text"
+                                      value={proc.recordStorage || ''}
+                                      placeholder="e.g. QA/QC Records"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setQaProcedures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].recordStorage = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3 text-center">
                                   {idx === 0 ? (
@@ -2660,14 +2581,16 @@ export const AnnualEmissionDataView: React.FC = () => {
                               }
                             }}
                           />
-                          <button
-                            type="button"
-                            onClick={() => qaDiagramInputRef.current?.click()}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#004B87] hover:bg-[#003B6B] text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-                          >
-                            <Upload className="w-3.5 h-3.5" />
-                            Upload Diagram / Supporting File
-                          </button>
+                          <FieldTooltip content="Upload schematics, calibration flowcharts, or QA procedure diagrams.">
+                            <button
+                              type="button"
+                              onClick={() => qaDiagramInputRef.current?.click()}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#004B87] hover:bg-[#003B6B] text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                            >
+                              <Upload className="w-3.5 h-3.5" />
+                              Upload Diagram / Supporting File
+                            </button>
+                          </FieldTooltip>
                         </div>
                       </div>
 
@@ -2743,84 +2666,94 @@ export const AnnualEmissionDataView: React.FC = () => {
                             internalReviewProcedures.map((proc, idx) => (
                               <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={proc.procedureTitle || ''}
-                                    placeholder="e.g. ETS Data Validation"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setInternalReviewProcedures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].procedureTitle = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Title of four-eye internal data review procedure." example="ETS Data Validation">
+                                    <input
+                                      type="text"
+                                      value={proc.procedureTitle || ''}
+                                      placeholder="e.g. ETS Data Validation"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setInternalReviewProcedures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].procedureTitle = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={proc.reference || ''}
-                                    placeholder="e.g. EAD_VAL_01"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setInternalReviewProcedures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].reference = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left font-mono focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Internal standard operating procedure reference code." example="EAD_VAL_01">
+                                    <input
+                                      type="text"
+                                      value={proc.reference || ''}
+                                      placeholder="e.g. EAD_VAL_01"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setInternalReviewProcedures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].reference = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left font-mono focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={proc.briefDescription || ''}
-                                    placeholder="e.g. Independent cross-check of data logs"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setInternalReviewProcedures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].briefDescription = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Summary of data review and validation workflow steps.">
+                                    <input
+                                      type="text"
+                                      value={proc.briefDescription || ''}
+                                      placeholder="e.g. Independent cross-check of data logs"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setInternalReviewProcedures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].briefDescription = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={proc.responsibleDept || ''}
-                                    placeholder="e.g. Measurement & Control"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setInternalReviewProcedures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].responsibleDept = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Department responsible for independent review." example="Measurement & Control">
+                                    <input
+                                      type="text"
+                                      value={proc.responsibleDept || ''}
+                                      placeholder="e.g. Measurement & Control"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setInternalReviewProcedures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].responsibleDept = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3">
-                                  <input
-                                    type="text"
-                                    value={proc.recordStorage || ''}
-                                    placeholder="e.g. Validation Records"
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      setInternalReviewProcedures((prev) => {
-                                        const copy = [...prev];
-                                        copy[idx].recordStorage = val;
-                                        return copy;
-                                      });
-                                    }}
-                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
-                                  />
+                                  <FieldTooltip content="Secure repository where signed validation logs are archived." example="Validation Records Archive">
+                                    <input
+                                      type="text"
+                                      value={proc.recordStorage || ''}
+                                      placeholder="e.g. Validation Records"
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        setInternalReviewProcedures((prev) => {
+                                          const copy = [...prev];
+                                          copy[idx].recordStorage = val;
+                                          return copy;
+                                        });
+                                      }}
+                                      className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs text-left focus:outline-none focus:border-[#004B87]"
+                                    />
+                                  </FieldTooltip>
                                 </td>
                                 <td className="py-2 px-3 text-center">
                                   {idx === 0 ? (
@@ -2877,14 +2810,16 @@ export const AnnualEmissionDataView: React.FC = () => {
                               }
                             }}
                           />
-                          <button
-                            type="button"
-                            onClick={() => internalReviewInputRef.current?.click()}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#004B87] hover:bg-[#003B6B] text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-                          >
-                            <Upload className="w-3.5 h-3.5" />
-                            Upload Diagram / Supporting File
-                          </button>
+                          <FieldTooltip content="Upload validation workflows, review trees, or schematic files.">
+                            <button
+                              type="button"
+                              onClick={() => internalReviewInputRef.current?.click()}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#004B87] hover:bg-[#003B6B] text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                            >
+                              <Upload className="w-3.5 h-3.5" />
+                              Upload Diagram / Supporting File
+                            </button>
+                          </FieldTooltip>
                         </div>
                       </div>
 
@@ -2935,91 +2870,97 @@ export const AnnualEmissionDataView: React.FC = () => {
                   <p className="text-xs font-bold text-[#336D9F]">
                     Please provide any further details pertaining to quality control / quality assurance that you think may be relevant
                   </p>
-                  <textarea
-                    rows={4}
-                    value={qaFurtherDetails}
-                    onChange={(e) => setQaFurtherDetails(e.target.value)}
-                    placeholder="Enter any additional quality control / quality assurance details..."
-                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#004B87] shadow-xs leading-relaxed"
-                  />
+                  <FieldTooltip content="Enter any additional quality control or quality assurance details, or note N/A.">
+                    <textarea
+                      rows={4}
+                      value={qaFurtherDetails}
+                      onChange={(e) => setQaFurtherDetails(e.target.value)}
+                      placeholder="Enter any additional quality control / quality assurance details..."
+                      className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#004B87] shadow-xs leading-relaxed"
+                    />
+                  </FieldTooltip>
                 </div>
               </div>
             )}
 
-            {/* TAB 4: REVIEW & SUBMIT */}
+            {/* TAB 4: SUPPORT DOCUMENTS & SUBMIT */}
             {activeTab === 'review-submit' && (
-              <div className="space-y-[18px]">
-                {/* Section 1: Submission Summary */}
-                <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
-                  <div className="px-3.5 py-2.5 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#336D9F]">Submission Summary</span>
-                  </div>
-                  <div className="p-3.5 sm:p-4 bg-white">
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-4 gap-x-6">
-                      <div>
-                        <span className="block text-[11px] text-slate-400 font-medium">Facility / Plant Name</span>
-                        <span className="font-semibold text-slate-800 text-xs">{currentRecord.facilityName || '—'}</span>
-                      </div>
-                      <div>
-                        <span className="block text-[11px] text-slate-400 font-medium">Facility ID</span>
-                        <span className="font-semibold text-slate-800 text-xs font-mono">{currentRecord.facilityId || '—'}</span>
-                      </div>
-                      <div>
-                        <span className="block text-[11px] text-slate-400 font-medium">Reporting Year</span>
-                        <span className="font-semibold text-slate-800 text-xs">{formReportingYear || '2026'}</span>
-                      </div>
-                      <div>
-                        <span className="block text-[11px] text-slate-400 font-medium">Total Annual Emissions</span>
-                        <span className="font-semibold text-slate-800 text-xs font-mono">{currentRecord.totalScope1 && currentRecord.totalScope1 !== '0' ? `${currentRecord.totalScope1} tCO₂e` : '—'}</span>
-                      </div>
-
-                      <div>
-                        <span className="block text-[11px] text-slate-400 font-medium">Verification Status</span>
-                        <span className="font-semibold text-slate-800 text-xs">
-                          {currentRecord.status === 'Approved' || currentRecord.status === 'Verified' || currentRecord.status === 'EAD Approved'
-                            ? 'Approved & Verified'
-                            : currentRecord.status === 'Submitted'
-                            ? 'Submitted (Under Review)'
-                            : currentRecord.status === 'Correction Required'
-                            ? 'Correction Required'
-                            : currentRecord.status === 'Reverted'
-                            ? 'Reverted for Correction'
-                            : currentRecord.status === 'Rejected'
-                            ? 'Rejected'
-                            : 'Draft / Unsubmitted'}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="block text-[11px] text-slate-400 font-medium">Version</span>
-                        <span className="font-semibold text-slate-800 text-xs">{formatVersion(currentRecord.version)}</span>
-                      </div>
-                      <div>
-                        <span className="block text-[11px] text-slate-400 font-medium">Prepared By</span>
-                        <span className="font-semibold text-slate-800 text-xs">{declarationForm.name || '—'}</span>
-                      </div>
-                      <div>
-                        <span className="block text-[11px] text-slate-400 font-medium">Email</span>
-                        <span className="font-semibold text-slate-800 text-xs font-mono">
-                          {declarationForm.name
-                            ? `${declarationForm.name.toLowerCase().trim().replace(/\s+/g, '.')}@alnoor-energy.ae`
-                            : 'ahmed.zaabi@alnoor-energy.ae'}
-                        </span>
+              <div className="space-y-4 pt-1">
+                {/* Supporting Documents Upload (Facility Registration Style) */}
+                <div>
+                  <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">
+                    Supporting Documents
+                  </h4>
+                  <FieldTooltip content="Upload official statutory attachments including verification statements, CEMS calibration logs, lab reports, or calculation sheets." format="PDF, PNG, JPG, XLSX (Max 25MB)">
+                    <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
+                      {/* Upload Input Area */}
+                      <div
+                        onClick={() => supportingDocsInputRef.current?.click()}
+                        className="border border-dashed border-sky-300 bg-sky-50/40 hover:bg-sky-50/70 rounded-lg px-4 py-2 flex items-center justify-between gap-3 shrink-0 cursor-pointer transition-colors min-w-[280px]"
+                      >
+                        <input
+                          type="file"
+                          ref={supportingDocsInputRef}
+                          multiple
+                          className="hidden"
+                          onChange={handleSupportingDocsUpload}
+                          accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx"
+                        />
+                        <div className="flex items-center gap-2 text-slate-600 text-xs font-medium">
+                          <Upload className="w-4 h-4 text-slate-500 shrink-0" />
+                          <span className="whitespace-nowrap">Drag and drop files here or upload</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            supportingDocsInputRef.current?.click();
+                          }}
+                          className="px-3.5 py-1.5 bg-white border border-slate-300 hover:border-slate-400 text-xs font-bold text-slate-700 rounded-lg shadow-2xs transition-colors shrink-0 cursor-pointer"
+                        >
+                          Upload
+                        </button>
                       </div>
 
-                      <div>
-                        <span className="block text-[11px] text-slate-400 font-medium">Submission Date</span>
-                        <span className="font-semibold text-slate-800 text-xs">{currentRecord.submittedDate || '—'}</span>
-                      </div>
-                      <div>
-                        <span className="block text-[11px] text-slate-400 font-medium">Current Status</span>
-                        <span className="font-semibold text-slate-800 text-xs">{currentRecord.status || 'Draft'}</span>
-                      </div>
-                      <div>
-                        <span className="block text-[11px] text-slate-400 font-medium">Last Saved On</span>
-                        <span className="font-semibold text-slate-800 text-xs">{currentRecord.updatedDate || '—'}</span>
+                      {/* Remaining area: Uploaded documents in horizontal scrolling chips */}
+                      <div className="flex-1 min-w-0 flex items-center gap-2.5 overflow-x-auto py-1 no-scrollbar">
+                        {supportingDocsFiles && supportingDocsFiles.length > 0 ? (
+                          supportingDocsFiles.map((file: any, idx: number) => (
+                            <div
+                              key={file.id || idx}
+                              className="border border-slate-200 bg-white rounded-lg py-1.5 px-3 flex items-center gap-2.5 shadow-2xs shrink-0 max-w-[240px] hover:border-slate-300 transition-all"
+                            >
+                              <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0">
+                                <FileText className="w-3.5 h-3.5 text-rose-600" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="text-xs font-bold text-slate-800 truncate" title={file.name}>
+                                  {file.name}
+                                </div>
+                                <div className="text-[10px] text-slate-400 flex items-center gap-1.5 font-medium">
+                                  <span>{file.size}</span>
+                                  <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                                  <span className="text-emerald-600 font-bold">{file.status || 'Completed'}</span>
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setSupportingDocsFiles((prev) => prev.filter((_: any, i: number) => i !== idx))
+                                }
+                                className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer shrink-0"
+                                title="Remove file"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))
+                        ) : (
+                          <span className="text-xs text-slate-400 italic">No files attached yet</span>
+                        )}
                       </div>
                     </div>
-                  </div>
+                  </FieldTooltip>
                 </div>
 
                 {/* Section 2: Final Declaration */}
@@ -3069,32 +3010,38 @@ export const AnnualEmissionDataView: React.FC = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-2">
                       <div>
                         <label className="block text-slate-600 font-semibold mb-1 text-xs">Name</label>
-                        <input
-                          type="text"
-                          value={declarationForm.name}
-                          placeholder="Enter full name of authorized operator"
-                          onChange={(e) => setDeclarationForm({ ...declarationForm, name: e.target.value })}
-                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                        />
+                        <FieldTooltip content="Full legal name of authorized facility operator representative." example="Ahmed Al-Zaabi">
+                          <input
+                            type="text"
+                            value={declarationForm.name}
+                            placeholder="Enter full name of authorized operator"
+                            onChange={(e) => setDeclarationForm({ ...declarationForm, name: e.target.value })}
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                          />
+                        </FieldTooltip>
                       </div>
                       <div>
                         <label className="block text-slate-600 font-semibold mb-1 text-xs">Designation</label>
-                        <input
-                          type="text"
-                          value={declarationForm.designation}
-                          placeholder="Enter job designation / title"
-                          onChange={(e) => setDeclarationForm({ ...declarationForm, designation: e.target.value })}
-                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
-                        />
+                        <FieldTooltip content="Official corporate designation or title of signatory." example="Senior Compliance & MRV Lead">
+                          <input
+                            type="text"
+                            value={declarationForm.designation}
+                            placeholder="Enter job designation / title"
+                            onChange={(e) => setDeclarationForm({ ...declarationForm, designation: e.target.value })}
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-800 text-xs focus:outline-none focus:border-[#004B87]"
+                          />
+                        </FieldTooltip>
                       </div>
                       <div>
                         <label className="block text-slate-600 font-semibold mb-1 text-xs">Date</label>
-                        <input
-                          type="text"
-                          value={declarationForm.date}
-                          readOnly
-                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs"
-                        />
+                        <FieldTooltip content="Automatic date timestamp of declaration sign-off.">
+                          <input
+                            type="text"
+                            value={declarationForm.date}
+                            readOnly
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs"
+                          />
+                        </FieldTooltip>
                       </div>
                     </div>
                   </div>

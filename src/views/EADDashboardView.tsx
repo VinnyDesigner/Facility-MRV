@@ -263,17 +263,17 @@ export const EADDashboardView: React.FC = () => {
             <tbody className="divide-y divide-primary-100/40">
               {submissions.map((sub) => (
                 <tr key={sub.id} className="hover:bg-primary-50/50 transition-colors">
-                  <td className="py-3.5 px-4 font-bold text-navy-900">
+                  <td className="py-3.5 px-4 font-normal text-navy-900">
                     <div>{sub.facilityName}</div>
                     <div className="text-[10px] text-mrv-muted font-mono font-normal">{sub.facilityCode}</div>
                   </td>
-                  <td className="py-3.5 px-4 text-navy-800 font-medium">{sub.sector}</td>
-                  <td className="py-3.5 px-4 font-bold text-primary-800">
+                  <td className="py-3.5 px-4 text-navy-800 font-normal">{sub.sector}</td>
+                  <td className="py-3.5 px-4 font-normal text-primary-800">
                     {sub.totalEmissions.toLocaleString()}
                   </td>
-                  <td className="py-3.5 px-4 font-semibold text-navy-800">{sub.tier}</td>
+                  <td className="py-3.5 px-4 font-normal text-navy-800">{sub.tier}</td>
                   <td className="py-3.5 px-4 text-mrv-muted">{sub.submittedDate}</td>
-                  <td className="py-3.5 px-4 font-bold">
+                  <td className="py-3.5 px-4 font-normal">
                     <span className={sub.daysPending > 5 ? 'text-rose-600' : 'text-navy-900'}>
                       {sub.daysPending} Days
                     </span>

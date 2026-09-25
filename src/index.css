@@ -1,3 +1,4 @@
+@import 'leaflet/dist/leaflet.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,6 +16,13 @@
     color: #0D0E12;
     overflow-x: hidden;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  /* Universal 8px (0.5rem) corner radius for all form inputs across the application */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="file"]),
+  select,
+  textarea {
+    border-radius: 8px !important;
   }
 }
 
@@ -156,7 +164,7 @@
   .glass-input {
     background: rgba(255, 255, 255, 0.9);
     border: 1px solid rgba(8, 120, 201, 0.2);
-    border-radius: 0.75rem;
+    border-radius: 8px;
     padding: 0.625rem 1rem;
     color: #132238;
     transition: all 0.2s ease;
@@ -170,6 +178,22 @@
     background: #ffffff;
   }
 
+  /* Standardized Form Input & Select Controls: 32px height & 8px corner radius default */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="color"]),
+  select {
+    height: 32px;
+    min-height: 32px;
+    border-radius: 8px !important;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+  }
+
+  textarea {
+    border-radius: 8px !important;
+  }
+
   /* Clean, elegant custom select dropdown with generous right padding for chevron across the WHOLE application */
   select {
     appearance: none !important;
@@ -177,9 +201,9 @@
     -moz-appearance: none !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2' stroke='%2364748B'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m19.5 8.25-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E") !important;
     background-repeat: no-repeat !important;
-    background-position: right 0.875rem center !important;
-    background-size: 0.95rem 0.95rem !important;
-    padding-right: 2.5rem !important;
+    background-position: right 0.75rem center !important;
+    background-size: 0.85rem 0.85rem !important;
+    padding-right: 2.25rem !important;
     cursor: pointer;
   }
 
@@ -299,16 +323,6 @@
 .scrollbar-none {
   -ms-overflow-style: none !important;  /* IE and Edge */
   scrollbar-width: none !important;  /* Firefox */
-}
-
-/* Subtle particle animation styles */
-.particle-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
 }
 
 /* Subtle Pulsating Inner Shadow with R88 G122 B175 (rgb(88, 122, 175)) */

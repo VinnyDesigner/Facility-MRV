@@ -30,7 +30,6 @@ import {
   Filter,
   Check,
   Download,
-  Info,
   ChevronLeft,
   ChevronRight,
   MessageSquare,
@@ -38,6 +37,16 @@ import {
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
 import { formatVersion } from '../types/mrv';
+import { FieldTooltip } from '../components/ui/FieldTooltip';
+
+const MONITORING_PLAN_STEPS = [
+  { id: 'facility-description', stepNumber: 1, title: 'Facility Description' },
+  { id: 'emissions-estimated', stepNumber: 2, title: 'Emissions Estimated' },
+  { id: 'emission-sources', stepNumber: 3, title: 'Emission Sources' },
+  { id: 'methane-emission', stepNumber: 4, title: 'Methane Emission' },
+  { id: 'source-stream', stepNumber: 5, title: 'Source Stream' },
+  { id: 'supporting-documents-remarks', stepNumber: 6, title: 'Supporting Documents & Remarks' },
+] as const;
 
 export const DataEntryView: React.FC = () => {
   const {
@@ -50,6 +59,9 @@ export const DataEntryView: React.FC = () => {
     currentRole,
     facilities,
     setActiveFacilityId,
+    setFacilityMonitoringPlanStatus,
+    facilityPlans,
+    setFacilityPlans,
   } = useMRV();
 
   const isFacilityOperator = currentRole === 'FACILITY_OPERATOR';
@@ -61,8 +73,10 @@ export const DataEntryView: React.FC = () => {
 
   // Tab Navigation State for Form and View Mode
   const [formActiveTab, setFormActiveTab] = useState<
-    'facility-description' | 'emissions-estimated' | 'emission-sources' | 'methane-emission' | 'source-stream'
+    'facility-description' | 'emissions-estimated' | 'emission-sources' | 'methane-emission' | 'source-stream' | 'supporting-documents-remarks'
   >('facility-description');
+  const [isCustomSector, setIsCustomSector] = useState(false);
+  const [isCustomActivity, setIsCustomActivity] = useState(false);
 
   // Table Search & Filter State
   const [tableSearchTerm, setTableSearchTerm] = useState('');
@@ -74,381 +88,6 @@ export const DataEntryView: React.FC = () => {
   const [reviewerComments, setReviewerComments] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Multi-Facility Monitoring Plan Records Registry
-  const [facilityPlans, setFacilityPlans] = useState<Record<string, any>>(() => ({
-    'fac-0': {
-      facilityName: 'Green Mountain Cement Factory',
-      facilityId: 'FAC-EAD-2026-0012',
-      planRef: 'MP-2026-0012',
-      reportingYear: '2026',
-      planVersion: 'V1',
-      status: 'Draft',
-      primaryApproach: 'Calculation-based (IPCC Guidelines)',
-      submittedDate: '15 Jan 2026',
-      updatedDate: '20 Jan 2026',
-      eadCorrectionDate: null,
-      description: 'Integrated cement manufacturing facility with limestone calcination rotary kilns and waste heat recovery.',
-      businessSector: 'Manufacturing',
-      primaryActivity: 'Manufacturing of cement / clinker',
-      operationalStatus: 'Operational',
-      productionStreams: [
-        { id: 'P01', category: 'Primary Products', technology: 'Process A', energyRelated: 'Yes', processEmissions: 'No', capacity: '100,000', capacityUnit: 't/year', actualQuantity: '85,000', actualQuantityUnit: 't/year' },
-        { id: 'P02', category: 'Primary Products', technology: 'Process B', energyRelated: 'Yes', processEmissions: 'Yes', capacity: '50,000', capacityUnit: 't/year', actualQuantity: '100,000', actualQuantityUnit: 't/year' },
-        { id: 'P03', category: 'Primary Products', technology: 'Kiln Process', energyRelated: 'Yes', processEmissions: 'Yes', capacity: '100,000', capacityUnit: 't/year', actualQuantity: '100,000', actualQuantityUnit: 't/year' },
-      ],
-      emissionsEstimation: {
-        estimatedAnnualEmissions: '124,450',
-        justification: 'Estimated based on production data and IPCC Guidelines',
-      },
-      emissionSources: [
-        { id: 'S01', name: 'Rotary Kiln 1 & Precalciner', associatedProduct: 'P01', gasTypes: 'CO₂, CH₄, N₂O', totalEmissions: '45,000', energyRelated: 'No', processEmissions: 'No', methodology: 'Calculation-based' },
-        { id: 'S02', name: 'Clinker Cooler System', associatedProduct: 'P02', gasTypes: 'CO₂', totalEmissions: '35,000', energyRelated: 'Yes', processEmissions: 'Yes', methodology: 'Measurement-based' },
-        { id: 'S03', name: 'Raw Material Grinding Mill', associatedProduct: 'P03', gasTypes: 'CO₂', totalEmissions: '12,000', energyRelated: 'Yes', processEmissions: 'Yes', methodology: 'Fall-back' },
-      ],
-      methaneData: {
-        hasMethaneEmissions: false,
-        annualVolume: '',
-        annualVolumeUnit: 't CH₄/year',
-        estimatedCo2e: '',
-        estimatedCo2eUnit: 't CO₂e/year',
-        sourceOfEstimations: '',
-        keySourcesAtInstallation: '',
-        procedureToDetermine: '',
-      },
-      methaneProcedures: [
-        { id: '1', title: 'LDAR', description: 'Semi-annual leak inspection', personInCharge: 'Ahmed Al Mansoori', email: 'ahmed@gmcf.ae', phone: '+971 50 123 4567' },
-      ],
-      sourceStreams: [
-        { id: 'FC1', description: 'Natural Gas - Kiln Primary Burner', associatedSource: 'S01', classification: 'Fuel Combusted', activityLevel: '10,000', activityUnit: 'Nm³', fuelType: 'Natural gas', combustionDevice: 'Gas-fired heaters', deviceCapacity: '100.0', metricUnit: 'MW' },
-        { id: 'FC2', description: 'Raw Limestone Feed', associatedSource: 'S01', classification: 'Other Input', activityLevel: '10,000', activityUnit: 't', fuelType: 'Natural gas', combustionDevice: 'Gas-fired heaters', deviceCapacity: '100.0', metricUnit: 'MW' },
-        { id: 'FC3', description: 'Clinker Output Calcination', associatedSource: 'S01', classification: 'Output', activityLevel: '10,000', activityUnit: 't', fuelType: 'Natural gas', combustionDevice: 'Gas-fired heaters', deviceCapacity: '100.0', metricUnit: 'MW' },
-      ],
-      calcOtherInputs: [
-        { id: 'F01', type: 'Natural Gas', activityLevel: '10,000', units: 'Nm³', ncv: '38.5', emissionFactor: '56.1', oxidationFactor: '100%', conversionFactor: '1.0', source: 'IPCC Default' },
-      ],
-      measEquipment: [
-        { name: 'Thermal Mass Flow Meter', type: 'Flow Meter', manufacturer: 'Endress+Hauser', parameter: 'Natural Gas Flow', accuracyClass: '±1.0%' },
-      ],
-      mitigationMeasures: [],
-      remarks: 'Standard monitoring plan submitted in accordance with statutory guidelines.',
-      attachedFiles: [{ name: 'Uncertainty Guidance.PDF', size: '3MB', status: 'Completed' }],
-    },
-    'fac-1': {
-      facilityName: 'Al Noor Industrial Facility',
-      facilityId: 'FAC-EAD-2026-0891',
-      planRef: 'MP-2026-0891',
-      reportingYear: '2026',
-      planVersion: 'V1',
-      status: 'To Be Submitted',
-      primaryApproach: 'Calculation-based (Tier 3)',
-      submittedDate: '—',
-      updatedDate: '—',
-      eadCorrectionDate: '2026-06-17',
-      description: 'Cogeneration Power & High-Pressure Steam Generation plant producing electricity and industrial steam for regional facilities.',
-      businessSector: 'Energy',
-      primaryActivity: 'Combustion of fuels in stationary equipment',
-      operationalStatus: 'Operational',
-      productionStreams: [
-        { id: 'P01', category: 'Primary Products', technology: 'Combined Cycle Gas Turbine', energyRelated: 'Yes', processEmissions: 'No', capacity: '450,000', capacityUnit: 'MWh/year', actualQuantity: '412,000', actualQuantityUnit: 'MWh/year' },
-        { id: 'P02', category: 'Primary Products', technology: 'Heat Recovery Steam Generator', energyRelated: 'Yes', processEmissions: 'No', capacity: '120,000', capacityUnit: 't/year', actualQuantity: '108,500', actualQuantityUnit: 't/year' },
-      ],
-      emissionsEstimation: {
-        estimatedAnnualEmissions: '142,800',
-        justification: 'Calculated using fiscal gas meter telemetry, continuous gas chromatography, and IPCC 2006 Energy Guidelines (Tier 3 approach).',
-      },
-      emissionSources: [
-        { id: 'S01', name: 'Gas Turbine Unit 1 (GT-01)', associatedProduct: 'P01', gasTypes: 'CO₂, CH₄, N₂O', totalEmissions: '82,400', energyRelated: 'Yes', processEmissions: 'No', methodology: 'Calculation-based' },
-        { id: 'S02', name: 'Gas Turbine Unit 2 (GT-02)', associatedProduct: 'P01', gasTypes: 'CO₂, CH₄, N₂O', totalEmissions: '60,400', energyRelated: 'Yes', processEmissions: 'No', methodology: 'Calculation-based' },
-      ],
-      methaneData: {
-        hasMethaneEmissions: true,
-        annualVolume: '145',
-        annualVolumeUnit: 't CH₄/year',
-        estimatedCo2e: '4,060',
-        estimatedCo2eUnit: 't CO₂e/year',
-        sourceOfEstimations: 'Ultrasonic flow meters calibrated semi-annually and component count fugitive estimation (US EPA 453/R-95-017).',
-        keySourcesAtInstallation: 'Compressor shaft seals, high-pressure fuel gas control valves, and flange connections.',
-        procedureToDetermine: 'Quarterly Optical Gas Imaging (OGI) inspections using FLIR GF320 cameras with Method 21 bagging verification.',
-      },
-      methaneProcedures: [
-        { id: '1', title: 'LDAR Quarterly Sweep', description: 'Optical Gas Imaging of all Class 150 & 300 flanges and valves', personInCharge: 'Tariq Al Hammadi', email: 'tariq.h@alnoor-energy.ae', phone: '+971 50 112 3456' },
-        { id: '2', title: 'Turbine Seal Integrity Check', description: 'Differential pressure telemetry across dry gas seals', personInCharge: 'Rashid Mansoor', email: 'rashid.m@alnoor-energy.ae', phone: '+971 50 223 4567' },
-      ],
-      sourceStreams: [
-        { id: 'FC1', description: 'Pipeline Natural Gas to GT-01', associatedSource: 'S01', classification: 'Fuel Combusted', activityLevel: '48,500,000', activityUnit: 'Nm³', fuelType: 'Natural gas', combustionDevice: 'GE Frame 6B Turbine', deviceCapacity: '42.0', metricUnit: 'MW' },
-        { id: 'FC2', description: 'Pipeline Natural Gas to GT-02', associatedSource: 'S02', classification: 'Fuel Combusted', activityLevel: '35,600,000', activityUnit: 'Nm³', fuelType: 'Natural gas', combustionDevice: 'GE Frame 6B Turbine', deviceCapacity: '42.0', metricUnit: 'MW' },
-      ],
-      calcOtherInputs: [
-        { id: 'F01', type: 'Natural Gas (Pipeline)', activityLevel: '84,100,000', units: 'Nm³', ncv: '38.5', emissionFactor: '56.1', oxidationFactor: '100%', conversionFactor: '1.0', source: 'Laboratory Gas Chromatography (ISO 6974)' },
-      ],
-      measEquipment: [
-        { name: 'Ultrasonic Gas Flow Meter - FM01', type: 'Flow Meter', manufacturer: 'Daniel / Emerson', parameter: 'Volume Flow (Nm³)', accuracyClass: '±0.5%' },
-        { name: 'Online Gas Chromatograph - GC01', type: 'Gas Analyzer', manufacturer: 'ABB NGC8206', parameter: 'Composition & NCV', accuracyClass: '±0.2%' },
-      ],
-      mitigationMeasures: [
-        { description: 'Turbine Inlet Air Cooling System Upgrade', category: 'Energy Efficiency', scope: '1', ghg: 'CO₂', startYear: '2025', status: 'Implemented', preMeasure: '148,000', reportingReduction: '5,200', expectedReduction: '5,500', standard: 'ISO 50001', verification: 'Third-Party Verified' },
-      ],
-      remarks: 'Monitoring methodology adheres strictly to EAD MRV Guidelines Chapter 4 for Thermal Power Installations.',
-      attachedFiles: [{ name: 'Al_Noor_Calibration_Certificates_2026.pdf', size: '4.2MB', status: 'Completed' }],
-    },
-    'fac-2': {
-      facilityName: 'Emirates Steel Arkan Complex',
-      facilityId: 'FAC-EAD-2026-0104',
-      planRef: 'MP-2026-0104',
-      reportingYear: '2026',
-      planVersion: 'V1',
-      status: 'To Be Submitted',
-      primaryApproach: 'Measurement-based (CEMS)',
-      submittedDate: '—',
-      updatedDate: '—',
-      eadCorrectionDate: '2026-06-17',
-      description: 'Integrated direct reduced iron (DRI) and electric arc furnace (EAF) steel production complex.',
-      businessSector: 'Industrial Processes',
-      primaryActivity: 'Production of iron or steel',
-      operationalStatus: 'Operational',
-      productionStreams: [
-        { id: 'P01', category: 'Primary Products', technology: 'Direct Reduction Plant (DRI)', energyRelated: 'Yes', processEmissions: 'Yes', capacity: '1,200,000', capacityUnit: 't/year', actualQuantity: '1,050,000', actualQuantityUnit: 't/year' },
-        { id: 'P02', category: 'Primary Products', technology: 'Electric Arc Furnace (EAF)', energyRelated: 'Yes', processEmissions: 'Yes', capacity: '1,400,000', capacityUnit: 't/year', actualQuantity: '1,180,000', actualQuantityUnit: 't/year' },
-      ],
-      emissionsEstimation: {
-        estimatedAnnualEmissions: '1,680,000',
-        justification: 'Carbon mass balance model combined with direct stack CEMS monitoring on reformer exhaust.',
-      },
-      emissionSources: [
-        { id: 'S01', name: 'DRI Reformer Furnace Stack', associatedProduct: 'P01', gasTypes: 'CO₂, CH₄', totalEmissions: '1,120,000', energyRelated: 'Yes', processEmissions: 'Yes', methodology: 'Measurement-based' },
-        { id: 'S02', name: 'EAF Off-Gas Extraction', associatedProduct: 'P02', gasTypes: 'CO₂', totalEmissions: '560,000', energyRelated: 'Yes', processEmissions: 'Yes', methodology: 'Calculation-based' },
-      ],
-      methaneData: {
-        hasMethaneEmissions: true,
-        annualVolume: '320',
-        annualVolumeUnit: 't CH₄/year',
-        estimatedCo2e: '8,960',
-        estimatedCo2eUnit: 't CO₂e/year',
-        sourceOfEstimations: 'Reformer tail gas analyzer and fugitive LDAR leak detection.',
-        keySourcesAtInstallation: 'Process gas compressors and seal purging circuits.',
-        procedureToDetermine: 'Continuous off-gas chromatography with monthly Method 21 screening.',
-      },
-      methaneProcedures: [
-        { id: '1', title: 'DRI Gas Loop Inspection', description: 'Bi-weekly leak detection on high pressure reducing gas lines', personInCharge: 'Dr. Fatima Al-Hosani', email: 'fatima.hosani@emiratessteel.ae', phone: '+971 2 550 1100' },
-      ],
-      sourceStreams: [
-        { id: 'FC1', description: 'Reforming Natural Gas', associatedSource: 'S01', classification: 'Fuel Combusted', activityLevel: '420,000,000', activityUnit: 'Nm³', fuelType: 'Natural gas', combustionDevice: 'Midrex Reformer Furnace', deviceCapacity: '350.0', metricUnit: 'MW' },
-      ],
-      calcOtherInputs: [
-        { id: 'F01', type: 'Natural Gas Feedstock', activityLevel: '420,000,000', units: 'Nm³', ncv: '38.2', emissionFactor: '56.1', oxidationFactor: '99.5%', conversionFactor: '1.0', source: 'ADNOC Fiscal Metering' },
-      ],
-      measEquipment: [
-        { name: 'CEMS Stack Analyzer ST-01', type: 'CEMS', manufacturer: 'Sick AG / GM32', parameter: 'CO₂, O₂, Flow', accuracyClass: 'Class 1' },
-      ],
-      mitigationMeasures: [
-        { description: 'CCUS Integration with Al Reyadah Carbon Capture Facility', category: 'Carbon Removal', scope: '1', ghg: 'CO₂', startYear: '2023', status: 'Implemented', preMeasure: '2,200,000', reportingReduction: '800,000', expectedReduction: '800,000', standard: 'ISO 14064-2', verification: 'Third-Party Verified' },
-      ],
-      remarks: 'Includes integrated CCUS transfer point compliance protocols.',
-      attachedFiles: [{ name: 'DRI_CEMS_QAL1_Report.pdf', size: '6.1MB', status: 'Completed' }],
-    },
-    'fac-3': {
-      facilityName: 'Borouge Petrochemicals Complex',
-      facilityId: 'FAC-EAD-2026-0599',
-      planRef: 'MP-2026-0599',
-      reportingYear: '2026',
-      planVersion: 'V3',
-      status: 'Correction Required',
-      primaryApproach: 'Calculation & Flaring Model',
-      submittedDate: '02 Mar 2026',
-      updatedDate: '11 Mar 2026',
-      eadCorrectionDate: '2026-06-10',
-      description: 'Polyolefin production facility including ethane cracking and polymerization units.',
-      businessSector: 'Industrial Processes',
-      primaryActivity: 'Combustion of fuels & cracking',
-      operationalStatus: 'Operational',
-      productionStreams: [
-        { id: 'P01', category: 'Primary Products', technology: 'Ethane Steam Cracker', energyRelated: 'Yes', processEmissions: 'Yes', capacity: '1,500,000', capacityUnit: 't/year', actualQuantity: '1,380,000', actualQuantityUnit: 't/year' },
-      ],
-      emissionsEstimation: {
-        estimatedAnnualEmissions: '950,000',
-        justification: 'Calculated using cracking furnace fuel gas mass flow meters and flare gas continuous ultrasonic monitors.',
-      },
-      emissionSources: [
-        { id: 'S01', name: 'Ethane Cracking Furnaces F-101 to F-108', associatedProduct: 'P01', gasTypes: 'CO₂, CH₄, N₂O', totalEmissions: '820,000', energyRelated: 'Yes', processEmissions: 'No', methodology: 'Calculation-based' },
-        { id: 'S02', name: 'Elevated Process Flare Stack', associatedProduct: 'P01', gasTypes: 'CO₂, CH₄', totalEmissions: '130,000', energyRelated: 'No', processEmissions: 'Yes', methodology: 'Measurement-based' },
-      ],
-      methaneData: {
-        hasMethaneEmissions: true,
-        annualVolume: '280',
-        annualVolumeUnit: 't CH₄/year',
-        estimatedCo2e: '7,840',
-        estimatedCo2eUnit: 't CO₂e/year',
-        sourceOfEstimations: 'Continuous flare ultrasonic metering and site-wide LDAR campaign.',
-        keySourcesAtInstallation: 'Polymer degasser vents and polymer recovery compressors.',
-        procedureToDetermine: 'Monthly OGI scanning with toxic vapor analyzer (TVA-2020) validation.',
-      },
-      methaneProcedures: [
-        { id: '1', title: 'Ethane Cracker Flare Header Audit', description: 'Weekly seal purging inspection on elevated flare stack', personInCharge: 'Khalid Al-Marzooqi', email: 'khalid.marzooqi@borouge.com', phone: '+971 50 445 6789' },
-      ],
-      sourceStreams: [
-        { id: 'FC1', description: 'Fuel Gas (Methane/Hydrogen Blend)', associatedSource: 'S01', classification: 'Fuel Combusted', activityLevel: '280,000,000', activityUnit: 'Nm³', fuelType: 'Natural gas', combustionDevice: 'Cracking Furnace Burners', deviceCapacity: '480.0', metricUnit: 'MW' },
-      ],
-      calcOtherInputs: [
-        { id: 'F01', type: 'Off-Gas Fuel Blend', activityLevel: '280,000,000', units: 'Nm³', ncv: '36.8', emissionFactor: '54.2', oxidationFactor: '99.8%', conversionFactor: '1.0', source: 'Online Gas Chromatograph' },
-      ],
-      measEquipment: [
-        { name: 'Flare Ultrasonic Flow Meter FM-FLARE', type: 'Flow Meter', manufacturer: 'Fluenta FGM 160', parameter: 'Flare Gas Flow & Velocity', accuracyClass: '±2.0%' },
-      ],
-      mitigationMeasures: [
-        { description: 'Flare Gas Recovery System (FGRS) Compressor Addition', category: 'Emission Avoidance', scope: '1', ghg: 'CH₄, CO₂', startYear: '2025', status: 'Planned', preMeasure: '160,000', reportingReduction: '45,000', expectedReduction: '50,000', standard: 'API 521', verification: 'Planned Third-Party' },
-      ],
-      remarks: 'EAD Reviewer requested updated LDAR fugitive emissions reconciliation.',
-      attachedFiles: [{ name: 'FGRS_Engineering_Design_Study.pdf', size: '5.4MB', status: 'Completed' }],
-    },
-    'fac-4': {
-      facilityName: 'Al Taweelah Power & Desalination',
-      facilityId: 'FAC-EAD-2026-0033',
-      planRef: 'MP-2026-0033',
-      reportingYear: '2026',
-      planVersion: 'V1',
-      status: 'Under EAD Review',
-      primaryApproach: 'Combined Cycle Gas Telemetry',
-      submittedDate: '05 Mar 2026',
-      updatedDate: '—',
-      eadCorrectionDate: null,
-      description: 'Thermal power generation and seawater thermal desalination facility.',
-      businessSector: 'Energy',
-      primaryActivity: 'Combustion of fuels & Desalination',
-      operationalStatus: 'Operational',
-      productionStreams: [
-        { id: 'P01', category: 'Primary Products', technology: 'Combined Cycle Gas Turbines (CCGT)', energyRelated: 'Yes', processEmissions: 'No', capacity: '2,000,000', capacityUnit: 'MWh/year', actualQuantity: '1,890,000', actualQuantityUnit: 'MWh/year' },
-      ],
-      emissionsEstimation: {
-        estimatedAnnualEmissions: '4,820,000',
-        justification: 'Fiscal pipeline natural gas meters and continuous gas analyzer calibration.',
-      },
-      emissionSources: [
-        { id: 'S01', name: 'Turbine Block 1 Exhaust Stacks', associatedProduct: 'P01', gasTypes: 'CO₂, N₂O', totalEmissions: '2,410,000', energyRelated: 'Yes', processEmissions: 'No', methodology: 'Calculation-based' },
-        { id: 'S02', name: 'Turbine Block 2 Exhaust Stacks', associatedProduct: 'P01', gasTypes: 'CO₂, N₂O', totalEmissions: '2,410,000', energyRelated: 'Yes', processEmissions: 'No', methodology: 'Calculation-based' },
-      ],
-      methaneData: {
-        hasMethaneEmissions: false,
-        annualVolume: '',
-        annualVolumeUnit: 't CH₄/year',
-        estimatedCo2e: '',
-        estimatedCo2eUnit: 't CO₂e/year',
-        sourceOfEstimations: '',
-        keySourcesAtInstallation: '',
-        procedureToDetermine: '',
-      },
-      methaneProcedures: [],
-      sourceStreams: [
-        { id: 'FC1', description: 'Pipeline Natural Gas (TAQA Grid)', associatedSource: 'S01', classification: 'Fuel Combusted', activityLevel: '1,200,000,000', activityUnit: 'Nm³', fuelType: 'Natural gas', combustionDevice: 'MHI CCGT Turbines', deviceCapacity: '1100.0', metricUnit: 'MW' },
-      ],
-      calcOtherInputs: [
-        { id: 'F01', type: 'Natural Gas Pipeline', activityLevel: '1,200,000,000', units: 'Nm³', ncv: '38.4', emissionFactor: '56.1', oxidationFactor: '100%', conversionFactor: '1.0', source: 'ADNOC Gas Telemetry' },
-      ],
-      measEquipment: [
-        { name: 'Ultrasonic Fiscal Meter FM-01', type: 'Flow Meter', manufacturer: 'KROHNE Altometer', parameter: 'Natural Gas Flow', accuracyClass: '±0.3%' },
-      ],
-      mitigationMeasures: [],
-      remarks: 'Submitted for statutory annual MRV compliance review.',
-      attachedFiles: [{ name: 'Taweelah_Gas_Metering_Verification.pdf', size: '3.9MB', status: 'Completed' }],
-    },
-    'fac-5': {
-      facilityName: 'Tadweer Waste-to-Energy Facility',
-      facilityId: 'FAC-EAD-2026-0775',
-      planRef: 'MP-2026-0775',
-      reportingYear: '2026',
-      planVersion: 'V1',
-      status: 'To Be Submitted',
-      primaryApproach: 'Waste Incineration Tier 2',
-      submittedDate: '—',
-      updatedDate: '—',
-      eadCorrectionDate: '2026-06-17',
-      description: 'Municipal solid waste incineration facility with waste heat energy recovery.',
-      businessSector: 'Waste',
-      primaryActivity: 'Solid waste thermal treatment',
-      operationalStatus: 'Operational',
-      productionStreams: [
-        { id: 'P01', category: 'Primary Products', technology: 'Moving Grate Incineration', energyRelated: 'Yes', processEmissions: 'Yes', capacity: '300,000', capacityUnit: 't waste/year', actualQuantity: '280,000', actualQuantityUnit: 't waste/year' },
-      ],
-      emissionsEstimation: {
-        estimatedAnnualEmissions: '310,400',
-        justification: 'Calculated using IPCC 2006 Waste Model with continuous fossil carbon fraction sorting.',
-      },
-      emissionSources: [
-        { id: 'S01', name: 'Incinerator Line 1 & 2 Flue Gas Stack', associatedProduct: 'P01', gasTypes: 'CO₂, N₂O', totalEmissions: '310,400', energyRelated: 'Yes', processEmissions: 'Yes', methodology: 'Measurement-based' },
-      ],
-      methaneData: {
-        hasMethaneEmissions: false,
-        annualVolume: '',
-        annualVolumeUnit: 't CH₄/year',
-        estimatedCo2e: '',
-        estimatedCo2eUnit: 't CO₂e/year',
-        sourceOfEstimations: '',
-        keySourcesAtInstallation: '',
-        procedureToDetermine: '',
-      },
-      methaneProcedures: [],
-      sourceStreams: [
-        { id: 'FC1', description: 'Municipal Solid Waste (Fossil Carbon Fraction)', associatedSource: 'S01', classification: 'Other Fuel', activityLevel: '280,000', activityUnit: 't', fuelType: 'Solid Waste', combustionDevice: 'Martin Grate Incinerator', deviceCapacity: '80.0', metricUnit: 'MW' },
-      ],
-      calcOtherInputs: [
-        { id: 'F01', type: 'Municipal Solid Waste', activityLevel: '280,000', units: 't', ncv: '10.5', emissionFactor: '91.7', oxidationFactor: '100%', conversionFactor: '1.0', source: 'Tadweer Waste Characterization Lab' },
-      ],
-      measEquipment: [
-        { name: 'CEMS Flue Gas Analyzer', type: 'CEMS', manufacturer: 'ABB ACF5000', parameter: 'CO₂, CO, Flow, O₂', accuracyClass: 'Class 1' },
-      ],
-      mitigationMeasures: [],
-      remarks: 'Approved under EAD Waste MRV statutory guidelines.',
-      attachedFiles: [{ name: 'Tadweer_Waste_Sampling_Plan_2026.pdf', size: '4.8MB', status: 'Completed' }],
-    },
-    'fac-6': {
-      facilityName: 'Gulf Chemical Solutions LLC',
-      facilityId: 'FAC-EAD-2026-0619',
-      planRef: 'MP-2026-0619',
-      reportingYear: '2026',
-      planVersion: 'V1',
-      status: 'Rejected',
-      primaryApproach: 'Calculation-based (Tier 2)',
-      submittedDate: '18 Feb 2026',
-      updatedDate: '24 Feb 2026',
-      eadCorrectionDate: null,
-      description: 'Organic solvent recovery, distillation and chemical synthesis facility.',
-      businessSector: 'Chemicals',
-      primaryActivity: 'Organic Solvent Refining & Distillation',
-      operationalStatus: 'Operational',
-      productionStreams: [
-        { id: 'P01', category: 'Primary Products', technology: 'Vacuum Distillation Columns', energyRelated: 'Yes', processEmissions: 'Yes', capacity: '85,000', capacityUnit: 't/year', actualQuantity: '74,000', actualQuantityUnit: 't/year' },
-      ],
-      emissionsEstimation: {
-        estimatedAnnualEmissions: '68,200',
-        justification: 'Calculation based on solvent consumption mass balance.',
-      },
-      emissionSources: [
-        { id: 'S01', name: 'Thermal Oxidizer & Distillation Boiler', associatedProduct: 'P01', gasTypes: 'CO₂, VOC', totalEmissions: '68,200', energyRelated: 'Yes', processEmissions: 'Yes', methodology: 'Calculation-based' },
-      ],
-      methaneData: {
-        hasMethaneEmissions: false,
-        annualVolume: '',
-        annualVolumeUnit: 't CH₄/year',
-        estimatedCo2e: '',
-        estimatedCo2eUnit: 't CO₂e/year',
-        sourceOfEstimations: '',
-        keySourcesAtInstallation: '',
-        procedureToDetermine: '',
-      },
-      methaneProcedures: [],
-      sourceStreams: [
-        { id: 'FC1', description: 'Natural Gas - Reboiler Burner', associatedSource: 'S01', classification: 'Fuel Combusted', activityLevel: '14,000,000', activityUnit: 'Nm³', fuelType: 'Natural gas', combustionDevice: 'Gas Boiler', deviceCapacity: '25.0', metricUnit: 'MW' },
-      ],
-      calcOtherInputs: [
-        { id: 'F01', type: 'Natural Gas', activityLevel: '14,000,000', units: 'Nm³', ncv: '38.2', emissionFactor: '56.1', oxidationFactor: '100%', conversionFactor: '1.0', source: 'Fiscal Gas Meter' },
-      ],
-      measEquipment: [
-        { name: 'Thermal Mass Flow Meter', type: 'Flow Meter', manufacturer: 'Endress+Hauser', parameter: 'Natural Gas Flow', accuracyClass: '±1.0%' },
-      ],
-      mitigationMeasures: [],
-      remarks: 'Plan rejected due to unverified fugitive emission estimation methodologies.',
-      attachedFiles: [{ name: 'EAD_Rejection_Notice.pdf', size: '1.2MB', status: 'Completed' }],
-    },
-  }));
 
   // Current active plan
   const currentPlan = facilityPlans[selectedFacilityId] || {
@@ -478,6 +117,15 @@ export const DataEntryView: React.FC = () => {
     remarks: '',
     attachedFiles: [],
   };
+
+  // Synchronize active facility when navigating from Facility Registration
+  useEffect(() => {
+    if (activeFacility?.id) {
+      setSelectedFacilityId(activeFacility.id);
+      setViewMode('form');
+      setFormActiveTab('facility-description');
+    }
+  }, [activeFacility?.id]);
 
   // Synchronize / Merge approved facilities from Context / Registration that don't have a plan yet
   useEffect(() => {
@@ -806,9 +454,15 @@ export const DataEntryView: React.FC = () => {
   };
 
   const handleSave = () => {
-    setIsSavedNotice(true);
-    setNoticeMessage('Monitoring Plan Changes Saved!');
-    setTimeout(() => setIsSavedNotice(false), 3000);
+    const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    updateCurrentPlan((p) => ({
+      ...p,
+      status: 'Draft',
+      updatedDate: todayStr,
+    }));
+    setFacilityMonitoringPlanStatus(selectedFacilityId, 'Draft');
+    setMonitoringPlanStatus('Draft');
+    setViewMode('table');
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -847,68 +501,86 @@ export const DataEntryView: React.FC = () => {
 
           <div className="flex items-center gap-2 shrink-0 flex-nowrap">
             {/* Search Box */}
-            <div className="relative w-36 sm:w-44 xl:w-48">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search by facility, ref..."
-                value={tableSearchTerm}
-                onChange={(e) => {
-                  setTableSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full h-9 pl-8 pr-7 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all font-medium shadow-xs"
-              />
-              {tableSearchTerm && (
-                <button
-                  onClick={() => {
-                    setTableSearchTerm('');
+            <FieldTooltip
+              content="Search monitoring plans and data entries by facility name, ID, or reference."
+              example="Al Ain Cement or MP-2026-001"
+              className="w-36 sm:w-44 xl:w-48"
+            >
+              <div className="relative w-full">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search by facility, ref..."
+                  value={tableSearchTerm}
+                  onChange={(e) => {
+                    setTableSearchTerm(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
+                  className="w-full h-9 pl-8 pr-7 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all font-medium shadow-xs"
+                />
+                {tableSearchTerm && (
+                  <button
+                    onClick={() => {
+                      setTableSearchTerm('');
+                      setCurrentPage(1);
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </FieldTooltip>
 
             {/* Status Filter */}
-            <div className="relative">
-              <select
-                value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-28 sm:w-32 h-9 px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer truncate"
-              >
-                <option value="ALL">All Statuses</option>
-                <option value="To Be Submitted">To Be Submitted</option>
-                <option value="Draft">Draft</option>
-                <option value="Submitted">Submitted</option>
-                <option value="Under EAD Review">Under EAD Review</option>
-                <option value="Approved">Approved</option>
-                <option value="Reverted">Reverted (Correction Required)</option>
-                <option value="Rejected">Rejected</option>
-              </select>
-            </div>
+            <FieldTooltip
+              content="Filter data entry plans by current submission lifecycle status."
+              example="Draft, Submitted, or Approved"
+              className="w-auto"
+            >
+              <div className="relative">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-28 sm:w-32 h-9 px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer truncate"
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="To Be Submitted">To Be Submitted</option>
+                  <option value="Draft">Draft</option>
+                  <option value="Submitted">Submitted</option>
+                  <option value="Under EAD Review">Under EAD Review</option>
+                  <option value="Approved">Approved</option>
+                  <option value="Reverted">Reverted (Correction Required)</option>
+                  <option value="Rejected">Rejected</option>
+                </select>
+              </div>
+            </FieldTooltip>
 
             {/* Year Filter */}
-            <div className="relative">
-              <select
-                value={yearFilter}
-                onChange={(e) => {
-                  setYearFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-24 sm:w-26 h-9 px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer truncate"
-              >
-                <option value="ALL">All Years</option>
-                <option value="2026">2026</option>
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-              </select>
-            </div>
+            <FieldTooltip
+              content="Filter monitoring dossiers by reporting calendar year."
+              example="2026"
+              className="w-auto"
+            >
+              <div className="relative">
+                <select
+                  value={yearFilter}
+                  onChange={(e) => {
+                    setYearFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-24 sm:w-26 h-9 px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer truncate"
+                >
+                  <option value="ALL">All Years</option>
+                  <option value="2026">2026</option>
+                  <option value="2025">2025</option>
+                  <option value="2024">2024</option>
+                </select>
+              </div>
+            </FieldTooltip>
 
             {/* Reset */}
             {(tableSearchTerm || statusFilter !== 'ALL' || yearFilter !== 'ALL') && (
@@ -947,10 +619,10 @@ export const DataEntryView: React.FC = () => {
                   <th className="h-[38px] px-3 w-20 text-center whitespace-nowrap align-middle bg-[#D6E3EF]">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+              <tbody className="divide-y divide-slate-100 font-normal text-slate-700">
                 {paginatedPlans.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="h-[60px] py-8 text-center text-slate-400 font-semibold align-middle">
+                    <td colSpan={10} className="h-[60px] py-8 text-center text-slate-400 font-normal align-middle">
                       No monitoring plan records match the selected filter criteria.
                     </td>
                   </tr>
@@ -964,22 +636,22 @@ export const DataEntryView: React.FC = () => {
                         key={facId}
                         className={`h-[60px] ${idx % 2 === 1 ? 'bg-slate-50/80' : 'bg-white'} hover:bg-[#EBF3FA] transition-colors group cursor-default`}
                       >
-                        <td className="h-[60px] px-2.5 text-center font-mono font-bold text-slate-400 align-middle">
+                        <td className="h-[60px] px-2.5 text-center font-mono font-normal text-slate-400 align-middle">
                           {rowNumber}
                         </td>
 
                         {/* Facility Name */}
-                        <td className="h-[60px] px-2.5 font-semibold text-slate-800 w-44 max-w-[180px] leading-snug align-middle">
+                        <td className="h-[60px] px-2.5 font-normal text-slate-800 w-44 max-w-[180px] leading-snug align-middle">
                           <span>{plan.facilityName}</span>
                         </td>
 
                         {/* Facility ID */}
-                        <td className="h-[60px] px-2.5 font-mono text-[#004B87] font-semibold whitespace-nowrap align-middle">
+                        <td className="h-[60px] px-2.5 font-mono text-[#004B87] font-normal whitespace-nowrap align-middle">
                           {plan.facilityId || '—'}
                         </td>
 
                         {/* Applicable Year */}
-                        <td className="h-[60px] px-2.5 text-center font-semibold text-slate-700 whitespace-nowrap align-middle">
+                        <td className="h-[60px] px-2.5 text-center font-normal text-slate-700 whitespace-nowrap align-middle">
                           {plan.reportingYear || '2026'}
                         </td>
 
@@ -1015,18 +687,18 @@ export const DataEntryView: React.FC = () => {
                         {/* Status */}
                         <td className="h-[60px] px-2.5 text-left whitespace-nowrap align-middle">
                           <span
-                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap inline-block ${
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-normal whitespace-nowrap inline-block ${
                               plan.status === 'Approved' || plan.status === 'Approved / Active' || plan.status === 'Active'
-                                ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60 font-bold'
+                                ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
                                 : plan.status === 'Submitted' || plan.status === 'Under EAD Review'
-                                ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60 font-bold'
+                                ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
                                 : plan.status === 'To Be Submitted'
-                                ? 'bg-[#EFF6FF] text-[#1D4ED8] border border-blue-200/80 font-bold'
+                                ? 'bg-[#EFF6FF] text-[#1D4ED8] border border-blue-200/80'
                                 : plan.status === 'Correction Required' || plan.status === 'Reverted'
-                                ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
+                                ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80'
                                 : plan.status === 'Rejected'
-                                ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 font-bold'
-                                : 'bg-slate-100 text-slate-700 border border-slate-200 font-bold'
+                                ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60'
+                                : 'bg-slate-100 text-slate-700 border border-slate-200'
                             }`}
                           >
                             {plan.status}
@@ -1165,54 +837,90 @@ export const DataEntryView: React.FC = () => {
   if (viewMode === 'view') {
     return (
       <div className="h-full flex flex-col overflow-hidden font-sans py-0.5">
-        {/* Top Action Header */}
-        <div className="flex-shrink-0 pb-[18px] pt-0.5 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <button
-                onClick={() => setViewMode('table')}
-                className="p-1 -ml-1 text-[#336D9F] hover:text-[#004B87] hover:bg-[#E9F1F8] rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 border border-slate-200/70 shadow-2xs"
-                title="Back to Overview"
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </button>
-              <h1 className="text-[18px] font-bold font-display text-[#336D9F] tracking-tight">
-                {currentPlan.facilityName || 'Facility'} — Monitoring Plan (Read-Only)
-              </h1>
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-bold ${
-                  currentPlan.status === 'Approved' || currentPlan.status === 'Approved / Active' || currentPlan.status === 'Active'
-                    ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
-                    : currentPlan.status === 'Submitted' || currentPlan.status === 'Under EAD Review'
-                    ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
-                    : currentPlan.status === 'Correction Required' || currentPlan.status === 'Reverted'
-                    ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
-                    : currentPlan.status === 'Rejected'
-                    ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 font-bold'
-                    : 'bg-slate-100 text-slate-700 border border-slate-200'
-                }`}
-              >
-                {currentPlan.status || 'Draft'}
-              </span>
+        {/* Top Action Header with Back Button + Stepper Tabs on Top */}
+        <div className="flex-shrink-0 pb-2.5 pt-0.5 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <button
+              onClick={() => setViewMode('table')}
+              className="p-1.5 text-[#336D9F] hover:text-[#004B87] hover:bg-[#E9F1F8] rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 border border-slate-200/70 shadow-2xs"
+              title="Back to Monitoring Plan Overview Table"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
 
-              {currentPlan.facilityId && (
-                <span className="px-2.5 py-1 rounded-full bg-[#D1FAE5] text-[#065F46] text-xs font-mono font-bold border border-emerald-300 flex items-center gap-1 shadow-2xs">
-                  <span>Facility ID:</span>
-                  <span>{currentPlan.facilityId}</span>
-                </span>
-              )}
+            {/* Stepper Tabs Bar */}
+            <div className="inline-flex items-center gap-1.5 p-1 bg-white border border-slate-200 rounded-[6px] shadow-2xs overflow-x-auto no-scrollbar">
+              {MONITORING_PLAN_STEPS.map((step, idx) => {
+                const subTabOrder = [
+                  'facility-description',
+                  'emissions-estimated',
+                  'emission-sources',
+                  'methane-emission',
+                  'source-stream',
+                  'supporting-documents-remarks',
+                ];
+                const currentStepNum = subTabOrder.indexOf(formActiveTab) + 1;
+                const isActive = step.stepNumber === currentStepNum;
+                const isCompleted = step.stepNumber < currentStepNum;
+                const isArrowHighlighted = idx < currentStepNum - 1;
+
+                return (
+                  <React.Fragment key={step.id}>
+                    <button
+                      type="button"
+                      onClick={() => setFormActiveTab(step.id as any)}
+                      className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-2 cursor-pointer select-none ${
+                        isActive
+                          ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                          : isCompleted
+                          ? 'text-slate-700 hover:text-[#004B87] hover:bg-white/60 font-semibold'
+                          : 'text-slate-500 hover:text-slate-700 hover:bg-white/40 font-medium'
+                      }`}
+                    >
+                      <div
+                        className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-all ${
+                          isActive
+                            ? 'bg-white text-[#004B87] shadow-2xs'
+                            : isCompleted
+                            ? 'bg-[#00875A] text-white shadow-2xs'
+                            : 'bg-white text-slate-400 border border-slate-300'
+                        }`}
+                      >
+                        <span>{step.stepNumber}</span>
+                      </div>
+                      <span className="whitespace-nowrap">{step.title}</span>
+                    </button>
+
+                    {idx < MONITORING_PLAN_STEPS.length - 1 && (
+                      <ChevronRight
+                        className={`w-4 h-4 shrink-0 mx-0.5 transition-colors ${
+                          isArrowHighlighted ? 'text-[#004B87] stroke-[2.5]' : 'text-slate-300'
+                        }`}
+                      />
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </div>
-            <p className="text-xs text-slate-500 font-medium mt-0.5 ml-7">
-              {currentPlan.facilityName || 'New Facility'} ({currentPlan.facilityId || 'N/A'}) • Reporting Year: {currentPlan.reportingYear || '2026'} • Version: {formatVersion(currentPlan.planVersion)}
-            </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 border border-slate-200/90 rounded-xl text-xs font-semibold text-slate-700">
-              <Calendar className="w-3.5 h-3.5 text-slate-500" />
-              <span className="text-slate-500">Calendar Year:</span>
-              <span className="font-bold text-slate-900">{currentPlan.reportingYear || '2026'}</span>
-            </div>
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-bold ${
+                currentPlan.status === 'Approved' || currentPlan.status === 'Approved / Active' || currentPlan.status === 'Active'
+                  ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
+                  : currentPlan.status === 'Submitted' || currentPlan.status === 'Under EAD Review'
+                  ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
+                  : currentPlan.status === 'Correction Required' || currentPlan.status === 'Reverted'
+                  ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
+                  : currentPlan.status === 'Rejected'
+                  ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 font-bold'
+                  : 'bg-slate-100 text-slate-700 border border-slate-200'
+              }`}
+            >
+              {currentPlan.status || 'Draft'}
+            </span>
+
             {currentPlan.status !== 'Under EAD Review' && (
               <button
                 onClick={() => setViewMode('form')}
@@ -1225,80 +933,43 @@ export const DataEntryView: React.FC = () => {
           </div>
         </div>
 
-        {/* Scrollable Content Card */}
-        <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
-          {/* Sticky Tabs Navigation Bar (Fixed at top, outside scroll area) */}
-          <div className="flex-shrink-0 flex items-center overflow-x-auto no-scrollbar pb-2.5">
-            <div className="inline-flex items-center gap-1 p-1 bg-[#EAEFF4] border border-[#D5E0EA] rounded-[6px] shadow-2xs">
-              <button
-                type="button"
-                onClick={() => setFormActiveTab('facility-description')}
-                className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                  formActiveTab === 'facility-description'
-                    ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
-                    : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
-                }`}
-              >
-                <Layers className={`w-3.5 h-3.5 ${formActiveTab === 'facility-description' ? 'text-white' : 'text-slate-500'}`} />
-                <span>Facility Description</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setFormActiveTab('emissions-estimated')}
-                className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                  formActiveTab === 'emissions-estimated'
-                    ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
-                    : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
-                }`}
-              >
-                <Gauge className={`w-3.5 h-3.5 ${formActiveTab === 'emissions-estimated' ? 'text-white' : 'text-slate-500'}`} />
-                <span>Emissions Estimated</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setFormActiveTab('emission-sources')}
-                className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                  formActiveTab === 'emission-sources'
-                    ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
-                    : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
-                }`}
-              >
-                <Flame className={`w-3.5 h-3.5 ${formActiveTab === 'emission-sources' ? 'text-white' : 'text-slate-500'}`} />
-                <span>Emission Sources</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setFormActiveTab('methane-emission')}
-                className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                  formActiveTab === 'methane-emission'
-                    ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
-                    : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
-                }`}
-              >
-                <ShieldCheck className={`w-3.5 h-3.5 ${formActiveTab === 'methane-emission' ? 'text-white' : 'text-slate-500'}`} />
-                <span>Methane Emission</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setFormActiveTab('source-stream')}
-                className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                  formActiveTab === 'source-stream'
-                    ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
-                    : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
-                }`}
-              >
-                <Workflow className={`w-3.5 h-3.5 ${formActiveTab === 'source-stream' ? 'text-white' : 'text-slate-500'}`} />
-                <span>Source Stream</span>
-              </button>
+        {/* Under Tabs: Metadata Row with Auto-Populated Facility Name, Calendar Year, Facility ID */}
+        <div className="flex-shrink-0 bg-white border border-slate-200/90 rounded-xl px-4 py-2.5 mb-2.5 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-slate-500 text-xs font-medium">Facility:</span>
+              <span className="text-xs font-bold text-slate-900">
+                {currentPlan.facilityName || activeFacility?.name || 'Al Noor Industrial Facility'}
+              </span>
             </div>
+
+            <span className="text-slate-300">|</span>
+
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-500 text-xs font-medium">Facility ID:</span>
+              <span className="px-2.5 py-0.5 rounded-full bg-[#D1FAE5] text-[#065F46] text-xs font-mono font-bold border border-emerald-300">
+                {currentPlan.facilityId || activeFacility?.facilityCode || 'FAC-EAD-2026-0891'}
+              </span>
+            </div>
+
+            <span className="text-slate-300">|</span>
+
+            <p className="text-[11px] text-slate-500 font-medium hidden md:block">
+              {currentPlan.facilityName || 'Facility'} • Reporting Year: {currentPlan.reportingYear || '2026'} • Version: {formatVersion(currentPlan.planVersion)}
+            </p>
           </div>
 
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700">
+            <Calendar className="w-3.5 h-3.5 text-slate-500" />
+            <span className="text-slate-500">Calendar Year:</span>
+            <span className="font-bold text-slate-900">{currentPlan.reportingYear || '2026'}</span>
+          </div>
+        </div>
+
+        {/* Scrollable Content Card */}
+        <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
           {/* Scrollable Content */}
-          <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-2.5 pt-2 pb-0.5 text-xs custom-scrollbar">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-2.5 pt-1 pb-0.5 text-xs custom-scrollbar">
 
           {/* Tab 1: Facility Description */}
           {formActiveTab === 'facility-description' && (
@@ -1338,7 +1009,7 @@ export const DataEntryView: React.FC = () => {
                     <tbody className="divide-y divide-slate-100 bg-white">
                       {currentPlan.productionStreams.map((row: any, i: number) => (
                         <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="py-2 px-3 font-mono font-bold text-[#004B87]" title={row.id}>{row.id}</td>
+                          <td className="py-2 px-3 font-mono font-normal text-[#004B87]" title={row.id}>{row.id}</td>
                           <td className="py-2 px-3 text-slate-800" title={row.category}>{row.category}</td>
                           <td className="py-2 px-3 text-slate-800" title={row.technology}>{row.technology}</td>
                           <td className="py-2 px-3 text-slate-800" title={row.energyRelated}>{row.energyRelated}</td>
@@ -1362,7 +1033,7 @@ export const DataEntryView: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <span className="block text-slate-700 font-semibold mb-1.5 text-xs" title="Estimated Annual Emissions (tCO₂e)">Estimated Annual Emissions (tCO₂e)</span>
-                  <div className="px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-navy-900 font-mono font-bold text-xs" title={currentPlan.emissionsEstimation.estimatedAnnualEmissions}>
+                  <div className="px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-navy-900 font-mono font-normal text-xs" title={currentPlan.emissionsEstimation.estimatedAnnualEmissions}>
                     {currentPlan.emissionsEstimation.estimatedAnnualEmissions}
                   </div>
                 </div>
@@ -1396,11 +1067,11 @@ export const DataEntryView: React.FC = () => {
                   <tbody className="divide-y divide-slate-100 bg-white">
                     {currentPlan.emissionSources.map((row: any, i: number) => (
                       <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="py-2 px-3 font-mono font-bold text-[#004B87]" title={row.id}>{row.id}</td>
+                        <td className="py-2 px-3 font-mono font-normal text-[#004B87]" title={row.id}>{row.id}</td>
                         <td className="py-2 px-3 text-slate-800" title={row.name}>{row.name}</td>
                         <td className="py-2 px-3 font-mono text-slate-800" title={row.associatedProduct}>{row.associatedProduct}</td>
                         <td className="py-2 px-3 text-slate-800" title={row.gasTypes}>{row.gasTypes}</td>
-                        <td className="py-2 px-3 font-mono font-semibold text-slate-900" title={row.totalEmissions}>{row.totalEmissions}</td>
+                        <td className="py-2 px-3 font-mono font-normal text-slate-900" title={row.totalEmissions}>{row.totalEmissions}</td>
                         <td className="py-2 px-3 text-slate-800" title={row.energyRelated}>{row.energyRelated}</td>
                         <td className="py-2 px-3 text-slate-800" title={row.processEmissions}>{row.processEmissions}</td>
                         <td className="py-2 px-3 text-slate-800" title={row.methodology}>{row.methodology}</td>
@@ -1417,7 +1088,7 @@ export const DataEntryView: React.FC = () => {
             <div className="space-y-4 pt-1">
               <div className="flex items-center gap-3">
                 <span className="text-xs font-semibold text-slate-700">Do methane emissions occur at your facility?</span>
-                <span className={`px-3 py-1 rounded-full text-xs font-bold ${currentPlan.methaneData?.hasMethaneEmissions ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}`}>
+                <span className={`px-3 py-1 rounded-full text-xs font-normal ${currentPlan.methaneData?.hasMethaneEmissions ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}`}>
                   {currentPlan.methaneData?.hasMethaneEmissions ? 'Yes' : 'No'}
                 </span>
               </div>
@@ -1426,14 +1097,14 @@ export const DataEntryView: React.FC = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                       <span className="block text-slate-500 font-medium text-[11px] mb-1" title="Annual Volume of methane emissions at site">Annual Volume of methane emissions at site</span>
-                      <div className="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs text-slate-900 font-semibold flex justify-between items-center" title={`${currentPlan.methaneData.annualVolume || 'N/A'} ${currentPlan.methaneData.annualVolumeUnit || 't CH₄/year'}`}>
+                      <div className="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs text-slate-900 font-normal flex justify-between items-center" title={`${currentPlan.methaneData.annualVolume || 'N/A'} ${currentPlan.methaneData.annualVolumeUnit || 't CH₄/year'}`}>
                         <span>{currentPlan.methaneData.annualVolume || 'N/A'}</span>
                         <span className="text-slate-500 text-[11px]">{currentPlan.methaneData.annualVolumeUnit || 't CH₄/year'}</span>
                       </div>
                     </div>
                     <div>
                       <span className="block text-slate-500 font-medium text-[11px] mb-1 whitespace-nowrap" title="Estimated CO₂e from methane emissions (100-year GWP)">Estimated CO₂e from methane emissions (100-year GWP)</span>
-                      <div className="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs text-slate-900 font-semibold flex justify-between items-center" title={`${currentPlan.methaneData.estimatedCO2e || currentPlan.methaneData.estimatedCo2e || 'N/A'} ${currentPlan.methaneData.estimatedCo2eUnit || 't CO₂e/year'}`}>
+                      <div className="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs text-slate-900 font-normal flex justify-between items-center" title={`${currentPlan.methaneData.estimatedCO2e || currentPlan.methaneData.estimatedCo2e || 'N/A'} ${currentPlan.methaneData.estimatedCo2eUnit || 't CO₂e/year'}`}>
                         <span>{currentPlan.methaneData.estimatedCO2e || currentPlan.methaneData.estimatedCo2e || 'N/A'}</span>
                         <span className="text-slate-500 text-[11px]">{currentPlan.methaneData.estimatedCo2eUnit || 't CO₂e/year'}</span>
                       </div>
@@ -1476,9 +1147,9 @@ export const DataEntryView: React.FC = () => {
                         <tbody className="divide-y divide-slate-100 bg-white">
                           {currentPlan.methaneProcedures.map((proc: any, idx: number) => (
                             <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                              <td className="py-2 px-3 font-semibold text-slate-900" title={proc.title}>{proc.title}</td>
+                              <td className="py-2 px-3 font-normal text-slate-900" title={proc.title}>{proc.title}</td>
                               <td className="py-2 px-3 text-slate-700" title={proc.description}>{proc.description}</td>
-                              <td className="py-2 px-3 text-slate-900 font-medium" title={proc.personInCharge}>{proc.personInCharge}</td>
+                              <td className="py-2 px-3 text-slate-900 font-normal" title={proc.personInCharge}>{proc.personInCharge}</td>
                               <td className="py-2 px-3 text-slate-600" title={proc.email}>{proc.email}</td>
                               <td className="py-2 px-3 font-mono text-slate-600" title={proc.phone}>{proc.phone}</td>
                             </tr>
@@ -1514,7 +1185,7 @@ export const DataEntryView: React.FC = () => {
                   <tbody className="divide-y divide-slate-100 bg-white">
                     {currentPlan.sourceStreams.map((row: any, i: number) => (
                       <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="py-2 px-3 font-mono font-bold text-[#004B87]" title={row.id}>{row.id}</td>
+                        <td className="py-2 px-3 font-mono font-normal text-[#004B87]" title={row.id}>{row.id}</td>
                         <td className="py-2 px-3 text-slate-800" title={row.description}>{row.description}</td>
                         <td className="py-2 px-3 font-mono text-slate-800" title={row.associatedSource}>{row.associatedSource}</td>
                         <td className="py-2 px-3 text-slate-800" title={row.classification}>{row.classification}</td>
@@ -1529,16 +1200,21 @@ export const DataEntryView: React.FC = () => {
                   </tbody>
                 </table>
               </div>
+            </div>
+          )}
 
+          {/* Tab 6: Supporting Documents & Remarks (Read-Only) */}
+          {formActiveTab === 'supporting-documents-remarks' && (
+            <div className="space-y-4 pt-1">
               {/* Supporting Documents */}
-              <div className="space-y-2 pt-1">
+              <div className="space-y-2">
                 <span className="text-xs font-bold text-[#336D9F]">Supporting Documents</span>
                 <div className="flex flex-wrap gap-2.5">
-                  {(currentPlan.attachedFiles && currentPlan.attachedFiles.length > 0 ? currentPlan.attachedFiles : [{ name: 'Uncertainty Guidance.PDF', size: '3MB', status: 'Completed' }]).map((f: any, i: number) => (
-                    <span key={i} className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-medium text-slate-800 shadow-xs">
+                  {(currentPlan.attachedFiles && currentPlan.attachedFiles.length > 0 ? currentPlan.attachedFiles : [{ name: 'Statutory_Monitoring_Documentation.pdf', size: '3.2MB', status: 'Completed' }]).map((f: any, i: number) => (
+                    <span key={i} className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-normal text-slate-800 shadow-xs">
                       <FileText className="w-4 h-4 text-rose-600" />
-                      <span className="font-bold">{f.name}</span>
-                      <span className="text-slate-400 text-[10px]">{f.size} • <span className="text-emerald-600 font-bold">{f.status || 'Completed'}</span></span>
+                      <span className="font-normal">{f.name}</span>
+                      <span className="text-slate-400 text-[10px]">{f.size} • <span className="text-emerald-600 font-normal">{f.status || 'Completed'}</span></span>
                     </span>
                   ))}
                 </div>
@@ -1563,13 +1239,18 @@ export const DataEntryView: React.FC = () => {
               <MessageSquare className="w-3.5 h-3.5 text-[#336D9F]" />
               <label className="font-bold text-[#336D9F] text-xs">Reviewer Comments</label>
             </div>
-            <textarea
-              rows={2}
-              value={reviewerComments}
-              onChange={(e) => setReviewerComments(e.target.value)}
-              placeholder="Enter reviewer comments, feedback, compliance notes, or correction instructions for this monitoring plan..."
-              className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-[8px] text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] focus:bg-white transition-all font-medium resize-none shadow-2xs"
-            />
+            <FieldTooltip
+              content="Enter reviewer evaluation, feedback observations, or statutory correction instructions."
+              example="All parameters verified. Uncertainty assessment methodology accepted."
+            >
+              <textarea
+                rows={2}
+                value={reviewerComments}
+                onChange={(e) => setReviewerComments(e.target.value)}
+                placeholder="Enter reviewer comments, feedback, compliance notes, or correction instructions for this monitoring plan..."
+                className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-[8px] text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] focus:bg-white transition-all font-medium resize-none shadow-2xs"
+              />
+            </FieldTooltip>
           </div>
 
           {/* Bottom Actions Row */}
@@ -1619,6 +1300,17 @@ export const DataEntryView: React.FC = () => {
             )}
 
             {formActiveTab === 'source-stream' && (
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('supporting-documents-remarks')}
+                className="px-5 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold text-xs rounded-[8px] shadow-sm hover:from-[#003d6e] hover:to-[#005c9e] transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {formActiveTab === 'supporting-documents-remarks' && (
               <div className="flex items-center justify-end gap-3">
                 {/* Revert Button */}
                 <button
@@ -1675,58 +1367,126 @@ export const DataEntryView: React.FC = () => {
         multiple
       />
 
-      {/* Top Header Row with Title Group on Left and Facility / Year Selectors on Right */}
-      <div className="flex-shrink-0 pb-[18px] pt-0.5 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <button
-              onClick={() => setViewMode('table')}
-              className="p-1 -ml-1 text-[#336D9F] hover:text-[#004B87] hover:bg-[#E9F1F8] rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 border border-slate-200/70 shadow-2xs"
-              title="Back to Overview Table"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </button>
-            <h1 className="text-[18px] font-bold font-display text-[#336D9F] tracking-tight">
-              {currentPlan.facilityName ? `${currentPlan.facilityName} — Monitoring Plan` : 'Monitoring Plan — New Facility'}
-            </h1>
-            <span
-              className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wide transition-all ${
-                currentPlan.status === 'Approved' || currentPlan.status === 'Approved / Active' || currentPlan.status === 'Active'
-                  ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
-                  : currentPlan.status === 'Submitted' || currentPlan.status === 'Under EAD Review'
-                  ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
-                  : currentPlan.status === 'Correction Required' || currentPlan.status === 'Reverted'
-                  ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
-                  : currentPlan.status === 'Rejected'
-                  ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 font-bold'
-                  : 'bg-slate-100 text-slate-700 border border-slate-200'
-              }`}
-            >
-              {currentPlan.status || 'Draft'}
-            </span>
+      {/* Top Action Header with Back Button + Stepper Tabs on Top */}
+      <div className="flex-shrink-0 pb-2.5 pt-0.5 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            onClick={() => setViewMode('table')}
+            className="p-1.5 text-[#336D9F] hover:text-[#004B87] hover:bg-[#E9F1F8] rounded-lg transition-colors cursor-pointer flex items-center justify-center shrink-0 border border-slate-200/70 shadow-2xs"
+            title="Back to Monitoring Plan Overview Table"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
 
-            {currentPlan.facilityId && (
-              <span className="px-2.5 py-1 rounded-full bg-[#D1FAE5] text-[#065F46] text-xs font-mono font-bold border border-emerald-300 flex items-center gap-1 shadow-2xs">
-                <span>Facility ID:</span>
-                <span>{currentPlan.facilityId}</span>
-              </span>
-            )}
+          {/* Form Tab Navigation Progress Stepper (Corner radius 6px, primary gradient active tab, white background, numbered circles, highlighted arrows) */}
+          <div className="inline-flex items-center gap-1.5 p-1 bg-white border border-slate-200 rounded-[6px] shadow-2xs overflow-x-auto no-scrollbar">
+            {MONITORING_PLAN_STEPS.map((step, idx) => {
+              const subTabOrder = [
+                'facility-description',
+                'emissions-estimated',
+                'emission-sources',
+                'methane-emission',
+                'source-stream',
+                'supporting-documents-remarks',
+              ];
+              const currentStepNum = subTabOrder.indexOf(formActiveTab) + 1;
+              const isActive = step.stepNumber === currentStepNum;
+              const isCompleted = step.stepNumber < currentStepNum;
+              const isArrowHighlighted = idx < currentStepNum - 1;
 
-            {isSavedNotice && (
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs font-bold animate-fade-in ml-2">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>{noticeMessage}</span>
-              </div>
-            )}
+              return (
+                <React.Fragment key={step.id}>
+                  <button
+                    type="button"
+                    onClick={() => setFormActiveTab(step.id as any)}
+                    className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-2 cursor-pointer select-none ${
+                      isActive
+                        ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                        : isCompleted
+                        ? 'text-slate-700 hover:text-[#004B87] hover:bg-white/60 font-semibold'
+                        : 'text-slate-500 hover:text-slate-700 hover:bg-white/40 font-medium'
+                    }`}
+                  >
+                    {/* Numbered Circle */}
+                    <div
+                      className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-all ${
+                        isActive
+                          ? 'bg-white text-[#004B87] shadow-2xs'
+                          : isCompleted
+                          ? 'bg-[#00875A] text-white shadow-2xs'
+                          : 'bg-white text-slate-400 border border-slate-300'
+                      }`}
+                    >
+                      <span>{step.stepNumber}</span>
+                    </div>
+
+                    {/* Step Title */}
+                    <span className="whitespace-nowrap">{step.title}</span>
+                  </button>
+
+                  {/* Arrow Indication between steps */}
+                  {idx < MONITORING_PLAN_STEPS.length - 1 && (
+                    <ChevronRight
+                      className={`w-4 h-4 shrink-0 mx-0.5 transition-colors ${
+                        isArrowHighlighted ? 'text-[#004B87] stroke-[2.5]' : 'text-slate-300'
+                      }`}
+                    />
+                  )}
+                </React.Fragment>
+              );
+            })}
           </div>
-          <p className="text-xs text-slate-500 font-medium mt-0.5 ml-7">
+        </div>
+
+        {/* Right Status Badge */}
+        <div className="flex items-center gap-2">
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-bold ${
+              currentPlan.status === 'Approved' || currentPlan.status === 'Approved / Active' || currentPlan.status === 'Active'
+                ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
+                : currentPlan.status === 'Submitted' || currentPlan.status === 'Under EAD Review'
+                ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
+                : currentPlan.status === 'Correction Required' || currentPlan.status === 'Reverted'
+                ? 'bg-[#FEF3C7] text-[#92400E] border border-amber-300/80 font-bold'
+                : currentPlan.status === 'Rejected'
+                ? 'bg-[#FEE2E2] text-[#DC2626] border border-rose-200/60 font-bold'
+                : 'bg-slate-100 text-slate-700 border border-slate-200'
+            }`}
+          >
+            {currentPlan.status || 'Draft'}
+          </span>
+        </div>
+      </div>
+
+      {/* Under Tabs: Metadata Row with Auto-Populated Facility Name, Calendar Year, Facility ID */}
+      <div className="flex-shrink-0 bg-white border border-slate-200/90 rounded-xl px-4 py-2.5 mb-2.5 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="text-slate-500 text-xs font-medium">Facility:</span>
+            <span className="text-xs font-bold text-slate-900">
+              {currentPlan.facilityName || activeFacility?.name || 'Al Noor Industrial Facility'}
+            </span>
+          </div>
+
+          <span className="text-slate-300">|</span>
+
+          <div className="flex items-center gap-1.5">
+            <span className="text-slate-500 text-xs font-medium">Facility ID:</span>
+            <span className="px-2.5 py-0.5 rounded-full bg-[#D1FAE5] text-[#065F46] text-xs font-mono font-bold border border-emerald-300">
+              {currentPlan.facilityId || activeFacility?.facilityCode || 'FAC-EAD-2026-0891'}
+            </span>
+          </div>
+
+          <span className="text-slate-300">|</span>
+
+          <p className="text-[11px] text-slate-500 font-medium hidden md:block">
             Production Streams, Emission Sources, Estimation Models & Source Streams
           </p>
         </div>
 
-        {/* Calendar Year selection in title row towards right side */}
+        {/* Calendar Year (Auto-populated / selectable) */}
         <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold text-slate-600 whitespace-nowrap">Calendar Year:</label>
+          <span className="text-xs font-semibold text-slate-500">Calendar Year:</span>
           <div className="relative">
             <select
               value={currentPlan.reportingYear || reportingYear || '2026'}
@@ -1734,89 +1494,20 @@ export const DataEntryView: React.FC = () => {
                 const val = e.target.value;
                 updateCurrentPlan((p) => ({ ...p, reportingYear: val }));
               }}
-              className="h-9 px-3 pr-8 bg-white border border-slate-300 hover:border-[#004B87] rounded-xl text-slate-900 font-bold text-xs focus:outline-none focus:border-[#004B87] shadow-2xs cursor-pointer appearance-none transition-colors"
+              className="h-8 px-2.5 pr-7 bg-slate-50 border border-slate-200 hover:border-[#004B87] rounded-lg text-slate-900 font-bold text-xs focus:outline-none focus:border-[#004B87] cursor-pointer appearance-none transition-colors"
             >
               <option value="2026">2026</option>
               <option value="2025">2025</option>
               <option value="2024">2024</option>
               <option value="2023">2023</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
       </div>
 
       {/* Main Form Content Card */}
       <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
-        {/* Sticky Tabs Navigation Bar (Fixed at top, outside scroll area) */}
-        <div className="flex-shrink-0 flex items-center overflow-x-auto no-scrollbar pb-2.5">
-          <div className="inline-flex items-center gap-1 p-1 bg-[#EAEFF4] border border-[#D5E0EA] rounded-[6px] shadow-2xs">
-            <button
-              type="button"
-              onClick={() => setFormActiveTab('facility-description')}
-              className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                formActiveTab === 'facility-description'
-                  ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
-                  : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
-              }`}
-            >
-              <Layers className={`w-3.5 h-3.5 ${formActiveTab === 'facility-description' ? 'text-white' : 'text-slate-500'}`} />
-              <span>Facility Description</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setFormActiveTab('emissions-estimated')}
-              className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                formActiveTab === 'emissions-estimated'
-                  ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
-                  : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
-              }`}
-            >
-              <Gauge className={`w-3.5 h-3.5 ${formActiveTab === 'emissions-estimated' ? 'text-white' : 'text-slate-500'}`} />
-              <span>Emissions Estimated</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setFormActiveTab('emission-sources')}
-              className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                formActiveTab === 'emission-sources'
-                  ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
-                  : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
-              }`}
-            >
-              <Flame className={`w-3.5 h-3.5 ${formActiveTab === 'emission-sources' ? 'text-white' : 'text-slate-500'}`} />
-              <span>Emission Sources</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setFormActiveTab('methane-emission')}
-              className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                formActiveTab === 'methane-emission'
-                  ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
-                  : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
-              }`}
-            >
-              <ShieldCheck className={`w-3.5 h-3.5 ${formActiveTab === 'methane-emission' ? 'text-white' : 'text-slate-500'}`} />
-              <span>Methane Emission</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setFormActiveTab('source-stream')}
-              className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                formActiveTab === 'source-stream'
-                  ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
-                  : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
-              }`}
-            >
-              <Workflow className={`w-3.5 h-3.5 ${formActiveTab === 'source-stream' ? 'text-white' : 'text-slate-500'}`} />
-              <span>Source Stream</span>
-            </button>
-          </div>
-        </div>
 
         {/* Scrollable Form Content */}
         <div className="flex-1 min-h-0 overflow-y-auto space-y-[18px] pr-2.5 pt-2 pb-0.5 text-xs custom-scrollbar">
@@ -1827,40 +1518,122 @@ export const DataEntryView: React.FC = () => {
               {/* Primary Business Sector & Primary Activity */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5 text-xs">Primary Business Sector</label>
-                  <select
-                    value={currentPlan.businessSector || ''}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      updateCurrentPlan((p) => ({ ...p, businessSector: val }));
-                    }}
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer text-xs"
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-slate-700 font-semibold text-xs">Primary Business Sector</label>
+                    {isCustomSector && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsCustomSector(false);
+                          updateCurrentPlan((p) => ({ ...p, businessSector: 'Energy' }));
+                        }}
+                        className="text-[11px] font-semibold text-[#004B87] hover:underline flex items-center gap-1 cursor-pointer"
+                        title="Switch back to predefined sectors"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span>Select from list</span>
+                      </button>
+                    )}
+                  </div>
+                  <FieldTooltip
+                    content="The overarching economic or industrial sector governing facility operations under MRV."
+                    example="Industrial Processes or Energy"
                   >
-                    <option value="">Select Business Sector</option>
-                    <option value="Energy">Energy</option>
-                    <option value="Industrial Processes">Industrial Processes</option>
-                    <option value="Manufacturing">Manufacturing</option>
-                    <option value="Mining & Minerals">Mining & Minerals</option>
-                    <option value="Waste">Waste</option>
-                  </select>
+                    {isCustomSector ? (
+                      <input
+                        type="text"
+                        value={currentPlan.businessSector === 'Other' ? '' : (currentPlan.businessSector || '')}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          updateCurrentPlan((p) => ({ ...p, businessSector: val }));
+                        }}
+                        placeholder="Enter custom business sector..."
+                        autoFocus
+                        className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-xs text-xs font-medium"
+                      />
+                    ) : (
+                      <select
+                        value={currentPlan.businessSector || ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === 'Other') {
+                            setIsCustomSector(true);
+                            updateCurrentPlan((p) => ({ ...p, businessSector: '' }));
+                          } else {
+                            updateCurrentPlan((p) => ({ ...p, businessSector: val }));
+                          }
+                        }}
+                        className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer text-xs font-medium"
+                      >
+                        <option value="">Select Business Sector</option>
+                        <option value="Energy">Energy</option>
+                        <option value="Industrial Processes">Industrial Processes</option>
+                        <option value="Manufacturing">Manufacturing</option>
+                        <option value="Mining & Minerals">Mining & Minerals</option>
+                        <option value="Waste">Waste</option>
+                        <option value="Other">Other (Enter custom sector)</option>
+                      </select>
+                    )}
+                  </FieldTooltip>
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5 text-xs">Primary Activity</label>
-                  <select
-                    value={currentPlan.primaryActivity || ''}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      updateCurrentPlan((p) => ({ ...p, primaryActivity: val }));
-                    }}
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer text-xs"
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-slate-700 font-semibold text-xs">Primary Activity</label>
+                    {isCustomActivity && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsCustomActivity(false);
+                          updateCurrentPlan((p) => ({ ...p, primaryActivity: 'Combustion of fuels in stationary equipment' }));
+                        }}
+                        className="text-[11px] font-semibold text-[#004B87] hover:underline flex items-center gap-1 cursor-pointer"
+                        title="Switch back to predefined activities"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span>Select from list</span>
+                      </button>
+                    )}
+                  </div>
+                  <FieldTooltip
+                    content="Specific core industrial activity or technology producing greenhouse gas emissions."
+                    example="Combustion of fuels in stationary equipment"
                   >
-                    <option value="">Select Primary Activity</option>
-                    <option value="Manufacturing of cement / clinker">Manufacturing of cement / clinker</option>
-                    <option value="Combustion of fuels in stationary equipment">Combustion of fuels in stationary equipment</option>
-                    <option value="Direct reduced iron & steelmaking">Direct reduced iron & steelmaking</option>
-                    <option value="Petrochemical cracking & refining">Petrochemical cracking & refining</option>
-                    <option value="Solid waste thermal treatment">Solid waste thermal treatment</option>
-                  </select>
+                    {isCustomActivity ? (
+                      <input
+                        type="text"
+                        value={currentPlan.primaryActivity === 'Other' ? '' : (currentPlan.primaryActivity || '')}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          updateCurrentPlan((p) => ({ ...p, primaryActivity: val }));
+                        }}
+                        placeholder="Enter custom primary activity..."
+                        autoFocus
+                        className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-xs text-xs font-medium"
+                      />
+                    ) : (
+                      <select
+                        value={currentPlan.primaryActivity || ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === 'Other') {
+                            setIsCustomActivity(true);
+                            updateCurrentPlan((p) => ({ ...p, primaryActivity: '' }));
+                          } else {
+                            updateCurrentPlan((p) => ({ ...p, primaryActivity: val }));
+                          }
+                        }}
+                        className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-xs cursor-pointer text-xs font-medium"
+                      >
+                        <option value="">Select Primary Activity</option>
+                        <option value="Combustion of fuels in stationary equipment">Combustion of fuels in stationary equipment</option>
+                        <option value="Manufacturing of cement / clinker">Manufacturing of cement / clinker</option>
+                        <option value="Direct reduced iron & steelmaking">Direct reduced iron & steelmaking</option>
+                        <option value="Petrochemical cracking & refining">Petrochemical cracking & refining</option>
+                        <option value="Solid waste thermal treatment">Solid waste thermal treatment</option>
+                        <option value="Other">Other (Enter custom activity)</option>
+                      </select>
+                    )}
+                  </FieldTooltip>
                 </div>
               </div>
 
@@ -2115,39 +1888,48 @@ export const DataEntryView: React.FC = () => {
             <div className="space-y-4 pt-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1.5 text-xs" title="Estimated Annual Emissions (tCO₂e)">Estimated Annual Emissions (tCO₂e)</label>
-                  <input
-                    type="text"
-                    value={currentPlan.emissionsEstimation.estimatedAnnualEmissions}
-                    title={currentPlan.emissionsEstimation.estimatedAnnualEmissions || 'Estimated Annual Emissions (tCO₂e)'}
+                  <label className="block text-slate-700 font-semibold mb-1.5 text-xs">Estimated Annual Emissions (tCO₂e)</label>
+                  <FieldTooltip
+                    content="Forecasted total greenhouse gas emissions across all installation boundaries for the reporting year."
+                    example="124,450"
+                    unit="tCO₂e"
+                  >
+                    <input
+                      type="text"
+                      value={currentPlan.emissionsEstimation.estimatedAnnualEmissions}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        updateCurrentPlan((p) => ({
+                          ...p,
+                          emissionsEstimation: { ...p.emissionsEstimation, estimatedAnnualEmissions: val },
+                        }));
+                      }}
+                      placeholder="124,450"
+                      className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 font-mono font-bold focus:outline-none focus:border-[#004B87] shadow-xs text-xs"
+                    />
+                  </FieldTooltip>
+                </div>
+              </div>
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1.5 text-xs">Justification for the estimated value</label>
+                <FieldTooltip
+                  content="Technical justification explaining calculation basis, historical trends, or production assumptions."
+                  example="Estimated based on 2025 production throughput data, IPCC Tier 2 emission factors, and continuous operational logging."
+                >
+                  <textarea
+                    rows={3}
+                    value={currentPlan.emissionsEstimation.justification}
                     onChange={(e) => {
                       const val = e.target.value;
                       updateCurrentPlan((p) => ({
                         ...p,
-                        emissionsEstimation: { ...p.emissionsEstimation, estimatedAnnualEmissions: val },
+                        emissionsEstimation: { ...p.emissionsEstimation, justification: val },
                       }));
                     }}
-                    placeholder="124,450"
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-navy-900 font-mono font-bold focus:outline-none focus:border-[#004B87] shadow-xs text-xs"
+                    placeholder="Estimated based on production data and IPCC Guidelines"
+                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-xs leading-relaxed text-xs placeholder-slate-400"
                   />
-                </div>
-              </div>
-              <div>
-                <label className="block text-slate-700 font-semibold mb-1.5 text-xs" title="Justification for the estimated value">Justification for the estimated value</label>
-                <textarea
-                  rows={3}
-                  value={currentPlan.emissionsEstimation.justification}
-                  title={currentPlan.emissionsEstimation.justification || 'Justification for the estimated value'}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    updateCurrentPlan((p) => ({
-                      ...p,
-                      emissionsEstimation: { ...p.emissionsEstimation, justification: val },
-                    }));
-                  }}
-                  placeholder="Estimated based on production data and IPCC Guidelines"
-                  className="w-full p-3 bg-white border border-slate-200 rounded-xl text-navy-900 focus:outline-none focus:border-[#004B87] shadow-xs leading-relaxed text-xs placeholder-slate-400"
-                />
+                </FieldTooltip>
               </div>
             </div>
           )}
@@ -2382,7 +2164,7 @@ export const DataEntryView: React.FC = () => {
               <div className="flex items-center gap-3">
                 <span className="text-xs font-semibold text-slate-700">Do methane emissions occur at your facility?</span>
                 <div className="flex items-center gap-2">
-                  <span className={`text-xs font-bold ${currentPlan.methaneData?.hasMethaneEmissions ? 'text-[#004B87]' : 'text-slate-400'}`}>Yes</span>
+                  <span className={`text-xs font-bold ${!currentPlan.methaneData?.hasMethaneEmissions ? 'text-slate-700' : 'text-slate-400'}`}>No</span>
                   <button
                     type="button"
                     onClick={() => {
@@ -2395,7 +2177,7 @@ export const DataEntryView: React.FC = () => {
                   >
                     <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${currentPlan.methaneData?.hasMethaneEmissions ? 'translate-x-5' : 'translate-x-0'}`} />
                   </button>
-                  <span className={`text-xs font-bold ${!currentPlan.methaneData?.hasMethaneEmissions ? 'text-slate-700' : 'text-slate-400'}`}>No</span>
+                  <span className={`text-xs font-bold ${currentPlan.methaneData?.hasMethaneEmissions ? 'text-[#004B87]' : 'text-slate-400'}`}>Yes</span>
                 </div>
               </div>
 
@@ -2962,85 +2744,104 @@ export const DataEntryView: React.FC = () => {
             </div>
           )}
 
-          {/* Supporting Documents */}
-          <div className="space-y-2 pt-1">
-            <span className="text-xs font-bold text-[#336D9F]">Supporting Documents</span>
-            <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
-              {/* Upload Input Area */}
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className="border border-dashed border-sky-300 bg-sky-50/40 hover:bg-sky-50/70 rounded-xl px-4 py-2 flex items-center justify-between gap-3 shrink-0 cursor-pointer transition-colors min-w-[280px]"
-              >
-                <div className="flex items-center gap-2 text-slate-600 text-xs font-medium">
-                  <Upload className="w-4 h-4 text-slate-500 shrink-0" />
-                  <span className="whitespace-nowrap">Drag and drop files here or upload</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    fileInputRef.current?.click();
-                  }}
-                  className="px-3.5 py-1.5 bg-white border border-slate-300 hover:border-slate-400 text-xs font-bold text-slate-700 rounded-lg shadow-2xs transition-colors shrink-0 cursor-pointer"
+          {/* Tab 6: Supporting Documents & Remarks */}
+          {formActiveTab === 'supporting-documents-remarks' && (
+            <div className="space-y-4 pt-1">
+              {/* Supporting Documents */}
+              <div>
+                <h4 className="text-xs font-bold text-[#336D9F] mb-2.5">
+                  Supporting Documents
+                </h4>
+                <FieldTooltip
+                  content="Upload statutory monitoring plan attachments including calibration certificates, flow diagrams, or P&ID instrumentation documents."
+                  format="PDF, PNG, JPG, XLSX (Max 25MB)"
                 >
-                  Upload
-                </button>
-              </div>
-
-              {/* Remaining area: Uploaded documents in one line */}
-              <div className="flex-1 min-w-0 flex items-center gap-2.5 overflow-x-auto py-1 no-scrollbar">
-                {currentPlan.attachedFiles && currentPlan.attachedFiles.length > 0 ? (
-                  currentPlan.attachedFiles.map((file: any, idx: number) => (
+                  <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
+                    {/* Upload Input Area */}
                     <div
-                      key={idx}
-                      className="border border-slate-200 bg-white rounded-xl py-1.5 px-3 flex items-center gap-2.5 shadow-2xs shrink-0 max-w-[240px] hover:border-slate-300 transition-all"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border border-dashed border-sky-300 bg-sky-50/40 hover:bg-sky-50/70 rounded-xl px-4 py-2 flex items-center justify-between gap-3 shrink-0 cursor-pointer transition-colors min-w-[280px]"
                     >
-                      <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0">
-                        <FileText className="w-3.5 h-3.5 text-rose-600" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="text-xs font-bold text-slate-800 truncate" title={file.name}>
-                          {file.name}
-                        </div>
-                        <div className="text-[10px] text-slate-400 flex items-center gap-1.5 font-medium">
-                          <span>{file.size}</span>
-                          <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                          <span className="text-emerald-600 font-bold">{file.status || 'Completed'}</span>
-                        </div>
+                      <div className="flex items-center gap-2 text-slate-600 text-xs font-medium">
+                        <Upload className="w-4 h-4 text-slate-500 shrink-0" />
+                        <span className="whitespace-nowrap">Drag and drop files here or upload</span>
                       </div>
                       <button
                         type="button"
-                        onClick={() =>
-                          updateCurrentPlan((p) => ({
-                            ...p,
-                            attachedFiles: (p.attachedFiles || []).filter((_: any, i: number) => i !== idx),
-                          }))
-                        }
-                        className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer shrink-0"
-                        title="Remove file"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          fileInputRef.current?.click();
+                        }}
+                        className="px-3.5 py-1.5 bg-white border border-slate-300 hover:border-slate-400 text-xs font-bold text-slate-700 rounded-lg shadow-2xs transition-colors shrink-0 cursor-pointer"
                       >
-                        <X className="w-3.5 h-3.5" />
+                        Upload
                       </button>
                     </div>
-                  ))
-                ) : (
-                  <span className="text-xs text-slate-400 italic">No files attached yet</span>
-                )}
+
+                    {/* Remaining area: Uploaded documents in one line */}
+                    <div className="flex-1 min-w-0 flex items-center gap-2.5 overflow-x-auto py-1 no-scrollbar">
+                      {currentPlan.attachedFiles && currentPlan.attachedFiles.length > 0 ? (
+                        currentPlan.attachedFiles.map((file: any, idx: number) => (
+                          <div
+                            key={idx}
+                            className="border border-slate-200 bg-white rounded-xl py-1.5 px-3 flex items-center gap-2.5 shadow-2xs shrink-0 max-w-[240px] hover:border-slate-300 transition-all"
+                          >
+                            <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center shrink-0">
+                              <FileText className="w-3.5 h-3.5 text-rose-600" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="text-xs font-bold text-slate-800 truncate" title={file.name}>
+                                {file.name}
+                              </div>
+                              <div className="text-[10px] text-slate-400 flex items-center gap-1.5 font-medium">
+                                <span>{file.size}</span>
+                                <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                                <span className="text-emerald-600 font-bold">{file.status || 'Completed'}</span>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                updateCurrentPlan((p) => ({
+                                  ...p,
+                                  attachedFiles: (p.attachedFiles || []).filter((_: any, i: number) => i !== idx),
+                                }))
+                              }
+                              className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer shrink-0"
+                              title="Remove file"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <span className="text-xs text-slate-400 italic">No files attached yet</span>
+                      )}
+                    </div>
+                  </div>
+                </FieldTooltip>
+              </div>
+
+              {/* Remarks / Description */}
+              <div>
+                <label className="block font-bold text-[#336D9F] mb-1.5 text-xs">
+                  Remarks / Description
+                </label>
+                <FieldTooltip
+                  content="Optional remarks, regulatory compliance context, or explanatory notes for this monitoring plan."
+                  example="Monitoring methodology adheres strictly to EAD MRV Guidelines Chapter 4 for Thermal Power Installations."
+                >
+                  <textarea
+                    rows={3}
+                    value={currentPlan.remarks || ''}
+                    onChange={(e) => updateCurrentPlan((p) => ({ ...p, remarks: e.target.value }))}
+                    placeholder="Monitoring methodology adheres strictly to EAD MRV Guidelines Chapter 4 for Thermal Power Installations."
+                    className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed text-xs"
+                  />
+                </FieldTooltip>
               </div>
             </div>
-          </div>
-
-          {/* Remarks / Description */}
-          <div className="space-y-1.5 pt-1 text-xs">
-            <label className="block text-xs font-bold text-[#336D9F]">Remarks / Description</label>
-            <textarea
-              rows={3}
-              value={currentPlan.remarks || ''}
-              onChange={(e) => updateCurrentPlan((p) => ({ ...p, remarks: e.target.value }))}
-              placeholder="Enter remarks or statutory compliance notes for this monitoring plan..."
-              className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-navy-900 placeholder-slate-400 focus:outline-none focus:border-[#004B87] shadow-sm leading-relaxed text-xs"
-            />
-          </div>
+          )}
         </div>
       </div>
 
@@ -3111,17 +2912,28 @@ export const DataEntryView: React.FC = () => {
             {formActiveTab === 'source-stream' && (
               <button
                 type="button"
+                onClick={() => setFormActiveTab('supporting-documents-remarks')}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {formActiveTab === 'supporting-documents-remarks' && (
+              <button
+                type="button"
                 onClick={() => {
-                  handleSave();
+                  const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
                   updateCurrentPlan((p) => ({
                     ...p,
                     status: 'Submitted',
-                    submittedDate: '21-Sep-2026',
+                    submittedDate: todayStr,
+                    updatedDate: todayStr,
                   }));
+                  setFacilityMonitoringPlanStatus(selectedFacilityId, 'Submitted');
                   setMonitoringPlanStatus('Submitted');
-                  setNoticeMessage('Monitoring Plan Submitted to EAD!');
-                  setIsSavedNotice(true);
-                  setTimeout(() => setIsSavedNotice(false), 3000);
+                  setViewMode('table');
                 }}
                 className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
               >
@@ -3179,20 +2991,31 @@ export const DataEntryView: React.FC = () => {
             )}
 
             {formActiveTab === 'source-stream' && (
+              <button
+                type="button"
+                onClick={() => setFormActiveTab('supporting-documents-remarks')}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+              >
+                <span>Next</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            {formActiveTab === 'supporting-documents-remarks' && (
               <>
                 <button
                   type="button"
                   onClick={() => {
+                    const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
                     updateCurrentPlan((p) => ({
                       ...p,
                       status: 'Correction Required',
                       eadCorrectionDate: '07-Oct-2026',
-                      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+                      updatedDate: todayStr,
                     }));
+                    setFacilityMonitoringPlanStatus(selectedFacilityId, 'Correction Required');
                     setMonitoringPlanStatus('Correction Required');
-                    setNoticeMessage('Monitoring Plan Returned for Correction.');
-                    setIsSavedNotice(true);
-                    setTimeout(() => setIsSavedNotice(false), 3000);
+                    setViewMode('table');
                   }}
                   className="px-5 py-2 bg-[#FFF8E7] hover:bg-[#FEF0CD] border border-[#FCD34D] text-[#975A16] font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
                 >
@@ -3203,15 +3026,15 @@ export const DataEntryView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
+                    const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
                     updateCurrentPlan((p) => ({
                       ...p,
                       status: 'Rejected',
-                      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+                      updatedDate: todayStr,
                     }));
+                    setFacilityMonitoringPlanStatus(selectedFacilityId, 'Rejected');
                     setMonitoringPlanStatus('Rejected');
-                    setNoticeMessage('Monitoring Plan Rejected.');
-                    setIsSavedNotice(true);
-                    setTimeout(() => setIsSavedNotice(false), 3000);
+                    setViewMode('table');
                   }}
                   className="px-5 py-2 bg-[#FFF0F3] hover:bg-[#FFE2E6] border border-[#FDA4AF] text-[#9F1239] font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
                 >
@@ -3222,16 +3045,16 @@ export const DataEntryView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
+                    const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
                     updateCurrentPlan((p) => ({
                       ...p,
                       status: 'Approved',
                       eadCorrectionDate: null,
-                      updatedDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+                      updatedDate: todayStr,
                     }));
+                    setFacilityMonitoringPlanStatus(selectedFacilityId, 'Approved');
                     setMonitoringPlanStatus('Approved');
-                    setNoticeMessage('Monitoring Plan Approved by EAD!');
-                    setIsSavedNotice(true);
-                    setTimeout(() => setIsSavedNotice(false), 3000);
+                    setViewMode('table');
                   }}
                   className="px-6 py-2 bg-[#00875A] hover:bg-[#00754E] border border-[#00875A] text-white font-bold text-xs rounded-[8px] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
                 >

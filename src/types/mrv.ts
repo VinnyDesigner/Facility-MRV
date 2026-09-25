@@ -58,7 +58,7 @@ export interface Facility {
     email: string;
     phone: string;
   };
-  status: 'Registered' | 'Renewal Pending' | 'Active' | 'Rejected' | 'Correction Required' | 'Reverted' | 'Approved' | 'Draft';
+  status: 'Registered' | 'Renewal Pending' | 'Active' | 'Rejected' | 'Correction Required' | 'Reverted' | 'Approved' | 'Approved / Registered' | 'Submitted' | 'Under EAD Review' | 'Draft';
   lastRenewalDate: string;
   complianceScore: number;
 }
