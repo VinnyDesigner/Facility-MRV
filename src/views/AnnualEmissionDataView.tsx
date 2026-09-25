@@ -33,12 +33,20 @@ import {
   XCircle,
   MessageSquare,
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import { useMRV } from '../context/MRVContext';
 import { formatVersion } from '../types/mrv';
 import { MonitoringMethodsTab } from '../components/monitoring/MonitoringMethodsTab';
 import { FieldTooltip } from '../components/ui/FieldTooltip';
 import { SortTriangles } from '../components/ui/SortTriangles';
 import emptyFolderIcon from '../assets/empty-folder-icon.png';
+
+const ANNUAL_EMISSION_STEPS = [
+  { id: 'monitoring-methods', stepNumber: 1, title: 'Monitoring Methods' },
+  { id: 'mitigation-measures', stepNumber: 2, title: 'Mitigation Measures' },
+  { id: 'qa-qc', stepNumber: 3, title: 'Data Management & QA/QC' },
+  { id: 'review-submit', stepNumber: 4, title: 'Support Documents & Submit' },
+] as const;
 
 export const AnnualEmissionDataView: React.FC = () => {
   const {
@@ -82,6 +90,8 @@ export const AnnualEmissionDataView: React.FC = () => {
   const [isSavedNotice, setIsSavedNotice] = useState(false);
   const [noticeMessage, setNoticeMessage] = useState('Data Saved Successfully!');
   const [formReportingYear, setFormReportingYear] = useState('2026');
+  const [reviewerComments, setReviewerComments] = useState('');
+  const [activeReviewModal, setActiveReviewModal] = useState<'approve' | 'reject' | 'revert' | null>(null);
 
   const currentRecord = facilityEmissions[selectedFacilityId] || facilityEmissions['fac-1'];
 
@@ -488,8 +498,72 @@ export const AnnualEmissionDataView: React.FC = () => {
     const rec = facilityEmissions[facId];
     if (rec) {
       loadRecordData(rec);
+      setReviewerComments(rec.reviewerComments || rec.reviewNotes || '');
     }
     setViewMode('view');
+  };
+
+  const handleApproveEmission = () => {
+    const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    setFacilityEmissions((prev) => ({
+      ...prev,
+      [selectedFacilityId]: {
+        ...(prev[selectedFacilityId] || currentRecord),
+        status: 'Approved',
+        reviewerComments: reviewerComments || 'All statutory emission parameters and Scope 1 calculations verified under EAD MRV Guidelines.',
+        reviewedDate: todayStr,
+        updatedDate: todayStr,
+      },
+    }));
+    setActiveReviewModal(null);
+    setIsSavedNotice(true);
+    setNoticeMessage('Annual Emission Data Approved — Official Certificate Issued!');
+    confetti({
+      particleCount: 80,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#10B981', '#0878C9', '#19B5D8'],
+    });
+    setTimeout(() => setIsSavedNotice(false), 3500);
+    setViewMode('table');
+  };
+
+  const handleRejectEmission = () => {
+    const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    setFacilityEmissions((prev) => ({
+      ...prev,
+      [selectedFacilityId]: {
+        ...(prev[selectedFacilityId] || currentRecord),
+        status: 'Rejected',
+        reviewerComments: reviewerComments || 'Formal rejection under EAD regulatory guidelines due to unresolved discrepancies.',
+        reviewedDate: todayStr,
+        updatedDate: todayStr,
+      },
+    }));
+    setActiveReviewModal(null);
+    setIsSavedNotice(true);
+    setNoticeMessage('Annual Emission Data Formally Rejected');
+    setTimeout(() => setIsSavedNotice(false), 3500);
+    setViewMode('table');
+  };
+
+  const handleRevertEmission = () => {
+    const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    setFacilityEmissions((prev) => ({
+      ...prev,
+      [selectedFacilityId]: {
+        ...(prev[selectedFacilityId] || currentRecord),
+        status: 'Reverted',
+        reviewerComments: reviewerComments || 'Please provide required corrections for reported emission figures or supporting attachments.',
+        eadCorrectionDate: todayStr,
+        updatedDate: todayStr,
+      },
+    }));
+    setActiveReviewModal(null);
+    setIsSavedNotice(true);
+    setNoticeMessage('Emission Data Reverted to Facility Operator for Correction');
+    setTimeout(() => setIsSavedNotice(false), 3500);
+    setViewMode('table');
   };
 
   const isDeclarationComplete = Boolean(
@@ -685,9 +759,11 @@ export const AnnualEmissionDataView: React.FC = () => {
                   className="w-28 sm:w-36 h-9 px-2.5 py-1.5 bg-white border border-slate-300 rounded-[8px] text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:ring-2 focus:ring-[#336D9F]/20 focus:border-[#336D9F] transition-all cursor-pointer truncate"
                 >
                   <option value="ALL">All Statuses</option>
-                  <option value="Approved">Approved</option>
-                  <option value="Submitted">Submitted</option>
                   <option value="Draft">Draft</option>
+                  <option value="Submitted">Submitted</option>
+                  <option value="Approved">Approved</option>
+                  <option value="Rejected">Rejected</option>
+                  <option value="Reverted">Reverted</option>
                 </select>
               </FieldTooltip>
             </div>
@@ -878,6 +954,10 @@ export const AnnualEmissionDataView: React.FC = () => {
                             className={`px-2.5 py-0.5 rounded-full text-[11px] font-normal whitespace-nowrap inline-block ${
                               rec.status === 'Approved' || rec.status === 'Verified' || rec.status === 'EAD Approved'
                                 ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
+                                : rec.status === 'Rejected'
+                                ? 'bg-rose-50 text-rose-700 border border-rose-200/80'
+                                : rec.status === 'Reverted' || rec.status === 'Correction Required'
+                                ? 'bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D]'
                                 : rec.status === 'Submitted' || rec.status?.includes('Submitted')
                                 ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
                                 : 'bg-slate-100 text-slate-700 border border-slate-200'
@@ -885,6 +965,10 @@ export const AnnualEmissionDataView: React.FC = () => {
                           >
                             {rec.status === 'Approved' || rec.status === 'Verified' || rec.status === 'EAD Approved'
                               ? 'Approved'
+                              : rec.status === 'Rejected'
+                              ? 'Rejected'
+                              : rec.status === 'Reverted' || rec.status === 'Correction Required'
+                              ? 'Reverted'
                               : rec.status === 'Submitted' || rec.status?.includes('Submitted')
                               ? 'Submitted'
                               : 'Draft'}
@@ -1039,6 +1123,10 @@ export const AnnualEmissionDataView: React.FC = () => {
                 className={`px-3 py-0.5 rounded-full text-xs font-bold tracking-wide transition-all shrink-0 ${
                   currentRecord.status === 'Approved' || currentRecord.status === 'Verified' || currentRecord.status === 'EAD Approved'
                     ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
+                    : currentRecord.status === 'Rejected'
+                    ? 'bg-rose-50 text-rose-700 border border-rose-200/80'
+                    : currentRecord.status === 'Reverted' || currentRecord.status === 'Correction Required'
+                    ? 'bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D]'
                     : currentRecord.status === 'Submitted' || currentRecord.status?.includes('Submitted')
                     ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
                     : 'bg-slate-100 text-slate-700 border border-slate-200'
@@ -1046,6 +1134,10 @@ export const AnnualEmissionDataView: React.FC = () => {
               >
                 {currentRecord.status === 'Approved' || currentRecord.status === 'Verified' || currentRecord.status === 'EAD Approved'
                   ? 'Approved'
+                  : currentRecord.status === 'Rejected'
+                  ? 'Rejected'
+                  : currentRecord.status === 'Reverted' || currentRecord.status === 'Correction Required'
+                  ? 'Reverted'
                   : currentRecord.status === 'Submitted' || currentRecord.status?.includes('Submitted')
                   ? 'Submitted'
                   : 'Draft'}
@@ -1112,29 +1204,58 @@ export const AnnualEmissionDataView: React.FC = () => {
         <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
           {/* Sticky Tabs Navigation Bar (Fixed at top, outside scroll area) */}
           <div className="flex-shrink-0 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-2.5">
-            <div className="inline-flex items-center gap-1 p-1 bg-white border border-slate-200 rounded-[6px] shadow-2xs">
-              {[
-                { id: 'monitoring-methods', label: 'Monitoring Methods', icon: Activity },
-                { id: 'mitigation-measures', label: 'Mitigation Measures', icon: BarChart3 },
-                { id: 'qa-qc', label: 'Data Management & QA/QC', icon: ShieldCheck },
-                { id: 'review-submit', label: 'Support Documents & Submit', icon: CheckCircle2 },
-              ].map((tab) => {
-                const IconComponent = tab.icon;
-                const isActive = activeTab === tab.id;
+            <div className="inline-flex items-center gap-1.5 p-1 bg-white border border-slate-200 rounded-[6px] shadow-2xs">
+              {ANNUAL_EMISSION_STEPS.map((step, idx) => {
+                const subTabOrder = [
+                  'monitoring-methods',
+                  'mitigation-measures',
+                  'qa-qc',
+                  'review-submit',
+                ];
+                const currentStepNum = subTabOrder.indexOf(activeTab) + 1;
+                const isActive = step.stepNumber === currentStepNum;
+                const isCompleted = step.stepNumber < currentStepNum;
+                const isArrowHighlighted = idx < currentStepNum - 1;
+
                 return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setActiveTab(tab.id as any)}
-                    className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                      isActive
-                        ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
-                        : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
-                    }`}
-                  >
-                    <IconComponent className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-500'}`} />
-                    <span>{tab.label}</span>
-                  </button>
+                  <React.Fragment key={step.id}>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab(step.id as any)}
+                      className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-2 cursor-pointer select-none ${
+                        isActive
+                          ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                          : isCompleted
+                          ? 'text-slate-700 hover:text-[#004B87] hover:bg-slate-50 font-semibold'
+                          : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50 font-medium'
+                      }`}
+                    >
+                      {/* Numbered Circle */}
+                      <div
+                        className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-all ${
+                          isActive
+                            ? 'bg-white text-[#004B87] shadow-2xs'
+                            : isCompleted
+                            ? 'bg-[#00875A] text-white shadow-2xs'
+                            : 'bg-white text-slate-400 border border-slate-300'
+                        }`}
+                      >
+                        <span>{step.stepNumber}</span>
+                      </div>
+
+                      {/* Step Title */}
+                      <span className="whitespace-nowrap">{step.title}</span>
+                    </button>
+
+                    {/* Arrow Indication between steps (Highlighted once finished) */}
+                    {idx < ANNUAL_EMISSION_STEPS.length - 1 && (
+                      <ChevronRight
+                        className={`w-4 h-4 shrink-0 mx-0.5 transition-colors ${
+                          isArrowHighlighted ? 'text-[#004B87] stroke-[2.5]' : 'text-slate-300'
+                        }`}
+                      />
+                    )}
+                  </React.Fragment>
                 );
               })}
             </div>
@@ -1571,6 +1692,66 @@ export const AnnualEmissionDataView: React.FC = () => {
                 </div>
               )}
             </div>
+
+            {/* Sticky Reviewer Comments & Regulatory Decision (Sticky at bottom of card for ALL tabs in Admin/Reviewer view) */}
+            {!isFacilityOperator && (
+              <div className="flex-shrink-0 pt-2.5 mt-2 border-t border-slate-200">
+                <div className="rounded-xl border border-slate-200/90 overflow-hidden bg-white shadow-2xs">
+                  <div className="px-3.5 py-2 bg-[#F4F6F8] border-b border-slate-200/80 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="w-4 h-4 text-[#336D9F]" />
+                      <span className="text-xs font-bold text-[#336D9F]">Reviewer Comments & Compliance Evaluation</span>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-white space-y-2.5">
+                    <FieldTooltip content="Enter regulatory compliance remarks, observations, clarification requests, or reason for decision.">
+                      <textarea
+                        rows={2}
+                        value={reviewerComments}
+                        onChange={(e) => setReviewerComments(e.target.value)}
+                        placeholder="Enter reviewer comments, audit findings, clarification requests, or decision rationale..."
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs focus:outline-none focus:border-[#004B87] focus:bg-white shadow-2xs leading-relaxed resize-none font-medium"
+                      />
+                    </FieldTooltip>
+
+                    {/* 3 Decision Buttons inside Frame for Submitted records */}
+                    {(currentRecord.status === 'Submitted' || currentRecord.status === 'Under Review') && (
+                      <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2.5">
+                        <button
+                          type="button"
+                          onClick={() => setActiveReviewModal('revert')}
+                          className="px-5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-xs font-bold text-amber-800 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95"
+                          title="Revert emission data to facility operator for correction"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5 text-amber-700" />
+                          <span>Revert</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setActiveReviewModal('reject')}
+                          className="px-5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-300 text-xs font-bold text-rose-700 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95"
+                          title="Reject annual emission submission"
+                        >
+                          <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                          <span>Reject</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setActiveReviewModal('approve')}
+                          className="px-6 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-emerald-700/25 transition-all cursor-pointer active:scale-95"
+                          title="Approve annual emission report and issue compliance certificate"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Approve</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Bottom Action Buttons for View Mode (Outside White Frame) */}
@@ -1584,48 +1765,53 @@ export const AnnualEmissionDataView: React.FC = () => {
               <X className="w-3.5 h-3.5" />
             </button>
 
-            {activeTab === 'monitoring-methods' && (
-              <button
-                type="button"
-                onClick={() => setActiveTab('mitigation-measures')}
-                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
-              >
-                <span>Next</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            )}
+            {/* Stepper Navigation for Data Provider only */}
+            {isFacilityOperator && (
+              <>
+                {activeTab === 'monitoring-methods' && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('mitigation-measures')}
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+                  >
+                    <span>Next</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
 
-            {activeTab === 'mitigation-measures' && (
-              <button
-                type="button"
-                onClick={() => setActiveTab('qa-qc')}
-                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
-              >
-                <span>Next</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            )}
+                {activeTab === 'mitigation-measures' && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('qa-qc')}
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+                  >
+                    <span>Next</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
 
-            {activeTab === 'qa-qc' && (
-              <button
-                type="button"
-                onClick={() => setActiveTab('review-submit')}
-                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
-              >
-                <span>Next</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            )}
+                {activeTab === 'qa-qc' && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('review-submit')}
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+                  >
+                    <span>Next</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
 
-            {activeTab === 'review-submit' && (
-              <button
-                type="button"
-                onClick={() => setViewMode('table')}
-                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Back to Overview Table</span>
-              </button>
+                {activeTab === 'review-submit' && (
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('table')}
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Back to Overview Table</span>
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -1728,29 +1914,58 @@ export const AnnualEmissionDataView: React.FC = () => {
       <div className="flex-1 min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-4 flex flex-col overflow-hidden">
         {/* Sticky Tabs Navigation Bar (Fixed at top, outside scroll area) */}
         <div className="flex-shrink-0 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-2.5">
-          <div className="inline-flex items-center gap-1 p-1 bg-white border border-slate-200 rounded-[6px] shadow-2xs">
-            {[
-              { id: 'monitoring-methods', label: 'Monitoring Methods', icon: Activity },
-              { id: 'mitigation-measures', label: 'Mitigation Measures', icon: BarChart3 },
-              { id: 'qa-qc', label: 'Data Management & QA/QC', icon: ShieldCheck },
-              { id: 'review-submit', label: 'Support Documents & Submit', icon: CheckCircle2 },
-            ].map((tab) => {
-              const IconComponent = tab.icon;
-              const isActive = activeTab === tab.id;
+          <div className="inline-flex items-center gap-1.5 p-1 bg-white border border-slate-200 rounded-[6px] shadow-2xs">
+            {ANNUAL_EMISSION_STEPS.map((step, idx) => {
+              const subTabOrder = [
+                'monitoring-methods',
+                'mitigation-measures',
+                'qa-qc',
+                'review-submit',
+              ];
+              const currentStepNum = subTabOrder.indexOf(activeTab) + 1;
+              const isActive = step.stepNumber === currentStepNum;
+              const isCompleted = step.stepNumber < currentStepNum;
+              const isArrowHighlighted = idx < currentStepNum - 1;
+
               return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
-                    isActive
-                      ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
-                      : 'text-slate-600 hover:text-[#336D9F] hover:bg-white/60 font-semibold'
-                  }`}
-                >
-                  <IconComponent className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-500'}`} />
-                  <span>{tab.label}</span>
-                </button>
+                <React.Fragment key={step.id}>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab(step.id as any)}
+                    className={`px-3.5 py-1.5 rounded-[6px] text-xs transition-all flex items-center gap-2 cursor-pointer select-none ${
+                      isActive
+                        ? 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white font-bold shadow-xs'
+                        : isCompleted
+                        ? 'text-slate-700 hover:text-[#004B87] hover:bg-slate-50 font-semibold'
+                        : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50 font-medium'
+                    }`}
+                  >
+                    {/* Numbered Circle */}
+                    <div
+                      className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-all ${
+                        isActive
+                          ? 'bg-white text-[#004B87] shadow-2xs'
+                          : isCompleted
+                          ? 'bg-[#00875A] text-white shadow-2xs'
+                          : 'bg-white text-slate-400 border border-slate-300'
+                      }`}
+                    >
+                      <span>{step.stepNumber}</span>
+                    </div>
+
+                    {/* Step Title */}
+                    <span className="whitespace-nowrap">{step.title}</span>
+                  </button>
+
+                  {/* Arrow Indication between steps (Highlighted once finished) */}
+                  {idx < ANNUAL_EMISSION_STEPS.length - 1 && (
+                    <ChevronRight
+                      className={`w-4 h-4 shrink-0 mx-0.5 transition-colors ${
+                        isArrowHighlighted ? 'text-[#004B87] stroke-[2.5]' : 'text-slate-300'
+                      }`}
+                    />
+                  )}
+                </React.Fragment>
               );
             })}
           </div>
@@ -3160,6 +3375,166 @@ export const AnnualEmissionDataView: React.FC = () => {
                 className="px-4 py-1.5 bg-[#004B87] text-white rounded-xl text-xs font-bold hover:bg-[#003B6B] transition-colors cursor-pointer"
               >
                 Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Review Action Modal: Approve */}
+      {activeReviewModal === 'approve' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full overflow-hidden">
+            <div className="px-5 py-4 bg-emerald-50 border-b border-emerald-100 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-emerald-800">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                <h3 className="text-sm font-bold">Approve Annual Emission Data</h3>
+              </div>
+              <button
+                onClick={() => setActiveReviewModal(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-white/80 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-5 space-y-3.5">
+              <p className="text-xs text-slate-600 leading-relaxed">
+                You are approving the statutory Annual Emission Data for <strong className="text-slate-800">{currentRecord.facilityName}</strong> (Reporting Year: {currentRecord.reportingYear || '2026'}).
+              </p>
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-1.5">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Total Scope 1 Emissions:</span>
+                  <span className="font-mono font-bold text-[#004B87]">{currentRecord.totalScope1 || currentRecord.totalEmissions} tCO₂e</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Reporting Status:</span>
+                  <span className="font-semibold text-emerald-700">Official EAD Approval</span>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Approval Notes / Certificate Reference</label>
+                <textarea
+                  rows={2}
+                  value={reviewerComments}
+                  onChange={(e) => setReviewerComments(e.target.value)}
+                  placeholder="Enter approval notes or compliance certification reference..."
+                  className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-emerald-600"
+                />
+              </div>
+            </div>
+            <div className="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end gap-2.5">
+              <button
+                onClick={() => setActiveReviewModal(null)}
+                className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-xl text-xs font-semibold hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleApproveEmission}
+                className="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-xl text-xs font-bold hover:from-emerald-700 hover:to-teal-800 shadow-md shadow-emerald-700/20 transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Confirm Approval</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Review Action Modal: Reject */}
+      {activeReviewModal === 'reject' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full overflow-hidden">
+            <div className="px-5 py-4 bg-rose-50 border-b border-rose-100 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-rose-800">
+                <XCircle className="w-5 h-5 text-rose-600" />
+                <h3 className="text-sm font-bold">Reject Annual Emission Data</h3>
+              </div>
+              <button
+                onClick={() => setActiveReviewModal(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-white/80 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-5 space-y-3.5">
+              <p className="text-xs text-slate-600 leading-relaxed">
+                You are formally rejecting the statutory Annual Emission Data for <strong className="text-slate-800">{currentRecord.facilityName}</strong>. Please provide regulatory justification.
+              </p>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Rejection Reason *</label>
+                <textarea
+                  rows={3}
+                  value={reviewerComments}
+                  onChange={(e) => setReviewerComments(e.target.value)}
+                  placeholder="Enter detailed justification for rejection under EAD regulatory guidelines..."
+                  className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-rose-600"
+                />
+              </div>
+            </div>
+            <div className="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end gap-2.5">
+              <button
+                onClick={() => setActiveReviewModal(null)}
+                className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-xl text-xs font-semibold hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRejectEmission}
+                className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-md shadow-rose-600/20 transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
+              >
+                <XCircle className="w-3.5 h-3.5" />
+                <span>Confirm Rejection</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Review Action Modal: Revert */}
+      {activeReviewModal === 'revert' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full overflow-hidden">
+            <div className="px-5 py-4 bg-amber-50 border-b border-amber-100 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-amber-800">
+                <RotateCcw className="w-5 h-5 text-amber-600" />
+                <h3 className="text-sm font-bold">Revert to Facility Operator</h3>
+              </div>
+              <button
+                onClick={() => setActiveReviewModal(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-white/80 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-5 space-y-3.5">
+              <p className="text-xs text-slate-600 leading-relaxed">
+                The dossier will be sent back to <strong className="text-slate-800">{currentRecord.facilityName}</strong> for correction. The operator will be notified to revise and resubmit.
+              </p>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Required Corrections / Instructions *</label>
+                <textarea
+                  rows={3}
+                  value={reviewerComments}
+                  onChange={(e) => setReviewerComments(e.target.value)}
+                  placeholder="Specify required corrections, missing attachments, or discrepancies..."
+                  className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-amber-600"
+                />
+              </div>
+            </div>
+            <div className="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end gap-2.5">
+              <button
+                onClick={() => setActiveReviewModal(null)}
+                className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-xl text-xs font-semibold hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRevertEmission}
+                className="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-md shadow-amber-600/20 transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Confirm Revert</span>
               </button>
             </div>
           </div>

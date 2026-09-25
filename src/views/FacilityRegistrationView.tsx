@@ -173,8 +173,8 @@ export const FacilityRegistrationView: React.FC = () => {
 
     return sourceList.filter((fac) => {
       const reg = facilityRegistrations[fac.id] || {};
-      const rawStatus = reg.status || fac.status || 'Approved';
-      const status = rawStatus === 'Draft' ? 'Draft' : 'Approved';
+      const rawStatus = reg.status || fac.status || 'Submitted';
+      const status: 'Draft' | 'Submitted' = rawStatus === 'Draft' ? 'Draft' : 'Submitted';
 
       const facilityDisplayName = (reg.facilityName && reg.facilityName.trim() !== '')
         ? reg.facilityName
@@ -1142,7 +1142,7 @@ export const FacilityRegistrationView: React.FC = () => {
                 style={{ borderRadius: '8px' }}
               >
                 <option value="ALL">All Statuses</option>
-                <option value="Approved">Approved</option>
+                <option value="Submitted">Submitted</option>
                 <option value="Draft">Draft</option>
               </select>
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -1257,14 +1257,14 @@ export const FacilityRegistrationView: React.FC = () => {
                 ) : (
                   paginatedFacilities.map((fac, idx) => {
                     const reg = facilityRegistrations[fac.id] || {};
-                    const rawStatus = reg.status || fac.status || 'Approved';
+                    const rawStatus = reg.status || fac.status || 'Submitted';
                     const isDraft = rawStatus === 'Draft';
-                    const isApproved = !isDraft;
-                    const currentStatus = isDraft ? 'Draft' : 'Approved';
+                    const isSubmitted = !isDraft;
+                    const currentStatus = isDraft ? 'Draft' : 'Submitted';
 
                     const rowNumber = (currentPage - 1) * itemsPerPage + idx + 1;
                     const monitoringStatus = facilityMonitoringPlanStatuses[fac.id] || 'Create Plan';
-                    const facilityCodeToDisplay = (isApproved && (reg.facilityId || fac.facilityCode)) ? (reg.facilityId || fac.facilityCode) : '—';
+                    const facilityCodeToDisplay = (isSubmitted && (reg.facilityId || fac.facilityCode)) ? (reg.facilityId || fac.facilityCode) : '—';
 
                     const facilityDisplayName = (reg.facilityName && reg.facilityName.trim() !== '')
                       ? reg.facilityName
@@ -1307,8 +1307,8 @@ export const FacilityRegistrationView: React.FC = () => {
                         <td className="h-[60px] px-4 text-left whitespace-nowrap align-middle">
                           <span
                             className={`px-2.5 py-0.5 rounded-full text-[11px] font-normal whitespace-nowrap inline-block ${
-                              isApproved
-                                ? 'bg-[#D1FAE5] text-[#065F46] border border-emerald-200/60'
+                              isSubmitted
+                                ? 'bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60'
                                 : 'bg-slate-100 text-slate-700 border border-slate-200'
                             }`}
                           >
@@ -1316,70 +1316,95 @@ export const FacilityRegistrationView: React.FC = () => {
                           </span>
                         </td>
 
-                        {/* 6. Monitoring Plan Status: 'Create Plan' (button), 'Draft' (chip), or 'Submitted' (badge) for Approved; '—' for Draft */}
+                        {/* 6. Monitoring Plan Status: 'Create Plan' (button for operator), 'Plan Not Created' (status for admin), 'Draft' (chip), or 'Submitted' (badge) for Submitted; '—' for Draft */}
                         <td className="h-[60px] px-4 text-center whitespace-nowrap align-middle">
-                          {isApproved ? (
+                          {isSubmitted ? (
                             monitoringStatus === 'Submitted' ? (
                               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-normal bg-[#E0EEFA] text-[#0284C7] border border-sky-200/60 inline-flex items-center gap-1">
                                 Submitted
                               </span>
                             ) : monitoringStatus === 'Draft' ? (
-                              <button
-                                onClick={() => handleCreateMonitoringPlan(fac.id)}
-                                className="px-2.5 py-0.5 rounded-full text-[11px] font-normal bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 transition-colors inline-flex items-center gap-1 cursor-pointer mx-auto"
-                                title="Resume Draft Monitoring Plan"
-                              >
-                                <span>Draft</span>
-                              </button>
+                              isFacilityOperator ? (
+                                <button
+                                  onClick={() => handleCreateMonitoringPlan(fac.id)}
+                                  className="px-2.5 py-0.5 rounded-full text-[11px] font-normal bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 transition-colors inline-flex items-center gap-1 cursor-pointer mx-auto"
+                                  title="Resume Draft Monitoring Plan"
+                                >
+                                  <span>Draft</span>
+                                </button>
+                              ) : (
+                                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-normal bg-slate-100 text-slate-700 border border-slate-200 inline-flex items-center gap-1">
+                                  Draft
+                                </span>
+                              )
                             ) : (
-                              <button
-                                onClick={() => handleCreateMonitoringPlan(fac.id)}
-                                className="h-7 px-3 bg-gradient-to-r from-[#004B87] to-[#006BB8] hover:from-[#003d6e] hover:to-[#005c9e] text-white rounded-lg text-[11px] font-normal inline-flex items-center gap-1 shadow-2xs transition-all cursor-pointer active:scale-95 mx-auto"
-                                title="Create Monitoring Plan"
-                              >
-                                <Plus className="w-3.5 h-3.5" />
-                                <span>Create Plan</span>
-                              </button>
+                              isFacilityOperator ? (
+                                <button
+                                  onClick={() => handleCreateMonitoringPlan(fac.id)}
+                                  className="h-7 px-3 bg-gradient-to-r from-[#004B87] to-[#006BB8] hover:from-[#003d6e] hover:to-[#005c9e] text-white rounded-lg text-[11px] font-normal inline-flex items-center gap-1 shadow-2xs transition-all cursor-pointer active:scale-95 mx-auto"
+                                  title="Create Monitoring Plan"
+                                >
+                                  <Plus className="w-3.5 h-3.5" />
+                                  <span>Create Plan</span>
+                                </button>
+                              ) : (
+                                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-normal bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] inline-flex items-center gap-1">
+                                  Not Yet Created
+                                </span>
+                              )
                             )
                           ) : (
                             <span className="text-slate-400 font-normal pl-1">—</span>
                           )}
                         </td>
 
-                        {/* 7. Actions: View, Edit & Delete (Draft only, slot-aligned) */}
+                        {/* 7. Actions: View, Edit & Delete for Data Provider vs View only for Admin */}
                         <td className="h-[60px] px-3 text-center whitespace-nowrap align-middle">
-                          <div className="flex items-center justify-center gap-1.5 w-[76px] mx-auto">
-                            {/* View Action (Slot 1) */}
-                            <button
-                              onClick={() => handleViewFacility(fac.id)}
-                              title="View Facility Registration"
-                              className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-
-                            {/* Edit Action (Slot 2) */}
-                            <button
-                              onClick={() => handleEditFacility(fac.id)}
-                              title="Edit Facility Registration"
-                              className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-
-                            {/* Delete Action (Slot 3: Only for Draft status, empty slot otherwise) */}
-                            {isDraft ? (
+                          {isFacilityOperator ? (
+                            <div className="flex items-center justify-center gap-1.5 w-[76px] mx-auto">
+                              {/* View Action (Slot 1) */}
                               <button
-                                onClick={() => handleDeleteFacility(fac.id, facilityDisplayName)}
-                                title="Delete Draft Facility"
-                                className="w-6 h-6 flex items-center justify-center rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer shrink-0"
+                                onClick={() => handleViewFacility(fac.id)}
+                                title="View Facility Registration"
+                                className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Eye className="w-4 h-4" />
                               </button>
-                            ) : (
-                              <div className="w-6 h-6 shrink-0" aria-hidden="true" />
-                            )}
-                          </div>
+
+                              {/* Edit Action (Slot 2) */}
+                              <button
+                                onClick={() => handleEditFacility(fac.id)}
+                                title="Edit Facility Registration"
+                                className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-500 hover:text-[#336D9F] hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+
+                              {/* Delete Action (Slot 3: Only for Draft status, empty slot otherwise) */}
+                              {isDraft ? (
+                                <button
+                                  onClick={() => handleDeleteFacility(fac.id, facilityDisplayName)}
+                                  title="Delete Draft Facility"
+                                  className="w-6 h-6 flex items-center justify-center rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer shrink-0"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              ) : (
+                                <div className="w-6 h-6 shrink-0" aria-hidden="true" />
+                              )}
+                            </div>
+                          ) : (
+                            /* Admin Actions: View only */
+                            <div className="flex items-center justify-center mx-auto">
+                              <button
+                                onClick={() => handleViewFacility(fac.id)}
+                                title="View Facility Details"
+                                className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500 hover:text-[#004B87] hover:bg-[#E9F1F8] transition-colors cursor-pointer shrink-0"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     );
@@ -2112,20 +2137,31 @@ export const FacilityRegistrationView: React.FC = () => {
                     </p>
 
                     {isApproved ? (
-                      <div className="mt-6 flex flex-col items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleCreateMonitoringPlan(selectedFacilityId)}
-                          className="px-5 py-2.5 bg-gradient-to-r from-[#004B87] to-[#006BB8] hover:from-[#003d6e] hover:to-[#005c9e] text-white rounded-xl text-xs font-bold inline-flex items-center gap-2 shadow-xs transition-all cursor-pointer active:scale-95"
-                          title="Create Monitoring Plan"
-                        >
-                          <Plus className="w-4 h-4" />
-                          <span>Create Monitoring Plan</span>
-                        </button>
-                        <p className="text-[11px] text-slate-400 font-medium">
-                          Pre-populates approved facility details into statutory MRV template
-                        </p>
-                      </div>
+                      isFacilityOperator ? (
+                        <div className="mt-6 flex flex-col items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleCreateMonitoringPlan(selectedFacilityId)}
+                            className="px-5 py-2.5 bg-gradient-to-r from-[#004B87] to-[#006BB8] hover:from-[#003d6e] hover:to-[#005c9e] text-white rounded-xl text-xs font-bold inline-flex items-center gap-2 shadow-xs transition-all cursor-pointer active:scale-95"
+                            title="Create Monitoring Plan"
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span>Create Monitoring Plan</span>
+                          </button>
+                          <p className="text-[11px] text-slate-400 font-medium">
+                            Pre-populates approved facility details into statutory MRV template
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="mt-6 flex flex-col items-center gap-2">
+                          <span className="px-3 py-1 rounded-full text-xs font-medium bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D] inline-flex items-center gap-1.5 shadow-2xs">
+                            Not Yet Created
+                          </span>
+                          <p className="text-[11px] text-slate-400 font-medium">
+                            Monitoring plan submission pending from facility operator
+                          </p>
+                        </div>
+                      )
                     ) : (
                       <div className="mt-6 px-4 py-2.5 bg-amber-50 border border-amber-200/80 rounded-xl text-amber-800 text-xs font-medium inline-flex items-center gap-2 text-left">
                         <Info className="w-4 h-4 text-amber-600 shrink-0" />
@@ -2604,77 +2640,80 @@ export const FacilityRegistrationView: React.FC = () => {
             <span>Cancel</span>
           </button>
 
-          {facilityRecordTab === 'registration' ? (
-            <>
-              {viewActiveTab === 'facility-details' && (
-                <button
-                  type="button"
-                  onClick={() => setViewActiveTab('contact-persons')}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
-                >
-                  <span>Next</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              )}
+          {/* Stepper Next / Back to Overview actions for Data Provider */}
+          {isFacilityOperator && (
+            facilityRecordTab === 'registration' ? (
+              <>
+                {viewActiveTab === 'facility-details' && (
+                  <button
+                    type="button"
+                    onClick={() => setViewActiveTab('contact-persons')}
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+                  >
+                    <span>Next</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
 
-              {viewActiveTab === 'contact-persons' && (
-                <button
-                  type="button"
-                  onClick={() => setViewActiveTab('declaration-supporting')}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
-                >
-                  <span>Next</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              )}
+                {viewActiveTab === 'contact-persons' && (
+                  <button
+                    type="button"
+                    onClick={() => setViewActiveTab('declaration-supporting')}
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+                  >
+                    <span>Next</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
 
-              {viewActiveTab === 'declaration-supporting' && (
-                <button
-                  type="button"
-                  onClick={() => setViewMode('table')}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Back to Overview</span>
-                </button>
-              )}
-            </>
-          ) : (
-            /* Monitoring Plan View Bottom Actions */
-            <>
-              {viewMonitoringSubTab !== 'supporting-documents-remarks' ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const subTabOrder = [
-                      'facility-description',
-                      'emissions-estimated',
-                      'emission-sources',
-                      'methane-emission',
-                      'source-stream',
-                      'supporting-documents-remarks',
-                    ];
-                    const idx = subTabOrder.indexOf(viewMonitoringSubTab);
-                    if (idx < subTabOrder.length - 1) {
-                      setViewMonitoringSubTab(subTabOrder[idx + 1] as any);
-                    }
-                  }}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
-                >
-                  <span>Next</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setViewMode('table')}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Back to Overview</span>
-                </button>
-              )}
-            </>
+                {viewActiveTab === 'declaration-supporting' && (
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('table')}
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Back to Overview</span>
+                  </button>
+                )}
+              </>
+            ) : (
+              /* Monitoring Plan View Bottom Actions */
+              <>
+                {viewMonitoringSubTab !== 'supporting-documents-remarks' ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const subTabOrder = [
+                        'facility-description',
+                        'emissions-estimated',
+                        'emission-sources',
+                        'methane-emission',
+                        'source-stream',
+                        'supporting-documents-remarks',
+                      ];
+                      const idx = subTabOrder.indexOf(viewMonitoringSubTab);
+                      if (idx < subTabOrder.length - 1) {
+                        setViewMonitoringSubTab(subTabOrder[idx + 1] as any);
+                      }
+                    }}
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+                  >
+                    <span>Next</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('table')}
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#004B87] to-[#006BB8] text-xs font-bold text-white flex items-center gap-2 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Back to Overview</span>
+                  </button>
+                )}
+              </>
+            )
           )}
         </div>
       </div>

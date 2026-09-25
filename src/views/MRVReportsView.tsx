@@ -319,7 +319,7 @@ export const MRVReportsView: React.FC = () => {
             <select
               value={selectedFacility}
               onChange={(e) => setSelectedFacility(e.target.value)}
-              className="pl-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
+              className="h-9 pl-3.5 pr-8 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 shadow-xs focus:outline-none focus:border-[#004B87] cursor-pointer"
             >
               <option value="Green Mountain Cement Factory">Facility</option>
               <option value="Green Mountain Cement Factory">Green Mountain Cement Factory</option>
@@ -330,12 +330,12 @@ export const MRVReportsView: React.FC = () => {
 
           {/* Calendar Year Dropdown */}
           <div className="relative">
-            <div className="flex items-center bg-white border border-slate-200 rounded-xl shadow-xs pl-3 py-1.5">
+            <div className="h-9 flex items-center bg-white border border-slate-200 rounded-xl shadow-xs px-3">
               <Calendar className="w-3.5 h-3.5 text-[#004B87] mr-1.5 shrink-0" />
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
-                className="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
+                className="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer h-full pr-1"
               >
                 <option value="2024">2024</option>
                 <option value="2025">2025</option>
@@ -348,7 +348,7 @@ export const MRVReportsView: React.FC = () => {
           {/* Export Button */}
           <button
             onClick={() => handleExport(activeTab === 'emission-summary' ? 'Emission Summary' : 'Submission Status')}
-            className="px-4 py-2 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95"
+            className="h-9 px-4 bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e] transition-all cursor-pointer active:scale-95 shrink-0 whitespace-nowrap"
           >
             <UploadCloud className="w-4 h-4" />
             <span>Export</span>

@@ -592,12 +592,12 @@ export const FacilityDashboardView: React.FC = () => {
         {/* Action Controls: Only Date Filter and Export Report Button */}
         <div className="flex items-center gap-2.5">
           {/* Period Selector */}
-          <div className="relative flex items-center bg-white border border-slate-200/90 rounded-xl px-3.5 py-1.5 shadow-xs text-xs font-semibold text-slate-700 hover:border-slate-300 transition-colors">
+          <div className="relative flex items-center h-9 bg-white border border-slate-200/90 rounded-xl px-3 shadow-xs text-xs font-semibold text-slate-700 hover:border-slate-300 transition-colors">
             <Calendar className="w-4 h-4 text-[#004B87] mr-1.5 shrink-0" />
             <select
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="bg-transparent text-xs font-bold text-navy-900 focus:outline-hidden cursor-pointer"
+              className="bg-transparent text-xs font-bold text-navy-900 focus:outline-hidden cursor-pointer h-full pr-1"
             >
               <option value="FY 2026–27">FY 2026–27</option>
               <option value="FY 2025–26">FY 2025–26</option>
@@ -609,7 +609,7 @@ export const FacilityDashboardView: React.FC = () => {
           <button
             onClick={handleExport}
             disabled={isExporting}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-md transition-all duration-200 cursor-pointer ${
+            className={`h-9 px-4 rounded-xl font-bold text-xs flex items-center gap-2 shadow-md transition-all duration-200 cursor-pointer shrink-0 whitespace-nowrap ${
               exportSuccess
                 ? 'bg-emerald-600 text-white shadow-emerald-600/30'
                 : 'bg-gradient-to-r from-[#004B87] to-[#006BB8] text-white shadow-[#004B87]/25 hover:shadow-lg hover:from-[#003d6e] hover:to-[#005c9e]'

@@ -18,6 +18,7 @@ import {
   RotateCcw,
   Check,
   ShieldCheck,
+  ChevronDown,
 } from 'lucide-react';
 import { useMRV } from '../context/MRVContext';
 import { UserRole } from '../types/mrv';
@@ -31,6 +32,21 @@ interface LoginViewProps {
 }
 
 type AuthMode = 'login' | 'register_details' | 'register_otp' | 'register_success';
+
+const COUNTRY_DIAL_CODES = [
+  { code: '+971', country: 'UAE', iso: 'AE' },
+  { code: '+966', country: 'Saudi Arabia', iso: 'SA' },
+  { code: '+974', country: 'Qatar', iso: 'QA' },
+  { code: '+965', country: 'Kuwait', iso: 'KW' },
+  { code: '+968', country: 'Oman', iso: 'OM' },
+  { code: '+973', country: 'Bahrain', iso: 'BH' },
+  { code: '+20', country: 'Egypt', iso: 'EG' },
+  { code: '+44', country: 'UK', iso: 'GB' },
+  { code: '+1', country: 'USA / Canada', iso: 'US' },
+  { code: '+91', country: 'India', iso: 'IN' },
+  { code: '+49', country: 'Germany', iso: 'DE' },
+  { code: '+33', country: 'France', iso: 'FR' },
+];
 
 export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
   const { setCurrentRole } = useMRV();
@@ -51,10 +67,9 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     lastName: 'Al Zaabi',
     email: 'ahmed.zaabi@alnoor-energy.ae',
     phone: '50 123 4567',
-    password: '••••••••••••',
-    confirmPassword: '••••••••••••',
+    entityName: 'Al Noor Energy LLC',
+    entityDescription: 'Oil & gas exploration and refining industrial facility',
   });
-  const [showRegPassword, setShowRegPassword] = useState(false);
   const [regErrors, setRegErrors] = useState<{ [key: string]: string }>({});
 
   // OTP State (6 Digits - prefilled for demo purpose)
@@ -64,6 +79,23 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
   const [canResendOtp, setCanResendOtp] = useState(false);
   const [isOtpVerifying, setIsOtpVerifying] = useState(false);
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const [selectedDialCode, setSelectedDialCode] = useState('+971');
+  const [isDialCodeDropdownOpen, setIsDialCodeDropdownOpen] = useState(false);
+  const dialCodeDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dial code dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dialCodeDropdownRef.current && !dialCodeDropdownRef.current.contains(event.target as Node)) {
+        setIsDialCodeDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // OTP Countdown Timer
   useEffect(() => {
@@ -88,13 +120,24 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     }, 600);
   };
 
-  // Step 1: Validate Details and Send OTP (Demo Flow)
+  // Step 1: Validate Details and Send Email OTP (Demo Flow)
   const handleSendOtp = (e: React.FormEvent) => {
     e.preventDefault();
+    const errors: { [key: string]: string } = {};
+    if (!regForm.firstName.trim()) errors.firstName = 'First name is required';
+    if (!regForm.lastName.trim()) errors.lastName = 'Last name is required';
+    if (!regForm.email.trim()) errors.email = 'Email is required';
+    if (!regForm.entityName.trim()) errors.entityName = 'Entity name is required';
+
+    if (Object.keys(errors).length > 0) {
+      setRegErrors(errors);
+      return;
+    }
+
     setRegErrors({});
     setIsLoading(true);
 
-    // Simulate sending OTP SMS & Email
+    // Simulate sending Email OTP
     setTimeout(() => {
       setIsLoading(false);
       setOtpDigits(['1', '2', '3', '4', '5', '6']);
@@ -443,8 +486,8 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                         lastName: 'Al Zaabi',
                         email: 'ahmed.zaabi@alnoor-energy.ae',
                         phone: '50 123 4567',
-                        password: '••••••••••••',
-                        confirmPassword: '••••••••••••',
+                        entityName: 'Al Noor Energy LLC',
+                        entityDescription: 'Oil & gas exploration and refining industrial facility',
                       });
                       setAuthMode('register_details');
                     }}
@@ -511,21 +554,28 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                     </div>
                   </div>
 
-                  {/* Work Email & Phone Number in 2 columns */}
+                  {/* Email & Phone Number in 2 columns */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-semibold text-slate-300 mb-1">
-                        Work Email <span className="text-rose-400">*</span>
+                        Email <span className="text-rose-400">*</span>
                       </label>
-                      <input
-                        type="email"
+                      <FieldTooltip
+                        content="Official corporate email address for account authentication and regulatory communication."
+                        format="name@company.ae"
+                        example="ahmed.zaabi@alnoor-energy.ae"
                         value={regForm.email}
-                        onChange={(e) => setRegForm({ ...regForm, email: e.target.value })}
-                        placeholder="name@company.ae"
-                        className={`w-full px-3.5 py-2.5 rounded-lg bg-white/85 text-black placeholder-slate-500 text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00B2FE] transition-all shadow-sm ${
-                          regErrors.email ? 'border border-rose-500' : ''
-                        }`}
-                      />
+                      >
+                        <input
+                          type="email"
+                          value={regForm.email}
+                          onChange={(e) => setRegForm({ ...regForm, email: e.target.value })}
+                          placeholder="name@company.ae"
+                          className={`w-full px-3.5 py-2.5 rounded-lg bg-white/85 text-black placeholder-slate-500 text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00B2FE] transition-all shadow-sm ${
+                            regErrors.email ? 'border border-rose-500' : ''
+                          }`}
+                        />
+                      </FieldTooltip>
                       {regErrors.email && (
                         <p className="text-[10px] text-rose-400 mt-0.5">{regErrors.email}</p>
                       )}
@@ -533,77 +583,100 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
 
                     <div>
                       <label className="block text-xs font-semibold text-slate-300 mb-1">
-                        Phone Number <span className="text-rose-400">*</span>
+                        Phone Number <span className="text-slate-400 font-normal text-[10px]">(Optional)</span>
                       </label>
-                      <div className="flex items-center gap-1.5">
-                        <span className="px-2.5 py-2.5 rounded-lg bg-white/85 border border-white/20 text-slate-800 text-xs font-bold shrink-0 shadow-sm">
-                          +971
-                        </span>
-                        <input
-                          type="tel"
-                          value={regForm.phone}
-                          onChange={(e) => setRegForm({ ...regForm, phone: e.target.value })}
-                          placeholder="50 123 4567"
-                          className={`w-full min-w-0 px-3 py-2.5 rounded-lg bg-white/85 text-black placeholder-slate-500 text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00B2FE] transition-all shadow-sm ${
-                            regErrors.phone ? 'border border-rose-500' : ''
-                          }`}
-                        />
+                      <div ref={dialCodeDropdownRef} className="relative">
+                        <div className="flex items-center rounded-lg bg-white/85 focus-within:bg-white focus-within:ring-2 focus-within:ring-[#00B2FE] transition-all shadow-sm px-2.5 h-[34px] min-h-[34px]">
+                          {/* Active Dial Code Dropdown Trigger */}
+                          <button
+                            type="button"
+                            onClick={() => setIsDialCodeDropdownOpen(!isDialCodeDropdownOpen)}
+                            className="flex items-center gap-1.5 pr-2.5 border-r border-slate-300/80 shrink-0 cursor-pointer select-none text-slate-800 hover:text-[#004B87] font-bold text-xs font-mono transition-colors focus:outline-none focus:ring-0"
+                            title="Select Country Code"
+                          >
+                            <span>{selectedDialCode}</span>
+                            <ChevronDown className={`w-3 h-3 text-slate-500 transition-transform duration-200 ${isDialCodeDropdownOpen ? 'rotate-180 text-[#004B87]' : ''}`} />
+                          </button>
+
+                          {/* Phone Number Input */}
+                          <div className="flex items-center flex-1 min-w-0 pl-2.5">
+                            <input
+                              type="tel"
+                              value={regForm.phone}
+                              onChange={(e) => setRegForm({ ...regForm, phone: e.target.value })}
+                              placeholder="50 123 4567"
+                              className="w-full min-w-0 !bg-transparent text-black placeholder-slate-400 text-xs font-medium focus:!outline-none !border-none !p-0 !h-full !min-h-0 !shadow-none focus:!ring-0 font-mono"
+                              style={{ height: '100%', minHeight: 'unset', border: 'none', background: 'transparent', outline: 'none', boxShadow: 'none' }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Active Dial Code Dropdown Menu (Clean compact width matching input box) */}
+                        {isDialCodeDropdownOpen && (
+                          <div className="absolute left-0 right-0 top-full mt-1 w-full max-h-44 overflow-y-auto bg-white rounded-xl shadow-xl border border-slate-200 z-50 py-1 text-xs custom-scrollbar animate-in fade-in zoom-in-95 duration-150">
+                            {COUNTRY_DIAL_CODES.map((item) => (
+                              <button
+                                key={item.code + item.iso}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedDialCode(item.code);
+                                  setIsDialCodeDropdownOpen(false);
+                                }}
+                                className={`w-full px-2.5 py-1.5 text-left flex items-center justify-between hover:bg-[#E9F1F8] transition-colors cursor-pointer ${
+                                  selectedDialCode === item.code ? 'bg-[#E9F1F8] text-[#004B87] font-bold' : 'text-slate-700 font-medium'
+                                }`}
+                              >
+                                <span className="truncate text-[11px]">{item.country}</span>
+                                <span className="font-mono text-slate-500 text-[11px] font-bold shrink-0 ml-1">{item.code}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      {regErrors.phone && (
-                        <p className="text-[10px] text-rose-400 mt-0.5">{regErrors.phone}</p>
-                      )}
                     </div>
                   </div>
 
-                  {/* Password & Confirm Password in 2 columns */}
+                  {/* Entity Name & Entity Description in 2 columns */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-semibold text-slate-300 mb-1">
-                        Password <span className="text-rose-400">*</span>
+                        Entity Name <span className="text-rose-400">*</span>
                       </label>
-                      <div className="relative">
-                        <input
-                          type={showRegPassword ? 'text' : 'password'}
-                          value={regForm.password}
-                          onChange={(e) => setRegForm({ ...regForm, password: e.target.value })}
-                          placeholder="Enter password"
-                          className={`w-full pl-3 pr-8 py-2.5 rounded-lg bg-white/85 text-black placeholder-slate-500 text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00B2FE] transition-all shadow-sm ${
-                            regErrors.password ? 'border border-rose-500' : ''
-                          }`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowRegPassword(!showRegPassword)}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
-                        >
-                          {showRegPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                        </button>
-                      </div>
-                      {regErrors.password && (
-                        <p className="text-[10px] text-rose-400 mt-0.5">{regErrors.password}</p>
+                      <input
+                        type="text"
+                        value={regForm.entityName}
+                        onChange={(e) => setRegForm({ ...regForm, entityName: e.target.value })}
+                        placeholder="Enter entity name"
+                        className={`w-full px-3.5 py-2.5 rounded-lg bg-white/85 text-black placeholder-slate-500 text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00B2FE] transition-all shadow-sm ${
+                          regErrors.entityName ? 'border border-rose-500' : ''
+                        }`}
+                      />
+                      {regErrors.entityName && (
+                        <p className="text-[10px] text-rose-400 mt-0.5">{regErrors.entityName}</p>
                       )}
                     </div>
 
                     <div>
                       <label className="block text-xs font-semibold text-slate-300 mb-1">
-                        Confirm <span className="text-rose-400">*</span>
+                        Entity Description
                       </label>
-                      <input
-                        type={showRegPassword ? 'text' : 'password'}
-                        value={regForm.confirmPassword}
-                        onChange={(e) => setRegForm({ ...regForm, confirmPassword: e.target.value })}
-                        placeholder="Confirm password"
-                        className={`w-full px-3 py-2.5 rounded-lg bg-white/85 text-black placeholder-slate-500 text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00B2FE] transition-all shadow-sm ${
-                          regErrors.confirmPassword ? 'border border-rose-500' : ''
-                        }`}
-                      />
-                      {regErrors.confirmPassword && (
-                        <p className="text-[10px] text-rose-400 mt-0.5">{regErrors.confirmPassword}</p>
-                      )}
+                      <FieldTooltip
+                        content="Brief overview of the legal entity scope, industrial activities, and operational remit."
+                        example="Oil & gas exploration and refining industrial facility"
+                        value={regForm.entityDescription}
+                      >
+                        <input
+                          type="text"
+                          value={regForm.entityDescription}
+                          onChange={(e) => setRegForm({ ...regForm, entityDescription: e.target.value })}
+                          placeholder="Enter entity description"
+                          className="w-full px-3.5 py-2.5 rounded-lg bg-white/85 text-black placeholder-slate-500 text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#00B2FE] transition-all shadow-sm"
+                        />
+                      </FieldTooltip>
                     </div>
                   </div>
 
-                  {/* Send OTP CTA Button with generous gap */}
+                  {/* Send Email OTP CTA Button with generous gap */}
                   <div className="pt-2">
                     <button
                       type="submit"
@@ -614,7 +687,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                         <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       ) : (
                         <>
-                          <span>Send OTP</span>
+                          <span>Send Email OTP</span>
                           <ArrowRight className="w-4 h-4 text-white/90 transition-transform duration-200 group-hover:translate-x-1" />
                         </>
                       )}
@@ -708,7 +781,8 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                           onChange={(e) => handleOtpDigitChange(idx, e.target.value)}
                           onKeyDown={(e) => handleOtpKeyDown(idx, e)}
                           onPaste={idx === 0 ? handleOtpPaste : undefined}
-                          className="w-[42px] h-[42px] min-w-[42px] min-h-[42px] text-center text-base font-bold font-mono rounded-xl bg-white/85 text-black border-2 border-transparent focus:border-[#00B2FE] focus:bg-white focus:ring-2 focus:ring-[#00B2FE]/40 focus:outline-none transition-all shadow-md p-0"
+                          className="!w-[42px] !h-[42px] !min-w-[42px] !min-h-[42px] text-center text-base font-bold font-mono rounded-xl bg-white/85 text-black border-2 border-transparent focus:border-[#00B2FE] focus:bg-white focus:ring-2 focus:ring-[#00B2FE]/40 focus:outline-none transition-all shadow-md p-0"
+                          style={{ width: '42px', height: '42px', minWidth: '42px', minHeight: '42px' }}
                           autoFocus={idx === 0}
                         />
                       ))}
@@ -801,6 +875,10 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                   <div className="flex justify-between">
                     <span className="text-slate-400">Account:</span>
                     <span className="font-semibold text-white truncate max-w-[180px]">{regForm.email || 'ahmed.zaabi@alnoor-energy.ae'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Entity:</span>
+                    <span className="font-semibold text-white truncate max-w-[180px]">{regForm.entityName || 'Al Noor Energy LLC'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Role:</span>

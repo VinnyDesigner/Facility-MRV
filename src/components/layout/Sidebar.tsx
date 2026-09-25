@@ -237,7 +237,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   onClick={() => setActiveView('annual-emission-data')}
                   className={`flex items-center rounded-[6px] text-xs font-bold transition-all cursor-pointer ${
-                    isCollapsed ? 'w-9 h-9 mx-auto justify-center px-0 py-0' : 'w-full justify-between px-3 py-2'
+                    isCollapsed ? 'w-9 h-9 mx-auto justify-center px-0 py-0' : 'w-full gap-2.5 px-3 py-2'
                   } ${
                     isEadAnnualEmissionActive
                       ? 'bg-white text-[#365785] shadow-sm font-bold'
@@ -245,15 +245,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   }`}
                   title="Annual Emission Data"
                 >
-                  <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-2.5 truncate'}`}>
-                    <Flame className={`w-4 h-4 shrink-0 ${isEadAnnualEmissionActive ? 'text-[#365785]' : 'text-white/85'}`} />
-                    {!isCollapsed && <span className="truncate">Annual Emission Data</span>}
-                  </div>
-                  {!isCollapsed && pendingReviewCount > 0 && (
-                    <span className="px-1.5 py-0.2 rounded-full bg-cyan-400 text-slate-900 font-bold text-[9px]">
-                      {pendingReviewCount}
-                    </span>
-                  )}
+                  <Flame className={`w-4 h-4 shrink-0 ${isEadAnnualEmissionActive ? 'text-[#365785]' : 'text-white/85'}`} />
+                  {!isCollapsed && <span className="truncate">Annual Emission Data</span>}
                 </button>
 
                 {/* 4. Reports */}
